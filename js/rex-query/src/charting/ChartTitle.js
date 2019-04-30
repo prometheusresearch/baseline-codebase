@@ -2,29 +2,30 @@
  * @flow
  */
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import {HBox, Element} from 'react-stylesheet';
-import * as recharts from 'recharts';
-import * as ReactUI from '@prometheusresearch/react-ui';
-import Tether from 'tether';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { HBox, Element } from "react-stylesheet";
+import * as recharts from "recharts";
+// $FlowFixMe: ...
+import * as ReactUI from "@prometheusresearch/react-ui";
+import Tether from "tether";
 
-import Layer from '../Layer';
-import * as ui from '../ui';
-import {findDOMNodeStrict as findDOMNode} from '../findDOMNode';
+import Layer from "../Layer";
+import * as ui from "../ui";
+import { findDOMNodeStrict as findDOMNode } from "../findDOMNode";
 
 const TETHER_CONFIG = {
-  attachment: 'top left',
-  targetAttachment: 'top left',
+  attachment: "top left",
+  targetAttachment: "top left",
   optimizations: {
-    moveElement: false,
+    moveElement: false
   },
   constraints: [
     {
-      to: 'window',
-      attachment: 'together',
-    },
-  ],
+      to: "window",
+      attachment: "together"
+    }
+  ]
 };
 
 type OnChange = string => *;
@@ -33,44 +34,44 @@ type ChartTitleProps = {
   width: number,
   left: string | number,
   value: string,
-  onChange?: ?OnChange,
+  onChange?: ?OnChange
 };
-type ChartTitleState = {value: ?string};
+type ChartTitleState = { value: ?string };
 
 export default class ChartTitle extends React.Component<
   ChartTitleProps,
-  ChartTitleState,
+  ChartTitleState
 > {
   _input: HTMLElement;
   _tether: any;
 
-  state = {value: null};
+  state = { value: null };
 
   onEditStart = () => {
-    this.setState({value: this.props.value});
+    this.setState({ value: this.props.value });
   };
 
   onEditCommit = () => {
-    const {value} = this.state;
-    this.setState({value: null});
+    const { value } = this.state;
+    this.setState({ value: null });
     if (this.props.onChange) {
       this.props.onChange(value || this.props.value);
     }
   };
 
   onEditCancel = () => {
-    this.setState({value: null});
+    this.setState({ value: null });
   };
 
   onChange = (e: KeyboardEvent) => {
     const value: string = (e.target: any).value;
-    this.setState({value});
+    this.setState({ value });
   };
 
   onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       this.onEditCommit();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       this.onEditCancel();
     }
   };
@@ -78,7 +79,7 @@ export default class ChartTitle extends React.Component<
   onInput = (input: any) => {
     if (this._input == null) {
       const wrapperNode = findDOMNode(input);
-      const node = wrapperNode.querySelector('input');
+      const node = wrapperNode.querySelector("input");
       if (node != null) {
         node.focus();
       }
@@ -90,7 +91,7 @@ export default class ChartTitle extends React.Component<
     const target: HTMLElement = (ReactDOM.findDOMNode(this): any);
     const size = target.getBoundingClientRect();
     element.style.width = `${size.width}px`;
-    this._tether = new Tether({element, target, ...TETHER_CONFIG});
+    this._tether = new Tether({ element, target, ...TETHER_CONFIG });
   };
 
   _layerDidUpdate = () => {
@@ -103,7 +104,7 @@ export default class ChartTitle extends React.Component<
   };
 
   render() {
-    const {left, width, value, onChange} = this.props;
+    const { left, width, value, onChange } = this.props;
     const edit = this.state.value != null;
     return (
       <g>
@@ -111,38 +112,47 @@ export default class ChartTitle extends React.Component<
           <Element>
             <Element marginLeft={50} width={width - 100}>
               <Element position="relative">
-                {!edit
-                  ? <Element textAlign="center" fontWeight={200} fontSize="14pt">
-                      {value}
-                    </Element>
-                  : <HBox width={width - 100} padding={2} ref={this.onInput}>
-                      <ReactUI.Input
-                        style={{marginRight: 5}}
-                        value={this.state.value}
-                        onChange={this.onChange}
-                        onKeyDown={this.onKeyDown}
-                      />
-                      <ReactUI.QuietButton
-                        onClick={this.onEditCommit}
-                        size="small"
-                        icon={<ui.Icon.IconCheck />}
-                      />
-                      <ReactUI.QuietButton
-                        onClick={this.onEditCancel}
-                        size="small"
-                        icon={<ui.Icon.IconClose />}
-                      />
-                    </HBox>}
-                {onChange &&
+                {!edit ? (
+                  <Element textAlign="center" fontWeight={200} fontSize="14pt">
+                    {value}
+                  </Element>
+                ) : (
+                  <HBox width={width - 100} padding={2} ref={this.onInput}>
+                    <ReactUI.Input
+                      style={{ marginRight: 5 }}
+                      value={this.state.value}
+                      onChange={this.onChange}
+                      onKeyDown={this.onKeyDown}
+                    />
+                    <ReactUI.QuietButton
+                      onClick={this.onEditCommit}
+                      size="small"
+                      icon={<ui.Icon.IconCheck />}
+                    />
+                    <ReactUI.QuietButton
+                      onClick={this.onEditCancel}
+                      size="small"
+                      icon={<ui.Icon.IconClose />}
+                    />
+                  </HBox>
+                )}
+                {onChange && (
                   <div
-                    style={{padding: 3, position: 'absolute', top: 0, left: -50}}
-                    className="hide-for-export">
+                    style={{
+                      padding: 3,
+                      position: "absolute",
+                      top: 0,
+                      left: -50
+                    }}
+                    className="hide-for-export"
+                  >
                     <ReactUI.QuietButton
                       onClick={this.onEditStart}
                       size="small"
                       icon={<ui.Icon.IconPencil />}
                     />
-                  </div>}
+                  </div>
+                )}
               </Element>
             </Element>
           </Element>

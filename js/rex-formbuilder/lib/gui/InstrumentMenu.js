@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 
 var InstrumentSelector = require('./InstrumentSelector');
 var DraftSetSelector = require('./DraftSetSelector');
@@ -13,20 +15,20 @@ var {SettingActions, InstrumentActions} = require('../actions');
 var {InstrumentStore} = require('../stores');
 
 
-var InstrumentMenu = React.createClass({
+var InstrumentMenu = ReactCreateClass({
   mixins: [
     ToasterMixin
   ],
 
   propTypes: {
-    apiBaseUrl: React.PropTypes.string.isRequired,
-    instrumentMenuUrlTemplate: React.PropTypes.string,
-    draftSetEditorUrlTemplate: React.PropTypes.string,
-    draftSetSelectorVerticalView: React.PropTypes.bool,
-    formPreviewerUrlTemplate: React.PropTypes.string.isRequired,
-    uid: React.PropTypes.string,
-    onDraftSelected: React.PropTypes.func,
-    channels: React.PropTypes.arrayOf(React.PropTypes.string),
+    apiBaseUrl: PropTypes.string.isRequired,
+    instrumentMenuUrlTemplate: PropTypes.string,
+    draftSetEditorUrlTemplate: PropTypes.string,
+    draftSetSelectorVerticalView: PropTypes.bool,
+    formPreviewerUrlTemplate: PropTypes.string.isRequired,
+    uid: PropTypes.string,
+    onDraftSelected: PropTypes.func,
+    channels: PropTypes.arrayOf(PropTypes.string),
   },
 
   getDefaultProps: function () {

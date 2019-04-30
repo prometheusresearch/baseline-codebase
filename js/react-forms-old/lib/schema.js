@@ -143,7 +143,13 @@ class CompositeNode extends ConcreteNode {
   }
 }
 
-var INPUT_TEXT = <input type="text" />;
+let InputText = React.forwardRef((props, ref) => {
+  let {dirtyOnBlur, dirtyOnChange, value, ...domProps} = props;
+  value = value == null ? '' : value;
+  return <input ref={ref} type="text" value={value} {...domProps} />
+});
+
+var INPUT_TEXT = <InputText />
 
 class ScalarNode extends ConcreteNode {
 
@@ -172,7 +178,13 @@ class ScalarNode extends ConcreteNode {
   }
 }
 
-var INPUT_NUMBER = <input type="number" />;
+let InputNumber = React.forwardRef((props, ref) => {
+  let {dirtyOnBlur, dirtyOnChange, ...domProps} = props;
+  value = value == null ? '' : value;
+  return <input {...domProps} type="number" />;
+});
+
+var INPUT_NUMBER = <InputNumber />;
 
 class NumberNode extends ScalarNode {
 
@@ -221,8 +233,14 @@ class ArrayNode extends ScalarNode {
   }
 }
 
+let InputDate = React.forwardRef((props, ref) => {
+  let {dirtyOnBlur, dirtyOnChange, value, ...domProps} = props;
+  value = value == null ? '' : value;
+  return <input {...domProps} type="date" />;
+});
+
+var INPUT_DATE = <InputDate />;
 var IS_DATE_RE =  /^\d\d\d\d-\d\d-\d\d$/;
-var INPUT_DATE = <input type="date" />;
 
 class DateNode extends ScalarNode {
 

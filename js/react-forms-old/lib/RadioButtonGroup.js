@@ -5,7 +5,8 @@
 'use strict';
 
 var React         = require('react');
-var PropTypes     = React.PropTypes;
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var emptyFunction = require('./emptyFunction');
 
 function renderEmptyOption(props, onChange) {
@@ -32,7 +33,7 @@ function renderEmptyOption(props, onChange) {
 
 type option = {value: ?string; name: string};
 
-var RadioButtonGroup = React.createClass({
+var RadioButtonGroup = ReactCreateClass({
 
     propTypes: {
       options: PropTypes.array.isRequired,

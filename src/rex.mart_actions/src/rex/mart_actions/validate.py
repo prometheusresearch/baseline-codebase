@@ -5,8 +5,6 @@
 import yaml
 import hashlib
 
-from slugify import slugify
-
 from rex.core import cached, Validate, OnMatch, RecordVal, UStrVal, MaybeVal, OneOfVal
 from rex.db import SyntaxVal
 from rex.widget.transitionable import as_transitionable
@@ -68,9 +66,8 @@ class Expression(object):
     @cached
     def key(self):
         # we salt the key with digest to lessen the chance of collision
-        digest = hashlib.sha1(self.expression).hexdigest()[:8]
-        slug = slugify(self.expression)
-        return 'computed_%s_%s' % (slug, digest)
+        digest = hashlib.sha1(self.expression.encode('utf8')).hexdigest()[:8]
+        return 'computed_%s' % digest
 
     def __repr__(self):
         return '%s(title=%r, expression=%r)' % (

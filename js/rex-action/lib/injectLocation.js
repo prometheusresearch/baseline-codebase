@@ -1,6 +1,6 @@
 /**
  * @copyright 2017-present, Prometheus Research, LLC
- * @flow
+ * @noflow
  */
 
 import * as React from 'react';

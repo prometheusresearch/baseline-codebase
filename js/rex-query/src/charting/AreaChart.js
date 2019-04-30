@@ -2,15 +2,15 @@
  * @flow
  */
 
-import * as types from './types';
+import * as types from "./types";
 
-import * as React from 'react';
-import * as recharts from 'recharts';
-import {VBox} from 'react-stylesheet';
+import * as React from "react";
+import * as recharts from "recharts";
+import { VBox } from "react-stylesheet";
 
-import ChartTitle from './ChartTitle';
-import Preloader from './Preloader';
-import NoDataMessage from './NoDataMessage';
+import ChartTitle from "./ChartTitle";
+import Preloader from "./Preloader";
+import NoDataMessage from "./NoDataMessage";
 
 type AreaChartProps = types.ChartBaseProps<types.AreaChart>;
 
@@ -19,7 +19,7 @@ export default function AreaChart({
   onLabel,
   chart,
   data,
-  dataIsUpdating,
+  dataIsUpdating
 }: AreaChartProps) {
   let rendered = null;
   if (dataIsUpdating) {
@@ -34,17 +34,26 @@ export default function AreaChart({
         data={data}
         width={width}
         height={400}
-        margin={{top: 100, right: 30, left: 20, bottom: 5}}
-        style={{fontWeight: 200, fontSize: '9pt'}}>
+        margin={{ top: 100, right: 30, left: 20, bottom: 5 }}
+        style={{ fontWeight: 200, fontSize: "9pt" }}
+      >
         <g>
-          <ChartTitle width={width} left={300} value={label} onChange={onLabel} />
+          <ChartTitle
+            width={width}
+            left={300}
+            value={label}
+            onChange={onLabel}
+          />
         </g>
-        <recharts.XAxis dataKey={String(chart.labelColumn)} name={chart.label} />
+        <recharts.XAxis
+          dataKey={String(chart.labelColumn)}
+          name={chart.label}
+        />
         <recharts.YAxis />
         <recharts.CartesianGrid strokeDasharray="3 3" />
         <recharts.Tooltip />
         <recharts.Legend />
-        {chart.areaList.map(area =>
+        {chart.areaList.map(area => (
           <recharts.Area
             key={area.valueColumn}
             name={area.label}
@@ -52,8 +61,8 @@ export default function AreaChart({
             stroke={area.color}
             fill={area.color}
             fillOpacity={0.6}
-          />,
-        )}
+          />
+        ))}
       </recharts.AreaChart>
     );
   }
@@ -64,6 +73,8 @@ export default function AreaChart({
   );
 }
 
-function getAreaChartKey(chart: AreaChart): string {
-  return chart.areaList.map(item => `${item.valueColumn}--${item.color}`).join(':');
+function getAreaChartKey(chart: types.AreaChart): string {
+  return chart.areaList
+    .map(item => `${String(item.valueColumn)}--${item.color}`)
+    .join(":");
 }

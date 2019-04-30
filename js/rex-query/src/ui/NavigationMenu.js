@@ -2,46 +2,47 @@
  * @flow
  */
 
-import type {QueryNavigation, Context} from '../model/types';
-import type {SearchCallback} from './Search';
+import type { QueryNavigation, Context } from "../model/types";
+import type { SearchCallback } from "./Search";
 
-import * as React from 'react';
-import {VBox, Element} from 'react-stylesheet';
-import {Input} from '@prometheusresearch/react-ui';
+import * as React from "react";
+import { VBox, Element } from "react-stylesheet";
+// $FlowFixMe: ...
+import { Input } from "@prometheusresearch/react-ui";
 
-import {getNavigation} from '../model/QueryNavigation';
-import {dummySearch, runSearch} from './Search';
-import LoadingIndicator from './LoadingIndicator';
+import { getNavigation } from "../model/QueryNavigation";
+import { dummySearch, runSearch } from "./Search";
+import LoadingIndicator from "./LoadingIndicator";
 
 type NavigationMenuProps = {
   context: Context,
   onSearch: SearchCallback,
-  children?: (navigation: Map<string, QueryNavigation>) => React.Node,
+  children?: (navigation: Map<string, QueryNavigation>) => React.Node
 };
 
 type NavigationMenuState = {
   searchTerm: ?string,
   searchInProgress: boolean,
-  navigation: Map<string, QueryNavigation>,
+  navigation: Map<string, QueryNavigation>
 };
 
 export default class NavigationMenu extends React.Component<
   NavigationMenuProps,
-  NavigationMenuState,
+  NavigationMenuState
 > {
   static defaultProps = {
-    onSearch: dummySearch,
+    onSearch: dummySearch
   };
 
   mounted: boolean;
 
   constructor(props: NavigationMenuProps) {
     super(props);
-    let {context} = props;
+    let { context } = props;
     this.state = {
       searchTerm: null,
       searchInProgress: false,
-      navigation: getNavigation(context),
+      navigation: getNavigation(context)
     };
     this.mounted = false;
   }
@@ -59,23 +60,23 @@ export default class NavigationMenu extends React.Component<
       this.setState({
         searchTerm: null,
         searchInProgress: false,
-        navigation: getNavigation(nextProps.context),
+        navigation: getNavigation(nextProps.context)
       });
     }
   }
 
   onSearchTerm = (e: UIEvent) => {
-    let target: {value: string} = (e.target: any);
-    let searchTerm = target.value === '' ? null : target.value;
+    let target: { value: string } = (e.target: any);
+    let searchTerm = target.value === "" ? null : target.value;
     let navigation = getNavigation(this.props.context);
     if (searchTerm != null) {
-      runSearch(this.props.onSearch, {searchTerm, navigation}).then(
+      runSearch(this.props.onSearch, { searchTerm, navigation }).then(
         this.onSearchComplete,
-        this.onSearchError,
+        this.onSearchError
       );
-      this.setState({searchTerm, searchInProgress: true});
+      this.setState({ searchTerm, searchInProgress: true });
     } else {
-      this.setState({searchTerm, navigation, searchInProgress: false});
+      this.setState({ searchTerm, navigation, searchInProgress: false });
     }
   };
 
@@ -83,17 +84,17 @@ export default class NavigationMenu extends React.Component<
     if (!this.mounted || !this.state.searchInProgress) {
       return;
     }
-    this.setState({navigation, searchInProgress: false});
+    this.setState({ navigation, searchInProgress: false });
   };
 
   onSearchError = (err: Error) => {
-    console.error('Error while search:', err);
-    this.setState({searchInProgress: false});
+    console.error("Error while search:", err);
+    this.setState({ searchInProgress: false });
   };
 
   render() {
-    let {children} = this.props;
-    let {searchTerm, searchInProgress, navigation} = this.state;
+    let { children } = this.props;
+    let { searchTerm, searchInProgress, navigation } = this.state;
     let loadingIndicator = null;
     if (searchInProgress) {
       loadingIndicator = (
@@ -103,9 +104,10 @@ export default class NavigationMenu extends React.Component<
           width="100%"
           padding={5}
           background="#fff"
-          borderBottom={{style: 'solid', width: 1, color: '#ccc'}}
+          borderBottom={{ style: "solid", width: 1, color: "#ccc" }}
           opacity={0.9}
-          zIndex={1}>
+          zIndex={1}
+        >
           <LoadingIndicator />
         </Element>
       );
@@ -115,7 +117,7 @@ export default class NavigationMenu extends React.Component<
         <VBox padding={10}>
           <Input
             placeholder="Search…"
-            value={searchTerm === null ? '' : searchTerm}
+            value={searchTerm === null ? "" : searchTerm}
             onChange={this.onSearchTerm}
           />
         </VBox>

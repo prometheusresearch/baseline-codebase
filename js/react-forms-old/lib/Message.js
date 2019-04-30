@@ -5,12 +5,14 @@
 'use strict';
 
 var React = require('react');
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var cx = require('classnames');
 
-var Message = React.createClass({
+var Message = ReactCreateClass({
 
   propTypes: {
-    className: React.PropTypes.string
+    className: PropTypes.string
   },
 
   render(): ?ReactElement {

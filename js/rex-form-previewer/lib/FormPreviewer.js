@@ -3,6 +3,7 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 import * as ReactForms from "react-forms";
 import { VBox, HBox } from "@prometheusresearch/react-ui";
 
@@ -63,17 +64,15 @@ const NumberInput = ReactForms.withFormValue(
 export default InjectI18N(
   class FormPreviewer extends React.Component {
     static propTypes = {
-      instrument: React.PropTypes.object.isRequired,
-      forms: React.PropTypes.object.isRequired,
-      locale: React.PropTypes.string,
-      avilableLocales: React.PropTypes.arrayOf(
-        React.PropTypes.arrayOf(React.PropTypes.string)
-      ),
-      channels: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-      initialChannel: React.PropTypes.string.isRequired,
-      localResourcePrefix: React.PropTypes.string,
-      lookupApiPrefix: React.PropTypes.string,
-      calculationApiPrefix: React.PropTypes.string
+      instrument: PropTypes.object.isRequired,
+      forms: PropTypes.object.isRequired,
+      locale: PropTypes.string,
+      avilableLocales: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+      channels: PropTypes.arrayOf(PropTypes.object).isRequired,
+      initialChannel: PropTypes.string.isRequired,
+      localResourcePrefix: PropTypes.string,
+      lookupApiPrefix: PropTypes.string,
+      calculationApiPrefix: PropTypes.string
     };
 
     static defaultProps = {
@@ -157,16 +156,20 @@ export default InjectI18N(
       let fields = Object.keys(form.parameters)
         .sort()
         .map(param => {
-          let input;
+          let Input;
           if (form.parameters[param].type === "boolean") {
-            input = BooleanInput;
+            Input = BooleanInput;
           } else if (form.parameters[param].type === "numeric") {
-            input = NumberInput;
+            Input = NumberInput;
           }
 
           return (
             <VBox marginBottom="10px" key={param}>
-              <ReactForms.Field select={param} label={param} Input={input} />
+              <ReactForms.Field
+                select={param}
+                label={param}
+                renderInput={props => <Input {...props} />}
+              />
             </VBox>
           );
         });

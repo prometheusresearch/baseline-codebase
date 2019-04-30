@@ -1,11 +1,12 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom';
 import createTapListener from 'teeny-tap';
 import specialAssign from './specialAssign';
 
 const checkedProps = {
-  children: React.PropTypes.oneOfType([React.PropTypes.func, React.PropTypes.node]),
-  tag: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.func]),
+  children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
+  tag: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 };
 
 export default class Menu extends React.Component {
@@ -19,7 +20,7 @@ export default class Menu extends React.Component {
   };
 
   static contextTypes = {
-    ambManager: React.PropTypes.object.isRequired,
+    ambManager: PropTypes.object.isRequired,
   };
 
   componentWillMount() {

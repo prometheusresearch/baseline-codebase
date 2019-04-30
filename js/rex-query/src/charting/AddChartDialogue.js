@@ -2,23 +2,25 @@
  * @flow
  */
 
-import type {ChartType} from './types';
+import type { ChartType } from "./types";
 
-import React from 'react';
-import {Element} from 'react-stylesheet';
+import React from "react";
+import { Element } from "react-stylesheet";
 
-import * as ui from '../ui';
-import PieChartIcon from './icon/PieChartIcon';
-import BarChartIcon from './icon/BarChartIcon';
-import ScatterChartIcon from './icon/ScatterChartIcon';
-import LineChartIcon from './icon/LineChartIcon';
-import AreaChartIcon from './icon/AreaChartIcon';
+import * as ui from "../ui";
+import PieChartIcon from "./icon/PieChartIcon";
+import BarChartIcon from "./icon/BarChartIcon";
+import ScatterChartIcon from "./icon/ScatterChartIcon";
+import LineChartIcon from "./icon/LineChartIcon";
+import AreaChartIcon from "./icon/AreaChartIcon";
 
 type AddChartDialogueProps = {
-  onAddChart: ({chartType: ChartType}) => void,
+  onAddChart: ({ chartType: ChartType }) => void
 };
 
-export default function AddChartDialogue({onAddChart}: AddChartDialogueProps) {
+export default function AddChartDialogue({
+  onAddChart
+}: AddChartDialogueProps) {
   return (
     <div>
       <ui.Header>Select chart type</ui.Header>
@@ -64,20 +66,21 @@ export default function AddChartDialogue({onAddChart}: AddChartDialogueProps) {
         display="inline-block"
         color="#bbb"
         colorOnHover="#444"
-        style={{textDecoration: 'none'}}
+        style={{ textDecoration: "none" }}
         fontWeight={200}
-        fontSize="8pt">
+        fontSize="8pt"
+      >
         Icons designed by Freepik at Flaticons
       </Element>
     </div>
   );
 }
 
-function AddChartItem({label, icon, chartType, onClick}) {
+function AddChartItem({ label, icon, chartType, onClick }) {
   return (
     <Element
       display="inline-block"
-      padding={{horizontal: 15, vertical: 10}}
+      padding={{ horizontal: 15, vertical: 10 }}
       background="#fff"
       backgroundOnHover="#fafafa"
       marginBottom={10}
@@ -93,10 +96,9 @@ function AddChartItem({label, icon, chartType, onClick}) {
       border="1px solid #ccc"
       borderRadius={2}
       borderOnHover="1px solid #aaa"
-      onClick={() => onClick({chartType})}>
-      <Element padding={5}>
-        {icon}
-      </Element>
+      onClick={() => onClick({ chartType })}
+    >
+      <Element padding={5}>{icon}</Element>
       {label}
     </Element>
   );

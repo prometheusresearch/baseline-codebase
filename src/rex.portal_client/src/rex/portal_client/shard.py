@@ -2,7 +2,6 @@
 from rex.core import cached, get_settings as get_app_settings
 import requests
 import functools
-from .setting import PortalClient
 from .error import PatientPortalClientError
 
 class Shard(object):
@@ -20,6 +19,20 @@ class Shard(object):
         })
         if client_certificate is not None:
             self.session.cert = client_certificate
+        # cache
+        self.subjects = {}
+        self.users = {}
+        self.studies = {}
+
+    def cache(self, attr, data):
+        items = data if isinstance(data, list) else [data]
+        cache = getattr(self, attr)
+        for item in items:
+            host_system_id = item.get('host_system_id')
+            if host_system_id is None:
+                continue
+            cache[host_system_id] = item
+        return data
 
     def __str__(self):
         return '%s (%s, %s)' % (self.title, self.id, self.url)
@@ -43,6 +56,8 @@ class Shard(object):
             return response.json()
         elif response.status_code == 204:
             return
+        elif response.status_code == 404:
+            return None
         else:
             if response.status_code == 400:
                 error = response.json()['error']
@@ -77,10 +92,11 @@ class Shard(object):
         return ret
 
     def get_subjects(self, limit=50):
-        return self.get_list('/subjects',
-                             {'unabbreviated': '1'},
-                             'subjects',
-                             limit)
+        return self.cache('subjects',
+                          self.get_list('/subjects',
+                                        {'unabbreviated': '1'},
+                                        'subjects',
+                                        limit))
 
     def get_consents(self, limit=50):
         return self.get_list('/consents',
@@ -134,12 +150,23 @@ class Shard(object):
             self.post('/consents', {}, package)
             remainder = remainder[package_size:]
 
-    def publish_enrollment_profile(self, code, host_system_tag,
+    def ensure_study(self, id, title):
+        study = self.studies.get(id)
+        if study is None:
+            study = self.get('/studies/{}'.format(id), {})
+            if study is None:
+                ret = self.post('/studies', {}, [{'host_system_id': id,
+                                                 'display_name': title}])
+                study = self.cache('studies', ret['studies'][0])
+        return study
+
+    def publish_enrollment_profile(self, url_token, host_system_id, study,
                                    tasks=[], consents=[]):
         return self.post('/enrollmentprofiles', {}, {
-                         'code': code,
+                         'url_token': url_token,
                          'status': 'active',
-                         'host_system_tag': host_system_tag,
+                         'host_system_id': host_system_id,
+                         'study': study,
                          'tasks': tasks,
                          'consents': consents
                          })

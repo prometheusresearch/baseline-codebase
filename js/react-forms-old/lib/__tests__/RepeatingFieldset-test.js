@@ -3,6 +3,7 @@
 var assert            = require('assert');
 var sinon             = require('sinon');
 var React             = require('react');
+var ReactDOM          = require('react-dom');
 var ReactTestUtils    = require('react/lib/ReactTestUtils');
 var RepeatingFieldset = require('../RepeatingFieldset');
 var Field             = require('../Field');
@@ -70,13 +71,13 @@ describe('forms', () => {
 
       it('renders className', function() {
         render();
-        assert.ok(component.getDOMNode().classList.contains('rf-RepeatingFieldset'));
+        assert.ok(ReactDOM.findDOMNode(component).classList.contains('rf-RepeatingFieldset'));
       });
 
       it('renders label', function() {
         render();
         var label = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'rf-RepeatingFieldset__label');
-        assert.equal(textContent(label.getDOMNode()), 'Label');
+        assert.equal(textContent(ReactDOM.findDOMNode(label)), 'Label');
       });
 
       it('renders a field for each element in value', () => {

@@ -3,10 +3,11 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {InjectI18N} from 'rex-i18n';
-import * as Stylesheet from 'rex-widget/stylesheet';
-import {VBox, HBox} from 'rex-widget/layout';
+import * as Stylesheet from 'rex-widget/Stylesheet';
+import {VBox, HBox} from '@prometheusresearch/react-box';
 
 
 export default InjectI18N(class Error extends React.Component {
@@ -28,7 +29,7 @@ export default InjectI18N(class Error extends React.Component {
   });
 
   static propTypes = {
-    message: React.PropTypes.string.isRequired
+    message: PropTypes.string.isRequired
   };
 
   render() {

@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+var ReactCreateClass = require('create-react-class');
 import ReactDOMServer from 'react-dom/server';
 import {create, style, override} from '../';
 
@@ -29,7 +30,7 @@ describe('Stylesheet', function() {
     });
 
     it('styles legacy component', function() {
-      let C = React.createClass({render() {}});
+      let C = ReactCreateClass({render() {}});
       let Styled = style(C, {A: 'A', B: 'B'});
       assert(Styled.defaultProps);
       assert(Styled.defaultProps.stylesheet);
@@ -51,7 +52,7 @@ describe('Stylesheet', function() {
     });
 
     it('styles legacy class component with predefined stylesheet', function() {
-      let C = React.createClass({
+      let C = ReactCreateClass({
         getDefaultProps() {
           return {stylesheet: {A: 'A', B: 'B'}}
         },
@@ -88,7 +89,7 @@ describe('Stylesheet', function() {
     });
 
     it('re-styles legacy class component', function() {
-      let C = React.createClass({
+      let C = ReactCreateClass({
         render() {}
       });
       let Styled = style(C, {A: 'A', B: 'B'});

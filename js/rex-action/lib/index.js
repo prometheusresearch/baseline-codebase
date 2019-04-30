@@ -19,7 +19,7 @@ import {Theme} from './ui';
 
 export {default as ConfirmNavigation} from './ConfirmNavigation';
 export {default as Wizard} from './wizard/Wizard';
-export {default as ActionWizard} from './ActionWizard';
+export {ActionWizard} from './ActionWizard';
 export {default as Page} from './actions/Page';
 export {default as Drop} from './actions/Drop';
 export {default as Form} from './actions/Form';

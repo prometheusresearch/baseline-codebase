@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var ReactForms = require('react-forms-old');
 var {Map} = require('immutable');
 
@@ -12,12 +14,12 @@ var _ = require('../i18n').gettext;
 
 
 
-var LocaleChoiceTable = React.createClass({
+var LocaleChoiceTable = ReactCreateClass({
   propTypes: {
-    locales: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    coverages: React.PropTypes.object.isRequired,
-    value: React.PropTypes.string,
-    onChange: React.PropTypes.func
+    locales: PropTypes.arrayOf(PropTypes.object).isRequired,
+    coverages: PropTypes.object.isRequired,
+    value: PropTypes.string,
+    onChange: PropTypes.func
   },
 
   onChange: function (locale) {
@@ -59,15 +61,19 @@ var LocaleChoiceTable = React.createClass({
 
     return (
       <table>
-        <tr>
-          <th></th>
-          <th>{_('Language')}</th>
-          <th
-            title={_('How much of the configurable text is in this language.')}>
-            {_('Configuration Coverage')}
-          </th>
-        </tr>
-        {locales}
+        <thead>
+          <tr>
+            <th></th>
+            <th>{_('Language')}</th>
+            <th
+              title={_('How much of the configurable text is in this language.')}>
+              {_('Configuration Coverage')}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {locales}
+        </tbody>
       </table>
     );
   }

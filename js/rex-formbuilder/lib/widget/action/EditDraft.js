@@ -6,7 +6,7 @@ import React from "react";
 import objectPath from "object-path";
 
 import { ConfirmNavigation } from "rex-action";
-import { Preloader } from "rex-widget/ui";
+import Preloader from "../../gui/Preloader";
 import { withFetch } from "rex-widget/data";
 
 import * as GUI from "../../gui";

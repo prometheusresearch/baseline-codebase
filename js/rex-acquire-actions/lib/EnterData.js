@@ -6,15 +6,14 @@ import React from "react";
 
 import { FormEditor, FormEntry } from "rex-forms";
 import {
-  Preloader,
   showNotification,
   removeNotification,
-  Notification,
-  SuccessButton
+  Notification
 } from "rex-widget/ui";
+import * as rexui from "rex-ui";
 import { withFetch, DataSet, forceRefreshData } from "rex-widget/data";
 import { DataTableBase } from "rex-widget/datatable";
-import { VBox, HBox } from "rex-widget/layout";
+import { VBox, HBox } from "@prometheusresearch/react-box";
 
 import I18NAction from "./I18NAction";
 import EntryError from "./EntryError";
@@ -134,8 +133,8 @@ export default withFetch(
                   <Notification
                     kind="success"
                     text="Your Entry has been saved."
-                    ttl={7000}
-                  />
+                  />,
+                  7000
                 );
                 this.props.onEntityUpdate(previousEntity, newEntity);
                 this.onReturnEntries();
@@ -164,10 +163,10 @@ export default withFetch(
       if (this.state.error) {
         content = <EntryError errorCode={this.state.error} />;
       } else if (mode === "WAITING") {
-        content = <Preloader />;
+        content = <rexui.PreloaderScreen />;
       } else if (mode === "SELECTION") {
         if (entrySelection.updating) {
-          content = <Preloader />;
+          content = <rexui.PreloaderScreen />;
         } else {
           let numRequiredEntries = entrySelection.data.num_required_entries;
           let data = DataSet.fromData(
@@ -188,27 +187,26 @@ export default withFetch(
             let entry = pendingEntries[0];
             tools = (
               <HBox>
-                <SuccessButton
+                <rexui.SuccessButton
                   size="small"
                   style={{ marginRight: 5 }}
                   onClick={this.onContinueEntry.bind(this, entry.uid, "EDIT")}
                 >
                   {`Continue Working on Entry #${entry.ordinal}`}
-                </SuccessButton>
-                {this.props.allowConcurrentEntries &&
-                  canMakeNew && (
-                    <SuccessButton size="small" onClick={this.onNewEntry}>
-                      Start New Entry
-                    </SuccessButton>
-                  )}
+                </rexui.SuccessButton>
+                {this.props.allowConcurrentEntries && canMakeNew && (
+                  <rexui.SuccessButton size="small" onClick={this.onNewEntry}>
+                    Start New Entry
+                  </rexui.SuccessButton>
+                )}
               </HBox>
             );
           } else if (canMakeNew) {
             tools = (
               <HBox>
-                <SuccessButton size="small" onClick={this.onNewEntry}>
+                <rexui.SuccessButton size="small" onClick={this.onNewEntry}>
                   Start New Entry
-                </SuccessButton>
+                </rexui.SuccessButton>
               </HBox>
             );
           }
@@ -266,9 +264,9 @@ export default withFetch(
 
         tools = (
           <HBox>
-            <SuccessButton size="small" onClick={this.onReturnEntries}>
+            <rexui.SuccessButton size="small" onClick={this.onReturnEntries}>
               Return to Entries
-            </SuccessButton>
+            </rexui.SuccessButton>
           </HBox>
         );
       } else if (mode === "VIEW") {
@@ -289,9 +287,9 @@ export default withFetch(
 
         tools = (
           <HBox>
-            <SuccessButton size="small" onClick={this.onReturnEntries}>
+            <rexui.SuccessButton size="small" onClick={this.onReturnEntries}>
               Return to Entries
-            </SuccessButton>
+            </rexui.SuccessButton>
           </HBox>
         );
       }

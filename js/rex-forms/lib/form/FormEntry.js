@@ -3,6 +3,7 @@
  */
 
 import * as React from "react";
+import PropTypes from 'prop-types';
 import * as ReactDOM from "react-dom";
 import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
@@ -89,34 +90,34 @@ export default InjectI18N(
         /**
          * The RIOS Web Form Configuration to display.
          */
-        form: React.PropTypes.object.isRequired,
+        form: PropTypes.object.isRequired,
 
         /**
          * The RIOS Instrument Definition that corresponds with the form.
          */
-        instrument: React.PropTypes.object.isRequired,
+        instrument: PropTypes.object.isRequired,
 
         /**
          * The RIOS Assessment Document to initialize the form with.
          */
-        assessment: React.PropTypes.object,
+        assessment: PropTypes.object,
 
         /**
          * The values for the custom/external variables used by the form.
          */
-        parameters: React.PropTypes.object,
+        parameters: PropTypes.object,
 
         /**
          * The display mode of the form. Can be: entry, review, view. Defaults to
          * entry.
          */
-        mode: React.PropTypes.string,
+        mode: PropTypes.string,
 
         /**
          * Disable pagination and render everything in a single page. Defaults to
          * false.
          */
-        noPagination: React.PropTypes.bool,
+        noPagination: PropTypes.bool,
 
         /**
          * The function to call when the form's value changes. The callback will
@@ -125,7 +126,7 @@ export default InjectI18N(
          * * isValid(): Whether or not the current state of the Assessment is valid.
          * * getErrors(): An array of the current validation errors in the form.
          */
-        onChange: React.PropTypes.func,
+        onChange: PropTypes.func,
 
         /**
          * The function to call when the user changes pages within a form. The
@@ -135,13 +136,13 @@ export default InjectI18N(
          * * getErrors(): An array of the current validation errors in the form.
          * * pageNumber: The index of the page that the user moved to.
          */
-        onPage: React.PropTypes.func,
+        onPage: PropTypes.func,
 
         /**
          * A collection of API URLs that are used by various widgets or
          * functionality in the form.
          */
-        apiUrls: React.PropTypes.object,
+        apiUrls: PropTypes.object,
 
         /**
          * Widget configuration.
@@ -152,7 +153,7 @@ export default InjectI18N(
          *   reconcile: { [widgetType: string]: React.Component },
          * }
          */
-        widgetConfig: React.PropTypes.object
+        widgetConfig: PropTypes.object
       };
 
       static defaultProps = {

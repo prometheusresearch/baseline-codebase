@@ -5,18 +5,20 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 var ToolGroup = require('./ToolGroup');
 
 
-var Toolbox = React.createClass({
+var Toolbox = ReactCreateClass({
   propTypes: {
-    groups: React.PropTypes.arrayOf(React.PropTypes.shape({
-      id: React.PropTypes.string.isRequired,
-      label: React.PropTypes.string.isRequired
+    groups: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired
     })).isRequired,
-    tools: React.PropTypes.arrayOf(React.PropTypes.func).isRequired,
-    toolComponent: React.PropTypes.func.isRequired
+    tools: PropTypes.arrayOf(PropTypes.func).isRequired,
+    toolComponent: PropTypes.func.isRequired
   },
 
   buildGroups: function () {

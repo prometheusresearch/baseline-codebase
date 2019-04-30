@@ -3,50 +3,55 @@
  * @flow
  */
 
-import React from 'react';
-import Action from '../Action';
-import Title from './Title';
-import fetchEntity from './fetchEntity';
+import * as React from "react";
+import Action from "../Action";
+import Title from "./Title";
+import fetchEntity from "./fetchEntity";
 
-import * as ui from 'rex-widget/ui';
-import {Fetch} from 'rex-widget/data';
-import * as form from 'rex-widget/form';
+import * as rexui from "rex-ui";
+import { Fetch } from "rex-widget/data";
+import * as ui from "rex-widget/ui";
+import * as form from "rex-widget/conf-form";
 
-export class View extends React.Component {
-  _interval: ?number = null;
+type Props = {|
+  title?: string,
+  entity: Object,
+  context: Object,
+  fields: Object,
+  width: number,
+  fetched: Object,
+  refetch: Function,
+  refreshInterval?: ?number,
+  forceRefreshData(): void
+|};
 
-  props: {
-    title: string,
-    context: Object,
-    fields: Object,
-    entity: Object,
-    onClose: Function,
-    width: number,
-    fetched: Object,
-    refetch: Function,
-    refreshInterval?: ?number,
-  };
+type TitleProps = {
+  title?: string,
+  entity: Object
+};
+
+type ActionContext = Object;
+
+export class View extends React.Component<Props> {
+  _interval: ?IntervalID = null;
 
   static defaultProps = {
-    icon: 'file',
-    width: 400,
+    icon: "file",
+    width: 400
   };
 
   render() {
-    let {fields, entity, context, onClose, width, fetched} = this.props;
+    let { fields, entity, context, width, fetched } = this.props;
     let title = this.constructor.renderTitle(this.props, context);
     return (
-      <Action title={title} onClose={onClose} width={width}>
+      <Action title={title} width={width}>
         {!fetched.entity.updating
-          ? <form.ConfigurableEntityForm
+          ? <form.ConfView
               key={fetched.entity.data.id}
-              disableValidation
-              readOnly
-              entity={entity.type.name}
-              value={fetched.entity.data}
-              fields={fields}
+              initialValue={fetched.entity.data}
+              config={{ type: "fieldset", fields }}
             />
-          : <ui.Preloader />}
+          : <rexui.PreloaderScreen />}
       </Action>
     );
   }
@@ -58,7 +63,10 @@ export class View extends React.Component {
 
   componentDidMount() {
     if (this.props.refreshInterval != null) {
-      this._interval = setInterval(this.refresh, this.props.refreshInterval * 1000);
+      this._interval = setInterval(
+        this.refresh,
+        this.props.refreshInterval * 1000
+      );
     }
   }
 
@@ -68,11 +76,14 @@ export class View extends React.Component {
     }
   }
 
-  static renderTitle({entity, title = `View ${entity.name}`}, context) {
+  static renderTitle(
+    { entity, title = `View ${entity.name}` }: TitleProps,
+    context: ActionContext
+  ) {
     return <Title title={title} entity={entity} context={context} />;
   }
 
-  static getTitle(props) {
+  static getTitle(props: TitleProps) {
     return props.title || `View ${props.entity.type.name}`;
   }
 }

@@ -7,6 +7,12 @@
 
     <title>{% block title %}Form Previewer{% endblock %}</title>
 
+    <script>
+    {% if bundle.root %}
+    var __PUBLIC_PATH__ = "{{ bundle.root|url }}/";
+    {% endif %}
+    </script>
+
     <script type="text/javascript" src="{{ bundle.js|url }}"></script>
     {% if bundle.css %}
     <link rel="stylesheet" href="{{ bundle.css|url }}" media="screen">

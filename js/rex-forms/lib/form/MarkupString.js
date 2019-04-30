@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom';
 import JSCreole from 'jscreole';
 
@@ -21,11 +22,11 @@ export default class MarkupString extends React.Component {
 
   static propTypes = {
     children: isString,
-    Component: React.PropTypes.oneOfType([
-      React.PropTypes.func,
-      React.PropTypes.string]),
-    inline: React.PropTypes.bool,
-    parameters: React.PropTypes.object,
+    Component: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.string]),
+    inline: PropTypes.bool,
+    parameters: PropTypes.object,
   };
 
   static contextTypes = FormContext.contextTypes;
@@ -37,7 +38,7 @@ export default class MarkupString extends React.Component {
   };
 
   render() {
-    let {Component, children: _children, ...props} = this.props;
+    let {Component, inline: _inline, parameters: _parameters, children: _children, ...props} = this.props;
     return <Component {...props} />;
   }
 

@@ -2,15 +2,18 @@
  * @flow
  */
 
-import * as CSSType from './CSSType';
+import * as CSSType from "./CSSType";
 
-import * as React from 'react';
+import * as React from "react";
 
-import {expandStyle} from './compiler';
-import {Spec} from './ElementPropSpec';
-import {staticStylesheetManager, dynamicStylesheetManager} from './StylesheetManager';
-import {CSSClassJoinRepresentation} from './StyleRepresentation';
-import * as Environment from './Environment';
+import { expandStyle } from "./compiler";
+import { Spec } from "./ElementPropSpec";
+import {
+  staticStylesheetManager,
+  dynamicStylesheetManager
+} from "./StylesheetManager";
+import { CSSClassJoinRepresentation } from "./StyleRepresentation";
+import * as Environment from "./Environment";
 
 export type ElementProps = {
   Component?: string,
@@ -203,35 +206,35 @@ export type ElementProps = {
   lineHeightOnActive?: CSSType.lineHeight,
   lineHeightOnDisabled?: CSSType.lineHeight,
 
-  margin?: CSSType.margin,
-  marginOnHover?: CSSType.margin,
-  marginOnFocus?: CSSType.margin,
-  marginOnActive?: CSSType.margin,
-  marginOnDisabled?: CSSType.margin,
+  margin?: ?CSSType.margin,
+  marginOnHover?: ?CSSType.margin,
+  marginOnFocus?: ?CSSType.margin,
+  marginOnActive?: ?CSSType.margin,
+  marginOnDisabled?: ?CSSType.margin,
 
-  marginBottom?: CSSType.marginBottom,
-  marginBottomOnHover?: CSSType.marginBottom,
-  marginBottomOnFocus?: CSSType.marginBottom,
-  marginBottomOnActive?: CSSType.marginBottom,
-  marginBottomOnDisabled?: CSSType.marginBottom,
+  marginBottom?: ?CSSType.marginBottom,
+  marginBottomOnHover?: ?CSSType.marginBottom,
+  marginBottomOnFocus?: ?CSSType.marginBottom,
+  marginBottomOnActive?: ?CSSType.marginBottom,
+  marginBottomOnDisabled?: ?CSSType.marginBottom,
 
-  marginLeft?: CSSType.marginLeft,
-  marginLeftOnHover?: CSSType.marginLeft,
-  marginLeftOnFocus?: CSSType.marginLeft,
-  marginLeftOnActive?: CSSType.marginLeft,
-  marginLeftOnDisabled?: CSSType.marginLeft,
+  marginLeft?: ?CSSType.marginLeft,
+  marginLeftOnHover?: ?CSSType.marginLeft,
+  marginLeftOnFocus?: ?CSSType.marginLeft,
+  marginLeftOnActive?: ?CSSType.marginLeft,
+  marginLeftOnDisabled?: ?CSSType.marginLeft,
 
-  marginRight?: CSSType.marginRight,
-  marginRightOnHover?: CSSType.marginRight,
-  marginRightOnFocus?: CSSType.marginRight,
-  marginRightOnActive?: CSSType.marginRight,
-  marginRightOnDisabled?: CSSType.marginRight,
+  marginRight?: ?CSSType.marginRight,
+  marginRightOnHover?: ?CSSType.marginRight,
+  marginRightOnFocus?: ?CSSType.marginRight,
+  marginRightOnActive?: ?CSSType.marginRight,
+  marginRightOnDisabled?: ?CSSType.marginRight,
 
-  marginTop?: CSSType.marginTop,
-  marginTopOnHover?: CSSType.marginTop,
-  marginTopOnFocus?: CSSType.marginTop,
-  marginTopOnActive?: CSSType.marginTop,
-  marginTopOnDisabled?: CSSType.marginTop,
+  marginTop?: ?CSSType.marginTop,
+  marginTopOnHover?: ?CSSType.marginTop,
+  marginTopOnFocus?: ?CSSType.marginTop,
+  marginTopOnActive?: ?CSSType.marginTop,
+  marginTopOnDisabled?: ?CSSType.marginTop,
 
   maxHeight?: CSSType.maxHeight,
   maxHeightOnHover?: CSSType.maxHeight,
@@ -293,35 +296,35 @@ export type ElementProps = {
   overflowYOnActive?: CSSType.overflowY,
   overflowYOnDisabled?: CSSType.overflowY,
 
-  padding?: CSSType.padding,
-  paddingOnHover?: CSSType.padding,
-  paddingOnFocus?: CSSType.padding,
-  paddingOnActive?: CSSType.padding,
-  paddingOnDisabled?: CSSType.padding,
+  padding?: ?CSSType.padding,
+  paddingOnHover?: ?CSSType.padding,
+  paddingOnFocus?: ?CSSType.padding,
+  paddingOnActive?: ?CSSType.padding,
+  paddingOnDisabled?: ?CSSType.padding,
 
-  paddingBottom?: CSSType.paddingBottom,
-  paddingBottomOnHover?: CSSType.paddingBottom,
-  paddingBottomOnFocus?: CSSType.paddingBottom,
-  paddingBottomOnActive?: CSSType.paddingBottom,
-  paddingBottomOnDisabled?: CSSType.paddingBottom,
+  paddingBottom?: ?CSSType.paddingBottom,
+  paddingBottomOnHover?: ?CSSType.paddingBottom,
+  paddingBottomOnFocus?: ?CSSType.paddingBottom,
+  paddingBottomOnActive?: ?CSSType.paddingBottom,
+  paddingBottomOnDisabled?: ?CSSType.paddingBottom,
 
-  paddingLeft?: CSSType.paddingLeft,
-  paddingLeftOnHover?: CSSType.paddingLeft,
-  paddingLeftOnFocus?: CSSType.paddingLeft,
-  paddingLeftOnActive?: CSSType.paddingLeft,
-  paddingLeftOnDisabled?: CSSType.paddingLeft,
+  paddingLeft?: ?CSSType.paddingLeft,
+  paddingLeftOnHover?: ?CSSType.paddingLeft,
+  paddingLeftOnFocus?: ?CSSType.paddingLeft,
+  paddingLeftOnActive?: ?CSSType.paddingLeft,
+  paddingLeftOnDisabled?: ?CSSType.paddingLeft,
 
-  paddingRight?: CSSType.paddingRight,
-  paddingRightOnHover?: CSSType.paddingRight,
-  paddingRightOnFocus?: CSSType.paddingRight,
-  paddingRightOnActive?: CSSType.paddingRight,
-  paddingRightOnDisabled?: CSSType.paddingRight,
+  paddingRight?: ?CSSType.paddingRight,
+  paddingRightOnHover?: ?CSSType.paddingRight,
+  paddingRightOnFocus?: ?CSSType.paddingRight,
+  paddingRightOnActive?: ?CSSType.paddingRight,
+  paddingRightOnDisabled?: ?CSSType.paddingRight,
 
-  paddingTop?: CSSType.paddingTop,
-  paddingTopOnHover?: CSSType.paddingTop,
-  paddingTopOnFocus?: CSSType.paddingTop,
-  paddingTopOnActive?: CSSType.paddingTop,
-  paddingTopOnDisabled?: CSSType.paddingTop,
+  paddingTop?: ?CSSType.paddingTop,
+  paddingTopOnHover?: ?CSSType.paddingTop,
+  paddingTopOnFocus?: ?CSSType.paddingTop,
+  paddingTopOnActive?: ?CSSType.paddingTop,
+  paddingTopOnDisabled?: ?CSSType.paddingTop,
 
   position?: CSSType.position,
   positionOnHover?: CSSType.position,
@@ -393,15 +396,15 @@ export type ElementProps = {
   zIndexOnHover?: CSSType.zIndex,
   zIndexOnFocus?: CSSType.zIndex,
   zIndexOnActive?: CSSType.zIndex,
-  zIndexOnDisabled?: CSSType.zIndex,
+  zIndexOnDisabled?: CSSType.zIndex
 };
 
 export default class Element extends React.Component<ElementProps> {
   static defaultProps = {
-    boxSizing: 'border-box',
+    boxSizing: "border-box"
   };
 
-  static Component = 'div';
+  static Component = "div";
   static className: ?string = null;
 
   render() {
@@ -425,13 +428,13 @@ export default class Element extends React.Component<ElementProps> {
       }
       let v = ownProps[k];
 
-      if (k === 'Component') {
+      if (k === "Component") {
         Component = v;
         continue;
-      } else if (k === 'className') {
+      } else if (k === "className") {
         className.push(v);
         continue;
-      } else if (k === 'style') {
+      } else if (k === "style") {
         continue;
       }
 
@@ -440,19 +443,21 @@ export default class Element extends React.Component<ElementProps> {
         if (v == null) {
           continue;
         }
-        if (spec.applyStrategy === 'dynamic-inline') {
+        if (spec.applyStrategy === "dynamic-inline") {
           style[spec.name] = v;
-        } else if (spec.applyStrategy === 'dynamic') {
+        } else if (spec.applyStrategy === "dynamic") {
           hasDynamicStyle = true;
-          if (spec.state === 'normal') {
+          if (spec.state === "normal") {
             dynamicStyle[spec.name] = v;
           } else {
             dynamicStyle[spec.state] = dynamicStyle[spec.state] || {};
             dynamicStyle[spec.state][spec.name] = v;
           }
           dynamicStyleKey[spec.index] = v;
-        } else if (spec.applyStrategy === 'static') {
-          className.push(staticStylesheetManager.toClassName(spec.state, spec.name, v));
+        } else if (spec.applyStrategy === "static") {
+          className.push(
+            staticStylesheetManager.toClassName(spec.state, spec.name, v)
+          );
         }
       } else {
         props[k] = v;
@@ -460,16 +465,20 @@ export default class Element extends React.Component<ElementProps> {
     }
 
     if (hasDynamicStyle) {
-      className.push(dynamicStylesheetManager.toClassName(dynamicStyleKey, dynamicStyle));
+      className.push(
+        dynamicStylesheetManager.toClassName(dynamicStyleKey, dynamicStyle)
+      );
     }
 
     if (Environment.isTest) {
       className = new CSSClassJoinRepresentation(className);
     } else {
-      className = className.join(' ');
+      className = className.join(" ");
     }
 
-    return <Component {...props} style={expandStyle(style)} className={className} />;
+    return (
+      <Component {...props} style={expandStyle(style)} className={className} />
+    );
   }
 
   transformProps(props: ElementProps): ElementProps {

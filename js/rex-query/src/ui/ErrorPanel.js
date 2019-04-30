@@ -2,17 +2,17 @@
  * @flow
  */
 
-import * as React from 'react';
-import {css, VBox} from 'react-stylesheet';
+import * as React from "react";
+import { css, VBox } from "react-stylesheet";
 
-import * as Theme from './Theme';
+import * as Theme from "./Theme";
 
 type ErrorPanelProps = {
   children?: React.Node,
   borderTop?: boolean,
   borderBottom?: boolean,
   borderRight?: boolean,
-  borderLeft?: boolean,
+  borderLeft?: boolean
 };
 
 export default function ErrorPanel({
@@ -20,7 +20,7 @@ export default function ErrorPanel({
   borderTop,
   borderLeft,
   borderBottom,
-  borderRight,
+  borderRight
 }: ErrorPanelProps) {
   let borderStyle = css.border(2, Theme.invalid.borderColor);
   return (
@@ -32,7 +32,8 @@ export default function ErrorPanel({
       fontSize="9pt"
       padding={10}
       color={Theme.invalid.textColor}
-      background={Theme.invalid.backgroundColor}>
+      background={Theme.invalid.backgroundColor}
+    >
       {children}
     </VBox>
   );

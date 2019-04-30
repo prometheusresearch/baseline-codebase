@@ -4,9 +4,10 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { WithDOMSize, Preloader as BasePreloader } from "rex-widget/ui";
+import { WithDOMSize } from "rex-ui/Layout";
 import { withFetch } from "rex-widget/data";
-import { VBox } from "rex-widget/layout";
+import { VBox } from "react-stylesheet";
+import * as rexui from "rex-ui";
 import Action from "../Action";
 import * as ContextUtils from "../ContextUtils";
 
@@ -19,14 +20,6 @@ function fetchPlotData({ data, context, contextTypes }) {
     ContextUtils.contextToParams(context, contextTypes.input, { query: true })
   );
   return { data };
-}
-
-function Preloader() {
-  return (
-    <VBox flex={1} justifyContent="center" alignItems="center">
-      <BasePreloader />
-    </VBox>
-  );
 }
 
 function buildTraceSpec(trace, plot, key) {
@@ -87,15 +80,19 @@ export default WithDOMSize(
           ...props
         } = this.props;
         return (
-          <Action {...props} flex={1}>
+          <Action {...props} flex={1} ref={this.setElementForDOMSize}>
             {data.updating || this.state.plotly === null ? (
-              <Preloader />
+              <rexui.PreloaderScreen />
             ) : (
               <VBox flexGrow={1} padding={5} ref={this._onPlotElement} />
             )}
           </Action>
         );
       }
+
+      setElementForDOMSize = element => {
+        this.props.setElementForDOMSize(ReactDOM.findDOMNode(element));
+      };
 
       componentDidUpdate() {
         this.plot();

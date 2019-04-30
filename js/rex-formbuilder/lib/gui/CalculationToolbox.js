@@ -5,6 +5,7 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
 
 var Toolbox = require('./Toolbox');
 var CalculationTool = require('./CalculationTool');
@@ -12,7 +13,7 @@ var {CALCULATION_TYPES, Calculation} = require('../calculations');
 var _ = require('../i18n').gettext;
 
 
-var CalculationToolbox = React.createClass({
+var CalculationToolbox = ReactCreateClass({
   render: function () {
     var groups = [
       {
@@ -25,7 +26,7 @@ var CalculationToolbox = React.createClass({
       <Toolbox
         groups={groups}
         tools={Calculation.getRegisteredCalculations()}
-        toolComponent={CalculationTool}
+        toolComponent={CalculationTool.default}
         />
     );
   }

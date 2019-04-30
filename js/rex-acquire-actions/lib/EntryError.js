@@ -3,9 +3,10 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {InjectI18N} from 'rex-i18n';
-import * as Stylesheet from 'rex-widget/stylesheet';
+import * as Stylesheet from 'rex-widget/Stylesheet';
 
 import Error from './Error';
 
@@ -18,7 +19,7 @@ export default InjectI18N(class EntryError extends React.Component {
   });
 
   static propTypes = {
-    errorCode: React.PropTypes.string.isRequired
+    errorCode: PropTypes.string.isRequired
   };
 
   render() {

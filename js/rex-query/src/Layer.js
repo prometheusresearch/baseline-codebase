@@ -3,15 +3,15 @@
  * @flow
  */
 
-import invariant from 'invariant';
-import * as React from 'react';
-import ReactDOM from 'react-dom';
+import invariant from "invariant";
+import * as React from "react";
+import ReactDOM from "react-dom";
 
 type Props = {
   didMount?: HTMLElement => void,
   didUpdate?: HTMLElement => void,
   willUnmount?: HTMLElement => void,
-  children?: React.Node,
+  children?: React.Node
 };
 
 export default class Layer extends React.Component<Props> {
@@ -30,23 +30,23 @@ export default class Layer extends React.Component<Props> {
     this._component = ReactDOM.render(
       React.Children.only(this.props.children),
       element,
-      this._didMount,
+      this._didMount
     );
   }
 
   componentDidUpdate() {
     const element = this._element;
-    invariant(element, 'Expected DOM element');
+    invariant(element, "Expected DOM element");
     this._component = ReactDOM.render(
       React.Children.only(this.props.children),
       element,
-      this._didUpdate,
+      this._didUpdate
     );
   }
 
   componentWillUnmount() {
     const element = this._element;
-    invariant(element != null, 'Invalid DOM state');
+    invariant(element != null, "Invalid DOM state");
     if (this.props.willUnmount) {
       this.props.willUnmount(element);
     }
@@ -60,21 +60,21 @@ export default class Layer extends React.Component<Props> {
 
   _didMount = () => {
     if (this.props.didMount) {
-      invariant(this._element != null, 'Invalid DOM state');
+      invariant(this._element != null, "Invalid DOM state");
       this.props.didMount(this._element);
     }
   };
 
   _didUpdate = () => {
     if (this.props.didUpdate) {
-      invariant(this._element != null, 'Invalid DOM state');
+      invariant(this._element != null, "Invalid DOM state");
       this.props.didUpdate(this._element);
     }
   };
 
   _createElement() {
-    const element = document.createElement('div');
-    element.style.zIndex = '15000';
+    const element = document.createElement("div");
+    element.style.zIndex = "15000";
     if (document.body != null) {
       document.body.appendChild(element);
     }

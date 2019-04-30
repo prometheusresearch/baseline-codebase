@@ -2,14 +2,14 @@
  * @flow
  */
 
-import * as React from 'react';
-import {style, HBox, VBox} from 'react-stylesheet';
-import Label from '../ui/Label';
-import * as Icon from '../ui/Icon';
+import * as React from "react";
+import { style, HBox, VBox } from "react-stylesheet";
+import Label from "../ui/Label";
+import * as Icon from "../ui/Icon";
 
 type QueryVisButtonHeaderStylesheet = {
   Root: React.ComponentType<*>,
-  Button: React.ComponentType<*>,
+  Button: React.ComponentType<*>
 };
 
 type QueryVisButtonHeaderProps = {
@@ -31,39 +31,39 @@ type QueryVisButtonHeaderProps = {
   closeTitle?: string,
 
   onSelect?: () => void,
-  onClose?: () => void,
+  onClose?: () => void
 };
 
 type QueryVisButtonHeaderState = {
   active: boolean,
-  hover: boolean,
+  hover: boolean
 };
 
 export default class QueryVisButtonHeader extends React.Component<
   QueryVisButtonHeaderProps,
-  QueryVisButtonHeaderState,
+  QueryVisButtonHeaderState
 > {
   state = {
     active: true,
-    hover: false,
+    hover: false
   };
 
   static defaultProps = {
-    closeIcon: <Icon.IconRemove />,
+    closeIcon: <Icon.IconRemove />
   };
 
   onMouseEnter = () => {
-    this.setState({hover: true});
+    this.setState({ hover: true });
   };
 
   onMouseLeave = () => {
-    this.setState({hover: false});
+    this.setState({ hover: false });
   };
 
   toggleActive = (e: UIEvent) => {
     e.stopPropagation();
     let active = !this.state.active;
-    this.setState({active});
+    this.setState({ active });
   };
 
   onSelect = (e: UIEvent) => {
@@ -91,9 +91,9 @@ export default class QueryVisButtonHeader extends React.Component<
       closeIcon,
       closeTitle,
       first,
-      stylesheet: {Root, Button},
+      stylesheet: { Root, Button }
     } = this.props;
-    let {active, hover} = this.state;
+    let { active, hover } = this.state;
 
     let buttonLabel = (
       <QueryVisButtonLabel>
@@ -102,8 +102,11 @@ export default class QueryVisButtonHeader extends React.Component<
             paddingRight={5}
             style={{
               visibility:
-                toggleable && (!active || selected || hover) ? 'visible' : 'hidden',
-            }}>
+                toggleable && (!active || selected || hover)
+                  ? "visible"
+                  : "hidden"
+            }}
+          >
             <Button disableActive onClick={toggleable && this.toggleActive}>
               {active ? <Icon.IconCircle /> : <Icon.IconCircleO />}
             </Button>
@@ -111,12 +114,15 @@ export default class QueryVisButtonHeader extends React.Component<
           <HBox flexGrow={1} flexShrink={1}>
             <Label label={label} />
           </HBox>
-          {closeable &&
-            <HBox style={{visibility: selected || hover ? 'visible' : 'hidden'}}>
+          {closeable && (
+            <HBox
+              style={{ visibility: selected || hover ? "visible" : "hidden" }}
+            >
               <Button onClick={this.onClose} title={closeTitle}>
                 {closeIcon}
               </Button>
-            </HBox>}
+            </HBox>
+          )}
         </HBox>
       </QueryVisButtonLabel>
     );
@@ -124,10 +130,11 @@ export default class QueryVisButtonHeader extends React.Component<
     return (
       <Root
         first={first}
-        variant={{selected, invalid}}
+        variant={{ selected, invalid }}
         onClick={selectable && this.onSelect}
         onMouseOver={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}>
+        onMouseLeave={this.onMouseLeave}
+      >
         {buttonLabel}
       </Root>
     );
@@ -135,15 +142,15 @@ export default class QueryVisButtonHeader extends React.Component<
 }
 
 export let QueryVisButtonLabel = style(HBox, {
-  displayName: 'QueryVisButtonLabel',
+  displayName: "QueryVisButtonLabel",
   base: {
     //textTransform: 'capitalize',
-    userSelect: 'none',
-    cursor: 'default',
-    fontSize: '9pt',
+    userSelect: "none",
+    cursor: "default",
+    fontSize: "9pt",
     fontWeight: 400,
     padding: 6,
-    width: '100%',
-    height: 32,
-  },
+    width: "100%",
+    height: 32
+  }
 });

@@ -4,12 +4,11 @@
 
 import React from "react";
 
-import { Action } from "rex-action";
-import { Preloader } from "rex-widget/ui";
+import { Action, TitleBase as Title } from "rex-action";
 import { withFetch, DataSet } from "rex-widget/data";
 import { DataTableBase } from "rex-widget/datatable";
+import * as rexui from "rex-ui";
 
-import Title from "./Title";
 import { getDefinitionContext } from "./context";
 
 function prettifyDefinition(definition) {
@@ -43,7 +42,7 @@ export default withFetch(
       let { definitions } = this.props.fetched;
 
       if (definitions.updating) {
-        return <Preloader />;
+        return <rexui.PreloaderScreen />;
       }
 
       let data = DataSet.fromData(

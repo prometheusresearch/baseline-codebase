@@ -3,10 +3,11 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {InjectI18N} from 'rex-i18n';
-import * as Stylesheet from 'rex-widget/stylesheet';
-import {VBox, HBox} from 'rex-widget/layout';
+import * as Stylesheet from 'rex-widget/Stylesheet';
+import {VBox, HBox} from '@prometheusresearch/react-box';
 
 
 export default InjectI18N(class ChannelChooser extends React.Component {
@@ -28,9 +29,9 @@ export default InjectI18N(class ChannelChooser extends React.Component {
   });
 
   static propTypes = {
-    channels: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    initialChannel: React.PropTypes.string.isRequired,
-    onChange: React.PropTypes.func
+    channels: PropTypes.arrayOf(PropTypes.object).isRequired,
+    initialChannel: PropTypes.string.isRequired,
+    onChange: PropTypes.func
   };
 
   constructor(props) {

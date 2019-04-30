@@ -4,6 +4,7 @@
 
 
 import React from 'react';
+import PropTypes from "prop-types";
 
 import {getInstance} from '../instances';
 import {ProviderContext} from './context';
@@ -109,12 +110,12 @@ export default class Provider extends React.Component {
 
 
 Provider.propTypes = {
-  locale: React.PropTypes.string,
-  timezone: React.PropTypes.string,
-  baseUrl: React.PropTypes.string,
-  translationsUrl: React.PropTypes.string,
-  onLoad: React.PropTypes.func,
-  children: React.PropTypes.element.isRequired
+  locale: PropTypes.string,
+  timezone: PropTypes.string,
+  baseUrl: PropTypes.string,
+  translationsUrl: PropTypes.string,
+  onLoad: PropTypes.func,
+  children: PropTypes.node.isRequired
 };
 
 Provider.contextTypes = {

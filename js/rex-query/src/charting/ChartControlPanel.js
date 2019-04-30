@@ -2,14 +2,16 @@
  * @flow
  */
 
-import * as React from 'react';
-import {VBox} from 'react-stylesheet';
+import * as React from "react";
+import { VBox } from "react-stylesheet";
 
 type ChartControlPanelProps = {
-  children?: React.Node,
+  children?: React.Node
 };
 
-export default function ChartControlPanel({children}: ChartControlPanelProps) {
+export default function ChartControlPanel({
+  children
+}: ChartControlPanelProps) {
   return (
     <VBox
       overflow="visible"
@@ -17,7 +19,8 @@ export default function ChartControlPanel({children}: ChartControlPanelProps) {
       background="#fafafa"
       padding={10}
       borderBottom="1px solid #eee"
-      borderTop="1px solid #eee">
+      borderTop="1px solid #eee"
+    >
       {children}
     </VBox>
   );

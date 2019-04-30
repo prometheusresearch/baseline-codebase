@@ -1,25 +1,14 @@
 {
   "name": "rex-widget-chrome",
   "version": "1.2.4",
-  "main": "lib/index.js",
-  "rex": {
-    "bundleAll": true
-  },
-  "eslintConfig": {
-    "extends": "prometheusresearch",
-    "globals": {
-      "__REX_WIDGET_CHROME_THEME__": true
-    }
-  },
-  "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
-  },
+  "main": "index.js",
   "dependencies": {
+    "react": "*",
+    "react-dom": "*",
+    "@material-ui/core": "*",
+    "@material-ui/styles": "*",
+    "@material-ui/icons": "*",
+    "react-stylesheet": "*",
     "@prometheusresearch/react-ui": "*"
-  },
-  "devDependencies": {
-    "eslint": "^2.13.1",
-    "eslint-config-prometheusresearch": "^0.2.0"
   }
 }

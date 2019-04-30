@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 var DraftSetList = require('./DraftSetList');
 var MenuHeader = require('./MenuHeader');
@@ -14,15 +16,15 @@ var {InstrumentVersionStore} = require('../stores');
 var {format} = require('../util');
 
 
-var DraftSetSelector = React.createClass({
+var DraftSetSelector = ReactCreateClass({
   propTypes: {
-    apiBaseUrl: React.PropTypes.string.isRequired,
-    instrument: React.PropTypes.object.isRequired,
-    onReturn: React.PropTypes.func,
-    onDraftSelected: React.PropTypes.func,
-    draftSetEditorUrlTemplate: React.PropTypes.string,
-    verticalView: React.PropTypes.bool,
-    formPreviewerUrlTemplate: React.PropTypes.string.isRequired
+    apiBaseUrl: PropTypes.string.isRequired,
+    instrument: PropTypes.object.isRequired,
+    onReturn: PropTypes.func,
+    onDraftSelected: PropTypes.func,
+    draftSetEditorUrlTemplate: PropTypes.string,
+    verticalView: PropTypes.bool,
+    formPreviewerUrlTemplate: PropTypes.string.isRequired
   },
 
   getInitialState: function () {
@@ -89,7 +91,7 @@ var DraftSetSelector = React.createClass({
               className="rfb-button"
               onClick={this.props.onReturn}>
               <span className="rfb-icon icon-go-back" />
-              {_('Go Back to Instruments')}
+              <span>{_('Go Back to Instruments')}</span>
             </button>
           }
         </MenuHeader>

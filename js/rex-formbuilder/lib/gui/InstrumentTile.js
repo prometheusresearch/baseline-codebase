@@ -5,12 +5,14 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
 var classNames = require('classnames');
+var ReactCreateClass = require('create-react-class');
 
 
-var InstrumentTile = React.createClass({
+var InstrumentTile = ReactCreateClass({
   propTypes: {
-    instrument: React.PropTypes.object.isRequired
+    instrument: PropTypes.object.isRequired
   },
 
   render: function () {

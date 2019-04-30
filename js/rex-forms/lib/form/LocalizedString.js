@@ -2,7 +2,8 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React, { PropTypes } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 
 import { InjectI18N } from "rex-i18n";
 

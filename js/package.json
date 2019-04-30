@@ -1,8 +1,19 @@
 {
   "private": true,
   "workspaces": ["*"],
+  "devDependencies": {
+    "jest-cli": "^24.0.0",
+    "babel-jest": "^24.0.0",
+    "flow-bin": "0.97.0",
+    "prettier": "^1.16.0",
+    "html-webpack-plugin": "4.0.0-beta.5",
+    "react-cosmos": "4.8.1"
+  },
   "resolutions": {
-    "**/react": "0.14.9",
-    "**/react-dom": "0.14.9"
+    "**/@material-ui/core": "3.9.3",
+    "**/@material-ui/styles": "3.0.0-alpha.10",
+    "**/@material-ui/icons": "3.0.2",
+    "**/react": "16.8.1",
+    "**/react-dom": "16.8.1"
   }
 }

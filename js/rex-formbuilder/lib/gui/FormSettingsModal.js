@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var {Form, schema} = require('react-forms-old');
 var {Mapping} = schema;
 
@@ -15,13 +17,13 @@ var {DraftSetStore} = require('../stores');
 var _ = require('../i18n').gettext;
 
 
-var FormSettingsModal = React.createClass({
+var FormSettingsModal = ReactCreateClass({
   mixins: [
     ModalMixin
   ],
 
   propTypes: {
-    onComplete: React.PropTypes.func
+    onComplete: PropTypes.func
   },
 
   getDefaultProps: function () {

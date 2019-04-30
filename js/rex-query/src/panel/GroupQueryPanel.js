@@ -2,32 +2,33 @@
  * @flow
  */
 
-import type {Actions} from '../state';
-import type {GroupQuery} from '../model/types';
+import type { Actions } from "../state";
+import type { GroupQuery } from "../model/types";
 
-import React from 'react';
+import React from "react";
+import PropTypes from "prop-types";
 
-import * as t from '../model/Type';
-import {Theme, Menu} from '../ui';
-import QueryPanelBase from './QueryPanelBase';
+import * as t from "../model/Type";
+import { Theme, Menu } from "../ui";
+import QueryPanelBase from "./QueryPanelBase";
 
 type GroupQueryPanelProps = {
   query: GroupQuery,
-  onClose: () => *,
+  onClose: () => *
 };
 
 export default class GroupQueryPanel extends React.Component<GroupQueryPanelProps> {
   context: {
-    actions: Actions,
+    actions: Actions
   };
 
-  static contextTypes = {actions: React.PropTypes.object};
+  static contextTypes = { actions: PropTypes.object };
 
   onSelect = (path: string) => {
     let byPath = this.props.query.byPath.concat(path);
     this.context.actions.setGroupByPath({
       at: this.props.query,
-      byPath,
+      byPath
     });
   };
 
@@ -35,12 +36,12 @@ export default class GroupQueryPanel extends React.Component<GroupQueryPanelProp
     let byPath = this.props.query.byPath.filter(p => p !== path);
     this.context.actions.setGroupByPath({
       at: this.props.query,
-      byPath,
+      byPath
     });
   };
 
   render() {
-    const {query, onClose, ...rest} = this.props;
+    const { query, onClose, ...rest } = this.props;
 
     return (
       <QueryPanelBase
@@ -48,7 +49,8 @@ export default class GroupQueryPanel extends React.Component<GroupQueryPanelProp
         title="Group"
         onClose={onClose}
         theme={Theme.group}
-        query={query}>
+        query={query}
+      >
         <GroupMenu
           query={query}
           onSelect={this.onSelect}
@@ -60,13 +62,24 @@ export default class GroupQueryPanel extends React.Component<GroupQueryPanelProp
 }
 
 function canGroupBy(type) {
-  return !(type.name === 'invalid' || type.name === 'record' || type.card === 'seq');
+  return !(
+    type.name === "invalid" ||
+    type.name === "record" ||
+    type.card === "seq"
+  );
 }
 
 function GroupMenu({
-  query: {byPath, context: {domain, scope, prev: {type, scope: prevScope}}},
+  query: {
+    byPath,
+    context: {
+      domain,
+      scope,
+      prev: { type, scope: prevScope }
+    }
+  },
   onSelect,
-  onSelectRemove,
+  onSelectRemove
 }) {
   let items = [];
   if (byPath.length > 0) {
@@ -90,7 +103,7 @@ function GroupMenu({
           path={name}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
-        />,
+        />
       );
     }
 
@@ -110,15 +123,11 @@ function GroupMenu({
           path={name}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
-        />,
+        />
       );
     }
   }
-  return (
-    <Menu.MenuGroup>
-      {items}
-    </Menu.MenuGroup>
-  );
+  return <Menu.MenuGroup>{items}</Menu.MenuGroup>;
 }
 
 class GroupButton extends React.Component<*> {
@@ -132,12 +141,13 @@ class GroupButton extends React.Component<*> {
   };
 
   render() {
-    let {name, selected} = this.props;
+    let { name, selected } = this.props;
     return (
       <Menu.MenuButton
         onClick={this.onClick}
-        icon={selected ? '✓' : null}
-        selected={selected}>
+        icon={selected ? "✓" : null}
+        selected={selected}
+      >
         {name}
       </Menu.MenuButton>
     );

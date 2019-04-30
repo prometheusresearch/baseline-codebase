@@ -5,6 +5,7 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
 var dotQs = require('dot-qs');
 
 var merge = require('./merge');
@@ -118,7 +119,7 @@ class Ajax {
 
 var AjaxMixin = {
   propTypes: {
-    apiBaseUrl: React.PropTypes.string.isRequired
+    apiBaseUrl: PropTypes.string.isRequired
   },
 
   _initializeAjax: function () {

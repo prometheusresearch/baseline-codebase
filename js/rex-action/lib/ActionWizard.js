@@ -1,62 +1,40 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
-import React, {PropTypes} from 'react';
+import * as React from "react";
+import * as css from "rex-ui/css";
+import * as mui from "@material-ui/core";
+import { VBox } from "react-stylesheet";
 
-import * as Stylesheet from 'rex-widget/stylesheet';
-import * as CSS from 'rex-widget/css';
-import {VBox} from 'rex-widget/layout';
-
-export class ChromeRoot extends React.Component {
-  static stylesheet = Stylesheet.create({
-    Wrapper: {
-      Component: VBox,
-      flex: 1,
-      background: CSS.rgb(244, 244, 244),
-    },
-    Action: {
-      Component: VBox,
-      flex: 1,
-      width: 800,
-      margin: CSS.margin(0, CSS.auto),
-      background: CSS.rgb(255, 255, 255),
-      boxShadow: CSS.boxShadow(0, 0, 2, 1, CSS.rgb(204, 204, 204)),
-    },
+export function ActionWizard(
+  props: {| noChrome?: boolean, action: React.Element<any> |}
+) {
+  let { action, noChrome } = props;
+  action = React.cloneElement(action, {
+    context: {}
   });
-
-  render() {
-    let {Wrapper, Action} = this.constructor.stylesheet;
-    let {children} = this.props;
+  if (noChrome) {
+    return <VBox flexGrow={1} flexShrink={1}>{action}</VBox>;
+  } else {
     return (
-      <Wrapper>
-        <Action>
-          {children}
-        </Action>
-      </Wrapper>
+      <VBox flexGrow={1} flexShrink={1} background={css.rgb(244, 244, 244)}>
+        <mui.Paper
+          square={true}
+          style={{
+            display: "flex",
+            flexGrow: 1,
+            flexShrink: 1,
+            maxWidth: 800,
+            width: "100%",
+            overflow: "auto",
+            margin: css.margin(0, css.auto)
+          }}
+        >
+          {action}
+        </mui.Paper>
+      </VBox>
     );
-  }
-}
-
-export default class ActionWizard extends React.Component {
-  static propTypes = {
-    noChrome: PropTypes.bool,
-  };
-
-  static stylesheet = Stylesheet.create({
-    Root: {
-      Component: VBox,
-      flex: 1,
-    },
-    ChromeRoot,
-  });
-
-  render() {
-    let {ChromeRoot, Root} = this.constructor.stylesheet;
-    let {action, noChrome} = this.props;
-    action = React.cloneElement(this.props.action, {
-      context: {},
-    });
-    return noChrome ? <Root>{action}</Root> : <ChromeRoot>{action}</ChromeRoot>;
   }
 }

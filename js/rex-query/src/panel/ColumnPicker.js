@@ -2,54 +2,57 @@
  * @flow
  */
 
-import type {QueryNavigation, QueryPipeline} from '../model/types';
-import type {Actions} from '../state';
-import type {SearchCallback} from '../ui/Search';
+import type { QueryNavigation, QueryPipeline } from "../model/types";
+import type { Actions } from "../state";
+import type { SearchCallback } from "../ui/Search";
 
-import React from 'react';
-import {VBox, HBox} from 'react-stylesheet';
+import React from "react";
+import PropTypes from "prop-types";
+import { VBox, HBox } from "react-stylesheet";
 
-import {Icon, TagLabel, Label, Menu, NavigationMenu} from '../ui';
-import * as feature from '../feature';
-import {getInsertionPoint} from '../model/QueryOperation';
+import { Icon, TagLabel, Label, Menu, NavigationMenu } from "../ui";
+import * as feature from "../feature";
+import { getInsertionPoint } from "../model/QueryOperation";
 
 type ColumnPickerProps = {
   query: QueryPipeline,
-  onSelect: (payload: {path: string}) => *,
-  onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
+  onSelect: (payload: { path: string }) => *,
+  onSelectRemove: (payload: { path: string, query: QueryPipeline }) => *,
   onSelectAll: () => void,
-  onSearch?: SearchCallback,
+  onSearch?: SearchCallback
 };
 
 export default class ColumnPicker extends React.Component<ColumnPickerProps> {
   context: {
-    actions: Actions,
+    actions: Actions
   };
 
   static contextTypes = {
-    actions: React.PropTypes.object,
+    actions: PropTypes.object
   };
 
   render() {
-    let {query, onSearch} = this.props;
+    let { query, onSearch } = this.props;
     let context =
-      query.context.type.name === 'invalid'
+      query.context.type.name === "invalid"
         ? query.context.prev
         : getInsertionPoint(query).context;
     const NavigationMenuContents = this.NavigationMenuContents;
     return (
       <NavigationMenu onSearch={onSearch} context={context}>
-        {navigation => <NavigationMenuContents {...this.props} navigation={navigation} />}
+        {navigation => (
+          <NavigationMenuContents {...this.props} navigation={navigation} />
+        )}
       </NavigationMenu>
     );
   }
 
   NavigationMenuContents = (
-    props: ColumnPickerProps & {navigation: Map<string, QueryNavigation>},
+    props: ColumnPickerProps & { navigation: Map<string, QueryNavigation> }
   ) => {
-    let {query, navigation, onSelect, onSelectRemove} = props;
+    let { query, navigation, onSelect, onSelectRemove } = props;
 
-    let {type} = query.context;
+    let { type } = query.context;
     let active = getNavigationIndex(query);
     let entityList = [];
     let queryList = [];
@@ -75,7 +78,7 @@ export default class ColumnPicker extends React.Component<ColumnPickerProps> {
       );
       if (column.groupBy) {
         groupByAttributeList.push(button);
-      } else if (column.type === 'record') {
+      } else if (column.type === "record") {
         queryList.push(button);
         entityList.push(column);
       } else {
@@ -86,32 +89,36 @@ export default class ColumnPicker extends React.Component<ColumnPickerProps> {
       <VBox paddingBottom={10}>
         <VBox>
           <Menu.MenuGroup>
-            <Menu.MenuButton onClick={this.props.onSelectAll}>Select all</Menu.MenuButton>
+            <Menu.MenuButton onClick={this.props.onSelectAll}>
+              Select all
+            </Menu.MenuButton>
           </Menu.MenuGroup>
         </VBox>
-        {groupByAttributeList.length > 0 &&
+        {groupByAttributeList.length > 0 && (
           <VBox paddingBottom={10}>
             <Menu.MenuGroup title="Group by columns">
               {groupByAttributeList}
             </Menu.MenuGroup>
-          </VBox>}
-        {queryList.length > 0 &&
+          </VBox>
+        )}
+        {queryList.length > 0 && (
           <VBox paddingBottom={10}>
             <Menu.MenuGroup
               title={
-                type.name === 'invalid' || type.name === 'void'
-                  ? 'Entities'
-                  : 'Relationships'
-              }>
+                type.name === "invalid" || type.name === "void"
+                  ? "Entities"
+                  : "Relationships"
+              }
+            >
               {queryList}
             </Menu.MenuGroup>
-          </VBox>}
-        {attributeList.length > 0 &&
+          </VBox>
+        )}
+        {attributeList.length > 0 && (
           <VBox paddingBottom={10}>
-            <Menu.MenuGroup title="Attributes">
-              {attributeList}
-            </Menu.MenuGroup>
-          </VBox>}
+            <Menu.MenuGroup title="Attributes">{attributeList}</Menu.MenuGroup>
+          </VBox>
+        )}
       </VBox>
     );
   };
@@ -120,42 +127,42 @@ export default class ColumnPicker extends React.Component<ColumnPickerProps> {
     this.context.actions.appendDefine({
       at: this.props.query,
       select: true,
-      path: [nav.value],
+      path: [nav.value]
     });
   };
 
-  onAggregate = (payload: {path: string}) => {
+  onAggregate = (payload: { path: string }) => {
     let domain = this.props.query.context.domain;
     this.context.actions.appendDefineAndAggregate({
       at: this.props.query,
       path: [payload.path],
-      aggregate: domain.aggregate.count,
+      aggregate: domain.aggregate.count
     });
   };
 
-  onFocusSelection = (payload: {path: string}) => {
+  onFocusSelection = (payload: { path: string }) => {
     this.context.actions.selectFocus({
       at: this.props.query,
-      path: [payload.path],
+      path: [payload.path]
     });
   };
 
   onFilter = () => {
-    this.context.actions.appendFilter({at: this.props.query});
+    this.context.actions.appendFilter({ at: this.props.query });
   };
 
-  onNavigate = (payload: {path: string}) => {
+  onNavigate = (payload: { path: string }) => {
     this.context.actions.appendNavigate({
       at: this.props.query,
-      path: [payload.path],
+      path: [payload.path]
     });
   };
 
-  onAddQuery = (payload: {path: string}) => {
+  onAddQuery = (payload: { path: string }) => {
     this.context.actions.appendDefine({
       at: this.props.query,
       select: true,
-      path: [payload.path],
+      path: [payload.path]
     });
   };
 }
@@ -163,14 +170,14 @@ export default class ColumnPicker extends React.Component<ColumnPickerProps> {
 type ColumnPickerButtonProps = {
   query?: QueryPipeline,
   column: QueryNavigation,
-  onSelect: (payload: {path: string}) => *,
-  onNavigate: (payload: {path: string}) => *,
-  onAggregate: (payload: {path: string}) => *,
-  onAddQuery: (payload: {path: string}) => *,
-  onFocusSelection: (payload: {path: string}) => *,
-  onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
+  onSelect: (payload: { path: string }) => *,
+  onNavigate: (payload: { path: string }) => *,
+  onAggregate: (payload: { path: string }) => *,
+  onAddQuery: (payload: { path: string }) => *,
+  onFocusSelection: (payload: { path: string }) => *,
+  onSelectRemove: (payload: { path: string, query: QueryPipeline }) => *,
   disabled?: boolean,
-  actions: Actions,
+  actions: Actions
 };
 
 class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
@@ -178,35 +185,35 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
 
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
-    let {onSelect, onSelectRemove, column, query} = this.props;
+    let { onSelect, onSelectRemove, column, query } = this.props;
     if (query != null) {
-      onSelectRemove({path: column.value, query});
+      onSelectRemove({ path: column.value, query });
     } else {
-      onSelect({path: column.value});
+      onSelect({ path: column.value });
     }
   };
 
   onNavigate = () => {
-    let {onNavigate, column} = this.props;
-    onNavigate({path: column.value});
+    let { onNavigate, column } = this.props;
+    onNavigate({ path: column.value });
   };
 
   onAddQuery = () => {
-    let {onAddQuery, column} = this.props;
-    onAddQuery({path: column.value});
+    let { onAddQuery, column } = this.props;
+    onAddQuery({ path: column.value });
   };
 
   onAggregate = () => {
-    let {onAggregate, column} = this.props;
-    onAggregate({path: column.value});
+    let { onAggregate, column } = this.props;
+    onAggregate({ path: column.value });
   };
 
   onFocusSelection = () => {
-    let {onFocusSelection, column} = this.props;
+    let { onFocusSelection, column } = this.props;
     if (this.button != null) {
       this.button.toggleMenuOpen();
     }
-    onFocusSelection({path: column.value});
+    onFocusSelection({ path: column.value });
   };
 
   onButton = button => {
@@ -214,12 +221,14 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
   };
 
   render() {
-    let {column, query, disabled} = this.props;
+    let { column, query, disabled } = this.props;
     let title;
     if (query != null) {
       title = `Hide "${column.label}" in the output`;
-    } else if (column.card === 'seq') {
-      title = `Show "${column.label}" in the output. The count will be shown because the attribute is plural`;
+    } else if (column.card === "seq") {
+      title = `Show "${
+        column.label
+      }" in the output. The count will be shown because the attribute is plural`;
     } else {
       title = `Show "${column.label}" in the output.`;
     }
@@ -229,7 +238,7 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
         ref={this.onButton}
         title={title}
         selected={query != null}
-        icon={query != null ? '✓' : null}
+        icon={query != null ? "✓" : null}
         menu={
           feature.ENABLE_ATTRIBUTE_CONTEXT_MENU &&
           !disabled && [
@@ -237,38 +246,46 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
               icon={<Icon.IconPlus />}
               title={`Link "${column.label}" query`}
               onClick={this.onAddQuery}
-              key="define">
+              key="define"
+            >
               Link {column.label}
             </Menu.MenuButtonSecondary>,
             <Menu.MenuButtonSecondary
               icon="⇩"
-              title={`Follow "${column.label}" and discard all other attributes`}
+              title={`Follow "${
+                column.label
+              }" and discard all other attributes`}
               onClick={this.onNavigate}
-              key="navigate">
+              key="navigate"
+            >
               Follow {column.label}
             </Menu.MenuButtonSecondary>,
-            column.card === 'seq' &&
+            column.card === "seq" && (
               <Menu.MenuButtonSecondary
                 icon="∑"
                 title={`Compute summarizations for "${column.label}"`}
                 onClick={this.onAggregate}
-                key="summarize">
+                key="summarize"
+              >
                 Summarize {column.label}
-              </Menu.MenuButtonSecondary>,
+              </Menu.MenuButtonSecondary>
+            ),
             <Menu.MenuButtonSecondary
               icon="•"
               title={`Deselect all columns but "${column.label}"`}
               onClick={this.onFocusSelection}
-              key="focus-selection">
+              key="focus-selection"
+            >
               Select only {column.label}
-            </Menu.MenuButtonSecondary>,
+            </Menu.MenuButtonSecondary>
           ]
         }
-        onClick={this.onSelect}>
+        onClick={this.onSelect}
+      >
         <HBox flexShrink={1} flexGrow={1} alignItems="center">
           <Label
             label={
-              column.card === 'seq' && !column.fromQuery
+              column.card === "seq" && !column.fromQuery
                 ? `# ${column.label}`
                 : column.label
             }
@@ -280,7 +297,9 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
   }
 }
 
-function getNavigationIndex(query: QueryPipeline): {[key: string]: QueryPipeline} {
+function getNavigationIndex(
+  query: QueryPipeline
+): { [key: string]: QueryPipeline } {
   const noNavigation = {};
   if (query.pipeline.length === 0) {
     return noNavigation;
@@ -288,9 +307,9 @@ function getNavigationIndex(query: QueryPipeline): {[key: string]: QueryPipeline
   const lastIndex = query.pipeline.length - 1;
   const last = query.pipeline[lastIndex];
   const navigation = {};
-  if (last.name === 'navigate') {
+  if (last.name === "navigate") {
     navigation[last.path] = query;
-  } else if (last.name === 'select') {
+  } else if (last.name === "select") {
     for (let name in last.select) {
       if (!last.select.hasOwnProperty(name)) {
         continue;

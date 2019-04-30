@@ -9,6 +9,7 @@ var assert  = require('assert');
 var ReactForms    = require('../');
 var {fromJS, is}  = require('immutable');
 var React         = require('react');
+var ReactDOM      = require('react-dom');
 var TestUtils     = require('react/lib/ReactTestUtils');
 
 var {Form, Field, Fieldset} = ReactForms;
@@ -57,8 +58,8 @@ describe('nested form integration test', function() {
     assert.ok(inputs.text);
     assert.ok(inputs.num);
 
-    assert.equal(inputs.text.getDOMNode().value, '');
-    assert.equal(inputs.num.getDOMNode().value, '');
+    assert.equal(ReactDOM.findDOMNode(inputs.text).value, '');
+    assert.equal(ReactDOM.findDOMNode(inputs.num).value, '');
   });
 
   it('has empty value initially', function() {

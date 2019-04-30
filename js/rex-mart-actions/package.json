@@ -10,27 +10,15 @@
   },
   "dependencies": {
     "@prometheusresearch/react-ui": "*",
-    "@prometheusresearch/react-datetimepicker": "*",
     "react-stylesheet": "*",
-    "react-virtualized": "^8.7.1",
+    "react-window": "^1.0.0",
+    "react-virtualized-auto-sizer": "*",
     "lodash": "^4.15.0",
     "downloadjs": "^1.4.6",
     "moment": "^2.15.2",
     "debounce-promise": "^2.1.1",
-    "rex-query": "*"
-  },
-  "devDependencies": {
-    "flow-bin": "^0.61.0",
-    "prettier": "^1.5.3",
-    "eslint": "3.8.1",
-    "eslint-config-react-app": "0.5.0",
-    "eslint-plugin-flowtype": "2.21.0",
-    "eslint-plugin-import": "2.0.1",
-    "eslint-plugin-jsx-a11y": "2.2.3",
-    "eslint-plugin-react": "6.4.1"
-  },
-  "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
+    "rex-query": "*",
+    "react": "*",
+    "react-dom": "*"
   }
 }

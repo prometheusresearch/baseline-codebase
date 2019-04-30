@@ -4,12 +4,11 @@
 
 import React from "react";
 
-import { Action } from "rex-action";
-import { Preloader } from "rex-widget/ui";
+import { Action, TitleBase as Title } from "rex-action";
 import { withFetch, DataSet } from "rex-widget/data";
 import { DataTableBase } from "rex-widget/datatable";
+import * as rexui from 'rex-ui';
 
-import Title from "./Title";
 import prettyBytes from "./prettyBytes";
 import { getDefinitionContext, getToolContext } from "./context";
 
@@ -51,7 +50,7 @@ export default withFetch(
       let { mart_definition } = this.props.context;
 
       if (marts.updating) {
-        return <Preloader />;
+        return <rexui.PreloaderScreen />;
       }
 
       let data = DataSet.fromData(marts.data.marts.map(prettifyMart));

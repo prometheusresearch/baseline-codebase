@@ -2,15 +2,15 @@
  * @flow
  */
 
-import * as types from './types';
+import * as types from "./types";
 
-import * as React from 'react';
-import * as recharts from 'recharts';
-import {VBox} from 'react-stylesheet';
+import * as React from "react";
+import * as recharts from "recharts";
+import { VBox } from "react-stylesheet";
 
-import ChartTitle from './ChartTitle';
-import Preloader from './Preloader';
-import NoDataMessage from './NoDataMessage';
+import ChartTitle from "./ChartTitle";
+import Preloader from "./Preloader";
+import NoDataMessage from "./NoDataMessage";
 
 type LineChartProps = types.ChartBaseProps<types.LineChart>;
 
@@ -19,7 +19,7 @@ export default function LineChart({
   onLabel,
   chart,
   data,
-  dataIsUpdating,
+  dataIsUpdating
 }: LineChartProps) {
   let rendered = null;
   if (dataIsUpdating) {
@@ -34,12 +34,21 @@ export default function LineChart({
         data={data}
         width={width}
         height={400}
-        style={{fontWeight: 200, fontSize: '9pt'}}
-        margin={{top: 100, right: 30, left: 20, bottom: 5}}>
+        style={{ fontWeight: 200, fontSize: "9pt" }}
+        margin={{ top: 100, right: 30, left: 20, bottom: 5 }}
+      >
         <g>
-          <ChartTitle width={width} left={300} value={label} onChange={onLabel} />
+          <ChartTitle
+            width={width}
+            left={300}
+            value={label}
+            onChange={onLabel}
+          />
         </g>
-        <recharts.XAxis dataKey={String(chart.labelColumn)} name={chart.label} />
+        <recharts.XAxis
+          dataKey={String(chart.labelColumn)}
+          name={chart.label}
+        />
         <recharts.YAxis />
         <recharts.CartesianGrid strokeDasharray="3 3" />
         <recharts.Tooltip label={chart.label} />
@@ -65,6 +74,8 @@ export default function LineChart({
   );
 }
 
-function getLineChartKey(chart: LineChart): string {
-  return chart.lineList.map(bar => `${bar.valueColumn}--${bar.color}`).join(':');
+function getLineChartKey(chart: types.LineChart): string {
+  return chart.lineList
+    .map(bar => `${String(bar.valueColumn)}--${bar.color}`)
+    .join(":");
 }

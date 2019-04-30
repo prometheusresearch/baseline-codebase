@@ -3,6 +3,7 @@
 var {is, fromJS}      = require('immutable');
 var assert            = require('assert');
 var React             = require('react');
+var ReactDOM          = require('react-dom');
 var ReactTestUtils    = require('react/lib/ReactTestUtils');
 var sinon             = require('sinon');
 var Form              = require('../Form');
@@ -69,24 +70,24 @@ describe('React Forms', () => {
 
       it('renders into <form/> by default', () => {
         form = render({});
-        assert.equal(form.getDOMNode().tagName, 'FORM');
+        assert.equal(ReactDOM.findDOMNode(form).tagName, 'FORM');
       });
 
       it('has .rf-Form className', () => {
         form = render({});
-        assert.ok(form.getDOMNode().classList.contains('rf-Form'));
-        assert.ok(!form.getDOMNode().classList.contains('rf-Form--invalid'));
+        assert.ok(ReactDOM.findDOMNode(form).classList.contains('rf-Form'));
+        assert.ok(!ReactDOM.findDOMNode(form).classList.contains('rf-Form--invalid'));
       });
 
       it('has .rf-Form--invalid className when contains invalid value', () => {
         form = render({defaultValue: {a: 'a', b: 'b'}});
-        assert.ok(form.getDOMNode().classList.contains('rf-Form'));
-        assert.ok(form.getDOMNode().classList.contains('rf-Form--invalid'));
+        assert.ok(ReactDOM.findDOMNode(form).classList.contains('rf-Form'));
+        assert.ok(ReactDOM.findDOMNode(form).classList.contains('rf-Form--invalid'));
       });
 
       it('can render into DOM component specified via component prop', () => {
         form = render({component: 'div'});
-        assert.equal(form.getDOMNode().tagName, 'DIV');
+        assert.equal(ReactDOM.findDOMNode(form).tagName, 'DIV');
       });
 
       it('updates external valiation on corresponding prop change', () => {

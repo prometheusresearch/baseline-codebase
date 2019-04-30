@@ -2,31 +2,33 @@
  * @flow
  */
 
-import type {QueryNavigation} from '../model/types';
+import type { QueryNavigation } from "../model/types";
 
 export type SearchResult = {
   value: string,
-  label: string,
+  label: string
 };
 
 export type SearchCallbackParams = {
   searchTerm: ?string,
-  navigation: Map<string, QueryNavigation>,
+  navigation: Map<string, QueryNavigation>
 };
 
-export type SearchCallback = (SearchCallbackParams) => Promise<Array<SearchResult>>;
+export type SearchCallback = SearchCallbackParams => Promise<
+  Array<SearchResult>
+>;
 
-export let dummySearch: SearchCallback = ({searchTerm, navigation}) => {
+export let dummySearch: SearchCallback = ({ searchTerm, navigation }) => {
   return new Promise((resolve, reject) => {
     if (searchTerm == null) {
       let searchResultList = Array.from(navigation.values());
       resolve(searchResultList);
     } else {
-      let searchTermRe = new RegExp(searchTerm, 'ig');
+      let searchTermRe = new RegExp(searchTerm, "ig");
       let searchResultList = [];
       for (let item of navigation.values()) {
         if (searchTermRe.test(item.label) || searchTermRe.test(item.value)) {
-          searchResultList.push({label: item.label, value: item.value});
+          searchResultList.push({ label: item.label, value: item.value });
         }
       }
       resolve(searchResultList);
@@ -36,7 +38,7 @@ export let dummySearch: SearchCallback = ({searchTerm, navigation}) => {
 
 export function runSearch(
   search: SearchCallback,
-  params: SearchCallbackParams,
+  params: SearchCallbackParams
 ): Promise<Map<string, QueryNavigation>> {
   return search(params).then(searchResultList => {
     let nextNavigation = new Map();
@@ -46,7 +48,7 @@ export function runSearch(
       if (proto == null) {
         continue;
       }
-      nextNavigation.set(proto.value, {...proto, ...result});
+      nextNavigation.set(proto.value, { ...proto, ...result });
     }
     return nextNavigation;
   });

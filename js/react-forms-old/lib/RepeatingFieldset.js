@@ -3,17 +3,17 @@
  */
 'use strict';
 
-var React           = require('react/addons');
-var PropTypes       = React.PropTypes;
+var React           = require('react');
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var cx              = require('classnames');
-var cloneWithProps  = React.addons.cloneWithProps;
 var Label           = require('./Label');
 var Element         = require('./Element');
 var FormPropTypes   = require('./PropTypes');
 var emptyFunction   = require('./emptyFunction');
 var defaultValue    = require('./defaultValue');
 
-var Item = React.createClass({
+var Item = ReactCreateClass({
 
   render() {
     var {className, noRemoveButton, onRemove, value, ...props} = this.props;
@@ -35,22 +35,12 @@ var Item = React.createClass({
 /**
  * A component which renders values which correspond to List schema node.
  */
-var RepeatingFieldset = React.createClass({
-
-  propTypes: {
-    value: FormPropTypes.Value,
-    onAdd: PropTypes.func,
-    onRemove: PropTypes.func,
-    label: PropTypes.string,
-    noLabel: PropTypes.bool,
-    hint: PropTypes.string,
-    noAddButton: PropTypes.bool,
-    noRemoveButton: PropTypes.bool
-  },
+var RepeatingFieldset = ReactCreateClass({
 
   render() {
     var {
       item: Item, value, className, noAddButton, noRemoveButton,
+      dirtyOnChange, dirtyOnBlur,
       onAdd, onRemove, noLabel, label, hint, ...props
     } = this.props;
     return (
@@ -78,7 +68,7 @@ var RepeatingFieldset = React.createClass({
               )
             };
             return React.isValidElement(Item) ?
-              cloneWithProps(Item, props) :
+              React.cloneElement(Item, props) :
               <Item {...props} />;
           })}
         </div>

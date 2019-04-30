@@ -7,6 +7,6 @@ import style from './style';
 import stylesheet from './Stylesheet';
 import * as css from './css';
 import Element from './Element';
-import {VBox, HBox} from './Box';
+import {VBox, HBox, baseStyle as boxStyle} from './Box';
 
-export {style, stylesheet, css, Element, VBox, HBox};
+export {style, stylesheet, css, Element, VBox, HBox, boxStyle};

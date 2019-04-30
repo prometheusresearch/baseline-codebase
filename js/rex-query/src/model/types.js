@@ -2,42 +2,42 @@
  * @flow
  */
 
-import * as React from 'react';
+import * as React from "react";
 
 /* eslint-disable no-use-before-define */
 
 export type Domain = {
   // Aggregate catalogue.
   aggregate: {
-    [aggregateName: string]: DomainAggregate,
+    [aggregateName: string]: DomainAggregate
   },
 
   // Entity catalogue (tables).
   entity: {
-    [entityName: string]: DomainEntity,
-  },
+    [entityName: string]: DomainEntity
+  }
 };
 
 export type DomainAggregate = {
   title: string,
   name: string,
   isAllowed: (typ: Type) => boolean,
-  makeType: (typ: Type) => Type,
+  makeType: (typ: Type) => Type
 };
 
 export type DomainEntity = {
   title: string,
-  attribute: DomainAttributeMap,
+  attribute: DomainAttributeMap
 };
 
 export type DomainAttribute = {
   title: string,
   type: Type,
-  groupBy?: boolean,
+  groupBy?: boolean
 };
 
 export type DomainAttributeMap = {
-  [name: string]: DomainAttribute,
+  [name: string]: DomainAttribute
 };
 
 export type Type =
@@ -53,88 +53,88 @@ export type Type =
   | InvalidType
   | RecordType;
 
-export type TypeCardinality = 'seq' | 'opt' | null;
+export type TypeCardinality = "seq" | "opt" | null;
 
 type TypeCardinalityProp = {
-  card: TypeCardinality,
+  card: TypeCardinality
 };
 
 export type InvalidType = {
-  name: 'invalid',
+  name: "invalid",
   domain: Domain,
-  card: null,
+  card: null
 };
 
 export type VoidType = {
-  name: 'void',
-  domain: Domain,
+  name: "void",
+  domain: Domain
 } & TypeCardinalityProp;
 
 export type TextType = {
-  name: 'text',
-  domain: Domain,
+  name: "text",
+  domain: Domain
 } & TypeCardinalityProp;
 
 export type JSONType = {
-  name: 'json',
-  domain: Domain,
+  name: "json",
+  domain: Domain
 } & TypeCardinalityProp;
 
 export type NumberType = {
-  name: 'number',
-  domain: Domain,
+  name: "number",
+  domain: Domain
 } & TypeCardinalityProp;
 
 export type BooleanType = {
-  name: 'boolean',
-  domain: Domain,
+  name: "boolean",
+  domain: Domain
 } & TypeCardinalityProp;
 
 export type EnumerationType = {
-  name: 'enumeration',
+  name: "enumeration",
   enumerations: Array<string>,
-  domain: Domain,
+  domain: Domain
 } & TypeCardinalityProp;
 
 export type DateType = {
-  name: 'date',
+  name: "date",
   domain: Domain,
-  attribute: DomainAttributeMap,
+  attribute: DomainAttributeMap
 } & TypeCardinalityProp;
 
 export type TimeType = {
-  name: 'time',
+  name: "time",
   domain: Domain,
-  attribute: DomainAttributeMap,
+  attribute: DomainAttributeMap
 } & TypeCardinalityProp;
 
 export type DateTimeType = {
-  name: 'datetime',
+  name: "datetime",
   domain: Domain,
-  attribute: DomainAttributeMap,
+  attribute: DomainAttributeMap
 } & TypeCardinalityProp;
 
 export type RecordType = {
-  name: 'record',
+  name: "record",
   entity: ?string,
   attribute: ?DomainAttributeMap,
-  domain: Domain,
+  domain: Domain
 } & TypeCardinalityProp;
 
 export type HereQuery = {
   +id: string,
-  +name: 'here',
+  +name: "here",
   +context: Context,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 export type NavigateQuery = {
   +id: string,
-  +name: 'navigate',
+  +name: "navigate",
   +path: string,
   +context: Context,
   +regular: boolean,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 /**
@@ -142,122 +142,122 @@ export type NavigateQuery = {
  */
 export type SelectQuery = {
   +id: string,
-  +name: 'select',
+  +name: "select",
 
   /**
    * Select fields, each field maps to a pipeline.
    */
-  +select: {[name: string]: QueryPipeline},
+  +select: { [name: string]: QueryPipeline },
 
   /**
    * Current sorting state.
    */
   +sort: ?{
     navigatePath: Array<string>,
-    dir: 'asc' | 'desc',
+    dir: "asc" | "desc"
   },
 
   +context: Context,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 type DefineQueryBinding = {
   +name: string,
-  +query: QueryPipeline,
+  +query: QueryPipeline
 };
 
 export type DefineQuery = {
   +id: string,
-  +name: 'define',
+  +name: "define",
   +binding: DefineQueryBinding,
   +context: Context,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 export type FilterQuery = {
   +id: string,
-  +name: 'filter',
-  +predicate: Expression,
+  +name: "filter",
+  +predicate: ?Expression,
   +context: Context,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 export type LimitQuery = {
   +id: string,
-  +name: 'limit',
+  +name: "limit",
   +limit: number,
   +context: Context,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 export type AggregateQuery = {
   +id: string,
-  +name: 'aggregate',
+  +name: "aggregate",
   +aggregate: string,
   +path: ?string,
   +context: Context,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 export type GroupQuery = {
   +id: string,
-  +name: 'group',
+  +name: "group",
   +byPath: Array<string>,
   +context: Context,
-  +savedSelect: ?SelectQuery,
+  +savedSelect: ?SelectQuery
 };
 
 export type QueryPipeline = {
   +id: string,
-  +name: 'pipeline',
+  +name: "pipeline",
   +pipeline: Array<QueryAtom>,
-  +context: Context,
+  +context: Context
 };
 
 export type BinaryOperator =
-  | 'equal'
-  | 'notEqual'
-  | 'less'
-  | 'lessEqual'
-  | 'greater'
-  | 'greaterEqual'
-  | 'greaterEqual'
-  | 'contains';
+  | "equal"
+  | "notEqual"
+  | "less"
+  | "lessEqual"
+  | "greater"
+  | "greaterEqual"
+  | "greaterEqual"
+  | "contains";
 
 export type BinaryExpression = {
   +id: string,
-  +name: 'binary',
+  +name: "binary",
   +op: BinaryOperator,
   +left: Expression,
   +right: Expression,
-  +context: Context,
+  +context: Context
 };
 
-export type UnaryOperator = 'not' | 'exists';
+export type UnaryOperator = "not" | "exists";
 
 export type UnaryExpression = {
   +id: string,
-  +name: 'unary',
+  +name: "unary",
   +op: UnaryOperator,
   +expression: Expression,
-  +context: Context,
+  +context: Context
 };
 
 export type ConstantExpression = {
   +id: string,
-  +name: 'value',
+  +name: "value",
   +value: string | number | boolean | null,
-  +context: Context,
+  +context: Context
 };
 
-export type LogicalBinaryOperator = 'and' | 'or';
+export type LogicalBinaryOperator = "and" | "or";
 
 export type LogicalBinaryExpression = {
   +id: string,
-  +name: 'logicalBinary',
+  +name: "logicalBinary",
   +op: LogicalBinaryOperator,
   +expressions: Array<Expression>,
-  +context: Context,
+  +context: Context
 };
 
 export type Query =
@@ -272,15 +272,15 @@ export type Query =
   | QueryPipeline;
 
 export type QueryName =
-  | 'here'
-  | 'navigate'
-  | 'select'
-  | 'define'
-  | 'filter'
-  | 'limit'
-  | 'group'
-  | 'aggregate'
-  | 'pipeline';
+  | "here"
+  | "navigate"
+  | "select"
+  | "define"
+  | "filter"
+  | "limit"
+  | "group"
+  | "aggregate"
+  | "pipeline";
 
 export type QueryAtom =
   | HereQuery
@@ -294,9 +294,9 @@ export type QueryAtom =
 
 export type QueryExpression = {
   +id: string,
-  +name: 'query',
+  +name: "query",
   +query: Query,
-  +context: Context,
+  +context: Context
 };
 
 /**
@@ -311,20 +311,20 @@ export type Expression =
   | QueryExpression;
 
 export type ExpressionName =
-  | 'navigate'
-  | 'value'
-  | 'binary'
-  | 'unary'
-  | 'logicalBinary'
-  | 'query';
+  | "navigate"
+  | "value"
+  | "binary"
+  | "unary"
+  | "logicalBinary"
+  | "query";
 
 export const ExpressionNameSet: Set<string> = new Set([
-  'navigate',
-  'value',
-  'binary',
-  'unary',
-  'logicalBinary',
-  'query',
+  "navigate",
+  "value",
+  "binary",
+  "unary",
+  "logicalBinary",
+  "query"
 ]);
 
 /**
@@ -333,7 +333,7 @@ export const ExpressionNameSet: Set<string> = new Set([
  * Usually those introduced by .define(name := ...) combinator.
  */
 export type Scope = {
-  [name: string]: DefineQueryBinding,
+  [name: string]: DefineQueryBinding
 };
 
 /**
@@ -355,11 +355,11 @@ export type Context = {|
   // if the query has an error somewhere
   hasInvalidType: boolean,
 
-  title: ?string,
+  title: ?string
 |};
 
 export type QueryNavigation = {
-  type: 'record' | 'attribute',
+  type: "record" | "attribute",
   card: TypeCardinality,
   context: Context,
   regularContext: Context,
@@ -367,20 +367,20 @@ export type QueryNavigation = {
   label: string,
 
   groupBy?: boolean,
-  fromQuery?: boolean,
+  fromQuery?: boolean
 };
 
 export type QueryLoc<Q: QueryAtom = QueryAtom> = {
   +rootQuery: QueryPipeline,
   +at: string,
   _query: ?Q,
-  _path: ?QueryPath,
+  _path: ?QueryPath
 };
 
 export type QueryPathItem =
-  | {at: 'pipeline', index: number, query: QueryPipeline}
-  | {at: 'select', key: string, query: SelectQuery}
-  | {at: 'binding', query: DefineQuery};
+  | { at: "pipeline", index: number, query: QueryPipeline }
+  | { at: "select", key: string, query: SelectQuery }
+  | { at: "binding", query: DefineQuery };
 
 export type QueryPath = Array<QueryPathItem>;
 
@@ -403,12 +403,12 @@ export type ExportFormat = {
   /**
    * Extension for the filename which is generated for the query.
    */
-  extension: string,
+  extension: string
 };
 
 export type ChartConfig<
   ChartType: string = string,
-  Chart: {+type: ChartType} = {+type: string},
+  Chart: { +type: ChartType } = { +type: string }
 > = {
   /**
    * Type of the chart this config manages.
@@ -444,6 +444,6 @@ export type ChartConfig<
   /**
    * Get the name of the used attributes.
    */
-  getUsedAttributes(chart: Chart): Set<string>,
+  getUsedAttributes(chart: Chart): Set<string>
 };
 /* eslint-enable no-use-before-define */

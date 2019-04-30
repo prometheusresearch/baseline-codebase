@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {ColumnConfig, ColumnField} from './DataTable';
+import type { ColumnConfig, ColumnField } from "./DataTable";
 
 /**
  * Get a list of column fields from a column config.
@@ -11,19 +11,19 @@ import type {ColumnConfig, ColumnField} from './DataTable';
  * ignoring their grouping and stacking.
  */
 export default function getColumnSpecList<T>(
-  config: ColumnConfig<T>,
+  config: ColumnConfig<T>
 ): Array<ColumnField<T>> {
   let queue = [config];
   let columnFieldList = [];
   while (queue.length > 0) {
     let c = queue.shift();
-    if (c.type === 'field') {
+    if (c.type === "field") {
       columnFieldList.push(c);
-    } else if (c.type === 'stack') {
+    } else if (c.type === "stack") {
       if (c.columnList.length > 0) {
         queue.unshift(c.columnList[c.columnList.length - 1]);
       }
-    } else if (c.type === 'group') {
+    } else if (c.type === "group") {
       queue = c.columnList.concat(queue);
     }
   }

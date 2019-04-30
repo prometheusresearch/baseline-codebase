@@ -6,21 +6,23 @@
 
 var Immutable = require('immutable');
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var ReactSelect = require('react-select');
 
 
 var DELIMITER = '|||';
 
 
-var MultiSelect = React.createClass({
+var MultiSelect = ReactCreateClass({
   propTypes: {
-    choices: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        value: React.PropTypes.any.isRequired,
-        label: React.PropTypes.string.isRequired
+    choices: PropTypes.arrayOf(
+      PropTypes.shape({
+        value: PropTypes.any.isRequired,
+        label: PropTypes.string.isRequired
       })
     ),
-    allowCreate: React.PropTypes.bool
+    allowCreate: PropTypes.bool
   },
 
   getDefaultProps: function () {

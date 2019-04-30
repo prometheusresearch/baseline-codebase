@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import findHTMLElement from '../findHTMLElement';
 import specialAssign from './specialAssign';
 
@@ -26,7 +27,7 @@ export default class MenuItem extends React.Component {
   static defaultProps = {tag: 'div'};
 
   static contextTypes = {
-    ambManager: React.PropTypes.object.isRequired,
+    ambManager: PropTypes.object.isRequired,
   };
 
   componentDidMount() {

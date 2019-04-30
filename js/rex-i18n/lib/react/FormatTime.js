@@ -3,15 +3,16 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 
 import I18NContexted from "./I18NContexted";
 
 export default I18NContexted(
   class FormatTime extends React.Component {
     static propTypes = {
-      value: React.PropTypes.instanceOf(Date).isRequired,
-      format: React.PropTypes.string,
-      wrapper: React.PropTypes.element
+      value: PropTypes.instanceOf(Date).isRequired,
+      format: PropTypes.string,
+      wrapper: PropTypes.node
     };
 
     static defaultProps = {

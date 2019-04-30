@@ -5,19 +5,6 @@
 .. contents:: Table of Contents
 
 
-2.11.2 (2019-04-23)
-===================
-
-* Error translation fails on UNIQUE INDEX violation when there is no
-  corresponding constraint.
-
-
-2.11.1 (2019-03-28)
-===================
-
-* HTSQL JSON conversion should use ``jsonb``.
-
-
 2.11.0 (2019-03-05)
 ===================
 

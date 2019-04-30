@@ -3,6 +3,7 @@
  */
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
 import React from 'react';
 import {noop} from 'lodash';
 
@@ -52,7 +53,7 @@ export let primitiveValueStrategy = {
 export default class CheckboxGroupBase extends React.Component {
 
   static propTypes = {
-    valueStrategy: React.PropTypes.object
+    valueStrategy: PropTypes.object
   };
 
   static contextTypes = I18N.contextTypes;

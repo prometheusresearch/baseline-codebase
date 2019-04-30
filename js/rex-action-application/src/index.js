@@ -1,8 +1,15 @@
-// TODO: rex-widget should go first because it sets up the __webpack_public_path__
-// this should be broadly fixed
-import * as rexWidget from "rex-widget";
+// IMPORTS FOR STATIC ASSETS
+//
+// This is required to reference static assets from page actions.
 
-rexWidget.Transitionable.registerPackageResolver(function(pkgName) {
+// import "./some.css";
+
+// END IMPORTS FOR STATIC ASSETS
+
+let { install } = require("@material-ui/styles");
+install();
+
+require("rex-widget").Transitionable.registerPackageResolver(function(pkgName) {
   switch (pkgName) {
     case "rex-about":
       return import("rex-about");
@@ -25,7 +32,7 @@ rexWidget.Transitionable.registerPackageResolver(function(pkgName) {
     case "rex-demo-baseline":
       return import("rex-demo-baseline");
     default:
-      throw Error(`${pkgName} not found in the bundle.`)
+      throw Error(`${pkgName} not found in the bundle.`);
   }
 });
 

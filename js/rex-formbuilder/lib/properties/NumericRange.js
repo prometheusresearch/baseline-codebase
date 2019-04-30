@@ -2,22 +2,25 @@
  * Copyright (c) 2015, Prometheus Research, LLC
  */
 
-'use strict';
+"use strict";
 
-var React = require('react');
-var ReactForms = require('react-forms-old');
+var React = require("react");
+var ReactForms = require("react-forms-old");
 
-var RangedProperty = require('./RangedProperty');
+var RangedProperty = require("./RangedProperty");
 
+let Input = React.forwardRef((props, ref) => {
+  let { dirtyOnBlur, dirtyOnChange, name, ...domProps } = props;
+  return <input {...domProps} type="number" step="any" />;
+});
 
 class FloatSupportingNumberNode extends ReactForms.schema.NumberNode {
   getDefaultProps() {
     return {
-      input: <input type='number' step='any' />
+      input: <Input />
     };
   }
 }
-
 
 class NumericRange extends RangedProperty {
   static create(props) {
@@ -27,6 +30,4 @@ class NumericRange extends RangedProperty {
   }
 }
 
-
 module.exports = NumericRange;
-

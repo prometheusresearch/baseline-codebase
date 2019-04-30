@@ -2,15 +2,15 @@
  * @flow
  */
 
-import type {ColumnField, ColumnContainerConfig} from './DataTable';
+import type { ColumnField, ColumnContainerConfig } from "./DataTable";
 
-import React from 'react';
-import {style, css} from 'react-stylesheet';
-import * as Icon from '../../ui/Icon';
-import findDOMNode from '../../findDOMNode';
-import stopPropagation from '../../stopPropagation';
-import {DataTableHeaderCellMenuRoot} from './DataTableHeaderCellMenu';
-import DataTableHeaderCellMenu from './DataTableHeaderCellMenu';
+import React from "react";
+import { style, css } from "react-stylesheet";
+import * as Icon from "../../ui/Icon";
+import findDOMNode from "../../findDOMNode";
+import stopPropagation from "../../stopPropagation";
+import { DataTableHeaderCellMenuRoot } from "./DataTableHeaderCellMenu";
+import DataTableHeaderCellMenu from "./DataTableHeaderCellMenu";
 
 type DataTableHeaderCellProps = {
   column: ColumnField<*>,
@@ -18,7 +18,7 @@ type DataTableHeaderCellProps = {
   index: ?number,
   onClick?: (column: ColumnField<*>) => *,
   onSort?: (column: ColumnField<*>) => *,
-  onResize?: (resize: {column: ColumnField<*>, width: number}) => *,
+  onResize?: (resize: { column: ColumnField<*>, width: number }) => *,
   style: Object,
   minColumnWidth: number,
   resizeable?: boolean,
@@ -33,19 +33,19 @@ type DataTableHeaderCellProps = {
   /**
    * Handle column menu selection.
    */
-  onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
+  onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *
 };
 
 export default class DataTableHeaderCell extends React.Component<
   DataTableHeaderCellProps,
-  {resize: ?number},
+  { resize: ?number }
 > {
   static defaultProps = {
-    minColumnWidth: 70,
+    minColumnWidth: 70
   };
 
   state = {
-    resize: null,
+    resize: null
   };
 
   rootRef: ?HTMLElement = null;
@@ -59,9 +59,9 @@ export default class DataTableHeaderCell extends React.Component<
       parentColumn,
       resizeable,
       renderColumnMenu,
-      onColumnMenuSelect,
+      onColumnMenuSelect
     } = this.props;
-    const {resize} = this.state;
+    const { resize } = this.state;
     if (resizeable == null) {
       resizeable =
         index != null && parentColumn != null
@@ -69,40 +69,52 @@ export default class DataTableHeaderCell extends React.Component<
           : true;
     }
     return (
-      <DataTableHeaderCellRoot ref={this.onRootRef} style={style} onClick={onClick}>
+      <DataTableHeaderCellRoot
+        ref={this.onRootRef}
+        style={style}
+        onClick={onClick != null ? onClick.bind(null, column) : onClick}
+      >
         <DataTableHeaderCellLabel title={column.field.label}>
           {column.field.label}
         </DataTableHeaderCellLabel>
-        {column.field.sort !== false &&
+        {column.field.sort !== false && (
           <DataTableHeaderCellMenuRoot
-            style={{right: 15}}
+            style={{ right: 15 }}
             onClick={this.onSort}
-            title="Click to sort the table by this column">
-            {column.field.sort === 'asc'
-              ? <Icon.IconSortAsc />
-              : column.field.sort === 'desc' ? <Icon.IconSortDesc /> : <Icon.IconBars />}
-          </DataTableHeaderCellMenuRoot>}
-        {renderColumnMenu &&
+            title="Click to sort the table by this column"
+          >
+            {column.field.sort === "asc" ? (
+              <Icon.IconSortAsc />
+            ) : column.field.sort === "desc" ? (
+              <Icon.IconSortDesc />
+            ) : (
+              <Icon.IconBars />
+            )}
+          </DataTableHeaderCellMenuRoot>
+        )}
+        {renderColumnMenu && (
           <DataTableHeaderCellMenu
             column={column}
             onSort={this.onSort}
             renderItems={renderColumnMenu}
             onSelect={onColumnMenuSelect}
-          />}
-        {resizeable &&
+          />
+        )}
+        {resizeable && (
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}
             onClick={stopPropagation}
-            style={{left: resize}}
-            variant={{resize: resize != null}}
-          />}
+            style={{ left: resize }}
+            variant={{ resize: resize != null }}
+          />
+        )}
       </DataTableHeaderCellRoot>
     );
   }
 
   componentWillUnmount() {
-    window.removeEventListener('mousemove', this.onMouseMove);
-    window.removeEventListener('mouseup', this.onMouseUp);
+    window.removeEventListener("mousemove", this.onMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp);
   }
 
   onSort = (e?: UIEvent) => {
@@ -127,24 +139,30 @@ export default class DataTableHeaderCell extends React.Component<
   onMouseDown = (e: MouseEvent) => {
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
-      let left = Math.max(e.clientX - rootRect.left - 1, this.props.minColumnWidth);
-      window.addEventListener('mousemove', this.onMouseMove);
-      window.addEventListener('mouseup', this.onMouseUp);
-      this.setState({resize: left});
+      let left = Math.max(
+        e.clientX - rootRect.left - 1,
+        this.props.minColumnWidth
+      );
+      window.addEventListener("mousemove", this.onMouseMove);
+      window.addEventListener("mouseup", this.onMouseUp);
+      this.setState({ resize: left });
     }
   };
 
   onMouseUp = (e: MouseEvent) => {
-    window.removeEventListener('mousemove', this.onMouseMove);
-    window.removeEventListener('mouseup', this.onMouseUp);
+    window.removeEventListener("mousemove", this.onMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp);
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
-      let width = Math.max(e.clientX - rootRect.left - 1, this.props.minColumnWidth);
-      this.setState({resize: null});
+      let width = Math.max(
+        e.clientX - rootRect.left - 1,
+        this.props.minColumnWidth
+      );
+      this.setState({ resize: null });
       if (this.props.onResize) {
         this.props.onResize({
           column: this.props.column,
-          width,
+          width
         });
       }
     }
@@ -153,67 +171,70 @@ export default class DataTableHeaderCell extends React.Component<
   onMouseMove = (e: MouseEvent) => {
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
-      let left = Math.max(e.clientX - rootRect.left - 1, this.props.minColumnWidth);
-      this.setState({resize: left});
+      let left = Math.max(
+        e.clientX - rootRect.left - 1,
+        this.props.minColumnWidth
+      );
+      this.setState({ resize: left });
     }
   };
 }
 
-export let DataTableHeaderCellRoot = style('div', {
-  displayName: 'DataTableHeaderCellRoot',
+export let DataTableHeaderCellRoot = style("div", {
+  displayName: "DataTableHeaderCellRoot",
   base: {
-    position: 'relative',
+    position: "relative",
     minWidth: 0,
 
     paddingRight: 10,
     paddingLeft: 10,
 
-    borderRight: css.border(1, '#ccc'),
-  },
+    borderRight: css.border(1, "#ccc")
+  }
 });
 
-export let DataTableHeaderCellLabel = style('span', {
-  displayName: 'DataTableHeaderCellLabel',
+export let DataTableHeaderCellLabel = style("span", {
+  displayName: "DataTableHeaderCellLabel",
   base: {
-    userSelect: 'none',
-    cursor: 'default',
+    userSelect: "none",
+    cursor: "default",
     display: css.display.inlineBlock,
-    maxWidth: '100%',
+    maxWidth: "100%",
     textTransform: css.textTransform.uppercase,
-    fontSize: '10px',
+    fontSize: "10px",
     fontWeight: 400,
-    color: '#888888',
+    color: "#888888",
     whiteSpace: css.whiteSpace.nowrap,
     textOverflow: css.textOverflow.ellipsis,
     overflow: css.overflow.hidden,
     position: css.position.absolute,
     bottom: 8,
-    paddingRight: 45,
-  },
+    paddingRight: 45
+  }
 });
 
-export let DataTableHeaderCellResizeHandle = style('div', {
-  displayName: 'DataTableHeaderCellResizeHandle',
+export let DataTableHeaderCellResizeHandle = style("div", {
+  displayName: "DataTableHeaderCellResizeHandle",
   base: {
-    cursor: 'ew-resize',
-    background: '#f1f1f1',
+    cursor: "ew-resize",
+    background: "#f1f1f1",
 
-    height: '100%',
+    height: "100%",
     width: 3,
     right: 0,
-    position: 'absolute',
+    position: "absolute",
 
     hover: {
-      background: '#888',
-    },
+      background: "#888"
+    }
   },
   resize: {
-    background: '#222',
+    background: "#222",
     width: 3,
     zIndex: 1000,
     height: 100000,
     hover: {
-      background: '#222',
-    },
-  },
+      background: "#222"
+    }
+  }
 });

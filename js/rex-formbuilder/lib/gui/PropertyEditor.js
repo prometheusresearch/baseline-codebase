@@ -5,16 +5,18 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var classNames = require('classnames');
 var ReactForms = require('react-forms-old');
 
 var {merge} = require('../util');
 
 
-var PropertyEditor = React.createClass({
+var PropertyEditor = ReactCreateClass({
   propTypes: {
-    element: React.PropTypes.object.isRequired,
-    isSubElement: React.PropTypes.bool
+    element: PropTypes.object.isRequired,
+    isSubElement: PropTypes.bool
   },
 
   getDefaultProps: function () {

@@ -5,15 +5,16 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
 var classNames = require('classnames');
 
 
 var ModalMixin = {
   propTypes: {
-    visible: React.PropTypes.bool,
-    onCancel: React.PropTypes.func,
-    className: React.PropTypes.string,
-    canCancel: React.PropTypes.bool
+    visible: PropTypes.bool,
+    onCancel: PropTypes.func,
+    className: PropTypes.string,
+    canCancel: PropTypes.bool
   },
 
   getDefaultProps: function () {

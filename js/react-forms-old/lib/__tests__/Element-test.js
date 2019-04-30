@@ -2,6 +2,7 @@
 
 var assert                  = require('assert');
 var React                   = require('react');
+var ReactCreateClass = require('create-react-class');
 var TestUtils               = require('react/lib/ReactTestUtils');
 var Value                   = require('../Value');
 var {Scalar, Mapping, List} = require('../schema');
@@ -10,7 +11,7 @@ var Field                   = require('../Field');
 var Fieldset                = require('../Fieldset');
 var RepeatingFieldset       = require('../RepeatingFieldset');
 
-var Component = React.createClass({
+var Component = ReactCreateClass({
 
   render() {
     return <div />;

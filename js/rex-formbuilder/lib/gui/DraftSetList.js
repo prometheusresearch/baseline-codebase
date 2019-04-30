@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 var DraftSetTile = require('./DraftSetTile');
 var MenuHeader = require('./MenuHeader');
@@ -13,12 +15,12 @@ var {DraftInstrumentVersionActions} = require('../actions');
 var {DraftInstrumentVersionStore} = require('../stores');
 
 
-var DraftSetList = React.createClass({
+var DraftSetList = ReactCreateClass({
   propTypes: {
-    onDraftSelected: React.PropTypes.func,
-    onPreviewSelected: React.PropTypes.func,
-    allowNewDrafts: React.PropTypes.bool,
-    style: React.PropTypes.object
+    onDraftSelected: PropTypes.func,
+    onPreviewSelected: PropTypes.func,
+    allowNewDrafts: PropTypes.bool,
+    style: PropTypes.object
   },
 
   getDefaultProps: function () {
@@ -112,7 +114,7 @@ var DraftSetList = React.createClass({
               className="rfb-button"
               onClick={this.onNewDraft}>
               <span className="rfb-icon icon-new" />
-              {_('Create New Draft')}
+              <span>{_('Create New Draft')}</span>
             </button>
           }
         </MenuHeader>

@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 var MenuHeader = require('./MenuHeader');
 var VersionTile = require('./VersionTile');
@@ -12,10 +14,10 @@ var _ = require('../i18n').gettext;
 var {InstrumentVersionStore} = require('../stores');
 
 
-var VersionList = React.createClass({
+var VersionList = ReactCreateClass({
   propTypes: {
-    onPreviewSelected: React.PropTypes.func,
-    style: React.PropTypes.object
+    onPreviewSelected: PropTypes.func,
+    style: PropTypes.object
   },
 
   getInitialState: function () {
@@ -91,7 +93,7 @@ var VersionList = React.createClass({
               onClick={this.onViewCurrent}
               className="rfb-button">
               <span className="rfb-icon icon-view" />
-              {_('View Current Revision')}
+              <span>{_('View Current Revision')}</span>
             </button>
           }
         </MenuHeader>

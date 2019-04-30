@@ -3,54 +3,63 @@
  * @flow
  */
 
-import type {Position} from '../model/types';
+import type { Position } from "../model/types";
 
-import * as React from 'react';
-import {HBox} from 'react-stylesheet';
-import * as ReactUI from '@prometheusresearch/react-ui';
+import * as React from "react";
+import * as mui from "@material-ui/core";
+import * as styles from "@material-ui/styles";
+import { HBox } from "react-stylesheet";
 
-import * as ui from 'rex-widget/ui';
+import * as ui from "rex-widget/ui";
+import { SuccessButton, DangerButton } from "rex-ui";
 
-import {getTitleAtPosition} from '../ActionTitle';
-import {getIconAtPosition} from '../ActionIcon';
+import { getTitleAtPosition } from "../ActionTitle";
+import { getIconAtPosition } from "../ActionIcon";
 
 type ToolbarProps = {
   positions: Array<Position>,
-  onClick: Function,
+  onClick: Function
 };
 
-export default function Toolbar({positions, onClick}: ToolbarProps) {
+export default function Toolbar({ positions, onClick }: ToolbarProps) {
   let buttons = positions
-    .filter(pos => pos.from !== 'replace')
+    .filter(pos => pos.from !== "replace")
     .map(pos => (
-      <ToolbarButton key={pos.instruction.action.id} position={pos} onClick={onClick} />
+      <ToolbarButton
+        key={pos.instruction.action.id}
+        position={pos}
+        onClick={onClick}
+      />
     ));
-  return <HBox overflow="visible" flexWrap="wrap" padding={5}>{buttons}</HBox>;
+  return <HBox overflow="visible" flexWrap="wrap">{buttons}</HBox>;
 }
 
 export function ToolbarButton(
-  {position, onClick}: {position: Position, onClick: Function},
+  { position, onClick }: { position: Position, onClick: Function }
 ) {
   let Button = buttonForPosition(position);
   return (
     <Button
       size="small"
-      style={{marginRight: 5, marginBottom: 5}}
+      style={{ marginRight: 5, marginBottom: 5 }}
       onClick={onClick.bind(null, position.instruction.action.id)}
-      icon={<ui.Icon name={getIconAtPosition(position)} />}>
+    >
+      <div style={{ paddingRight: 5, marginTop: -2 }}>
+        <ui.Icon name={getIconAtPosition(position)} />
+      </div>
       {getTitleAtPosition(position)}
     </Button>
   );
 }
 
 function buttonForPosition(pos: Position) {
-  const {element} = pos.instruction.action;
+  const { element } = pos.instruction.action;
   switch (element.props.kind) {
-    case 'success':
-      return ReactUI.SuccessButton;
-    case 'danger':
-      return ReactUI.DangerButton;
+    case "success":
+      return SuccessButton;
+    case "danger":
+      return DangerButton;
     default:
-      return ReactUI.Button;
+      return mui.Button;
   }
 }

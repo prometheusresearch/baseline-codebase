@@ -2,43 +2,43 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react';
-import * as ui from 'rex-widget/ui';
-import debounce from 'debounce-promise';
+import React from "react";
+import * as ui from "rex-widget/ui";
+import debounce from "debounce-promise";
 
-import MartQueryEditor from './MartQueryEditor';
-import MartQueryAPI from './MartQueryAPI';
+import MartQueryEditor from "./MartQueryEditor";
+import MartQueryAPI from "./MartQueryAPI";
 
 export default class StudyMartMakeQuery extends React.Component {
   static defaultProps = {
-    icon: 'eye-open',
+    icon: "eye-open"
   };
 
   constructor(props) {
     super(props);
     this.martQueryAPI = new MartQueryAPI(props.insertQuery);
     this.state = {
-      title: 'Untitled Query',
-      saving: false,
+      title: "Untitled Query",
+      saving: false
     };
   }
 
-  onState = ({query, chartList}) => {
+  onState = ({ query, chartList }) => {
     this.query = query;
     this.chartList = chartList;
   };
 
   onSave = () => {
-    let {query, chartList} = this;
-    let {title} = this.state;
-    let {mart} = this.props.context;
+    let { query, chartList } = this;
+    let { title } = this.state;
+    let { mart } = this.props.context;
     this.showProgress();
     this.martQueryAPI
       .insert({
         martID: mart.id,
         title,
         query,
-        chartList,
+        chartList
       })
       .then(this.onSaved, this.onError);
   };
@@ -46,13 +46,17 @@ export default class StudyMartMakeQuery extends React.Component {
   onSaved = data => {
     this.removeProgress();
     ui.showNotification(
-      <ui.Notification kind="success" text="Query saved successfully" icon="ok" />,
+      <ui.Notification
+        kind="success"
+        text="Query saved successfully"
+        icon="ok"
+      />
     );
 
     let newEntity = Object.values(data)[0][0];
-    let {onContext, entity, refetch} = this.props;
+    let { onContext, entity, refetch } = this.props;
     onContext({
-      [entity.name]: newEntity,
+      [entity.name]: newEntity
     });
     refetch();
   };
@@ -64,32 +68,39 @@ export default class StudyMartMakeQuery extends React.Component {
         kind="danger"
         text="There was an error while saving the query"
         icon="remove"
-        ttl={Infinity}
       />,
+      Infinity
     );
   };
 
   showProgress = () => {
-    this.setState({saving: true});
+    this.setState({ saving: true });
     this._progress = ui.showNotification(
-      <ui.Notification kind="info" text="Saving Query." icon="cog" ttl={Infinity} />,
+      <ui.Notification kind="info" text="Saving Query." icon="cog" />,
+      Infinity
     );
   };
 
   removeProgress = () => {
-    this.setState({saving: false});
+    this.setState({ saving: false });
     ui.removeNotification(this._progress);
   };
 
   onChangeTitle = e => {
     let newTitle = e.target.value || null;
-    this.setState({title: newTitle});
+    this.setState({ title: newTitle });
   };
 
   render() {
-    let {runQuery, filterRelationList, queryLimit, chartConfigs, exportFormats} = this.props;
-    let {saving, title, query} = this.state;
-    let {mart} = this.props.context;
+    let {
+      runQuery,
+      filterRelationList,
+      queryLimit,
+      chartConfigs,
+      exportFormats
+    } = this.props;
+    let { saving, title, query } = this.state;
+    let { mart } = this.props.context;
     return (
       <MartQueryEditor
         exportFormats={exportFormats}

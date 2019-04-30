@@ -4,11 +4,10 @@
 
 import React from "react";
 
-import { Action } from "rex-action";
-import * as ui from "rex-widget/ui";
+import { Action, TitleBase as Title } from "rex-action";
+import * as rexui from "rex-ui";
 import { withFetch } from "rex-widget/data";
-import * as form from "rex-widget/form";
-import Title from "./Title";
+import * as form from "rex-widget/conf-form";
 import martFromContext from "./martFromContext";
 
 export default withFetch(
@@ -22,7 +21,7 @@ export default withFetch(
       return (
         <Action title={title} onClose={onClose}>
           {!fetched.entity.updating ? (
-            <form.ConfigurableEntityForm
+            <form.ConfEntityForm
               key={fetched.entity.data.id}
               disableValidation
               readOnly
@@ -31,7 +30,7 @@ export default withFetch(
               fields={fields}
             />
           ) : (
-            <ui.Preloader />
+            <rexui.PreloaderScreen />
           )}
         </Action>
       );

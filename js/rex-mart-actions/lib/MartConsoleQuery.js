@@ -10,8 +10,9 @@ import { Button } from "@prometheusresearch/react-ui";
 
 import { Action } from "rex-action";
 import * as ui from "rex-widget/ui";
+import * as rexui from "rex-ui";
 import { withFetch, forceRefreshData } from "rex-widget/data";
-import resolveURL from "rex-widget/lib/resolveURL";
+import resolveURL from "rex-widget/resolveURL";
 import martFromContext from "rex-mart-actions/lib/martFromContext";
 
 import MartQueryToolbar from "./MartQueryToolbar";
@@ -72,7 +73,7 @@ export class HtsqlConsoleBase extends React.Component {
             {toolbar}
           </Element>
         )}
-        {this.state.loading && <ui.Preloader />}
+        {this.state.loading && <rexui.PreloaderScreen />}
         <Element
           position="relative"
           height={`calc(100% - ${CONSOLE_TOOLBAR_HEIGHT}px)`}
@@ -135,12 +136,8 @@ export class MartMakeConsoleQuery extends React.Component {
   showProgress = () => {
     this.setState({ saving: true });
     this._progress = ui.showNotification(
-      <ui.Notification
-        kind="info"
-        text="Saving Query."
-        icon="cog"
-        ttl={Infinity}
-      />
+      <ui.Notification kind="info" text="Saving Query." icon="cog" />,
+      Infinity
     );
   };
 
@@ -184,8 +181,8 @@ export class MartMakeConsoleQuery extends React.Component {
         kind="danger"
         text="There was an error while saving the query"
         icon="remove"
-        ttl={Infinity}
-      />
+      />,
+      Infinity
     );
   };
 
@@ -292,20 +289,16 @@ export const MartEditConsoleQuery = withFetch(
           kind="danger"
           text="There was an error while saving the query"
           icon="remove"
-          ttl={Infinity}
-        />
+        />,
+        Infinity
       );
     };
 
     showProgress = () => {
       this.setState({ ...this.state, saving: true });
       this._progress = ui.showNotification(
-        <ui.Notification
-          kind="info"
-          text="Saving Query."
-          icon="cog"
-          ttl={Infinity}
-        />
+        <ui.Notification kind="info" text="Saving Query." icon="cog" />,
+        Infinity
       );
     };
 
@@ -323,7 +316,7 @@ export const MartEditConsoleQuery = withFetch(
       } = this.props;
       const { saving, title } = this.state;
       if (query.updating || query.data == null) {
-        return <ui.Preloader />;
+        return <rexui.PreloaderScreen />;
       }
       const mart = martFromContext(context);
       const toolbar = (

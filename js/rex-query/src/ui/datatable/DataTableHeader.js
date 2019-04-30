@@ -2,16 +2,20 @@
  * @flow
  **/
 
-import type {ColumnConfig, ColumnField, ColumnContainerConfig} from './DataTable';
+import type {
+  ColumnConfig,
+  ColumnField,
+  ColumnContainerConfig
+} from "./DataTable";
 
-import * as React from 'react';
-import {style, css, VBox, HBox} from 'react-stylesheet';
+import * as React from "react";
+import { style, css, VBox, HBox } from "react-stylesheet";
 
-import findDOMNode from '../../findDOMNode';
-import stopPropagation from '../../stopPropagation';
+import findDOMNode from "../../findDOMNode";
+import stopPropagation from "../../stopPropagation";
 import DataTableHeaderCell, {
-  DataTableHeaderCellResizeHandle,
-} from './DataTableHeaderCell';
+  DataTableHeaderCellResizeHandle
+} from "./DataTableHeaderCell";
 
 type DataTableHeaderProps = {
   columns: ColumnConfig<*>,
@@ -19,13 +23,13 @@ type DataTableHeaderProps = {
   height: number,
   width: number,
   scrollbarWidth: number,
-  onColumnResize?: (resize: {column: ColumnField<*>, width: number}) => *,
+  onColumnResize?: (resize: { column: ColumnField<*>, width: number }) => *,
   onColumnClick?: (column: ColumnField<*>) => *,
   onColumnSort?: (column: ColumnField<*>) => *,
   headerCellProps?: {
     renderColumnMenu?: (column: ColumnField<*>) => *,
-    onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
-  },
+    onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *
+  }
 };
 
 export default function DataTableHeader(props: DataTableHeaderProps) {
@@ -38,15 +42,16 @@ export default function DataTableHeader(props: DataTableHeaderProps) {
     onColumnResize,
     columns,
     columnWidth,
-    headerCellProps,
+    headerCellProps
   } = props;
   return (
     <DataTableHeaderRoot
       style={{
         height: height * columns.size.height,
         width,
-        paddingRight: scrollbarWidth,
-      }}>
+        paddingRight: scrollbarWidth
+      }}
+    >
       <DataTableHeaderItem
         columnSpec={columns}
         parentColumnSpec={null}
@@ -70,14 +75,14 @@ type DataTableHeaderItemProps = {
   flexGrow?: number,
   index: ?number,
   parentColumnSpec: ?ColumnContainerConfig<*>,
-  onResize?: (resize: {column: ColumnField<*>, width: number}) => *,
+  onResize?: (resize: { column: ColumnField<*>, width: number }) => *,
   onClick?: (column: ColumnField<*>) => *,
   onSort?: (column: ColumnField<*>) => *,
   resizeable?: boolean,
   headerCellProps?: {
     renderColumnMenu?: (column: ColumnField<*>) => *,
-    onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
-  },
+    onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *
+  }
 };
 
 function DataTableHeaderItem({
@@ -92,9 +97,9 @@ function DataTableHeaderItem({
   index,
   parentColumnSpec,
   resizeable,
-  headerCellProps,
+  headerCellProps
 }: DataTableHeaderItemProps) {
-  if (columnSpec.type === 'stack') {
+  if (columnSpec.type === "stack") {
     return (
       <DataTableHeaderStack
         columnSpec={columnSpec}
@@ -110,7 +115,7 @@ function DataTableHeaderItem({
         headerCellProps={headerCellProps}
       />
     );
-  } else if (columnSpec.type === 'group') {
+  } else if (columnSpec.type === "group") {
     return (
       <DataTableHeaderGroup
         columnSpec={columnSpec}
@@ -126,7 +131,7 @@ function DataTableHeaderItem({
         headerCellProps={headerCellProps}
       />
     );
-  } else if (columnSpec.type === 'field') {
+  } else if (columnSpec.type === "field") {
     if (width == null) {
       width = columnWidth(columnSpec);
     }
@@ -135,7 +140,7 @@ function DataTableHeaderItem({
         column: columnSpec,
         onSort: onSort,
         onClick: onClick ? onClick.bind(null, columnSpec) : onClick,
-        style: {width},
+        style: { width }
       });
     } else {
       return (
@@ -143,7 +148,7 @@ function DataTableHeaderItem({
           parentColumn={parentColumnSpec}
           column={columnSpec}
           resizeable={resizeable}
-          style={{width}}
+          style={{ width }}
           onClick={onClick}
           onSort={onSort}
           onResize={onResize}
@@ -152,14 +157,16 @@ function DataTableHeaderItem({
         />
       );
     }
+  } else {
+    return null;
   }
 }
 
-class DataTableHeaderStack extends React.Component<*, {resize: ?number}> {
+class DataTableHeaderStack extends React.Component<*, { resize: ?number }> {
   rootRef: ?HTMLElement = null;
 
   state = {
-    resize: null,
+    resize: null
   };
 
   render() {
@@ -173,9 +180,9 @@ class DataTableHeaderStack extends React.Component<*, {resize: ?number}> {
       flexGrow = 1,
       index,
       parentColumnSpec,
-      headerCellProps,
+      headerCellProps
     } = this.props;
-    const {resize} = this.state;
+    const { resize } = this.state;
     const stack = columnSpec.columnList;
     const resizeable =
       index != null && parentColumnSpec != null
@@ -187,57 +194,61 @@ class DataTableHeaderStack extends React.Component<*, {resize: ?number}> {
         ref={this.onRootRef}
         height={height * columnSpec.size.height}
         width={width}
-        flexGrow={width == null ? flexGrow : undefined}>
-        {stack.map(
-          (c, idx) =>
-            c.type === 'field'
-              ? <DataTableHeaderGroupRoot
-                  height={height * c.size.height}
-                  flexGrow={1}
-                  width="100%"
-                  key={idx}>
-                  <DataTableHeaderItem
-                    onClick={onClick}
-                    onSort={onSort}
-                    onResize={onResize}
-                    height={height}
-                    width="100%"
-                    flexGrow={1}
-                    columnSpec={c}
-                    parentColumnSpec={columnSpec}
-                    resizeable={false}
-                    columnWidth={columnWidth}
-                    index={idx}
-                    headerCellProps={headerCellProps}
-                  />
-                </DataTableHeaderGroupRoot>
-              : <DataTableHeaderItem
-                  onClick={onClick}
-                  onSort={onSort}
-                  onResize={onResize}
-                  height={height}
-                  key={idx}
-                  columnSpec={c}
-                  parentColumnSpec={columnSpec}
-                  columnWidth={columnWidth}
-                  index={idx}
-                  headerCellProps={headerCellProps}
-                />,
+        flexGrow={width == null ? flexGrow : undefined}
+      >
+        {stack.map((c, idx) =>
+          c.type === "field" ? (
+            <DataTableHeaderGroupRoot
+              height={height * c.size.height}
+              flexGrow={1}
+              width="100%"
+              key={idx}
+            >
+              <DataTableHeaderItem
+                onClick={onClick}
+                onSort={onSort}
+                onResize={onResize}
+                height={height}
+                width="100%"
+                flexGrow={1}
+                columnSpec={c}
+                parentColumnSpec={columnSpec}
+                resizeable={false}
+                columnWidth={columnWidth}
+                index={idx}
+                headerCellProps={headerCellProps}
+              />
+            </DataTableHeaderGroupRoot>
+          ) : (
+            <DataTableHeaderItem
+              onClick={onClick}
+              onSort={onSort}
+              onResize={onResize}
+              height={height}
+              key={idx}
+              columnSpec={c}
+              parentColumnSpec={columnSpec}
+              columnWidth={columnWidth}
+              index={idx}
+              headerCellProps={headerCellProps}
+            />
+          )
         )}
-        {resizeable &&
+        {resizeable && (
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}
             onClick={stopPropagation}
-            style={{left: resize}}
-            variant={{resize: resize != null}}
-          />}
+            style={{ left: resize }}
+            variant={{ resize: resize != null }}
+          />
+        )}
       </DataTableHeaderStackRoot>
     );
   }
 
   componentWillUnmount() {
-    window.removeEventListener('mousemove', this.onMouseMove);
-    window.removeEventListener('mouseup', this.onMouseUp);
+    window.removeEventListener("mousemove", this.onMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp);
   }
 
   onRootRef = (rootRef: *) => {
@@ -249,24 +260,24 @@ class DataTableHeaderStack extends React.Component<*, {resize: ?number}> {
       let rootRect = this.rootRef.getBoundingClientRect();
       let resize = Math.max(
         e.clientX - rootRect.left - 1,
-        this.props.columnSpec.columnList.length * 50,
+        this.props.columnSpec.columnList.length * 50
       );
-      window.addEventListener('mousemove', this.onMouseMove);
-      window.addEventListener('mouseup', this.onMouseUp);
-      this.setState({resize});
+      window.addEventListener("mousemove", this.onMouseMove);
+      window.addEventListener("mouseup", this.onMouseUp);
+      this.setState({ resize });
     }
   };
 
   onMouseUp = (e: MouseEvent) => {
-    window.removeEventListener('mousemove', this.onMouseMove);
-    window.removeEventListener('mouseup', this.onMouseUp);
+    window.removeEventListener("mousemove", this.onMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp);
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
       let width = Math.max(
         e.clientX - rootRect.left - 1,
-        this.props.columnSpec.columnList.length * 50,
+        this.props.columnSpec.columnList.length * 50
       );
-      this.setState({resize: null});
+      this.setState({ resize: null });
       if (this.props.onResize) {
         let [_, columnSpec] = findRightMostField(this.props.columnSpec);
         if (columnSpec == null) {
@@ -274,7 +285,7 @@ class DataTableHeaderStack extends React.Component<*, {resize: ?number}> {
         }
         this.props.onResize({
           column: columnSpec,
-          width,
+          width
         });
       }
     }
@@ -285,18 +296,18 @@ class DataTableHeaderStack extends React.Component<*, {resize: ?number}> {
       let rootRect = this.rootRef.getBoundingClientRect();
       let resize = Math.max(
         e.clientX - rootRect.left - 1,
-        this.props.columnSpec.columnList.length * 50,
+        this.props.columnSpec.columnList.length * 50
       );
-      this.setState({resize});
+      this.setState({ resize });
     }
   };
 }
 
-class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
+class DataTableHeaderGroup extends React.Component<*, { resize: ?number }> {
   rootRef: ?HTMLElement = null;
 
   state = {
-    resize: null,
+    resize: null
   };
 
   render() {
@@ -310,9 +321,9 @@ class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
       height,
       flexGrow,
       columnWidth,
-      headerCellProps,
+      headerCellProps
     } = this.props;
-    const {resize} = this.state;
+    const { resize } = this.state;
     const group = columnSpec.columnList;
     const resizeable =
       index != null && parentColumnSpec != null
@@ -325,8 +336,9 @@ class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
         ref={this.onRootRef}
         flexGrow={width == null ? flexGrow : undefined}
         width={width}
-        height={height * columnSpec.size.height}>
-        {group.map((c, idx) =>
+        height={height * columnSpec.size.height}
+      >
+        {group.map((c, idx) => (
           <DataTableHeaderItem
             onClick={onClick}
             onSort={onSort}
@@ -339,22 +351,23 @@ class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
             columnWidth={columnWidth}
             index={idx}
             headerCellProps={headerCellProps}
-          />,
-        )}
-        {resizeable &&
+          />
+        ))}
+        {resizeable && (
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}
             onClick={stopPropagation}
-            style={{left: resize}}
-            variant={{resize: resize != null}}
-          />}
+            style={{ left: resize }}
+            variant={{ resize: resize != null }}
+          />
+        )}
       </DataTableHeaderGroupRoot>
     );
   }
 
   componentWillUnmount() {
-    window.removeEventListener('mousemove', this.onMouseMove);
-    window.removeEventListener('mouseup', this.onMouseUp);
+    window.removeEventListener("mousemove", this.onMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp);
   }
 
   onRootRef = rootRef => {
@@ -366,24 +379,24 @@ class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
       let rootRect = this.rootRef.getBoundingClientRect();
       let resize = Math.max(
         e.clientX - rootRect.left - 1,
-        this.props.columnSpec.columnList.length * 50,
+        this.props.columnSpec.columnList.length * 50
       );
-      window.addEventListener('mousemove', this.onMouseMove);
-      window.addEventListener('mouseup', this.onMouseUp);
-      this.setState({resize});
+      window.addEventListener("mousemove", this.onMouseMove);
+      window.addEventListener("mouseup", this.onMouseUp);
+      this.setState({ resize });
     }
   };
 
   onMouseUp = (e: MouseEvent) => {
-    window.removeEventListener('mousemove', this.onMouseMove);
-    window.removeEventListener('mouseup', this.onMouseUp);
+    window.removeEventListener("mousemove", this.onMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp);
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
       let width = Math.max(
         e.clientX - rootRect.left - 1,
-        this.props.columnSpec.columnList.length * 50,
+        this.props.columnSpec.columnList.length * 50
       );
-      this.setState({resize: null});
+      this.setState({ resize: null });
       if (this.props.onResize) {
         let computeColumnWidth = this.props.columnWidth;
         let [headList, columnSpec] = findRightMostField(this.props.columnSpec);
@@ -396,7 +409,7 @@ class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
         }
         this.props.onResize({
           column: columnSpec,
-          width,
+          width
         });
       }
     }
@@ -407,30 +420,30 @@ class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
       let rootRect = this.rootRef.getBoundingClientRect();
       let resize = Math.max(
         e.clientX - rootRect.left - 1,
-        this.props.columnSpec.columnList.length * 50,
+        this.props.columnSpec.columnList.length * 50
       );
-      this.setState({resize});
+      this.setState({ resize });
     }
   };
 }
 
 function findRightMostField(
   columnSpec,
-  headList = [],
+  headList = []
 ): [Array<ColumnConfig<*>>, ?ColumnField<*>] {
-  if (columnSpec.type === 'field') {
+  if (columnSpec.type === "field") {
     return [headList, columnSpec];
-  } else if (columnSpec.type === 'group') {
+  } else if (columnSpec.type === "group") {
     if (columnSpec.columnList.length === 0) {
       return [headList, null];
     } else {
       let length = columnSpec.columnList.length;
       return findRightMostField(
         columnSpec.columnList[length - 1],
-        headList.concat(columnSpec.columnList.slice(0, length - 1)),
+        headList.concat(columnSpec.columnList.slice(0, length - 1))
       );
     }
-  } else if (columnSpec.type === 'stack') {
+  } else if (columnSpec.type === "stack") {
     if (columnSpec.columnList.length === 0) {
       return [headList, null];
     } else {
@@ -438,40 +451,40 @@ function findRightMostField(
       return findRightMostField(columnSpec.columnList[length - 1], headList);
     }
   } else {
-    throw new Error('invalid column spec');
+    throw new Error("invalid column spec");
   }
 }
 
 let DataTableHeaderStackRoot = style(VBox, {
-  displayName: 'DataTableHeaderStackRoot',
+  displayName: "DataTableHeaderStackRoot",
   base: {
-    height: '100%',
-    overflow: 'visible',
-  },
+    height: "100%",
+    overflow: "visible"
+  }
 });
 
 let DataTableHeaderGroupRoot = style(HBox, {
-  displayName: 'DataTableHeaderGroupRoot',
+  displayName: "DataTableHeaderGroupRoot",
   base: {
-    borderBottom: css.border(1, '#ccc'),
-    overflow: 'visible',
-  },
+    borderBottom: css.border(1, "#ccc"),
+    overflow: "visible"
+  }
 });
 
-let DataTableHeaderRoot = style('div', {
-  displayName: 'DataTableHeaderRoot',
+let DataTableHeaderRoot = style("div", {
+  displayName: "DataTableHeaderRoot",
   base: {
     marginBottom: 2,
-    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
-    fontSize: '10pt',
+    boxShadow: css.boxShadow(0, 0, 3, 0, "#666"),
+    fontSize: "10pt",
     fontWeight: 400,
-    color: '#444',
+    color: "#444",
     position: css.position.relative,
     textTransform: css.textTransform.none,
 
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    overflow: 'visible',
-  },
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    overflow: "visible"
+  }
 });

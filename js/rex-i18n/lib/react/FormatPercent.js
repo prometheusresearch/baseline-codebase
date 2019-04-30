@@ -3,15 +3,16 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 
 import I18NContexted from "./I18NContexted";
 
 export default I18NContexted(
   class FormatPercent extends React.Component {
     static propTypes = {
-      value: React.PropTypes.number.isRequired,
-      options: React.PropTypes.object,
-      wrapper: React.PropTypes.element
+      value: PropTypes.number.isRequired,
+      options: PropTypes.object,
+      wrapper: PropTypes.node
     };
 
     render() {

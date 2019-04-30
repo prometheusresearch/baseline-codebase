@@ -13,17 +13,13 @@
 'use strict';
 
 var {is}                                  = require('immutable');
-var React                                 = require('react/addons');
-var cloneWithProps                        = React.addons.cloneWithProps;
+var React                                 = require('react');
 var PropTypes                             = require('./PropTypes');
+var ReactCreateClass = require('create-react-class');
 var invariant                             = require('./invariant');
 var {ScalarNode, CompositeNode, ListNode} = require('./schema');
 
-var Element = React.createClass({
-
-  propTypes: {
-    value: PropTypes.Value
-  },
+var Element = ReactCreateClass({
 
   render() {
     var Component;
@@ -32,7 +28,7 @@ var Element = React.createClass({
     Component = node.props.get('component');
     if (Component) {
       return React.isValidElement(Component) ?
-        cloneWithProps(Component, this.props) :
+        React.cloneElement(Component, this.props) :
         React.createElement(Component, this.props);
     } else {
       if (node instanceof ListNode) {

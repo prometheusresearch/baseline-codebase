@@ -1,5 +1,8 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * Re-exported for backward compatibility.
+ *
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-module.exports = require('./lib/CSS');
+export * from 'rex-ui/css';

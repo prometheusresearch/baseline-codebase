@@ -13,9 +13,9 @@ import {css, VBox, HBox} from 'react-stylesheet';
 // $FlowFixMe: update rex.action typings
 import {Action} from 'rex-action';
 // $FlowFixMe: update rex.widget typings
-import {Preloader} from 'rex-widget/ui';
 // $FlowFixMe: update rex.widget typings
 import {withFetch, type Request, type DataSet} from 'rex-widget/data';
+import * as rexui from 'rex-ui';
 
 import martFromContext from '../martFromContext';
 import ControlPanel from './ControlPanel';
@@ -85,7 +85,7 @@ export class Guide extends React.Component<Props, State> {
     if (updating || data == null) {
       content = (
         <HBox height="100%">
-          <Preloader />;
+          <rexui.PreloaderScreen />;
         </HBox>
       );
     } else {

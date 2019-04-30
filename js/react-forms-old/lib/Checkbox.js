@@ -2,32 +2,36 @@
  * @flow
  * @copyright Prometheus Research, LLC 2014
  */
-'use strict';
+"use strict";
 
-var React = require('react');
-var cx = require('classnames');
+var React = require("react");
+var ReactCreateClass = require("create-react-class");
+var PropTypes = require("prop-types");
+var cx = require("classnames");
 
-var Checkbox = React.createClass({
-
-  propTypes: {
-    value: React.PropTypes.bool.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    className: React.PropTypes.string
-  },
-
+var Checkbox = ReactCreateClass({
   render(): ?ReactElement {
-    var {value, onChange, className, ...props} = this.props;
+    var {
+      value,
+      onChange,
+      className,
+      dirtyOnChange,
+      dirtyOnBlur,
+      name,
+      ...props
+    } = this.props;
     return (
-      <input {...props}
+      <input
+        {...props}
         type="checkbox"
-        className={cx('rf-Checkbox', className)}
+        className={cx("rf-Checkbox", className)}
         onChange={this.onChange}
         checked={value}
-        />
+      />
     );
   },
 
-  onChange(e: {target: {checked: boolean}}) {
+  onChange(e: { target: { checked: boolean } }) {
     var checked = e.target.checked;
     this.props.onChange(checked);
   }

@@ -1,11 +1,12 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
- * @flow
+ * @noflow
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 
-import {SearchInput} from 'rex-widget/form';
+import {SearchInput} from 'rex-ui';
 import {DataTable} from 'rex-widget/datatable';
 
 import type {Entity} from '../model/types';
@@ -19,8 +20,8 @@ export default class Pick extends React.Component {
   _datatable: ?Object;
 
   static propTypes = {
-    context: React.PropTypes.object,
-    onCommand: React.PropTypes.func,
+    context: PropTypes.object,
+    onCommand: PropTypes.func,
   };
 
   static defaultProps = {

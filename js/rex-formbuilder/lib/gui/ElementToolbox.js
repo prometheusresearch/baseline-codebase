@@ -5,14 +5,15 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
 
 var Toolbox = require('./Toolbox');
-var ElementTool = require('./ElementTool');
+var ElementTool = require('./ElementTool').default;
 var {ELEMENT_TYPES, Element} = require('../elements');
 var _ = require('../i18n').gettext;
 
 
-var ElementToolbox = React.createClass({
+var ElementToolbox = ReactCreateClass({
   render: function () {
     var groups = [
       {

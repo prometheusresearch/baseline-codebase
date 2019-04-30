@@ -3,6 +3,7 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TestUtils = require('react/lib/ReactTestUtils');
 var Checkbox = require('../Checkbox');
 
@@ -25,7 +26,7 @@ describe('ReactForms', function() {
       var inputs = TestUtils.scryRenderedDOMComponentsWithTag(component, 'input');
       assert.equal(inputs.length, 1);
       var input = getInput(component);
-      assert.equal(input.getDOMNode().type, 'checkbox');
+      assert.equal(ReactDOM.findDOMNode(input).type, 'checkbox');
     });
 
     it('renders correct "checked" property based on value', function() {
@@ -35,11 +36,11 @@ describe('ReactForms', function() {
 
       component = render({value: false, onChange});
       input = getInput(component);
-      assert.ok(!input.getDOMNode().checked);
+      assert.ok(!ReactDOM.findDOMNode(input).checked);
 
       component = render({value: true, onChange});
       input = getInput(component);
-      assert.ok(input.getDOMNode().checked);
+      assert.ok(ReactDOM.findDOMNode(input).checked);
     });
 
     it('call this.props.onChange on change', function() {

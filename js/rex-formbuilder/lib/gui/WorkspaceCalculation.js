@@ -4,6 +4,7 @@
 
 "use strict";
 import React from "react";
+var PropTypes = require('prop-types');
 var classNames = require("classnames");
 import ConfirmationModal from "./ConfirmationModal";
 import { DraftSetActions } from "../actions";
@@ -65,7 +66,7 @@ export default DropTarget(
   )(
     class WorkspaceCalculation extends React.Component {
       static propTypes: {
-        calculation: React.PropTypes.object.isRequired
+        calculation: PropTypes.object.isRequired
       };
 
       constructor(props) {

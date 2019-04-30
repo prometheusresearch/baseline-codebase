@@ -1,0 +1,16 @@
+{
+  "name": "rex-ui",
+  "version": "1.0.0",
+  "description": "A set of UI components for RexDB on top of material UI",
+  "dependencies": {
+    "@material-ui/core": "*",
+    "@material-ui/styles": "*",
+    "@material-ui/icons": "*",
+    "react-autosuggest": "*",
+    "autosuggest-highlight": "*",
+    "resize-observer-polyfill": "^1.5.1",
+    "moment": "^2.8.2",
+    "react": "*",
+    "react-dom": "*"
+  }
+}

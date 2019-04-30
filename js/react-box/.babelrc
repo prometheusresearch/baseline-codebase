@@ -1,4 +1,0 @@
-{
-  "presets": ["prometheusresearch"],
-  "plugins": ["flow-react-proptypes"]
-}

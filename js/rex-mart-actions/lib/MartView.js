@@ -4,23 +4,16 @@
 
 import React from "react";
 
-import { Action } from "rex-action";
-import { ConfigurableEntityForm } from "rex-widget/form";
+import { Action, TitleBase as Title } from "rex-action";
+import { ConfEntityForm } from "rex-widget/conf-form";
 import { withFetch, forceRefreshData } from "rex-widget/data";
-import {
-  Preloader,
-  Button,
-  DangerButton,
-  QuietButton,
-  Notification,
-  showNotification
-} from "rex-widget/ui";
-import * as Stylesheet from "rex-widget/stylesheet";
-import { VBox } from "rex-widget/layout";
-import * as CSS from "rex-widget/css";
-import { put, del } from "rex-widget/lib/fetch";
-
-import Title from "./Title";
+import { Notification, showNotification } from "rex-widget/ui";
+import * as Stylesheet from "rex-widget/Stylesheet";
+import { VBox } from "@prometheusresearch/react-box";
+import * as CSS from "rex-widget/CSS";
+import * as rexui from "rex-ui";
+import * as icons from "@material-ui/icons";
+import { put, del } from "rex-widget/fetch";
 
 let stylesheet = Stylesheet.create({
   Root: {
@@ -77,24 +70,28 @@ export default withFetch(
       if (!fetched.data.updating && fetched.data.data.can_manage) {
         let pinned = fetched.data.data.pinned;
 
+        let icon = pinned ? <icons.Star /> : <icons.StarBorder />;
         tools = (
           <stylesheet.Tools>
-            <Button
-              icon="pushpin"
+            <rexui.Button
+              icon={icon}
               onClick={this.onSetPinned.bind(this, !pinned)}
             >
               {pinned ? "Unpin" : "Pin"}
-            </Button>
-            <DangerButton icon="remove" onClick={this.onRequestDelete}>
+            </rexui.Button>
+            <rexui.DangerButton
+              icon={<icons.Delete />}
+              onClick={this.onRequestDelete}
+            >
               Delete
-            </DangerButton>
+            </rexui.DangerButton>
           </stylesheet.Tools>
         );
       }
 
       let content;
       if (fetched.data.updating) {
-        content = <Preloader />;
+        content = <rexui.PreloaderScreen />;
       } else if (this.state.deleting) {
         content = (
           <stylesheet.Root>
@@ -107,14 +104,16 @@ export default withFetch(
                 </p>
               </stylesheet.Message>
               <div>
-                <DangerButton
+                <rexui.DangerButton
                   onClick={this.onDelete}
                   disabled={this.state.confirmDelay > 0}
-                  icon="remove"
+                  icon={<icons.Delete />}
                 >
                   Delete
-                </DangerButton>
-                <Button onClick={this.onCancelDelete}>Cancel</Button>
+                </rexui.DangerButton>
+                <rexui.Button onClick={this.onCancelDelete}>
+                  Cancel
+                </rexui.Button>
               </div>
               <stylesheet.MessageBottom>
                 {this.state.confirmDelay > 0 && (
@@ -127,7 +126,7 @@ export default withFetch(
       } else {
         content = (
           <div>
-            <ConfigurableEntityForm
+            <ConfEntityForm
               key={fetched.data.data.id}
               disableValidation
               readOnly
@@ -176,20 +175,20 @@ export default withFetch(
         deleting: true,
         confirmDelay: 5
       });
-    }
+    };
 
     onCancelDelete = () => {
       this.setState({
         deleting: false
       });
-    }
+    };
 
     onDelete = () => {
       let url = "rex.mart:/mart/" + this.getMartId() + "/_api";
       del(url).then(() => {
         this.props.onEntityUpdate(this.getMart(), null);
       });
-    }
+    };
 
     componentDidMount() {
       this._countdown = setInterval(this.countdown, 1000);
@@ -205,7 +204,7 @@ export default withFetch(
           confirmDelay: this.state.confirmDelay - 1
         });
       }
-    }
+    };
 
     static renderTitle({ title, entity }, context) {
       let martId;

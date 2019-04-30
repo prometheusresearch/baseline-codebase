@@ -3,90 +3,15 @@
   "version": "0.25.1",
   "description": "Configurable and styleable UI components",
   "main": "src/index.js",
-  "scripts": {
-    "test": "make lint test",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
-  },
-  "eslintConfig": {
-    "extends": "prometheusresearch",
-    "env": {
-      "mocha": true
-    },
-    "globals": {
-      "ReactClass": true,
-      "React$Element": true
-    }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/prometheusresearch/react-ui.git"
-  },
-  "keywords": [
-    "react-component"
-  ],
-  "author": "Prometheus Research, LLC",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/prometheusresearch/react-ui/issues"
-  },
-  "homepage": "https://github.com/prometheusresearch/react-ui#readme",
-  "jest": {
-    "testRegex": "/__tests__/.*\\-test.js$",
-    "resetMocks": true,
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>[/\\\\](build|docs|node_modules)[/\\\\]"
-    ],
-    "snapshotSerializers": [
-      "react-stylesheet/testutils-snapshot-serializer"
-    ],
-    "testEnvironment": "jsdom",
-    "testURL": "http://localhost",
-    "transform": {
-      "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
-      "^.+\\.css$": "<rootDir>/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/jest/fileTransform.js"
-    },
-    "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
-    ]
-  },
-  "peerDependencies": {
-    "react": "^0.14.0 || ^15.3.1"
-  },
-  "devDependencies": {
-    "@kadira/storybook": "^2.35.3",
-    "babel-cli": "^6.23.0",
-    "babel-core": "^6.23.1",
-    "babel-jest": "^20.0.0",
-    "babel-preset-prometheusresearch": "^0.1.0",
-    "conventional-changelog-cli": "^1.2.0",
-    "enzyme": "^2.7.1",
-    "enzyme-to-json": "^1.5.0",
-    "eslint": "^3.16.1",
-    "eslint-config-prometheusresearch": "^0.4.0",
-    "eslint-plugin-react": "^6.10.0",
-    "flow-bin": "^0.43.1",
-    "flow-coverage-report": "^0.3.0",
-    "indent-string": "^3.1.0",
-    "jest-cli": "^20.0.0",
-    "normalize.css": "^5.0.0",
-    "power-assert": "^1.4.1",
-    "prettier": "^0.22.0",
-    "react": "^0.14.9",
-    "react-dom": "^0.14.9",
-    "react-icons": "^2.2.3",
-    "storyshots": "^3.2.2"
-  },
   "dependencies": {
+    "react": "*",
     "color-js": "^1.0.4",
     "debounce": "^1.0.0",
     "focus-group": "^0.3.1",
     "invariant": "^2.2.1",
     "react-stylesheet": "*",
+    "prop-types": "^15.0.0",
+    "create-react-class": "^15.0.0",
     "teeny-tap": "^0.2.0"
   }
 }

@@ -2,55 +2,54 @@
  * @flow
  */
 
-import type {Actions} from '../state';
-import type {AggregateQuery} from '../model/types';
+import type { Actions } from "../state";
+import type { AggregateQuery } from "../model/types";
 
-import map from 'lodash/map';
+import map from "lodash/map";
 
-import * as React from 'react';
-import invariant from 'invariant';
-import {VBox, Element} from 'react-stylesheet';
+import * as React from "react";
+import PropTypes from "prop-types";
+import invariant from "invariant";
+import { VBox, Element } from "react-stylesheet";
 
-import * as q from '../model/Query';
-import * as t from '../model/Type';
-import {Theme, Select, Menu} from '../ui';
-import QueryPanelBase from './QueryPanelBase';
+import * as q from "../model/Query";
+import * as t from "../model/Type";
+import { Theme, Select, Menu } from "../ui";
+import QueryPanelBase from "./QueryPanelBase";
 
 type AggregateQueryPanelProps = {
   query: AggregateQuery,
-  onClose: () => *,
+  onClose: () => *
 };
 
-const ENTITY_SENTINEL = '__entity_sentinel__';
+const ENTITY_SENTINEL = "__entity_sentinel__";
 
-export default class AggregateQueryPanel extends React.Component<
-  AggregateQueryPanelProps,
-> {
+export default class AggregateQueryPanel extends React.Component<AggregateQueryPanelProps> {
   context: {
-    actions: Actions,
+    actions: Actions
   };
 
-  static contextTypes = {actions: React.PropTypes.object};
+  static contextTypes = { actions: PropTypes.object };
 
   onSelect = (aggregate: string) => {
     this.context.actions.setAggregate({
       at: this.props.query,
       aggregate,
-      path: this.props.query.path,
+      path: this.props.query.path
     });
   };
 
   onAttribute = (path: *) => {
-    invariant(!Array.isArray(path), 'Impossible');
+    invariant(!Array.isArray(path), "Impossible");
     this.context.actions.setAggregate({
       at: this.props.query,
-      aggregate: 'count',
-      path: path === ENTITY_SENTINEL ? null : path,
+      aggregate: "count",
+      path: path === ENTITY_SENTINEL ? null : path
     });
   };
 
   render() {
-    const {query, onClose, ...rest} = this.props;
+    const { query, onClose, ...rest } = this.props;
     const prevType = query.context.prev.type;
 
     let attributeSelect = null;
@@ -63,25 +62,24 @@ export default class AggregateQueryPanel extends React.Component<
               {query.context.prev.title}
             </Element>
           ),
-          value: ENTITY_SENTINEL,
-        },
+          value: ENTITY_SENTINEL
+        }
       ];
 
       options = options.concat(
         map(t.recordLikeAttribute(prevType), (f, k) => ({
-          label: (
-            <Element textTransform="capitalize">
-              {f.title || k}
-            </Element>
-          ),
-          value: k,
-        })),
+          label: <Element textTransform="capitalize">{f.title || k}</Element>,
+          value: k
+        }))
       );
 
       // TODO: allow to summarize by query in scope
 
       attributeSelect = (
-        <Menu.MenuGroup title="Select attribute to summarize by" overflow="visible">
+        <Menu.MenuGroup
+          title="Select attribute to summarize by"
+          overflow="visible"
+        >
           <VBox padding={10} overflow="visible">
             <Select
               clearable={false}
@@ -101,7 +99,8 @@ export default class AggregateQueryPanel extends React.Component<
         title={query.context.title}
         onClose={onClose}
         theme={Theme.aggregate}
-        query={query}>
+        query={query}
+      >
         {attributeSelect}
         <AggregateMenu
           title="Select summarize function"
@@ -109,15 +108,19 @@ export default class AggregateQueryPanel extends React.Component<
           onSelect={this.onSelect}
         />
         <Menu.MenuHelp>
-          Edit current query combinator by selecting another summarize function to apply
-          to the current pipeline.
+          Edit current query combinator by selecting another summarize function
+          to apply to the current pipeline.
         </Menu.MenuHelp>
       </QueryPanelBase>
     );
   }
 }
 
-function AggregateMenu({query: {aggregate, path, context}, title, onSelect}) {
+function AggregateMenu({
+  query: { aggregate, path, context },
+  title,
+  onSelect
+}) {
   let type =
     path == null
       ? context.prev.type
@@ -127,7 +130,7 @@ function AggregateMenu({query: {aggregate, path, context}, title, onSelect}) {
     if (!context.domain.aggregate.hasOwnProperty(name)) {
       continue;
     }
-    if (type.name === 'invalid') {
+    if (type.name === "invalid") {
       continue;
     }
     if (!context.domain.aggregate[name].isAllowed(type)) {
@@ -140,14 +143,10 @@ function AggregateMenu({query: {aggregate, path, context}, title, onSelect}) {
         aggregate={context.domain.aggregate[name]}
         name={name}
         onClick={onSelect}
-      />,
+      />
     );
   }
-  return (
-    <Menu.MenuGroup title={title}>
-      {items}
-    </Menu.MenuGroup>
-  );
+  return <Menu.MenuGroup title={title}>{items}</Menu.MenuGroup>;
 }
 
 class AggregateButton extends React.Component<*> {
@@ -157,13 +156,14 @@ class AggregateButton extends React.Component<*> {
   };
 
   render() {
-    let {name, aggregate, selected} = this.props;
+    let { name, aggregate, selected } = this.props;
     let isSelected = name === selected;
     return (
       <Menu.MenuButton
         onClick={this.onClick}
-        icon={isSelected ? '✓' : null}
-        selected={isSelected}>
+        icon={isSelected ? "✓" : null}
+        selected={isSelected}
+      >
         {aggregate.title}
       </Menu.MenuButton>
     );

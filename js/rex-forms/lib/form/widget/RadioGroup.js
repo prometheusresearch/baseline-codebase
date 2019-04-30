@@ -4,6 +4,7 @@
 
 import invariant from "invariant";
 import * as React from "react";
+import PropTypes from 'prop-types';
 import * as ReactForms from "react-forms/reactive";
 import * as ReactDOM from "react-dom";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
@@ -45,12 +46,12 @@ export default InjectI18N(
          *
          * By default this widgets renders it.
          */
-        noClearButton: React.PropTypes.bool,
+        noClearButton: PropTypes.bool,
 
         /**
          * Show an option which clears the current value.
          */
-        showEmptyOption: React.PropTypes.bool
+        showEmptyOption: PropTypes.bool
       };
 
       static contextTypes = {

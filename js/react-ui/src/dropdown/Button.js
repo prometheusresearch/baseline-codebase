@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import specialAssign from './specialAssign';
 
 const IGNORE_PROPS = {
@@ -19,7 +20,7 @@ export default class Button extends React.Component {
   };
 
   static contextTypes = {
-    ambManager: React.PropTypes.object.isRequired,
+    ambManager: PropTypes.object.isRequired,
   };
 
   static defaultProps = {

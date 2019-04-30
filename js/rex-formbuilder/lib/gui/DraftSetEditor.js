@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var classNames = require('classnames');
 
 var ConfirmationModal = require('./ConfirmationModal');
@@ -30,18 +32,18 @@ var MODE_CALCULATIONS = 'CALC';
 var MODE_FORM = 'FORM';
 
 
-var DraftSetEditor = React.createClass({
+var DraftSetEditor = ReactCreateClass({
   mixins: [
     ToasterMixin
   ],
 
   propTypes: {
-    apiBaseUrl: React.PropTypes.string.isRequired,
-    uid: React.PropTypes.string,
-    channels: React.PropTypes.arrayOf(React.PropTypes.string),
-    instrumentMenuUrlTemplate: React.PropTypes.string,
-    formPreviewerUrlTemplate: React.PropTypes.string,
-    onModified: React.PropTypes.func
+    apiBaseUrl: PropTypes.string.isRequired,
+    uid: PropTypes.string,
+    channels: PropTypes.arrayOf(PropTypes.string),
+    instrumentMenuUrlTemplate: PropTypes.string,
+    formPreviewerUrlTemplate: PropTypes.string,
+    onModified: PropTypes.func
   },
 
   getInitialState: function () {
@@ -245,7 +247,7 @@ var DraftSetEditor = React.createClass({
             className="rfb-button"
             onClick={this.onReturn}>
             <span className="rfb-icon icon-go-back" />
-            {_('Return to Menu')}
+            <span>{_('Return to Menu')}</span>
           </button>
         }
         {this.state.editMode === MODE_FORM &&
@@ -255,7 +257,7 @@ var DraftSetEditor = React.createClass({
             title={_('Edit the high-level Form settings')}
             onClick={this.onFormSettings}>
             <span className="rfb-icon icon-edit" />
-            {_('Form Settings')}
+            <span>{_('Form Settings')}</span>
           </button>
         }
         <button
@@ -263,7 +265,7 @@ var DraftSetEditor = React.createClass({
           title={toggleTitle}
           onClick={this.onModeSwitch}>
           <span className={toggleClasses} />
-          {toggleLabel}
+          <span>{toggleLabel}</span>
         </button>
         <button
           className={saveButtonClasses}
@@ -273,7 +275,7 @@ var DraftSetEditor = React.createClass({
           }
           onClick={this.onSave}>
           <span className="rfb-icon icon-save" />
-          {_('Save')}
+          <span>{_('Save')}</span>
         </button>
         {this.props.formPreviewerUrlTemplate &&
           <button
@@ -282,7 +284,7 @@ var DraftSetEditor = React.createClass({
             title={_('Explore a rendered, interactive view of this Draft')}
             onClick={this.onPreview}>
             <span className="rfb-icon icon-view" />
-            {_('Preview Form')}
+            <span>{_('Preview Form')}</span>
           </button>
         }
         <button
@@ -293,7 +295,7 @@ var DraftSetEditor = React.createClass({
           }
           onClick={this.onPublish}>
           <span className="rfb-icon icon-publish" />
-          {_('Publish')}
+          <span>{_('Publish')}</span>
         </button>
         <ConfirmationModal
           visible={this.state.publishing}

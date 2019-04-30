@@ -4,6 +4,7 @@
 
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui-0.21';
+import PropTypes from 'prop-types';
 import CheckIcon from 'react-icons/lib/fa/check';
 
 import Label from '../form/Label';
@@ -12,12 +13,12 @@ import Error from '../form/Error';
 export default class DiscrepancyTitle extends  React.Component {
 
   static propTypes = {
-    title: React.PropTypes.oneOfType([
-      React.PropTypes.string,
-      React.PropTypes.object
+    title: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.object
     ]),
-    required: React.PropTypes.bool,
-    complete: React.PropTypes.bool
+    required: PropTypes.bool,
+    complete: PropTypes.bool
   };
 
   static defaultProps = {

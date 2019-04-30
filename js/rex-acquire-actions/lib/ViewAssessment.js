@@ -5,8 +5,8 @@
 import React from "react";
 
 import { FormEntry } from "rex-forms";
-import { Preloader } from "rex-widget/ui";
 import { withFetch } from "rex-widget/data";
+import * as rexui from "rex-ui";
 
 import AssessmentError from "./AssessmentError";
 import ChannelChooser from "./ChannelChooser";
@@ -43,7 +43,7 @@ export default withFetch(
       let { currentChannel } = this.state;
 
       if (displayData.updating) {
-        return <Preloader />;
+        return <rexui.PreloaderScreen />;
       }
       if (displayData.data.error) {
         return (

@@ -2,15 +2,20 @@
  * @flow
  */
 
-import type {ChartConfig, QueryAtom, QueryPipeline, Domain} from '../model/types';
-import type {TranslateOptions} from '../fetch/translate';
-import type {Chart} from '../charting/types';
+import type {
+  ChartConfig,
+  QueryAtom,
+  QueryPipeline,
+  Domain
+} from "../model/types";
+import type { TranslateOptions } from "../fetch/translate";
+import type { Chart } from "../charting/types";
 
-import * as q from '../model/Query';
-import * as QueryOperation from '../model/QueryOperation';
-import * as SC from '../StateContainer';
-import * as Focus from './Focus';
-import * as actions from './actions';
+import * as q from "../model/Query";
+import * as QueryOperation from "../model/QueryOperation";
+import * as SC from "../StateContainer";
+import * as Focus from "./Focus";
+import * as actions from "./actions";
 
 /**
  * Represents a bit of info which is restored on undo/redo operations.
@@ -18,20 +23,20 @@ import * as actions from './actions';
 type UndoRecord = {
   query: QueryPipeline,
   selected: ?QueryAtom,
-  focusedSeq: Focus.Focus,
+  focusedSeq: Focus.Focus
 };
 
-export type ChartSpec<+C: {+type: string} = {+type: string}> = {
+export type ChartSpec<+C: { +type: string } = { +type: string }> = {
   +id: string,
   +label: ?string,
-  +chart: C,
+  +chart: C
 };
 
 export type Config = {
   api: string,
   domain: Domain,
   chartConfigs: Array<ChartConfig<>>,
-  translateOptions: TranslateOptions,
+  translateOptions: TranslateOptions
 };
 
 export type State = {
@@ -69,6 +74,7 @@ export type State = {
    * This is used primarly for restoring query selection state.
    */
   prevSelected: ?QueryAtom,
+  insertAfter: ?QueryAtom,
 
   activeTab: string,
 
@@ -103,7 +109,7 @@ export type State = {
   /**
    * Currently focused sequence which is expanded in the datatable.
    */
-  focusedSeq: Focus.Focus,
+  focusedSeq: Focus.Focus
 };
 
 export type StateUpdater = SC.StateUpdater<State>;
@@ -115,12 +121,12 @@ export type Actions = SC.StateContainerActions<StateContainer>;
 export type Params = {
   initialQuery?: ?QueryPipeline,
   initialChartList?: Array<ChartSpec<>>,
-  initialActiveTab?: ?string,
+  initialActiveTab?: ?string
 };
 
 export function getInitialState(
-  {initialQuery, initialChartList = [], initialActiveTab}: Params,
-  config: Config,
+  { initialQuery, initialChartList = [], initialActiveTab }: Params,
+  config: Config
 ): State {
   let query = initialQuery || q.pipeline(q.here);
   query = q.inferType(config.domain, query);
@@ -136,14 +142,15 @@ export function getInitialState(
     queryLoading: false,
     selected: null,
     prevSelected: null,
-    activeTab: initialActiveTab || '__dataset__',
+    insertAfter: null,
+    activeTab: initialActiveTab || "__dataset__",
     activeQueryPipeline: null,
     data: null,
     showPanel: true,
     undoStack: [],
     redoStack: [],
     chartList: initialChartList,
-    focusedSeq,
+    focusedSeq
   };
 
   return state;
@@ -152,25 +159,28 @@ export function getInitialState(
 export function createContainerWithInitialState(
   initialState: State,
   config: Config,
-  onChange: (state: State, onStateUpdated: (state: State) => *) => *,
+  onChange: (state: State, onStateUpdated: (state: State) => *) => *
 ) {
-  const defaultState = getInitialState({initialQuery: initialState.query}, config);
+  const defaultState = getInitialState(
+    { initialQuery: initialState.query },
+    config
+  );
   const state: State = {
     ...defaultState,
     ...initialState,
-    query: defaultState.query,
+    query: defaultState.query
   };
-  // $FlowIssue: ...
+  // $FlowFixMe: ...
   return SC.create(state, actions, onChange);
 }
 
 export function createContainer(
   params: Params,
   config: Config,
-  onChange: (state: State, onStateUpdated: (state: State) => *) => *,
+  onChange: (state: State, onStateUpdated: (state: State) => *) => *
 ): StateContainer {
   let initialState = getInitialState(params, config);
   return SC.create(initialState, actions, onChange);
 }
 
-export {actions};
+export { actions };

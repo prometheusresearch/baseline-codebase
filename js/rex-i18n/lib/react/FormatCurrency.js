@@ -3,16 +3,17 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 
 import I18NContexted from "./I18NContexted";
 
 export default I18NContexted(
   class FormatCurrency extends React.Component {
     static propTypes = {
-      value: React.PropTypes.number.isRequired,
-      currency: React.PropTypes.string.isRequired,
-      options: React.PropTypes.object,
-      wrapper: React.PropTypes.element
+      value: PropTypes.number.isRequired,
+      currency: PropTypes.string.isRequired,
+      options: PropTypes.object,
+      wrapper: PropTypes.node
     };
 
     render() {

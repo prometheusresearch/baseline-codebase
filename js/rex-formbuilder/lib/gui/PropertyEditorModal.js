@@ -5,21 +5,23 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 
 var ModalMixin = require('./Modal');
 var PropertyEditor = require('./PropertyEditor');
 var _ = require('../i18n').gettext;
 
 
-var PropertyEditorModalInner = React.createClass({
+var PropertyEditorModalInner = ReactCreateClass({
   mixins: [
     ModalMixin
   ],
 
   propTypes: {
-    element: React.PropTypes.object.isRequired,
-    isSubElement: React.PropTypes.bool,
-    onComplete: React.PropTypes.func
+    element: PropTypes.object.isRequired,
+    isSubElement: PropTypes.bool,
+    onComplete: PropTypes.func
   },
 
   getDefaultProps: function () {
@@ -80,7 +82,7 @@ var PropertyEditorModalInner = React.createClass({
 });
 
 
-var PropertyEditorModal = React.createClass({
+var PropertyEditorModal = ReactCreateClass({
   reset: function () {
     this.refs.inner.reset();
   },

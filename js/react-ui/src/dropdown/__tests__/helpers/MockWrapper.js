@@ -1,14 +1,16 @@
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
-module.exports = React.createClass({
+module.exports = ReactCreateClass({
   displayName: 'MockWrapper',
 
   proptypes: {
-    mockManager: React.PropTypes.object.isRequired,
+    mockManager: PropTypes.object.isRequired,
   },
 
   childContextTypes: {
-    ambManager: React.PropTypes.object.isRequired,
+    ambManager: PropTypes.object.isRequired,
   },
 
   getChildContext: function() {

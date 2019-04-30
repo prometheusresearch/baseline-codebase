@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 
 var InstrumentTile = require('./InstrumentTile');
 var MenuHeader = require('./MenuHeader');
@@ -14,9 +16,9 @@ var {InstrumentActions} = require('../actions');
 var {InstrumentStore} = require('../stores');
 
 
-var InstrumentSelector = React.createClass({
+var InstrumentSelector = ReactCreateClass({
   propTypes: {
-    onInstrumentSelected: React.PropTypes.func
+    onInstrumentSelected: PropTypes.func
   },
 
   getInitialState: function () {
@@ -108,7 +110,7 @@ var InstrumentSelector = React.createClass({
             className="rfb-button"
             onClick={this.onCreateNew}>
             <span className="rfb-icon icon-new" />
-            {_('Create New Instrument')}
+            <span>{_('Create New Instrument')}</span>
           </button>
         </MenuHeader>
         <CreateInstrumentModal

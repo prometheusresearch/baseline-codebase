@@ -82,12 +82,12 @@
     {% if bundle.root %}
     var __PUBLIC_PATH__ = "{{ bundle.root|url }}/";
     {% endif %}
-    var __REX_USER__ = JSON.parse({{ user }});
-    var __MOUNT_POINTS__ = {{ REQUEST.environ['rex.mount'] }};
-    var __MOUNT_PREFIX__ = "{{ REQUEST.script_name }}";
-    var __REX_WIDGET_MOUNT_PREFIX__ = "{{ REQUEST.environ['rex.mount']['rex.widget'] }}";
+    var __REX_USER__ = JSON.parse(JSON.parse({{ user|json }}));
+    var __MOUNT_POINTS__ = {{ REQUEST.environ['rex.mount']|json }};
+    var __MOUNT_PREFIX__ = {{ REQUEST.script_name|json }};
+    var __REX_WIDGET_MOUNT_PREFIX__ = {{ REQUEST.environ['rex.mount']['rex.widget']|json }};
     var __REX_WIDGET__;
-    var __REX_WIDGET_THEME__ = JSON.stringify({{ theme }});
+    var __REX_WIDGET_THEME__ = {{ theme|json }};
   </script>
   {% for render in before_bundle %}
     {{ render(REQUEST) }}
@@ -110,7 +110,7 @@
         throw new Error('include rex-widget package in your application');
       }
 
-      __REX_WIDGET_DATA__ = JSON.stringify({{ payload }});
+      __REX_WIDGET_DATA__ = {{ payload|json }};
       if (__stylesheet__ != null) {
         __stylesheet__.media = 'all';
       }

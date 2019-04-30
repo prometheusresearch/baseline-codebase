@@ -6,11 +6,11 @@ import React from "react";
 
 import { Reconciler } from "rex-forms";
 import {
-  Preloader,
   showNotification,
   removeNotification,
   Notification
 } from "rex-widget/ui";
+import * as rexui from "rex-ui";
 import { withFetch } from "rex-widget/data";
 
 import ChannelChooser from "./ChannelChooser";
@@ -65,8 +65,8 @@ export default withFetch(
                     <Notification
                       kind="success"
                       text="The Task has been reconciled."
-                      ttl={10000}
-                    />
+                    />,
+                    10000
                   );
                   this.props.onEntityUpdate(previousEntity, newEntity);
                 });
@@ -91,7 +91,7 @@ export default withFetch(
       let { currentChannel } = this.state;
 
       if (displayData.updating) {
-        return <Preloader />;
+        return <rexui.PreloaderScreen />;
       }
       if (displayData.data.error) {
         let content;

@@ -5,7 +5,7 @@
 export default function getDataByKey(
   item: Object,
   dataKey: Array<string>,
-  focus?: Array<string>,
+  focus?: Array<string>
 ) {
   //console.log(dataKey, focus);
   if (dataKey.length === 0) {
@@ -17,7 +17,8 @@ export default function getDataByKey(
       item.__index__ != null &&
       item.__index__ !== 0 &&
       (focus == null ||
-        (focus.length > 1 && !(focus[0] === dataKey[0] && focus[1] === dataKey[1])))
+        (focus.length > 1 &&
+          !(focus[0] === dataKey[0] && focus[1] === dataKey[1])))
     ) {
       return undefined;
     }
@@ -31,7 +32,8 @@ export default function getDataByKey(
       item.__index__ != null &&
       item.__index__ !== 0 &&
       (focus == null ||
-        (focus.length > 1 && !(focus[0] === dataKey[0] && focus[1] === dataKey[1])))
+        (focus.length > 1 &&
+          !(focus[0] === dataKey[0] && focus[1] === dataKey[1])))
     ) {
       return undefined;
     }

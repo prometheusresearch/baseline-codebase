@@ -2,10 +2,10 @@
  * @flow
  */
 
-import * as React from 'react';
-import ReactDOM from 'react-dom';
-import {style, css, VBox, HBox} from 'react-stylesheet';
-import * as Icon from '../Icon';
+import * as React from "react";
+import ReactDOM from "react-dom";
+import { style, css, VBox, HBox } from "react-stylesheet";
+import * as Icon from "../Icon";
 
 type MenuButtonProps = {
   icon?: React.Node,
@@ -16,19 +16,19 @@ type MenuButtonProps = {
   tabIndex?: number,
   menu?: React.Node,
   children?: React.Node,
-  buttonGroup?: React.Node,
+  buttonGroup?: React.Node
 };
 
 type MenuButtonState = {
-  menuOpen: boolean,
+  menuOpen: boolean
 };
 
 export default class MenuButton extends React.Component<
   MenuButtonProps,
-  MenuButtonState,
+  MenuButtonState
 > {
   state = {
-    menuOpen: false,
+    menuOpen: false
   };
 
   menuButtonMenu: ?React.Component<*, *> = null;
@@ -37,9 +37,9 @@ export default class MenuButton extends React.Component<
 
   toggleMenuOpen = () => {
     if (this.state.menuOpen) {
-      this.setState(state => ({...state, menuOpen: false}));
+      this.setState(state => ({ ...state, menuOpen: false }));
     } else {
-      this.setState(state => ({...state, menuOpen: true}));
+      this.setState(state => ({ ...state, menuOpen: true }));
     }
   };
 
@@ -58,7 +58,7 @@ export default class MenuButton extends React.Component<
       target = target.parentNode;
     } while (target != null);
     if (this.mounted) {
-      this.setState(state => ({...state, menuOpen: false}));
+      this.setState(state => ({ ...state, menuOpen: false }));
     }
   };
 
@@ -83,49 +83,51 @@ export default class MenuButton extends React.Component<
       tabIndex = 0,
       ...rest
     } = this.props;
-    let {menuOpen} = this.state;
-    let variant = {selected, disabled};
+    let { menuOpen } = this.state;
+    let variant = { selected, disabled };
     let separateHover = icon && onIconClick;
     return (
       <MenuButtonRoot {...rest} variant={variant} tabIndex={tabIndex}>
         <HBox>
-          <MenuButtonWrapper variant={{...variant, hoverStyle: !separateHover}}>
+          <MenuButtonWrapper
+            variant={{ ...variant, hoverStyle: !separateHover }}
+          >
             <MenuButtonIconWrapper
               title={iconTitle}
-              role={onIconClick && 'button'}
-              variant={{hoverStyle: separateHover}}
+              role={onIconClick && "button"}
+              variant={{ hoverStyle: separateHover }}
               onClick={onIconClick}
               width={15}
               paddingRight={20}
-              justifyContent="flex-start">
+              justifyContent="flex-start"
+            >
               {icon}
             </MenuButtonIconWrapper>
-            <MenuButtonLabelWrapper variant={{hoverStyle: separateHover}}>
+            <MenuButtonLabelWrapper variant={{ hoverStyle: separateHover }}>
               {children}
             </MenuButtonLabelWrapper>
           </MenuButtonWrapper>
           {buttonGroup}
-          {menu &&
+          {menu && (
             <MenuButtonMenuToggle
               variant={variant}
               ref={this.onMenuButtonMenuToggle}
               onClick={this.toggleMenuOpen}
-            />}
+            />
+          )}
         </HBox>
-        {menuOpen &&
-          menu &&
-          <MenuButtonMenu ref={this.onMenuButtonMenu}>
-            {menu}
-          </MenuButtonMenu>}
+        {menuOpen && menu && (
+          <MenuButtonMenu ref={this.onMenuButtonMenu}>{menu}</MenuButtonMenu>
+        )}
       </MenuButtonRoot>
     );
   }
 
   componentDidUpdate(_prevProps: MenuButtonProps, prevState: MenuButtonState) {
     if (this.state.menuOpen && !prevState.menuOpen) {
-      window.addEventListener('click', this.maybeCloseMenu, {capture: true});
+      window.addEventListener("click", this.maybeCloseMenu, { capture: true });
     } else if (this.state.menuOpen && !prevState.menuOpen) {
-      window.removeEventListener('click', this.maybeCloseMenu);
+      window.removeEventListener("click", this.maybeCloseMenu);
     }
   }
 
@@ -135,12 +137,12 @@ export default class MenuButton extends React.Component<
 
   componentWillUnmount() {
     this.mounted = false;
-    window.removeEventListener('click', this.maybeCloseMenu);
+    window.removeEventListener("click", this.maybeCloseMenu);
   }
 }
 
 type MenuButtonMenuToggleProps = {
-  onClick: () => *,
+  onClick: () => *
 };
 
 class MenuButtonMenuToggle extends React.Component<MenuButtonMenuToggleProps> {
@@ -159,110 +161,110 @@ class MenuButtonMenuToggle extends React.Component<MenuButtonMenuToggleProps> {
 }
 
 let MenuButtonMenuToggleRoot = style(VBox, {
-  displayName: 'MenuButtonMenuToggleRoot',
+  displayName: "MenuButtonMenuToggleRoot",
   base: {
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 8,
-    color: '#888',
+    color: "#888",
     hover: {
-      color: '#222',
-      background: '#fafafa',
-    },
+      color: "#222",
+      background: "#fafafa"
+    }
   },
   disabled: {
     hover: {
-      background: '#fff',
-    },
-  },
+      background: "#fff"
+    }
+  }
 });
 
 let MenuButtonRoot = style(VBox, {
-  displayName: 'MenuButtonRoot',
+  displayName: "MenuButtonRoot",
   base: {
     outline: css.none,
-    cursor: 'default',
-    fontSize: '10pt',
+    cursor: "default",
+    fontSize: "10pt",
     fontWeight: 200,
-    borderBottom: css.border(1, '#ddd'),
-    userSelect: 'none',
-    textTransform: 'capitalize',
-    background: '#fff',
+    borderBottom: css.border(1, "#ddd"),
+    userSelect: "none",
+    textTransform: "capitalize",
+    background: "#fff"
   },
   selected: {
-    color: '#1f85f5',
+    color: "#1f85f5"
   },
   disabled: {
-    color: '#aaa',
-    cursor: 'not-allowed',
-  },
+    color: "#aaa",
+    cursor: "not-allowed"
+  }
 });
 
 let MenuButtonMenu = style(VBox, {
-  displayName: 'MenuButtonMenu',
+  displayName: "MenuButtonMenu",
   base: {
-    borderTop: css.border(1, '#bbb'),
-  },
+    borderTop: css.border(1, "#bbb")
+  }
 });
 
 let MenuButtonIconWrapper = style(VBox, {
-  displayName: 'MenuButtonIconWrapper',
+  displayName: "MenuButtonIconWrapper",
   base: {
     padding: 8,
     paddingLeft: 10,
-    paddingRight: 10,
+    paddingRight: 10
   },
   hoverStyle: {
     hover: {
-      background: '#fafafa',
-    },
+      background: "#fafafa"
+    }
   },
   disabled: {
     hover: {
-      background: '#fff',
-    },
-  },
+      background: "#fff"
+    }
+  }
 });
 
 let MenuButtonLabelWrapper = style(VBox, {
-  displayName: 'MenuButtonLabelWrapper',
+  displayName: "MenuButtonLabelWrapper",
   base: {
     paddingLeft: 10,
     paddingRight: 10,
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    justifyContent: "center",
+    overflow: "hidden",
     flexGrow: 1,
-    height: '100%',
+    height: "100%"
   },
   hoverStyle: {
     hover: {
-      background: '#fafafa',
-    },
+      background: "#fafafa"
+    }
   },
   disabled: {
     hover: {
-      background: '#fff',
-    },
-  },
+      background: "#fff"
+    }
+  }
 });
 
 let MenuButtonWrapper = style(HBox, {
-  displayName: 'MenuButtonWrapper',
+  displayName: "MenuButtonWrapper",
   base: {
     flexGrow: 1,
     flexShrink: 1,
     height: 32,
-    alignItems: 'center',
+    alignItems: "center"
   },
   hoverStyle: {
     hover: {
-      background: '#fafafa',
-    },
+      background: "#fafafa"
+    }
   },
   disabled: {
     hover: {
-      background: '#fff',
-    },
-  },
+      background: "#fff"
+    }
+  }
 });

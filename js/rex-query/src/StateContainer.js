@@ -13,14 +13,19 @@
  */
 export type Effect<S> = {
   prepare: (state: S) => S,
-  perform: (state: S, setState: (tag: string, updater: (state: S) => S) => void) => any,
+  perform: (
+    state: S,
+    setState: (tag: string, updater: (state: S) => S) => void
+  ) => any
 };
 
 /**
  * A function which takes a state and produces an updated state and optionally a
  * list of effects.
  */
-export type StateUpdater<S: Object> = (state: S) => S | [S, Array<Effect<S>> | Effect<S>];
+export type StateUpdater<S: Object> = (
+  state: S
+) => S | [S, Array<Effect<S>> | Effect<S>];
 
 /**
  * A function which produces a state updater for a given set of parameters.
@@ -32,7 +37,10 @@ export type ActionHandler<P: Object | void, S> = (params: P) => StateUpdater<S>;
  *
  * You can read state and modify it via actions.
  */
-export type StateContainer<S: Object, H: {[name: string]: ActionHandler<*, S>}> = {
+export type StateContainer<
+  S: Object,
+  H: { [name: string]: ActionHandler<*, S> }
+> = {
   /**
    * Actions available.
    */
@@ -46,7 +54,7 @@ export type StateContainer<S: Object, H: {[name: string]: ActionHandler<*, S>}> 
   /**
    * Dispose container.
    */
-  dispose: () => void,
+  dispose: () => void
 };
 
 /**
@@ -54,22 +62,22 @@ export type StateContainer<S: Object, H: {[name: string]: ActionHandler<*, S>}> 
  */
 export type StateContainerActions<SC: StateContainer<*, *>> = $PropertyType<
   SC,
-  'actions',
+  "actions"
 >;
 
 const REDUX_DEVTOOLS_ENABLED =
-  process.env.NODE_ENV === 'development' &&
-  typeof window !== 'undefined' &&
+  process.env.NODE_ENV === "development" &&
+  typeof window !== "undefined" &&
   window.__REDUX_DEVTOOLS_EXTENSION__ != null;
 
 /**
  * Create a new state container given an initial state and a set of action
  * handlers.
  */
-export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
+export function create<S: Object, H: { [name: string]: ActionHandler<*, S> }>(
   initialState: S,
   actions: H,
-  onChange: (state: S, callback: (state: S) => *) => *,
+  onChange: (state: S, callback: (state: S) => *) => *
 ): StateContainer<S, H> {
   let state = initialState;
   let devtools = null;
@@ -80,7 +88,7 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
       state = updater(state);
       if (devtools != null) {
         let type = `${actionName}.${tag}`;
-        devtools.send({type}, state);
+        devtools.send({ type }, state);
       }
       onChange(state, () => {});
     };
@@ -98,19 +106,21 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
         state = result;
       }
       if (devtools != null) {
-        devtools.send({...params, type: actionName}, state);
+        devtools.send({ ...params, type: actionName }, state);
       }
 
-      const effectList = effect != null
-        ? Array.isArray(effect) ? effect : [effect]
-        : [];
-      state = effectList.reduce((state, effect) => effect.prepare(state), state);
+      const effectList =
+        effect != null ? (Array.isArray(effect) ? effect : [effect]) : [];
+      state = effectList.reduce(
+        (state, effect) => effect.prepare(state),
+        state
+      );
 
       onChange(state, state => {
         if (effectList) {
           effectList.forEach(effect => {
             Promise.resolve().then(_ =>
-              effect.perform(state, makeUpdaterForEffect(actionName)),
+              effect.perform(state, makeUpdaterForEffect(actionName))
             );
           });
         }
@@ -122,14 +132,20 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
 
   for (let actionName in actions) {
     if (actions.hasOwnProperty(actionName)) {
-      actionCreators[actionName] = createActionCreator(actionName, actions[actionName]);
+      actionCreators[actionName] = createActionCreator(
+        actionName,
+        actions[actionName]
+      );
     }
   }
 
   if (REDUX_DEVTOOLS_ENABLED) {
     devtools = window.__REDUX_DEVTOOLS_EXTENSION__.connect();
     devtoolsUnsubscribe = devtools.subscribe(message => {
-      if (message.type === 'DISPATCH' && message.payload.type === 'JUMP_TO_STATE') {
+      if (
+        message.type === "DISPATCH" &&
+        message.payload.type === "JUMP_TO_STATE"
+      ) {
         let state = JSON.parse(message.state);
         onChange(state, state => {});
       }
@@ -154,6 +170,6 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
         devtoolsUnsubscribe();
         devtoolsUnsubscribe = null;
       }
-    },
+    }
   };
 }

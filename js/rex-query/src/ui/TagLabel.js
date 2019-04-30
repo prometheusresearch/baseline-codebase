@@ -2,8 +2,8 @@
  * @flow
  */
 
-import React from 'react';
-import {css, Element} from 'react-stylesheet';
+import React from "react";
+import { css, Element } from "react-stylesheet";
 
 export default function TagLabel(props: Object) {
   return (

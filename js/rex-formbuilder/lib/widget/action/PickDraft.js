@@ -5,8 +5,8 @@
 import React from "react";
 import objectPath from "object-path";
 
-import { VBox } from "rex-widget/layout";
-import { Preloader } from "rex-widget/ui";
+import { VBox } from "@prometheusresearch/react-box";
+import Preloader from "../../gui/Preloader";
 import { withFetch } from "rex-widget/data";
 import { TitleBase, Command } from "rex-action";
 

@@ -3,6 +3,7 @@
 var assert            = require('assert');
 var sinon             = require('sinon');
 var React             = require('react');
+var ReactDOM          = require('react-dom');
 var ReactTestUtils    = require('react/lib/ReactTestUtils');
 var Fieldset          = require('../Fieldset');
 var Field             = require('../Field');
@@ -38,13 +39,13 @@ describe('Fieldset', function() {
 
   it('renders className', function() {
     renderFieldset();
-    assert.ok(component.getDOMNode().classList.contains('rf-Fieldset'));
+    assert.ok(ReactDOM.findDOMNode(component).classList.contains('rf-Fieldset'));
   });
 
   it('renders label', function() {
     renderFieldset();
     var label = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'rf-Fieldset__label');
-    assert.equal(textContent(label.getDOMNode()), 'Label');
+    assert.equal(textContent(ReactDOM.findDOMNode(label)), 'Label');
   });
 
   it('renders no label if noLabel prop is sey', function() {

@@ -26,6 +26,7 @@ def allowed(ua):
         return False
     return (
         ua.platform == 'ipad' or
+        ua.browser == 'safari' and ua.version > '10' or
         ua.browser == 'firefox' and ua.version > '38' or
         ua.browser == 'chrome' and ua.version > '30'
     )

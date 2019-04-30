@@ -5,10 +5,15 @@
 .. contents:: Table of Contents
 
 
+0.7.0 (xxxx-xx-xx)
+==================
+- add `Shard.ensure_study` method
+- remove `portal_client` setting (it's been non-functional anyway)
+
 0.6.0 (2018-07-02)
 ==================
 
-* 
+* --
 
 0.5.0 (2018-01-23)
 ==================

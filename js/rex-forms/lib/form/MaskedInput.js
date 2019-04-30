@@ -14,6 +14,9 @@ export default class MaskedInput extends React.Component {
 
   render() {
     let {value} = this.state;
+    if (value == null) {
+      value = '';
+    }
     return (
       <MaskedInputBase
         {...this.props}

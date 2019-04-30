@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import * as KeyPath from 'rex-widget/lib/KeyPath';
+import * as KeyPath from 'rex-widget/KeyPath';
 import invariant from 'invariant';
 import isPlainObject from 'lodash/lang/isPlainObject';
 import isArray from 'lodash/lang/isArray';

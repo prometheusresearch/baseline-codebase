@@ -20,18 +20,18 @@ import type {
   BooleanType,
   DateType,
   TimeType,
-  DateTimeType,
-} from './types';
+  DateTimeType
+} from "./types";
 
 export function createDomain(spec: {
   entity: {
-    [name: string]: (domain: Domain) => DomainEntity,
+    [name: string]: (domain: Domain) => DomainEntity
   },
   aggregate: {
-    [name: string]: DomainAggregate,
-  },
+    [name: string]: DomainAggregate
+  }
 }): Domain {
-  let domain: Domain = {entity: {}, aggregate: spec.aggregate};
+  let domain: Domain = { entity: {}, aggregate: spec.aggregate };
   for (let k in spec.entity) {
     if (spec.entity.hasOwnProperty(k)) {
       domain.entity[k] = spec.entity[k](domain);
@@ -41,105 +41,108 @@ export function createDomain(spec: {
 }
 
 export function invalidType(domain: Domain): InvalidType {
-  return {name: 'invalid', card: null, domain};
+  return { name: "invalid", card: null, domain };
 }
 
 export function numberType(domain: Domain): NumberType {
-  return {name: 'number', card: null, domain};
+  return { name: "number", card: null, domain };
 }
 
 export function textType(domain: Domain): TextType {
-  return {name: 'text', card: null, domain};
+  return { name: "text", card: null, domain };
 }
 
 export function jsonType(domain: Domain): JSONType {
-  return {name: 'json', card: null, domain};
+  return { name: "json", card: null, domain };
 }
 
 export function voidType(domain: Domain): VoidType {
-  return {name: 'void', card: null, domain};
+  return { name: "void", card: null, domain };
 }
 
 export function booleanType(domain: Domain): BooleanType {
-  return {name: 'boolean', card: null, domain};
+  return { name: "boolean", card: null, domain };
 }
 
 export function dateType(domain: Domain): DateType {
   return {
-    name: 'date',
+    name: "date",
     card: null,
     domain,
     attribute: {
-      year: {title: 'Year', type: numberType(domain)},
-      month: {title: 'Month', type: numberType(domain)},
-      day: {title: 'Day', type: numberType(domain)},
-    },
+      year: { title: "Year", type: numberType(domain) },
+      month: { title: "Month", type: numberType(domain) },
+      day: { title: "Day", type: numberType(domain) }
+    }
   };
 }
 
 export function timeType(domain: Domain): TimeType {
   return {
-    name: 'time',
+    name: "time",
     card: null,
     domain,
     attribute: {
-      hour: {title: 'Hour', type: numberType(domain)},
-      minute: {title: 'Minute', type: numberType(domain)},
-      second: {title: 'Second', type: numberType(domain)},
-    },
+      hour: { title: "Hour", type: numberType(domain) },
+      minute: { title: "Minute", type: numberType(domain) },
+      second: { title: "Second", type: numberType(domain) }
+    }
   };
 }
 
 export function dateTimeType(domain: Domain): DateTimeType {
   return {
-    name: 'datetime',
+    name: "datetime",
     card: null,
     domain,
     attribute: {
-      year: {title: 'Year', type: numberType(domain)},
-      month: {title: 'Month', type: numberType(domain)},
-      day: {title: 'Day', type: numberType(domain)},
-      hour: {title: 'Hour', type: numberType(domain)},
-      minute: {title: 'Minute', type: numberType(domain)},
-      second: {title: 'Second', type: numberType(domain)},
-    },
+      year: { title: "Year", type: numberType(domain) },
+      month: { title: "Month", type: numberType(domain) },
+      day: { title: "Day", type: numberType(domain) },
+      hour: { title: "Hour", type: numberType(domain) },
+      minute: { title: "Minute", type: numberType(domain) },
+      second: { title: "Second", type: numberType(domain) }
+    }
   };
 }
 
 export function enumerationType(
   domain: Domain,
-  enumerations: Array<string>,
+  enumerations: Array<string>
 ): EnumerationType {
-  return {name: 'enumeration', card: null, enumerations, domain};
+  return { name: "enumeration", card: null, enumerations, domain };
 }
 
 export function entityType(domain: Domain, entity: string): RecordType {
-  return {name: 'record', card: null, entity, attribute: null, domain};
+  return { name: "record", card: null, entity, attribute: null, domain };
 }
 
-export function recordType(domain: Domain, attribute: DomainAttributeMap): RecordType {
-  return {name: 'record', card: null, entity: null, attribute, domain};
+export function recordType(
+  domain: Domain,
+  attribute: DomainAttributeMap
+): RecordType {
+  return { name: "record", card: null, entity: null, attribute, domain };
 }
 
 export function isRecordLike(type: Type): boolean {
   return (
-    type.name === 'record' ||
-    type.name === 'date' ||
-    type.name === 'time' ||
-    type.name === 'datetime'
+    type.name === "record" ||
+    type.name === "date" ||
+    type.name === "time" ||
+    type.name === "datetime"
   );
 }
 
 export function isRecord(type: Type): boolean {
-  return type.name === 'record';
+  return type.name === "record";
 }
 
 export function recordLikeAttribute(type: Type): DomainAttributeMap {
-  // $FlowIssue: ...
+  // $FlowFixMe: ...
   if (type.attribute != null) {
-    // $FlowIssue: ...
+    // $FlowFixMe: ...
     return type.attribute;
-  } else if (type.name === 'record') {
+  } else if (type.name === "record") {
     if (type.entity != null) {
       return type.domain.entity[type.entity].attribute;
     }
@@ -148,11 +151,11 @@ export function recordLikeAttribute(type: Type): DomainAttributeMap {
 }
 
 export function seqType<T: Type>(type: T): T {
-  if (type.name === 'invalid') {
+  if (type.name === "invalid") {
     return type;
   }
-  if (type.card !== 'seq') {
-    let nextType: any = {...type, card: 'seq'};
+  if (type.card !== "seq") {
+    let nextType: any = { ...type, card: "seq" };
     return (nextType: T);
   } else {
     return type;
@@ -160,11 +163,11 @@ export function seqType<T: Type>(type: T): T {
 }
 
 export function optType<T: Type>(type: T): T {
-  if (type.name === 'invalid') {
+  if (type.name === "invalid") {
     return type;
   }
   if (type.card === null) {
-    let nextType: any = {...type, card: 'opt'};
+    let nextType: any = { ...type, card: "opt" };
     return (nextType: T);
   } else {
     return type;
@@ -172,11 +175,11 @@ export function optType<T: Type>(type: T): T {
 }
 
 export function regType<T: Type>(type: T): T {
-  if (type.name === 'invalid') {
+  if (type.name === "invalid") {
     return type;
   }
   if (type.card !== null) {
-    let nextType: any = {...type, card: null};
+    let nextType: any = { ...type, card: null };
     return (nextType: T);
   } else {
     return type;
@@ -184,13 +187,13 @@ export function regType<T: Type>(type: T): T {
 }
 
 export function leastUpperBound(a: Type, b: Type): Type {
-  if (a.card === 'seq') {
-    if (b.card === 'seq') {
+  if (a.card === "seq") {
+    if (b.card === "seq") {
       return b;
     } else {
       return seqType(b);
     }
-  } else if (a.card === 'opt') {
+  } else if (a.card === "opt") {
     if (b.card != null) {
       return b;
     } else {
@@ -202,11 +205,11 @@ export function leastUpperBound(a: Type, b: Type): Type {
 }
 
 export function toString(type: Type): string {
-  if (type.card === 'seq') {
+  if (type.card === "seq") {
     return `[${toString(regType(type))}]`;
-  } else if (type.card === 'opt') {
+  } else if (type.card === "opt") {
     return `?${toString(regType(type))}`;
-  } else if (type.name === 'record') {
+  } else if (type.name === "record") {
     if (type.entity != null) {
       return type.entity;
     } else {
@@ -217,7 +220,7 @@ export function toString(type: Type): string {
           fieldList.push(`${k}: ${toString(attribute[k].type)}`);
         }
       }
-      return `{${fieldList.join(', ')}}`;
+      return `{${fieldList.join(", ")}}`;
     }
   } else {
     return type.name;

@@ -30,9 +30,14 @@ export type Stylesheet = {
   Label: Component,
 };
 
+const Input = React.forwardRef(({checked, ...props}, ref) => {
+  checked = checked == null ? false : checked;
+  return <input ref={ref} checked={checked} {...props} />;
+});
+
 export let stylesheet: Stylesheet = {
   Root: 'div',
-  Input: 'input',
+  Input: Input,
   LabelWrapper: 'div',
   Hint: 'div',
   Label: 'div',

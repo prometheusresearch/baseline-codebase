@@ -2,16 +2,16 @@
  * @flow
  */
 
-import * as types from './types';
+import * as types from "./types";
 
-import * as React from 'react';
-import * as recharts from 'recharts';
-import {VBox} from 'react-stylesheet';
+import * as React from "react";
+import * as recharts from "recharts";
+import { VBox } from "react-stylesheet";
 
-import ChartTitle from './ChartTitle';
-import Preloader from './Preloader';
-import NoDataMessage from './NoDataMessage';
-import generateColorHash from '../generateColorHash';
+import ChartTitle from "./ChartTitle";
+import Preloader from "./Preloader";
+import NoDataMessage from "./NoDataMessage";
+import generateColorHash from "../generateColorHash";
 
 const RADIAN = Math.PI / 180;
 
@@ -20,11 +20,11 @@ const getPieColor = (chart: types.PieChart, id: string) =>
 
 type PieChartProps = types.ChartBaseProps<types.PieChart> & {
   onSectorClick?: number => *,
-  activeIndex: ?number,
+  activeIndex: ?number
 };
 
 export default class PieChart extends React.Component<PieChartProps> {
-  label = ({cx, cy, midAngle, outerRadius, percent, name, index}: any) => {
+  label = ({ cx, cy, midAngle, outerRadius, percent, name, index }: any) => {
     if (index === this.props.activeIndex) {
       return null;
     }
@@ -33,13 +33,14 @@ export default class PieChart extends React.Component<PieChartProps> {
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     return (
       <recharts.Text
-        style={{fontWeight: 200, fontSize: '9pt'}}
+        style={{ fontWeight: 200, fontSize: "9pt" }}
         width={80}
         x={x}
         y={y}
         fill={getPieColor(this.props.chart, name)}
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central">
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+      >
         {`${name} (${(percent * 100).toFixed(0)}%)`}
       </recharts.Text>
     );
@@ -57,7 +58,7 @@ export default class PieChart extends React.Component<PieChartProps> {
       endAngle,
       fill,
       percent,
-      name,
+      name
     } = props;
     const sin = Math.sin(-RADIAN * midAngle);
     const cos = Math.cos(-RADIAN * midAngle);
@@ -67,7 +68,7 @@ export default class PieChart extends React.Component<PieChartProps> {
     const my = cy + (outerRadius + 30) * sin;
     const ex = mx + (cos >= 0 ? 1 : -1) * 22;
     const ey = my;
-    const textAnchor = cos >= 0 ? 'start' : 'end';
+    const textAnchor = cos >= 0 ? "start" : "end";
     return (
       <g>
         <recharts.Sector
@@ -88,13 +89,18 @@ export default class PieChart extends React.Component<PieChartProps> {
           outerRadius={outerRadius + 10}
           fill={fill}
         />
-        <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+        <path
+          d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
+          stroke={fill}
+          fill="none"
+        />
         <recharts.Text
           x={ex + (cos >= 0 ? 1 : -1) * 12}
           y={ey}
           width={90}
           textAnchor={textAnchor}
-          fill={fill}>
+          fill={fill}
+        >
           {`${name} (${(percent * 100).toFixed(2)}%)`}
         </recharts.Text>
       </g>
@@ -109,7 +115,7 @@ export default class PieChart extends React.Component<PieChartProps> {
       label,
       onLabel,
       onSectorClick,
-      activeIndex,
+      activeIndex
     } = this.props;
     let rendered = null;
     if (dataIsUpdating) {
@@ -123,9 +129,15 @@ export default class PieChart extends React.Component<PieChartProps> {
         <recharts.PieChart
           width={width}
           height={height}
-          margin={{top: 100, left: 0, right: 0, bottom: 0}}>
+          margin={{ top: 100, left: 0, right: 0, bottom: 0 }}
+        >
           <g>
-            <ChartTitle width={width} left="300" value={label} onChange={onLabel} />
+            <ChartTitle
+              width={width}
+              left="300"
+              value={label}
+              onChange={onLabel}
+            />
           </g>
           <recharts.Pie
             isAnimationActive={false}
@@ -135,14 +147,17 @@ export default class PieChart extends React.Component<PieChartProps> {
             outerRadius={130}
             activeIndex={activeIndex}
             activeShape={this.activeShape}
-            label={this.label}>
+            label={this.label}
+          >
             {data.map((entry, index) => {
               const id = entry[chart.labelColumn];
               return (
                 <recharts.Cell
                   key={id}
                   fill={getPieColor(chart, id)}
-                  onClick={onSectorClick ? onSectorClick.bind(null, index) : undefined}
+                  onClick={
+                    onSectorClick ? onSectorClick.bind(null, index) : undefined
+                  }
                 />
               );
             })}

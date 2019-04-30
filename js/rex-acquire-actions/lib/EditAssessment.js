@@ -6,11 +6,11 @@ import React from "react";
 
 import { FormEditor } from "rex-forms";
 import {
-  Preloader,
   showNotification,
   removeNotification,
   Notification
 } from "rex-widget/ui";
+import * as rexui from "rex-ui";
 import { withFetch } from "rex-widget/data";
 
 import AssessmentError from "./AssessmentError";
@@ -35,13 +35,13 @@ export default withFetch(
       };
     }
 
-    onChannelChange = (channel) => {
+    onChannelChange = channel => {
       this.setState({
         currentChannel: channel
       });
-    }
+    };
 
-    onFormComplete = (formState) => {
+    onFormComplete = formState => {
       let payload = JSON.stringify({
         assessment_id: this.props.context[this.props.entity.name].id,
         data: formState.getAssessment()
@@ -60,8 +60,8 @@ export default withFetch(
               <Notification
                 kind="success"
                 text="The updated Assessment has been saved."
-                ttl={10000}
-              />
+              />,
+              10000
             );
             this.props.onContext({});
           },
@@ -70,7 +70,7 @@ export default withFetch(
             showNotification(<Notification kind="danger" text={err} />);
           }
         );
-    }
+    };
 
     render() {
       let { title, locale, i18nBaseUrl, widgetConfig } = this.props;
@@ -78,7 +78,7 @@ export default withFetch(
       let { currentChannel } = this.state;
 
       if (displayData.updating) {
-        return <Preloader />;
+        return <rexui.PreloaderScreen />;
       }
       if (displayData.data.error) {
         return (

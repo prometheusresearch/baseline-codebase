@@ -2,19 +2,17 @@
  * @flow
  */
 
-import * as React from 'react';
-import {style, css, Element, VBox, HBox} from 'react-stylesheet';
+import * as React from "react";
+import { style, css, Element, VBox, HBox } from "react-stylesheet";
 
 type MenuButtonSecondaryProps = {
   icon?: React.Node,
   tabIndex?: number,
   children?: React.Node,
-  onClick?: () => *,
+  onClick?: () => *
 };
 
-export default class MenuButtonSecondary extends React.Component<
-  MenuButtonSecondaryProps,
-> {
+export default class MenuButtonSecondary extends React.Component<MenuButtonSecondaryProps> {
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     if (this.props.onClick) {
@@ -23,13 +21,18 @@ export default class MenuButtonSecondary extends React.Component<
   };
 
   render() {
-    let {icon, children, tabIndex = 0, ...rest} = this.props;
+    let { icon, children, tabIndex = 0, ...rest } = this.props;
     return (
-      <MenuButtonSecondaryRoot {...rest} onClick={this.onClick} tabIndex={tabIndex}>
-        {icon &&
+      <MenuButtonSecondaryRoot
+        {...rest}
+        onClick={this.onClick}
+        tabIndex={tabIndex}
+      >
+        {icon && (
           <VBox width={15} paddingRight={20} justifyContent="flex-start">
             {icon}
-          </VBox>}
+          </VBox>
+        )}
         <Element overflow="hidden" textOverflow="ellipsis">
           {children}
         </Element>
@@ -39,27 +42,27 @@ export default class MenuButtonSecondary extends React.Component<
 }
 
 let MenuButtonSecondaryRoot = style(HBox, {
-  displayName: 'MenuButtonSecondaryRoot',
+  displayName: "MenuButtonSecondaryRoot",
   base: {
-    whiteSpace: 'nowrap',
+    whiteSpace: "nowrap",
     outline: css.none,
-    height: '33px',
-    cursor: 'default',
-    fontSize: '10pt',
+    height: "33px",
+    cursor: "default",
+    fontSize: "10pt",
     fontWeight: 200,
-    borderBottom: css.border(1, '#ddd'),
-    userSelect: 'none',
+    borderBottom: css.border(1, "#ddd"),
+    userSelect: "none",
     padding: 8,
     paddingLeft: 40,
     paddingRight: 10,
-    color: '#666',
-    backgroundColor: '#f2f2f2',
+    color: "#666",
+    backgroundColor: "#f2f2f2",
     lastOfType: {
-      borderBottom: css.none,
+      borderBottom: css.none
     },
     hover: {
-      color: '#222',
-      backgroundColor: '#e7e7e7',
-    },
-  },
+      color: "#222",
+      backgroundColor: "#e7e7e7"
+    }
+  }
 });

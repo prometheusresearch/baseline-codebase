@@ -5,14 +5,15 @@
 import * as React from "react";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import { style } from "@prometheusresearch/react-ui-0.21/stylesheet";
+import PropTypes from 'prop-types';
 
 import { InjectI18N } from "rex-i18n";
 
 export default InjectI18N(
   class CalculationResults extends React.Component {
     static propTypes = {
-      results: React.PropTypes.object,
-      onClose: React.PropTypes.func
+      results: PropTypes.object,
+      onClose: PropTypes.func
     };
 
     static stylesheet = {

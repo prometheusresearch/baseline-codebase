@@ -4,19 +4,13 @@
 
 import React from "react";
 
-import { Action } from "rex-action";
-import { ConfigurableEntityForm } from "rex-widget/form";
+import { Action, TitleBase as Title } from "rex-action";
+import { ConfEntityForm } from "rex-widget/conf-form";
 import { withFetch } from "rex-widget/data";
-import {
-  Preloader,
-  Button,
-  Notification,
-  showNotification
-} from "rex-widget/ui";
-import * as Stylesheet from "rex-widget/stylesheet";
-import { post } from "rex-widget/lib/fetch";
-
-import Title from "./Title";
+import { Notification, showNotification } from "rex-widget/ui";
+import * as Stylesheet from "rex-widget/Stylesheet";
+import { post } from "rex-widget/fetch";
+import * as rexui from "rex-ui";
 
 let stylesheet = Stylesheet.create({
   Tools: {
@@ -67,9 +61,9 @@ export default withFetch(
                 </p>
               </stylesheet.SuccessMessage>
             ) : (
-              <Button icon="pencil" onClick={this.onCreate}>
+              <rexui.Button icon={<icons.Create />} onClick={this.onCreate}>
                 Create New Mart
-              </Button>
+              </rexui.Button>
             )}
           </stylesheet.Tools>
         );
@@ -77,11 +71,11 @@ export default withFetch(
 
       let content;
       if (fetched.data.updating) {
-        content = <Preloader />;
+        content = <rexui.PreloaderScreen />;
       } else {
         content = (
           <div>
-            <ConfigurableEntityForm
+            <ConfEntityForm
               key={fetched.data.data.id}
               disableValidation
               readOnly

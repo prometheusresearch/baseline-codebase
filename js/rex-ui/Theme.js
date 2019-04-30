@@ -67,9 +67,16 @@ type Accent = {
   colorBackground: color
 };
 
-let defaultTheme: Theme = mui.createMuiTheme();
+let defaultTheme: Theme = mui.createMuiTheme({
+  typography: {
+    useNextVariants: true
+  }
+});
 
 export let theme: Theme = mui.createMuiTheme({
+  typography: {
+    useNextVariants: true
+  },
   palette: {
     ...defaultTheme.palette,
     success: {

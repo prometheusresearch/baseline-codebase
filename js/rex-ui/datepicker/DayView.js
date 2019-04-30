@@ -53,7 +53,7 @@ export let Day = (props: DayProps) => {
   );
   return (
     <mui.IconButton tabIndex={-1} onClick={handleClick} style={style}>
-      <mui.Typography variant="body2" style={textStyle}>
+      <mui.Typography variant="body1" style={textStyle}>
         {date.date()}
       </mui.Typography>
     </mui.IconButton>

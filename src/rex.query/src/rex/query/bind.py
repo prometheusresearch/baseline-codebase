@@ -618,8 +618,6 @@ class RexBindingState(BindingState):
     def bind_exists_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)
         output = parameters['op']
-        if not output.optional:
-            raise Error("Expected optional expression, got:", args[0])
         binding = ImplicitCastBinding(
                 output.binding, BooleanDomain(), output.binding.syntax)
         if not output.plural:

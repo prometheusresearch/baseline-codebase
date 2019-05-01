@@ -1,6 +1,7 @@
 [ignore]
-# TODO: Enable one by one
+<PROJECT_ROOT>.*/node_modules/\.cache/.*
 <PROJECT_ROOT>.*/node_modules/enhanced-resolve/.*
+# TODO: Enable one by one
 <PROJECT_ROOT>/react-ui-0.21/.*
 <PROJECT_ROOT>/react-ui/.*
 <PROJECT_ROOT>/rex-action/lib/__tests__/.*

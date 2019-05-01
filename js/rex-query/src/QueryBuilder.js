@@ -157,6 +157,7 @@ export default class QueryBuilder extends React.Component<
       queryInvalid,
       queryLoading,
       data,
+      dataError,
       showPanel,
       focusedSeq,
       chartList,
@@ -308,6 +309,11 @@ export default class QueryBuilder extends React.Component<
           <RightPanelWrapper>
             {isEmptyQueryPipeline(query) ? null : queryInvalid ? (
               <InvalidQueryMessage onUndo={this.actions.undo} />
+            ) : dataError != null ? (
+              <ErrorneousQueryMessage
+                error={dataError}
+                onUndo={this.actions.undo}
+              />
             ) : data != null ? (
               <ReactUI.TabContainer
                 activeTab={activeTab}
@@ -369,6 +375,43 @@ function InvalidQueryMessage({ onUndo }) {
         return back
       </ReactUI.Button>
       to the previous state.
+    </ui.Message>
+  );
+}
+
+function ErrorneousQueryMessage({ error, onUndo }) {
+  return (
+    <ui.Message style={{ color: "red" }} textAlign="left">
+      <div>Error while executing query.</div>
+
+      <div>
+        <pre
+          style={{
+            fontFamily: "Menlo, Monaco, monospace",
+            padding: 10
+          }}
+        >
+          {error}
+        </pre>
+      </div>
+
+      <div>
+        This is likely a bug, please report it (attaching a screenshot of the
+        current screen will be useful for a bug report, make sure it doesn't
+        contain any sensitive information).
+      </div>
+      <div>
+        You can
+        <ReactUI.Button
+          onClick={onUndo}
+          style={{ verticalAlign: "middle", margin: 4, marginTop: 2 }}
+          icon={<Icon.IconArrowLeft />}
+          size="small"
+        >
+          return back
+        </ReactUI.Button>
+        to the previous state.
+      </div>
     </ui.Message>
   );
 }

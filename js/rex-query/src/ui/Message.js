@@ -6,13 +6,20 @@ import * as React from "react";
 import { style, VBox } from "react-stylesheet";
 
 type MessageProps = {
-  children?: React.Node
+  children?: React.Node,
+  textAlign?: "center" | "left" | "right"
 };
 
-export default function Message({ children, ...props }: MessageProps) {
+export default function Message({
+  children,
+  textAlign = "center",
+  ...props
+}: MessageProps) {
   return (
     <MessageRoot {...props}>
-      <MessageChildrenWrapper>{children}</MessageChildrenWrapper>
+      <MessageChildrenWrapper style={{ textAlign }}>
+        {children}
+      </MessageChildrenWrapper>
     </MessageRoot>
   );
 }
@@ -21,8 +28,10 @@ let MessageRoot = style(VBox, {
   displayName: "MessageRoot",
   base: {
     flexGrow: 1,
+    flexShrink: 1,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "auto",
 
     fontWeight: 200,
     fontSize: "10pt",
@@ -33,7 +42,6 @@ let MessageRoot = style(VBox, {
 let MessageChildrenWrapper = style("p", {
   displayName: "MessageChildrenWrapper",
   base: {
-    width: "80%",
-    textAlign: "center"
+    width: "80%"
   }
 });

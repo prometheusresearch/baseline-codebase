@@ -86,6 +86,8 @@ export type State = {
    */
   data: ?Object,
 
+  dataError: ?string,
+
   /**
    * A list of active charts
    */
@@ -146,6 +148,7 @@ export function getInitialState(
     activeTab: initialActiveTab || "__dataset__",
     activeQueryPipeline: null,
     data: null,
+    dataError: null,
     showPanel: true,
     undoStack: [],
     redoStack: [],

@@ -89,15 +89,25 @@ const refetchQuery = {
           return Ch.enrichQuery(q, cSpec.chart, cConfig);
         }
       }, query);
-      Fetch.fetch(api, queryToFetch, translateOptions).then(data => {
-        if (refetchIndex === currentRefetchIndex) {
-          setState("fetchFinish", state => ({
+      Fetch.fetch(api, queryToFetch, translateOptions).then(
+        data => {
+          if (refetchIndex === currentRefetchIndex) {
+            setState("fetchFinish", state => ({
+              ...state,
+              data,
+              dataError: null,
+              queryLoading: false
+            }));
+          }
+        },
+        err => {
+          setState("fetchError", state => ({
             ...state,
-            data,
+            dataError: String(err),
             queryLoading: false
           }));
         }
-      });
+      );
     });
   }, 1000)
 };

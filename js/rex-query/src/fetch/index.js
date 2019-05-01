@@ -22,7 +22,16 @@ function fetchJSON(api: string, data: mixed): Promise<Object> {
       },
       body: JSON.stringify(data)
     })
-    .then(response => response.json());
+    .then(async response => {
+      // check for HTTP status to be 2xx
+      if (Math.floor(response.status / 100) !== 2) {
+        let text = await response.text();
+        throw new Error(text);
+      } else {
+        let json = await response.json();
+        return json;
+      }
+    });
 }
 
 export function initiateDownloadFromBlob(

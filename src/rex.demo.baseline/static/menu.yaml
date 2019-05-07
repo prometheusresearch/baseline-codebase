@@ -11,3 +11,8 @@ menu:
   access: system_admin
   path: /user-system-admin
   action: !include rex.demo.baseline:/resource/user-system-admin.yaml
+- title: About
+  access: authenticated
+  path: /about
+  action:
+    type: about

@@ -5,6 +5,13 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
+0.7.1
+=====
+
+* Loosened ``filelock`` dependency.
+
+
+
 0.7.0 (2018-04-24)
 ==================
 

@@ -1,3 +1,11 @@
+3.1.0 (TBD)
+===========
+
+* Upgraded the React-oriented JavaScript components to use React v16.
+* Enhanced the ``rex.widget`` and ``rex.action`` user interfaces to use
+  Material UI.
+
+
 3.0.1 (2019-04-12)
 ==================
 

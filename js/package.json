@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": ["*"],
   "devDependencies": {
+    "jest": "^24.0.0",
     "jest-cli": "^24.0.0",
     "babel-jest": "^24.0.0",
     "flow-bin": "0.97.0",

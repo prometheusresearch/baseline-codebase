@@ -96,8 +96,10 @@ Publish enrollment profile::
 
   >>> with Mocker() as m:
   ...     _ = m.register_uri(ANY, ANY, json={})
-  ...     shard.publish_enrollment_profile('enrollhere',
+  ...     shard.publish_enrollment_profile(
+  ...            'url_token',
   ...            'requirement-list-id',
+  ...            'enrollhere',
   ...            tasks=[{'some': 'data'}],
   ...            consents=[{'some': 'data'}]) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   {}

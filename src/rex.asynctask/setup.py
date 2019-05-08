@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.asynctask',
-    version='0.7.0',
+    version='0.7.1',
     description='An extensible framework for submitting and consuming'
     ' asynchronous tasks.',
     long_description=open('README.rst', 'r').read(),
@@ -38,7 +38,7 @@ setup(
         'psycopg2',
         'apscheduler>=3.3,<4',
         'ratelimiter>=1.2,<2',
-        'filelock>=2.0.8,<2.1',
+        'filelock>=2.0.8,<4',
         'kombu>=4.1,<5',
     ],
     rex_init='rex.asynctask',

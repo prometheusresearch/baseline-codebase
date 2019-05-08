@@ -6,13 +6,6 @@
 import React from "react";
 export { default as DynamicPageContent } from "./DynamicPageContent";
 
-export {
-  getLocation,
-  subscribeLocationChange,
-  unsubscribeLocationChange,
-  updateLocation
-} from "./PageManager";
-
 type PageContext = Object;
 
 export let pageContext = React.createContext<PageContext>({

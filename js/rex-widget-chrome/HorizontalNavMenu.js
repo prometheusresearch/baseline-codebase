@@ -8,6 +8,7 @@ import React from "react";
 import * as styles from "@material-ui/styles";
 import * as mui from "@material-ui/core";
 import { ThemeProvider } from "rex-ui/Theme.js";
+import * as History from "rex-ui/History";
 import { type Menu, NavMenuItems } from "./NavMenu.js";
 
 let useStyles = styles.makeStyles({
@@ -81,7 +82,7 @@ let HorizontalMavMenuItem = React.forwardRef((props, ref) => {
 
 type Props = {
   menu: Menu,
-  location: Location
+  location: History.Location
 };
 
 function HorizontalNavMenu({ menu, location }: Props) {

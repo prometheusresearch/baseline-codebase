@@ -9,6 +9,7 @@ import * as styles from "@material-ui/styles";
 import * as mui from "@material-ui/core";
 import { type Menu, NavMenuItems } from "./NavMenu";
 import { type Theme } from "rex-ui/Theme";
+import * as History from 'rex-ui/History';
 
 let useStyles = styles.makeStyles((theme: Theme) => {
   return {
@@ -73,7 +74,7 @@ let VerticalNavMenuSubItem = React.forwardRef(({ item, selected }, ref) => {
 
 type Props = {
   menu: Menu,
-  location: Location
+  location: History.Location
 };
 
 function VerticalNavMenu({ menu, location }: Props) {

@@ -1,12 +1,25 @@
-import React from 'react';
-import {fromHash, toHash} from './History';
-import * as rexui from 'rex-ui';
+// @flow
+
+import * as React from "react";
+import { fromHash, toHash } from "./History";
+import * as rexui from "rex-ui";
+import * as History from "rex-ui/History";
 
 let cache = {};
 
-export default class DBGUI extends React.Component {
+type Props = {
+  rootWizard: React.Node,
+  tableWizard: any
+};
 
-  constructor(props) {
+type State = {
+  table: ?string,
+  loading: boolean,
+  wizard: React.Node
+};
+
+export default class DBGUI extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       table: null,
@@ -16,57 +29,65 @@ export default class DBGUI extends React.Component {
   }
 
   render() {
-    let {loading, wizard} = this.state;
+    let { loading, wizard } = this.state;
     return loading ? <rexui.PreloaderScreen /> : wizard;
   }
 
   componentWillMount() {
-    if (window.location.hash) {
-      let {table, remainder} = fromHash();
+    let location = History.getHashHistory().location;
+    if (location.pathname != "") {
+      let { table, remainder } = fromHash(location.pathname);
       if (table !== null) {
         this.setTable(table, remainder);
       }
     }
   }
 
+  _stopListening: () => void;
+
   componentDidMount() {
-    window.addEventListener('hashchange', this.onHashChange);
+    this._stopListening = History.getHashHistory().listen(this.onHashChange);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('hashchange', this.onHashChange);
+    this._stopListening();
   }
 
-  setTable = (table, remainder) => {
-    window.location.hash = toHash(table, remainder);
+  setTable = (table: string, remainder: ?string) => {
+    let pathname = toHash(table, remainder);
     if (table && cache[table]) {
-      this.setState({...this.state,
-        table,
-        wizard: cache[table],
-        loading: false
-      });
-    }
-    else {
-      let {tableWizard} = this.props;
-      this.setState({...this.state, table, loading: true}, () => {
-        let request = tableWizard.addPath('/' + table).asTransitionable();
-        request.produce().then((wizard) => {
+      this.setState(
+        {
+          ...this.state,
+          table,
+          wizard: cache[table],
+          loading: false
+        },
+        () => {
+          History.getHashHistory().push({ pathname: "/" + pathname });
+        }
+      );
+    } else {
+      let { tableWizard } = this.props;
+      this.setState({ ...this.state, table, loading: true }, () => {
+        History.getHashHistory().push({ pathname: "/" + pathname });
+        let request = tableWizard.addPath("/" + table).asTransitionable();
+        request.produce().then(wizard => {
           cache[table] = wizard;
-          this.setState({...this.state, wizard, loading: false});
+          this.setState({ ...this.state, wizard, loading: false });
         });
       });
     }
-  }
+  };
 
-  onHashChange = () => {
-    let {table, remainder} = fromHash();
+  onHashChange = (location: History.Location) => {
+    let { table, remainder } = fromHash(location.pathname);
     if (table != this.state.table) {
       if (table === null) {
-        this.setState({...this.state, table, wizard: this.props.rootWizard});
-      }
-      else {
+        this.setState({ ...this.state, table, wizard: this.props.rootWizard });
+      } else {
         this.setTable(table, remainder);
       }
     }
-  }
+  };
 }

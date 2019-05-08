@@ -1,11 +1,11 @@
+// @flow
 
-
-export function toActionName(actionType, table) {
+export function toActionName(actionType: string, table: string) {
   return `${actionType}-${table.replace(/_/g, '-')}`;
 }
 
-export function fromHash() {
-  let path = decodeURIComponent(window.location.hash.substr(1));
+export function fromHash(pathname: string) {
+  let path = decodeURIComponent(pathname.slice(1));
   let table = null;
   let remainder = null;
   let re = /^dbgui\.context\[table=(.+?)\]/;
@@ -21,6 +21,7 @@ export function fromHash() {
       '/view-source',
     ].map((s) => {
       [s + '/', s + '?', s + '['].map((start) => {
+        // $FlowFixMe: ...
         if (remainder.substr(0, start.length) == start) {
           remainderAllowed = true;
         }
@@ -37,11 +38,11 @@ export function fromHash() {
   return {table, remainder};
 }
 
-export function toHash(table, remainder) {
+export function toHash(table: string, remainder: ?string) {
   return table === null ? '' : `dbgui.context[table=${table}]${remainder || ''}`;
 }
 
-export function recordLink(table, id) {
+export function recordLink(table: string, id: string) {
   let pick = toActionName('pick', table);
   let view = toActionName('view', table);
   return toHash(table, `/${pick}[${id}]/${view}`);

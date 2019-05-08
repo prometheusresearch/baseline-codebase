@@ -18,13 +18,13 @@ import * as C from "../model/Command";
 import * as S from "../model/State";
 import * as P from "../model/Position";
 import * as SP from "../model/StatePath";
-import * as History from "../History";
+import * as History from "rex-ui/History";
+import { confirmNavigation } from "rex-ui/ConfirmNavigation";
 import * as Environment from "../Environment";
 import injectLocation from "../injectLocation";
 
 import { type PreInstruction, parseInstruction } from "../parseInstruction";
 import ActionContext from "../ActionContext";
-import { confirmNavigation } from "../ConfirmNavigation";
 
 import Breadcrumb from "./Breadcrumb";
 import Sidebar from "./Sidebar";
@@ -126,12 +126,12 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
         }),
       toolbar: <Toolbar positions={nextPositions} onClick={this._onNext} />
     });
-    let showBreadcrumb = this.props.settings.includePageBreadcrumbItem ||
-      position.prev != null;
+    let showBreadcrumb =
+      this.props.settings.includePageBreadcrumbItem || position.prev != null;
     return (
       <VBox height="100%" flexGrow={1} flexDirection="column-reverse">
         <HBox flexBasis={0} flexGrow={1}>
-          <div style={{ zIndex: 100, display: 'flex' }}>
+          <div style={{ zIndex: 100, display: "flex" }}>
             <Sidebar
               positions={siblingPositions}
               currentPosition={graph.position}
@@ -149,7 +149,7 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
             </ActionContext>
           </VBox>
         </HBox>
-        {showBreadcrumb &&
+        {showBreadcrumb && (
           <div style={{ zIndex: 100 }}>
             <Breadcrumb
               height={50}
@@ -159,7 +159,8 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
               graph={graph}
               onClick={this._onReturn}
             />
-          </div>}
+          </div>
+        )}
       </VBox>
     );
   }

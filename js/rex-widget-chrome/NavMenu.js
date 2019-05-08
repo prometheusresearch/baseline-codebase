@@ -5,6 +5,7 @@
 
 import * as React from "react";
 import resolveURL from "rex-widget/resolveURL";
+import * as History from "rex-ui/History";
 
 export type Menu = MenuItem[];
 
@@ -18,7 +19,7 @@ export type MenuItem = {
 
 type Props = {
   menu: Menu,
-  location: Location,
+  location: History.Location,
   renderMenuItem: ({
     item: MenuItem,
     key: string,
@@ -79,7 +80,7 @@ function isCurrentLocation(location, href) {
   if (href) {
     href = resolveURL(href);
   }
-  return location.href === href;
+  return window.location.origin + location.pathname === href;
 }
 
 function itemKey(item) {

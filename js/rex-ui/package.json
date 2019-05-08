@@ -9,6 +9,7 @@
     "react-autosuggest": "*",
     "autosuggest-highlight": "*",
     "resize-observer-polyfill": "^1.5.1",
+    "history": "4.9.0",
     "moment": "^2.8.2",
     "react": "*",
     "react-dom": "*"

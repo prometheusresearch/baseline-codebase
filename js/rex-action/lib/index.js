@@ -1,5 +1,6 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
 import Action from './Action';
@@ -17,7 +18,7 @@ import './TransitionableHandlers';
 
 import {Theme} from './ui';
 
-export {default as ConfirmNavigation} from './ConfirmNavigation';
+export {ConfirmNavigation} from 'rex-ui/ConfirmNavigation';
 export {default as Wizard} from './wizard/Wizard';
 export {ActionWizard} from './ActionWizard';
 export {default as Page} from './actions/Page';

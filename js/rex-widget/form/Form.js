@@ -7,6 +7,10 @@ import * as React from "react";
 import { createValue, type schema, type value, type error } from "react-forms";
 import debounce from "lodash/function/debounce";
 import * as rexui from "rex-ui";
+import {
+  ConfirmNavigation,
+  type Instance as ConfirmNavigationInstance
+} from "rex-ui/ConfirmNavigation";
 
 import { emptyFunction } from "../lang";
 import { VBox } from "react-stylesheet";
@@ -136,12 +140,19 @@ export type Props = {|
    *
    * If not set then layout will be inferred by measuring form DOM element.
    */
-  layout?: Layout.layout
+  layout?: Layout.layout,
+
+  /**
+   * Show confirm dialog if user is trying to navigate away from the page while
+   * form value is modified.
+   */
+  confirmNavigationIfDirty?: boolean
 |};
 
 type State = {
   submitInProgress: boolean,
-  value: value
+  value: value,
+  isDirty: boolean
 };
 
 /**
@@ -196,9 +207,10 @@ export class Form extends React.Component<Props, State> {
       submitTo: _submitTo,
       context: _context,
       layout,
+      confirmNavigationIfDirty,
       ...props
     } = this.props;
-    let { value, submitInProgress } = this.state;
+    let { value, submitInProgress, isDirty } = this.state;
     if (submitButton != null) {
       let submitButtonProps = {
         type: "button",
@@ -219,6 +231,9 @@ export class Form extends React.Component<Props, State> {
     }
     return (
       <Layout.FormLayout layout={layout}>
+        {isDirty && confirmNavigationIfDirty && (
+          <ConfirmNavigation ref={this._onConfirmNavigation} />
+        )}
         <Fieldset {...props} formValue={value} onChange={undefined}>
           {children}
         </Fieldset>
@@ -230,6 +245,11 @@ export class Form extends React.Component<Props, State> {
       </Layout.FormLayout>
     );
   }
+
+  _confirmNavigation: ?ConfirmNavigationInstance;
+  _onConfirmNavigation = (instance: ?ConfirmNavigationInstance) => {
+    this._confirmNavigation = instance;
+  };
 
   _progressNotification: ?ui.NotificationID;
   _promiseLastValidation: Promise<void>;
@@ -243,7 +263,8 @@ export class Form extends React.Component<Props, State> {
         value: this.props.value,
         onChange: this.onChange,
         params: { context: this.props.context }
-      })
+      }),
+      isDirty: false
     };
     this._progressNotification = null;
     this._promiseLastValidation = Promise.resolve();
@@ -348,7 +369,7 @@ export class Form extends React.Component<Props, State> {
       true
     );
     this._validateDebounced(nextValue);
-    this.setState({ value: nextValue });
+    this.setState({ value: nextValue, isDirty: true });
   };
 
   _validate = (formValue: value = this.state.value) => {
@@ -427,6 +448,9 @@ export class Form extends React.Component<Props, State> {
       ui.removeNotification(this._progressNotification);
     }
     ui.showNotification(this.props.completeNotification);
+    if (this._confirmNavigation != null) {
+      this._confirmNavigation.allow();
+    }
     this.props.onSubmitComplete(data);
   };
 

@@ -32,9 +32,11 @@ export class Form extends React.Component {
     let title = this.constructor.renderTitle(this.props, context);
     return (
       <Action onClose={onClose} title={title} renderFooter={this.renderFooter}>
-        {fetched.value && fetched.value.updating
-          ? <rexui.PreloaderScreen />
-          : this.renderForm()}
+        {fetched.value && fetched.value.updating ? (
+          <rexui.PreloaderScreen />
+        ) : (
+          this.renderForm()
+        )}
       </Action>
     );
   }
@@ -48,15 +50,15 @@ export class Form extends React.Component {
 
   renderFooter = () => {
     let { readOnly, submitButton, icon } = this.props;
-    return readOnly
-      ? null
-      : <rexui.SuccessButton
-          icon={<ui.Icon name={icon} />}
-          onClick={this._onSubmit}
-          disabled={this.state.submitInProgress}
-        >
-          {submitButton}
-        </rexui.SuccessButton>;
+    return readOnly ? null : (
+      <rexui.SuccessButton
+        icon={<ui.Icon name={icon} />}
+        onClick={this._onSubmit}
+        disabled={this.state.submitInProgress}
+      >
+        {submitButton}
+      </rexui.SuccessButton>
+    );
   };
 
   renderForm = () => {
@@ -66,6 +68,7 @@ export class Form extends React.Component {
     );
     return (
       <form.ConfForm
+        confirmNavigationIfDirty={true}
         ref={this._onForm}
         readOnly={readOnly}
         disableValidation={readOnly}

@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 import * as rexui from "rex-ui";
 
 import * as form from "rex-widget/conf-form";
-import {SuccessButton} from "rex-ui";
+import { SuccessButton } from "rex-ui";
 import * as ui from "rex-widget/ui";
 import * as data from "rex-widget/data";
 
@@ -51,9 +51,11 @@ export class Edit extends React.Component {
         title={title}
         renderFooter={this.renderFooter}
       >
-        {!fetched.entity.updating
-          ? this.renderForm()
-          : <rexui.PreloaderScreen />}
+        {!fetched.entity.updating ? (
+          this.renderForm()
+        ) : (
+          <rexui.PreloaderScreen />
+        )}
       </Action>
     );
   }
@@ -84,6 +86,7 @@ export class Edit extends React.Component {
     );
     return (
       <form.ConfEntityForm
+        confirmNavigationIfDirty={true}
         ref={this._onForm}
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={submitTo}

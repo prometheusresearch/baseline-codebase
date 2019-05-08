@@ -63,7 +63,8 @@ export default class Make extends React.Component {
         renderFooter={this.renderFooter}
       >
         <form.ConfEntityForm
-          insert
+          confirmNavigationIfDirty={true}
+          insert={true}
           context={ContextUtils.getMaskedContext(context, contextTypes.input)}
           key={this.getKey()}
           ref={this._onForm}

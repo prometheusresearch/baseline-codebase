@@ -7,11 +7,12 @@ import * as React from "react";
 import { VBox } from "react-stylesheet";
 import { fetch } from "./fetch";
 import * as rexui from "rex-ui";
+import * as History from "rex-ui/History";
 
 type Props = {|
   content: React.Node,
-  location: Location,
-  onNavigation: (href: string) => boolean
+  location: History.Location,
+  onNavigation: (pathname: string) => boolean
 |};
 
 type State = {
@@ -28,7 +29,7 @@ export default class DynamicPageContent extends React.Component<Props, State> {
   render() {
     let { location } = this.props;
     return (
-      <VBox flexGrow={1} flexShrink={1} key={location.href}>
+      <VBox flexGrow={1} flexShrink={1} key={location.pathname}>
         {this.state.updating ? <rexui.PreloaderScreen /> : this.state.content}
       </VBox>
     );
@@ -36,8 +37,8 @@ export default class DynamicPageContent extends React.Component<Props, State> {
 
   componentWillReceiveProps({ location }: Props) {
     this.setState({ updating: true });
-    fetch(location.href, {}, { useTransit: true }).then(
-      this.onPageFetched.bind(null, location.href),
+    fetch(location.pathname, {}, { useTransit: true }).then(
+      this.onPageFetched.bind(null, location.pathname),
       this.onPageError
     );
   }
@@ -60,11 +61,11 @@ export default class DynamicPageContent extends React.Component<Props, State> {
     if (!isMainClick(event)) {
       return;
     }
-    let href = getHrefFromEventTarget(event.target);
-    if (!href) {
+    let pathname = getPathnameOfElement(event.target);
+    if (pathname == null) {
       return;
     }
-    if (this.props.onNavigation(href)) {
+    if (this.props.onNavigation(pathname)) {
       event.preventDefault();
       event.stopPropagation();
     }
@@ -90,11 +91,16 @@ function isMainClick(event: MouseEvent) {
   );
 }
 
-function getHrefFromEventTarget(element): null | string {
+function getPathnameOfElement(element): null | string {
   do {
     if (element.tagName === "A" && element.href) {
-      // $FlowFixMe: ...
-      return element.href;
+      let href: string = (element.href: any);
+      // Remove origin from href so we get a pathname
+      let origin = window.location.origin;
+      if (href.slice(0, origin.length) === origin) {
+        href = href.slice(origin.length);
+      }
+      return href;
     }
     // $FlowFixMe: ...
     element = element.parentElement;

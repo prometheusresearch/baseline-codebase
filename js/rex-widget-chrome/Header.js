@@ -12,6 +12,7 @@ import { useLayoutMode } from "rex-ui/Layout.js";
 import { type Menu } from "./NavMenu.js";
 import VerticalNavMenu from "./VerticalNavMenu.js";
 import HorizontalNavMenu from "./HorizontalNavMenu.js";
+import * as History from 'rex-ui/History';
 
 import resolveURL from "rex-widget/resolveURL";
 
@@ -104,7 +105,7 @@ type Props = {
   applicationLogoutUrl: string,
   menu: Menu,
   siteRoot: string,
-  location: Location
+  location: History.Location
 };
 
 let Header = (props: Props) => {

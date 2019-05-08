@@ -7,14 +7,9 @@ import * as React from "react";
 import * as styles from "@material-ui/styles";
 import * as mui from "@material-ui/core";
 import * as icons from "@material-ui/icons";
+import * as History from "rex-ui/History";
 
-import {
-  DynamicPageContent,
-  getLocation,
-  updateLocation,
-  subscribeLocationChange,
-  unsubscribeLocationChange
-} from "rex-widget/page";
+import { DynamicPageContent } from "rex-widget/page";
 import { VBox } from "react-stylesheet";
 import ChromeBase from "./ChromeBase";
 import Header from "./Header";
@@ -46,7 +41,7 @@ type Props = {
 
 type State = {
   hasError: boolean,
-  location: Location,
+  location: History.Location,
   activeMenuItem: Object
 };
 
@@ -58,8 +53,8 @@ export default class Chrome extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    let location = getLocation();
-    let activeMenuItem = findMenuItem(this.props.menu, location.href);
+    let location = History.getBrowserHistory().location;
+    let activeMenuItem = findMenuItem(this.props.menu, location.pathname);
     this.state = {
       hasError: false,
       location,
@@ -76,7 +71,7 @@ export default class Chrome extends React.Component<Props, State> {
 
   onReload = () => {
     this.setState({ hasError: false });
-    this.onNavigation(this.state.location.href);
+    this.onNavigation(this.state.location.pathname);
   };
 
   render() {
@@ -120,7 +115,7 @@ export default class Chrome extends React.Component<Props, State> {
               )}
             </VBox>
             <Header
-              key={location.href}
+              key={location.pathname}
               location={location}
               title={title}
               menu={menu}
@@ -137,40 +132,49 @@ export default class Chrome extends React.Component<Props, State> {
     );
   }
 
+  _stopListening: () => void;
+
   componentDidMount() {
-    subscribeLocationChange(this.onLocationChange);
+    this._stopListening = History.getBrowserHistory().listen(
+      this.onLocationChange
+    );
   }
 
   componentWillUnmount() {
-    unsubscribeLocationChange(this.onLocationChange);
+    this._stopListening();
   }
 
-  onNavigation = (href: string) => {
+  onNavigation = (pathname: string) => {
     if (!this.props.settings.manageContent) {
       return false;
     }
-    let item = findMenuItem(this.props.menu, href);
+    let item = findMenuItem(this.props.menu, pathname);
     if (item === null) {
       return false;
     }
-    updateLocation({ href });
+    History.getBrowserHistory().push(pathname);
     return true;
   };
 
-  onLocationChange = (location: Location) => {
-    let activeMenuItem = findMenuItem(this.props.menu, location.href);
+  onLocationChange = (location: History.Location, action: History.Action) => {
+    // Location can be changed not just b/c of pathname change, we are only
+    // interested in the latter though.
+    if (location.pathname === this.state.location.pathname) {
+      return;
+    }
+    let activeMenuItem = findMenuItem(this.props.menu, location.pathname);
     this.setState({ location, activeMenuItem });
   };
 }
 
-function findMenuItem(menu: Menu, href: string) {
+function findMenuItem(menu: Menu, pathname: string) {
   for (let i = 0; i < menu.length; i++) {
     let item = menu[i];
-    if (item.url === href) {
+    if (item.url === window.location.origin + pathname) {
       return item;
     }
     if (item.items != null) {
-      let found = findMenuItem(item.items, href);
+      let found = findMenuItem(item.items, pathname);
       if (found) {
         return found;
       }

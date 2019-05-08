@@ -24,9 +24,11 @@ Test rex.widget.render
 
 ::
 
+
   >>> req = Request.blank('/', environ={
   ...   'rex.mount':  {
-  ...     'rex.widget_demo': '/widget_demo'
+  ...     'rex.widget': '/widget',
+  ...     'rex.widget_demo': '/widget_demo',
   ...   }
   ... })
   >>> print(render_widget(WidgetToRender(field='ok'), req)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
@@ -38,7 +40,8 @@ Test rex.widget.render
 
   >>> req = Request.blank('/', accept='application/json', environ={
   ...   'rex.mount':  {
-  ...     'rex.widget_demo': '/widget_demo'
+  ...     'rex.widget': '/widget',
+  ...     'rex.widget_demo': '/widget_demo',
   ...   }
   ... })
   >>> print(render_widget(WidgetToRender(field='ok'), req)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
@@ -52,7 +55,8 @@ Test rex.widget.render
 
   >>> req = Request.blank('/', accept='application/json', environ={
   ...   'rex.mount':  {
-  ...     'rex.widget_demo': '/widget_demo'
+  ...     'rex.widget': '/widget',
+  ...     'rex.widget_demo': '/widget_demo',
   ...   }
   ... })
   >>> print(render_widget(

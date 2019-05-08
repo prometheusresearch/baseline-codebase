@@ -13,7 +13,6 @@ type Props = {
   title?: string,
   license?: string,
   overview?: string,
-  onClose: () => void,
   environmentPackages: {
     application_package: Package,
     other_packages: Package[],
@@ -26,14 +25,13 @@ type TabId = "overview" | "rex-components" | "other-components" | "license";
 function About({
   title = "About this RexDB Application",
   license,
-  onClose,
   overview,
   environmentPackages
 }: Props) {
   let [activeTab, setActiveTab] = React.useState<TabId>("overview");
 
   return (
-    <Action title={title} onClose={onClose}>
+    <Action title={title}>
       <mui.Tabs
         indicatorColor="primary"
         textColor="primary"

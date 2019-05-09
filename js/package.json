@@ -9,7 +9,8 @@
     "flow-bin": "0.97.0",
     "prettier": "^1.16.0",
     "html-webpack-plugin": "4.0.0-beta.5",
-    "react-cosmos": "4.8.1"
+    "react-cosmos": "4.8.1",
+    "react-testing-library": "7.0.0"
   },
   "resolutions": {
     "**/@material-ui/core": "3.9.3",

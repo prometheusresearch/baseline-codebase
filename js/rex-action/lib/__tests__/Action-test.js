@@ -1,23 +1,16 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
+ * @flow
  */
 
-import React from 'react';
-import {assert, createRenderer, spy, findWithTypeProps} from 'rex-widget/testutils';
+import * as React from "react";
+import * as ReactTesting from "react-testing-library";
 
-import * as ui from 'rex-widget/ui';
-import Action from '../Action';
+import * as ui from "rex-widget/ui";
+import Action from "../Action";
 
-describe('rex-action', function() {
-  let renderer;
+afterEach(ReactTesting.cleanup);
 
-  beforeEach(function() {
-    renderer = createRenderer();
-  });
-
-  describe('<Action />', function() {
-    it('renders', function() {
-      renderer.render(<Action footer={<span />} />);
-    });
-  });
+test("renders", function() {
+  ReactTesting.render(<Action />);
 });

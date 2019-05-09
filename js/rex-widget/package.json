@@ -39,9 +39,5 @@
     "react-icons": "^2.0.0",
     "to-snake-case": "^1.0.0",
     "transit-js": "^0.8.795"
-  },
-  "devDependencies": {
-    "react-test-renderer": "^16.0.0",
-    "react-testing-library": "^7.0.0"
   }
 }

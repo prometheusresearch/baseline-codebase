@@ -12,25 +12,30 @@ import * as History from "rex-ui/History";
 type Props = {|
   content: React.Node,
   location: History.Location,
-  onNavigation: (pathname: string) => boolean
+  onNavigation: (pathname: string) => boolean,
+  preloader?: React.Node,
 |};
 
-type State = {
+type State = {|
   content: React.Node,
   updating: boolean
-};
+|};
 
 export default class DynamicPageContent extends React.Component<Props, State> {
+  static defaultProps = {
+    preloader: <rexui.PreloaderScreen />
+  };
+
   state: State = {
     content: this.props.content,
     updating: false
   };
 
   render() {
-    let { location } = this.props;
+    let { location, preloader } = this.props;
     return (
       <VBox flexGrow={1} flexShrink={1} key={location.pathname}>
-        {this.state.updating ? <rexui.PreloaderScreen /> : this.state.content}
+        {this.state.updating ? preloader : this.state.content}
       </VBox>
     );
   }

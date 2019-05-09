@@ -6,7 +6,7 @@ import assert from 'assert';
 import size from 'lodash/size';
 import {atom} from 'derivable';
 import * as Schema from '../../../instrument/schema';
-import * as EventCatalog from '../EventCatalog';
+import * as EventIndex from '../EventIndex';
 
 
 let MOCK_ENV = {
@@ -18,7 +18,7 @@ let MOCK_ENV = {
 
 describe('rex-froms/form/event', function() {
 
-  describe('EventCatalog', function() {
+  describe('EventIndex', function() {
 
     describe('events for simple questions', function() {
       let instrument = {
@@ -89,7 +89,7 @@ describe('rex-froms/form/event', function() {
       let schema = Schema.fromInstrument(instrument, MOCK_ENV);
 
       it('discovers the events from form', function() {
-        let cat = EventCatalog.create(form);
+        let cat = EventIndex.createEventIndex(form);
 
         assert(size(cat.tag.fail) === 0);
         assert(size(cat.tag.disable) === 0);
@@ -116,76 +116,6 @@ describe('rex-froms/form/event', function() {
 
         assert(size(cat.field.hideEnumeration) === 0);
 
-      });
-
-      it('computes event values and reacts on changes', function() {
-        let cat = EventCatalog.create(form);
-        let value = atom({});
-        let bound = EventCatalog.bind(cat, schema, value);
-
-        assert(size(bound.tag.fail) === 0);
-        assert(size(bound.tag.disable) === 0);
-        assert(size(bound.tag.hide) === 0);
-        assert(size(bound.tag.hideEnumeration) === 0);
-
-        assert(size(bound.page.fail) === 0);
-        assert(size(bound.page.disable) === 0);
-        assert(size(bound.page.hide) === 0);
-        assert(size(bound.page.hideEnumeration) === 0);
-
-
-        assert(size(bound.field.fail) === 1);
-        assert(bound.field.fail.single_target);
-
-        assert(size(bound.field.disable) === 1);
-        assert(bound.field.disable.single_target);
-        assert(bound.field.disable.single_target.computation.get() === false);
-
-        assert(size(bound.field.hide) === 1);
-        assert(bound.field.hide.single_target);
-        assert(bound.field.hide.single_target.computation.get() === false);
-
-        assert(size(bound.field.hideEnumeration) === 0);
-      });
-
-      it('reacts on changes and recomputes', function() {
-        let cat = EventCatalog.create(form);
-        let value = atom({});
-        let bound = EventCatalog.bind(cat, schema, value);
-
-        let effects = [];
-
-        bound.field.disable.single_target.computation.react(disable => {
-          effects.push({disable});
-        }, {skipFirst: true});
-
-        bound.field.hide.single_target.computation.react(hide => {
-          effects.push({hide});
-        }, {skipFirst: true});
-
-        assert(effects.length === 0);
-
-        value.set({single: {value: 'failed'}});
-        assert(bound.field.hide.single_target.computation.get() === false);
-        assert(bound.field.disable.single_target.computation.get() === false);
-
-        assert(effects.length === 0);
-
-        value.set({single: {value: 'disabled'}});
-        assert(bound.field.hide.single_target.computation.get() === false);
-        assert(bound.field.disable.single_target.computation.get() === true);
-
-        assert(effects.length === 1);
-        assert.deepEqual(effects[0], {disable: true});
-
-        value.set({single: {value: 'hidden'}});
-        assert(bound.field.hide.single_target.computation.get() === true);
-        assert(bound.field.disable.single_target.computation.get() === false);
-
-        assert(effects.length === 3);
-        assert.deepEqual(effects[0], {disable: true});
-        assert.deepEqual(effects[1], {disable: false});
-        assert.deepEqual(effects[2], {hide: true});
       });
     });
 
@@ -293,7 +223,7 @@ describe('rex-froms/form/event', function() {
 
       it('discovers events by traversing form', function() {
 
-        let cat = EventCatalog.create(form);
+        let cat = EventIndex.createEventIndex(form);
 
         assert(size(cat.tag.fail) === 0);
         assert(size(cat.tag.disable) === 0);
@@ -321,84 +251,6 @@ describe('rex-froms/form/event', function() {
         assert(cat.field.hide['recordlist_target.subfield1'].eventList.length === 1);
 
         assert(size(cat.field.hideEnumeration) === 0);
-      });
-
-      it('computes event values', function() {
-
-        let cat = EventCatalog.create(form);
-        let value = atom({});
-        let bound = EventCatalog.bind(cat, schema, value);
-
-        assert(size(bound.tag.fail) === 0);
-        assert(size(bound.tag.disable) === 0);
-        assert(size(bound.tag.hide) === 0);
-        assert(size(bound.tag.hideEnumeration) === 0);
-
-        assert(size(bound.page.fail) === 0);
-        assert(size(bound.page.disable) === 0);
-        assert(size(bound.page.hide) === 0);
-        assert(size(bound.page.hideEnumeration) === 0);
-
-        assert(size(bound.field.fail) === 1);
-        assert(bound.field.fail['recordlist_target.subfield1']);
-
-        assert(size(bound.field.disable) === 2);
-        assert(bound.field.disable['recordlist_target.subfield1']);
-        assert(bound.field.disable['recordlist_target.subfield2']);
-
-        assert(size(bound.field.hide) === 1);
-        assert(bound.field.hide['recordlist_target.subfield1']);
-
-        assert(size(bound.field.hideEnumeration) === 0);
-      });
-
-      it('reacts on value changes', function() {
-
-        let cat = EventCatalog.create(form);
-        let value = atom({});
-        let bound = EventCatalog.bind(cat, schema, value);
-        let effects = [];
-
-        bound.field.disable['recordlist_target.subfield1'].computation.react(disable => {
-          effects.push({target: 'recordlist_target.subfield1', disable});
-        }, {skipFirst: true});
-
-        bound.field.disable['recordlist_target.subfield2'].computation.react(disable => {
-          effects.push({target: 'recordlist_target.subfield1', disable});
-        }, {skipFirst: true});
-
-        bound.field.hide['recordlist_target.subfield1'].computation.react(hide => {
-          effects.push({target: 'recordlist_target.subfield1', hide});
-        }, {skipFirst: true});
-
-        assert(effects.length === 0);
-
-
-        value.set({recordlist_subfield: {value: 'hidden'}});
-        assert(bound.field.hide['recordlist_target.subfield1'].computation.get() === true);
-
-        assert(effects.length === 1);
-        assert.deepEqual(effects[0], {hide: true, target: 'recordlist_target.subfield1'});
-
-        value.set({recordlist_subfield: {value: 'disabled'}});
-        assert(bound.field.hide['recordlist_target.subfield1'].computation.get() === false);
-        assert(bound.field.disable['recordlist_target.subfield1'].computation.get() === true);
-
-        assert(effects.length === 3);
-        assert.deepEqual(effects[0], {hide: true, target: 'recordlist_target.subfield1'});
-        assert.deepEqual(effects[1], {disable: true, target: 'recordlist_target.subfield1'});
-        assert.deepEqual(effects[2], {hide: false, target: 'recordlist_target.subfield1'});
-
-        value.set({recordlist_subfield: {value: 'failed'}});
-        assert(bound.field.hide['recordlist_target.subfield1'].computation.get() === false);
-        assert(bound.field.disable['recordlist_target.subfield1'].computation.get() === false);
-
-        assert(effects.length === 4);
-        assert.deepEqual(effects[0], {hide: true, target: 'recordlist_target.subfield1'});
-        assert.deepEqual(effects[1], {disable: true, target: 'recordlist_target.subfield1'});
-        assert.deepEqual(effects[2], {hide: false, target: 'recordlist_target.subfield1'});
-        assert.deepEqual(effects[3], {disable: false, target: 'recordlist_target.subfield1'});
-
       });
 
     });
@@ -512,7 +364,7 @@ describe('rex-froms/form/event', function() {
       };
 
       it('discovers the events from form', function() {
-        let cat = EventCatalog.create(form);
+        let cat = EventIndex.createEventIndex(form);
 
         assert(size(cat.tag.fail) === 0);
         assert(size(cat.tag.disable) === 0);
@@ -533,7 +385,7 @@ describe('rex-froms/form/event', function() {
 
         assert(size(cat.field.disable) === 2);
         assert(cat.field.disable['matrix_target.row1.col1']);
-        assert(cat.field.disable['matrix_target.row1.col1'].eventList.length === 1);
+        assert(cat.field.disable['matrix_target.row1.col1'].eventList.length === 5);
         assert(cat.field.disable['matrix_target.row2.col1']);
         assert(cat.field.disable['matrix_target.row2.col1'].eventList.length === 2);
 

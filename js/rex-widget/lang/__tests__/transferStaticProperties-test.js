@@ -1,8 +1,9 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
-import assert from 'power-assert';
+import assert from 'assert';
 import transferStaticProperties from '../transferStaticProperties';
 
 describe('transferStaticProperties', function() {
@@ -20,8 +21,11 @@ describe('transferStaticProperties', function() {
 
     transferStaticProperties(Source, Origin, ['ignore']);
 
+    // $FlowFixMe: ...
     assert(Origin.value === Origin.value);
+    // $FlowFixMe: ...
     assert(Origin.method === Origin.method);
+    // $FlowFixMe: ...
     assert(Origin.ignore === undefined);
     assert(Origin.name === 'Origin');
   });

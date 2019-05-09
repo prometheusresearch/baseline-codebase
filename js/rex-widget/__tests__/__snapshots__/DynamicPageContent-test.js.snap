@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rex-widget <DynamicPageContent /> re-fetches content on new location (error) 1`] = `
+<DocumentFragment>
+  <div
+    class="[object Object] [object Object] [object Object]"
+  >
+    HELLO
+  </div>
+</DocumentFragment>
+`;
+
+exports[`rex-widget <DynamicPageContent /> re-fetches content on new location (error) 2`] = `
+<DocumentFragment>
+  <div
+    class="[object Object] [object Object] [object Object]"
+  >
+    PRELOADER
+  </div>
+</DocumentFragment>
+`;
+
+exports[`rex-widget <DynamicPageContent /> re-fetches content on new location (error) 3`] = `
+<DocumentFragment>
+  <div
+    class="[object Object] [object Object] [object Object]"
+  >
+    HELLO
+  </div>
+</DocumentFragment>
+`;
+
+exports[`rex-widget <DynamicPageContent /> re-fetches content on new location 1`] = `
+<DocumentFragment>
+  <div
+    class="[object Object] [object Object] [object Object]"
+  >
+    HELLO
+  </div>
+</DocumentFragment>
+`;
+
+exports[`rex-widget <DynamicPageContent /> re-fetches content on new location 2`] = `
+<DocumentFragment>
+  <div
+    class="[object Object] [object Object] [object Object]"
+  >
+    PRELOADER
+  </div>
+</DocumentFragment>
+`;
+
+exports[`rex-widget <DynamicPageContent /> re-fetches content on new location 3`] = `
+<DocumentFragment>
+  <div
+    class="[object Object] [object Object] [object Object]"
+  >
+    NEXT HELLO
+  </div>
+</DocumentFragment>
+`;
+
+exports[`rex-widget <DynamicPageContent /> renders 1`] = `
+<DocumentFragment>
+  <div
+    class="[object Object] [object Object] [object Object]"
+  >
+    HELLO
+  </div>
+</DocumentFragment>
+`;

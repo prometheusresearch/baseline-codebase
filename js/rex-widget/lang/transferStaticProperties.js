@@ -1,22 +1,27 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
 let FUNCTION_STATIC_PROPERTIES = {
-  'arguments': true,
-  'arity': true,
-  'caller': true,
-  'length': true,
-  'name': true,
-  'displayName': true,
-  'prototype': true,
+  arguments: true,
+  arity: true,
+  caller: true,
+  length: true,
+  name: true,
+  displayName: true,
+  prototype: true
 };
 
 /**
  * Transfer all static properties and methods from `source` to `target`.
  */
-export default function transferStaticProperties(source, target, ignoreKeys = null) {
+export default function transferStaticProperties(
+  source: Object,
+  target: Object,
+  ignoreKeys: ?string[] = null
+) {
   let keys = Object.getOwnPropertyNames(source);
   for (let i = 0; i < keys.length; i++) {
     let key = keys[i];

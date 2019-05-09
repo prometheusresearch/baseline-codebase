@@ -1,13 +1,15 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
-import assert from 'power-assert';
-import Sinon from 'sinon';
-import React from 'react';
-import TestUtils from 'react/lib/ReactTestUtils';
-import Fetch from '../Fetch';
-import PromiseMock from './PromiseMock';
+import assert from "assert";
+import * as React from "react";
+import * as ReactTesting from "react-testing-library";
+import { mockPromise } from "rex-ui/TestHarness";
+import { withFetch } from "../Fetch";
+
+afterEach(ReactTesting.cleanup);
 
 function assertDataSet(dataSet, data, error, updating) {
   assert(dataSet.data === data);
@@ -16,9 +18,10 @@ function assertDataSet(dataSet, data, error, updating) {
 }
 
 class DataProvider {
+  promise: any;
 
   constructor() {
-    this.promise = new PromiseMock();
+    this.promise = mockPromise();
   }
 
   produce() {
@@ -30,450 +33,395 @@ class DataProvider {
   }
 }
 
-describe('Fetch', function() {
-
-  it('starts fetching data on componentDidMount', function() {
-
+describe("Fetch", function() {
+  it("starts fetching data on componentDidMount", function() {
     function fetch() {
-      return {item: new DataProvider};
+      return { item: new DataProvider() };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props = null;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let output = renderer.getRenderOutput();
-
-    assert(output.props.fetched);
-    assert(output.props.fetched.item);
-
-    assert(output.props.fetched.item.data === null);
-    assert(output.props.fetched.item.error === null);
-    assert(output.props.fetched.item.updating);
+    let r = ReactTesting.render(<Component />);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
   });
 
-  it('starts fetching data on componentDidMount (used as a wrapper)', function() {
-
-    function fetch() {
-      return {item: new DataProvider};
-    }
-
-    class Component extends React.Component {
-
-      render() {
-        return null;
-      }
-    }
-
-    let XComponent = Fetch(Component, fetch);
-
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<XComponent />);
-    let output = renderer.getRenderOutput();
-
-    assert(output.props.fetched);
-    assert(output.props.fetched.item);
-
-    assert(output.props.fetched.item.data === null);
-    assert(output.props.fetched.item.error === null);
-    assert(output.props.fetched.item.updating);
-  });
-
-
-  it('stops fetching after component is unmounted (on complete)', function() {
-
+  it("stops fetching after component is unmounted (on complete)", function() {
     let item = new DataProvider();
 
     function fetch() {
-      return {item};
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let renderCount = 0;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          renderCount += 1;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
+    expect(renderCount).toBe(1);
+    r.unmount();
+    expect(renderCount).toBe(1);
 
+    ReactTesting.act(() => {
+      item.promise.onComplete("data");
+    });
 
-    component.componentDidMount();
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
-
-    component.componentWillUnmount();
-    assert(component.render.callCount === 0);
-
-    item.promise.onComplete('data');
-    assert(component.render.callCount === 0);
+    expect(renderCount).toBe(1);
   });
 
-  it('stops fetching after component is unmounted (on error)', function() {
-
+  it("stops fetching after component is unmounted (on error)", function() {
     let item = new DataProvider();
 
     function fetch() {
-      return {item};
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let renderCount = 0;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          renderCount += 1;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
+    expect(renderCount).toBe(1);
+    r.unmount();
 
-    component.componentDidMount();
+    expect(renderCount).toBe(1);
 
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    ReactTesting.act(() => {
+      item.promise.onError("error");
+    });
 
-    component.componentWillUnmount();
-    assert(component.render.callCount === 0);
-
-    item.promise.onError('error');
-    assert(component.render.callCount === 0);
+    expect(renderCount).toBe(1);
   });
 
-  it('updates data/dataSet and re-renders on fetch complete', function() {
-
+  it("updates data/dataSet and re-renders on fetch complete", function() {
     let item = new DataProvider();
 
     function fetch() {
-      return {item};
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
 
-    component.componentDidMount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    ReactTesting.act(() => {
+      item.promise.onComplete("data");
+    });
 
-    item.promise.onComplete('data');
-
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data', null, false);
-
-    renderer.unmount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data", null, false);
   });
 
-  it('updates data/dataSet and re-renders on fetch error', function() {
-
+  it("updates data/dataSet and re-renders on fetch error", function() {
     let item = new DataProvider();
 
     function fetch() {
-      return {item};
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
 
-    component.componentDidMount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    ReactTesting.act(() => {
+      item.promise.onError("error");
+    });
 
-    item.promise.onError('error');
-
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, 'error', false);
-
-    renderer.unmount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, "error", false);
   });
 
-  it('reacts on params update', function() {
-
+  it("reacts on params update", function() {
     let item = new DataProvider();
 
     function fetch() {
-      return {item};
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
 
-    component.componentDidMount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    ReactTesting.act(() => {
+      item.promise.onComplete("data");
+    });
 
-    item.promise.onComplete('data');
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data", null, false);
 
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data', null, false);
+    ReactTesting.act(() => {
+      item = new DataProvider();
+      // $FlowFixMe: ...
+      props.setDataParams({});
+    });
 
-    item = new DataProvider();
-    output.props.setDataParams({});
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data", null, true);
 
-    assert(component.render.callCount === 2);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data', null, true);
+    ReactTesting.act(() => {
+      item.promise.onComplete("data2");
+    });
 
-    item.promise.onComplete('data2');
-
-    assert(component.render.callCount === 3);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data2', null, false);
-
-    renderer.unmount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data2", null, false);
   });
 
-  it('reacts on params update (cancels prev task in-flight)', function() {
-
+  it("reacts on params update (cancels prev task in-flight)", function() {
     let item = new DataProvider();
 
     function fetch() {
-      return {item};
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
 
-    component.componentDidMount();
-
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
     let prevItem = item;
-    item = new DataProvider();
-    output.props.setDataParams({});
+    ReactTesting.act(() => {
+      item = new DataProvider();
+      // $FlowFixMe: ...
+      props.setDataParams({});
+    });
 
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
-    item.promise.onComplete('data2');
+    ReactTesting.act(() => {
+      item.promise.onComplete("data2");
+    });
 
-    assert(component.render.callCount === 2);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data2', null, false);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data2", null, false);
 
-    prevItem.promise.onComplete('data');
+    ReactTesting.act(() => {
+      prevItem.promise.onComplete("data");
+    });
 
-    assert(component.render.callCount === 2);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data2', null, false);
-
-    renderer.unmount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data2", null, false);
   });
 
-  it('reacts on params update (cancels prev task in-flight, case 2)', function() {
-
+  it("reacts on params update (cancels prev task in-flight, case 2)", function() {
     let item = new DataProvider();
 
     function fetch() {
-      return {item};
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
 
-    component.componentDidMount();
-
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
     let prevItem = item;
-    item = new DataProvider();
-    output.props.setDataParams({});
+    ReactTesting.act(() => {
+      item = new DataProvider();
+      // $FlowFixMe: ...
+      props.setDataParams({});
+    });
 
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
-    prevItem.promise.onComplete('data');
+    ReactTesting.act(() => {
+      prevItem.promise.onComplete("data");
+    });
 
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
-    item.promise.onComplete('data2');
+    ReactTesting.act(() => {
+      item.promise.onComplete("data2");
+    });
 
-    assert(component.render.callCount === 2);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data2', null, false);
-
-    renderer.unmount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data2", null, false);
   });
 
-  it('cancels tasks which are not mentioned in new data spec', function() {
-
+  it("cancels tasks which are not mentioned in new data spec", function() {
     let item = new DataProvider();
 
-    function fetch({cancel = false}) {
+    function fetch({ cancel = false }) {
       if (cancel) {
         return {};
       } else {
-        return {item};
+        return { item };
       }
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props;
+    let renderCount = 0;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          renderCount += 1;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component />);
 
-    component.componentDidMount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
+    assert(renderCount === 1);
 
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    ReactTesting.act(() => {
+      // $FlowFixMe: ...
+      props.setDataParams({ cancel: true });
+    });
+    // $FlowFixMe: ...
+    assert(props.fetched.item === undefined);
+    assert(renderCount === 2);
 
-    output.props.setDataParams({cancel: true});
-
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assert(output.props.fetched.item === undefined);
-
-    item.promise.onComplete('data');
-    assert(component.render.callCount === 1);
+    // Now it shouldn't trigger re-render
+    ReactTesting.act(() => {
+      item.promise.onComplete("data");
+    });
+    assert(renderCount === 2);
   });
 
-  it('reacts on props update', function() {
-
+  it("reacts on props update", function() {
     let item = new DataProvider();
 
-    function fetch({item}) {
-      return {item};
+    function fetch({ item }) {
+      return { item };
     }
 
-    @Fetch(fetch)
-    class Component extends React.Component {
+    let props;
+    let renderCount = 0;
 
-      render() {
-        return null;
-      }
-    }
+    let Component = withFetch(
+      class Component extends React.Component<{}> {
+        render() {
+          props = this.props;
+          renderCount += 1;
+          return null;
+        }
+      },
+      fetch
+    );
 
-    let output;
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Component item={item} />);
-    let component = renderer._instance._instance;
-    Sinon.spy(component, 'render');
+    let r = ReactTesting.render(<Component item={item} />);
 
-    component.componentDidMount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, null, null, true);
 
-    assert(component.render.callCount === 0);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, null, null, true);
+    ReactTesting.act(() => {
+      item.promise.onComplete("data");
+    });
 
-    item.promise.onComplete('data');
-
-    assert(component.render.callCount === 1);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data', null, false);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data", null, false);
 
     item = new DataProvider();
 
-    renderer.render(<Component item={item} />);
+    ReactTesting.act(() => {
+      r.rerender(<Component item={item} />);
+    });
 
-    assert(component.render.callCount === 2);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data', null, true);
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data", null, true);
 
-    item.promise.onComplete('data2');
+    ReactTesting.act(() => {
+      item.promise.onComplete("data2");
+    });
 
-    assert(component.render.callCount === 3);
-    output = renderer.getRenderOutput();
-    assertDataSet(output.props.fetched.item, 'data2', null, false);
-
-    renderer.unmount();
+    // $FlowFixMe: ...
+    assertDataSet(props.fetched.item, "data2", null, false);
   });
-
 });
-

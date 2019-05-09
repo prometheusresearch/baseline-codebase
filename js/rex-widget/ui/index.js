@@ -3,8 +3,6 @@
  * @flow
  */
 
-export { default as Focusable } from "./Focusable";
-
 export { default as Icon } from "./Icon";
 
 export { default as Label } from "./Label";

@@ -1,6 +1,6 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
- * @noflow
+ * @flow
  */
 
 import invariant from 'invariant';
@@ -11,7 +11,7 @@ import * as E from '../Entity';
 
 describe('model/Command', function() {
   describe('Command', function() {
-    class Action extends React.Component {
+    class Action extends React.Component<{}> {
       static commands = {
         command: new C.Command(
           (props, context, a) => {

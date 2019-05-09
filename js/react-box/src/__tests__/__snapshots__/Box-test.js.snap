@@ -1,79 +1,21 @@
-exports[`test accepts flex shorthand 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`accepts flex shorthand 1`] = `
 <div
   className="Box--2545197522"
   style={
     Object {
-      "alignContent": undefined,
-      "alignItems": undefined,
-      "alignSelf": undefined,
-      "bottom": undefined,
       "flexBasis": "0%",
-      "flexDirection": undefined,
-      "flexFlow": undefined,
       "flexGrow": 1,
       "flexShrink": 0,
-      "flexWrap": undefined,
-      "height": undefined,
-      "justifyContent": undefined,
-      "left": undefined,
-      "marginBottom": undefined,
-      "marginLeft": undefined,
-      "marginRight": undefined,
-      "marginTop": undefined,
-      "maxHeight": undefined,
-      "maxWidth": undefined,
-      "minHeight": undefined,
-      "minWidth": undefined,
-      "order": undefined,
-      "overflow": undefined,
-      "paddingBottom": undefined,
-      "paddingLeft": undefined,
-      "paddingRight": undefined,
-      "paddingTop": undefined,
-      "position": undefined,
-      "right": undefined,
-      "top": undefined,
-      "width": undefined
     }
-  } />
+  }
+/>
 `;
 
-exports[`test allows to style component 1`] = `
+exports[`allows to style component 1`] = `
 <div
   className="Box--3355753667"
-  style={
-    Object {
-      "alignContent": undefined,
-      "alignItems": undefined,
-      "alignSelf": undefined,
-      "bottom": undefined,
-      "flexBasis": undefined,
-      "flexDirection": undefined,
-      "flexFlow": undefined,
-      "flexGrow": undefined,
-      "flexShrink": undefined,
-      "flexWrap": undefined,
-      "height": undefined,
-      "justifyContent": undefined,
-      "left": undefined,
-      "marginBottom": undefined,
-      "marginLeft": undefined,
-      "marginRight": undefined,
-      "marginTop": undefined,
-      "maxHeight": undefined,
-      "maxWidth": undefined,
-      "minHeight": undefined,
-      "minWidth": undefined,
-      "order": undefined,
-      "overflow": undefined,
-      "paddingBottom": undefined,
-      "paddingLeft": undefined,
-      "paddingRight": undefined,
-      "paddingTop": undefined,
-      "position": undefined,
-      "right": undefined,
-      "top": undefined,
-      "width": undefined
-    }
-  } />
+  style={Object {}}
+/>
 `;

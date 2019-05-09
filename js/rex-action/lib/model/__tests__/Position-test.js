@@ -1,5 +1,5 @@
 /**
- * @noflow
+ * @flow
  */
 
 import type {IExecute, IReplace} from '../types';

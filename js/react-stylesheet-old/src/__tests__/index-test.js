@@ -2,6 +2,7 @@
  * @copyright 2015 Prometheus Research, LLC
  */
 
+import assert from 'assert';
 import React from 'react';
 var ReactCreateClass = require('create-react-class');
 import ReactDOMServer from 'react-dom/server';

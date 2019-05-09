@@ -1,10 +1,9 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
+ * @flow
  */
 
-import Sinon from 'sinon';
-import assert from 'power-assert';
-
+import assert from 'assert';
 import * as KeyPath from '../KeyPath';
 
 describe('KeyPath', function() {
@@ -12,11 +11,17 @@ describe('KeyPath', function() {
   describe('get', function() {
 
     it('gets a value by key path', function() {
+      // $FlowFixMe: ...
       assert(KeyPath.get('a.b', {a: {b: 42}}) === 42);
+      // $FlowFixMe: ...
       assert(KeyPath.get(['a', 'b'], {a: {b: 42}}) === 42);
+      // $FlowFixMe: ...
       assert(KeyPath.get(['a', '0'], {a: [42]}) === 42);
+      // $FlowFixMe: ...
       assert(KeyPath.get(['a', 0], {a: [42]}) === 42);
+      // $FlowFixMe: ...
       assert(KeyPath.get('a.0', {a: [42]}) === 42);
+      // $FlowFixMe: ...
       assert(KeyPath.get('a.0', {}) === undefined);
     });
 

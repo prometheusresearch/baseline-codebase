@@ -1,0 +1,5 @@
+{
+  "name": "rex-conf-jest",
+  "version": "1.0.0",
+  "description": "Configuration for jest test runner"
+}

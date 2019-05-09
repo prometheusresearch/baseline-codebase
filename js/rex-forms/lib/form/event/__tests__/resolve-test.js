@@ -76,7 +76,6 @@ describe('rex-forms/form/event', function() {
 
     it('resolves from simple form values (empty value)', function() {
       let ret = resolve('simpleField', schema, {});
-      assert(ret.getTypeClass() === REXL.Untyped);
       assert(ret.value === null);
     });
 

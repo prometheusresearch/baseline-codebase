@@ -100,7 +100,9 @@ export let theme: Theme = mui.createMuiTheme({
   }
 });
 
-export let useTheme: void => Theme = styles.useTheme;
+export let useTheme: void => Theme = () => {
+  return styles.useTheme() || theme;
+}
 
 export let ThemeProvider = ({
   theme: themeCustom,

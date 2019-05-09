@@ -1,5 +1,10 @@
 // @noflow
 
+import jestSerializeDomain from "../../../scripts/jest-serialize-domain";
+import jestSerializeContext from "../../../scripts/jest-serialize-context";
+expect.addSnapshotSerializer(jestSerializeDomain);
+expect.addSnapshotSerializer(jestSerializeContext);
+
 import type { Context, Domain } from "../types";
 
 import * as d from "../Domain";

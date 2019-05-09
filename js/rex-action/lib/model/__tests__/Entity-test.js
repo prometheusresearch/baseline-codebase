@@ -1,6 +1,6 @@
 /**
  * @copyright 2015-present, Prometheus Research, LLC
- * @noflow
+ * @flow
  */
 
 import * as Entity from '../Entity';

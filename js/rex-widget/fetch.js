@@ -27,7 +27,7 @@ type FetchOptions = {|
 |};
 
 export type FetchParams = {
-  [key: string]: string,
+  [key: string]: number | string,
 };
 
 export type FetchData = mixed;

@@ -4,8 +4,6 @@
 # TODO: Enable one by one
 <PROJECT_ROOT>/react-ui-0.21/.*
 <PROJECT_ROOT>/react-ui/.*
-<PROJECT_ROOT>/rex-action/lib/__tests__/.*
-<PROJECT_ROOT>/rex-forms/.*
 <PROJECT_ROOT>/rex-mart-actions/.*
 <PROJECT_ROOT>/rex-formbuilder/.*
 <PROJECT_ROOT>/react-forms-old/.*

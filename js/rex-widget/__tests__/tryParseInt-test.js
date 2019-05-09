@@ -1,8 +1,9 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
-import assert from 'power-assert';
+import assert from 'assert';
 import tryParseInt from '../tryParseInt';
 
 describe('tryParseInt', function() {

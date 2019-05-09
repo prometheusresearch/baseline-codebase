@@ -3,7 +3,7 @@
  * @flow
  */
 
-import type {Derivation} from 'derivable';
+import type {Derivable} from 'derivable';
 import type {
   JSONSchemaExt,
   JSONObjectSchema,
@@ -38,7 +38,7 @@ import {createEventIndex, selectScope} from './EventIndex';
 export function create(
   form: RIOSForm,
   node: JSONSchemaExtension & JSONObjectSchema<JSONSchemaExt>,
-  value: Derivation<mixed>,
+  value: Derivable<mixed>,
   parameters: Object,
 ) {
   let index = createEventIndex(form, parameters);
@@ -58,6 +58,7 @@ export function create(
 function childrenScope(scope: Scope): {[keyPath: string] : Scope} {
   let children = {};
   invariant(
+    // $FlowFixMe: ...
     scope.node.type === 'object',
     'Invalid schema'
   );
@@ -74,6 +75,7 @@ function childrenScope(scope: Scope): {[keyPath: string] : Scope} {
         children[keyPath.join('.')] = selectScope(scope, keyPath);
       });
     } else if (node.instrument.type.base === 'matrix') {
+      // $FlowFixMe: ...
       node.instrument.type.rows.forEach(row => {
         let keyPath = [k, 'value', row.id];
         children[keyPath.join('.')] = selectScope(scope, keyPath);
@@ -88,7 +90,7 @@ export class EventExecutor {
   index: EventIndex;
   globalScope: Scope;
   localScope: ?Scope;
-  children: Derivation<{[keyPath: string]: EventExecutor}>;
+  children: Derivable<{[keyPath: string]: EventExecutor}>;
 
   constructor(
     index: EventIndex,
@@ -123,7 +125,7 @@ export class EventExecutor {
     return result;
   };
 
-  computeBatchFor = (index, value, cb) => {
+  computeBatchFor = (index: any, value: any, cb: any) => {
     for (let k in index) {
       let info = index[k];
 
@@ -252,6 +254,7 @@ export class EventExecutor {
     if (info == null) {
       return [];
     }
+    // $FlowFixMe: ...
     let result = flatten(info.eventList.map(this.compute));
     return result;
   };

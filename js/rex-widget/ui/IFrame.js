@@ -42,7 +42,7 @@ type Props = {
   /**
    * Extra CSS class name.
    */
-  className: string
+  className?: string
 };
 
 /**

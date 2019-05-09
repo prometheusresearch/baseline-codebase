@@ -1,54 +1,51 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
-import assert from 'power-assert';
-import Sinon            from 'sinon';
-import DataFetchTracker from '../DataFetchTracker';
-import PromiseMock      from './PromiseMock';
+import DataFetchTracker from "../DataFetchTracker";
+import { mockPromise } from "rex-ui/TestHarness";
 
-describe('DataFetchTracker', function() {
+test("fires callback on complete", function() {
+  let onComplete = jest.fn();
+  let onError = jest.fn();
+  let promise = mockPromise();
+  new DataFetchTracker("key", promise, onComplete, onError);
+  promise.onComplete("data");
+  expect(onComplete).toBeCalledTimes(1);
+  expect(onComplete).toBeCalledWith('key', 'data');
+  expect(onError).toBeCalledTimes(0);
+});
 
-  it('fires callback on complete', function() {
-    let onComplete = Sinon.spy();
-    let onError = Sinon.spy();
-    let promise = new PromiseMock();
-    new DataFetchTracker('key', promise, onComplete, onError);
-    promise.onComplete('data');
-    assert(onComplete.calledWith('key', 'data'));
-    assert(!onError.called);
-  });
+test("fires callback on error", function() {
+  let onComplete = jest.fn();
+  let onError = jest.fn();
+  let promise = mockPromise();
+  new DataFetchTracker("key", promise, onComplete, onError);
+  promise.onError("error");
+  expect(onComplete).toBeCalledTimes(0);
+  expect(onError).toBeCalledTimes(1);
+  expect(onError).toBeCalledWith("key", "error");
+});
 
-  it('fires callback on error', function() {
-    let onComplete = Sinon.spy();
-    let onError = Sinon.spy();
-    let promise = new PromiseMock();
-    new DataFetchTracker('key', promise, onComplete, onError);
-    promise.onError('error');
-    assert(!onComplete.called);
-    assert(onError.calledWith('key', 'error'));
-  });
+test("does not fire callback on complete if cancelled", function() {
+  let onComplete = jest.fn();
+  let onError = jest.fn();
+  let promise = mockPromise();
+  let tracker = new DataFetchTracker("key", promise, onComplete, onError);
+  tracker.cancel();
+  promise.onComplete("data");
+  expect(onComplete).toBeCalledTimes(0);
+  expect(onError).toBeCalledTimes(0);
+});
 
-  it('does not fire callback on complete if cancelled', function() {
-    let onComplete = Sinon.spy();
-    let onError = Sinon.spy();
-    let promise = new PromiseMock();
-    let tracker = new DataFetchTracker('key', promise, onComplete, onError);
-    tracker.cancel();
-    promise.onComplete('data');
-    assert(!onComplete.called);
-    assert(!onError.called);
-  });
-
-  it('does not fire callback on error if cancelled', function() {
-    let onComplete = Sinon.spy();
-    let onError = Sinon.spy();
-    let promise = new PromiseMock();
-    let tracker = new DataFetchTracker('key', promise, onComplete, onError);
-    tracker.cancel();
-    promise.onError('error');
-    assert(!onComplete.called);
-    assert(!onError.called);
-  });
-
+test("does not fire callback on error if cancelled", function() {
+  let onComplete = jest.fn();
+  let onError = jest.fn();
+  let promise = mockPromise();
+  let tracker = new DataFetchTracker("key", promise, onComplete, onError);
+  tracker.cancel();
+  promise.onError("error");
+  expect(onComplete).toBeCalledTimes(0);
+  expect(onError).toBeCalledTimes(0);
 });

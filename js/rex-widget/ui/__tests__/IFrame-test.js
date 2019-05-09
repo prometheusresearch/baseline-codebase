@@ -1,33 +1,47 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
+ * @flow
  */
 
-import assert from 'power-assert';
-import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import IFrame from '../IFrame';
+import assert from "assert";
+import * as React from "react";
+import * as ReactTesting from "react-testing-library";
+import IFrame from "../IFrame";
 
-describe('<IFrame />', function() {
+afterEach(ReactTesting.cleanup);
 
-  it('renders', function() {
-    let renderer = TestUtils.createRenderer();
-    renderer.render(
-      <IFrame src="/path" />
-    );
-    let root = renderer.getRenderOutput();
-    assert(root.type.Component === 'iframe');
-    assert(root.props.src === '/path');
+describe("<IFrame />", function() {
+  it("renders", function() {
+    let rendered = ReactTesting.render(<IFrame src="/path" />);
+    expect(rendered.asFragment()).toMatchInlineSnapshot(`
+<DocumentFragment>
+  <iframe
+    border="0"
+    frameborder="0"
+    height="100%"
+    src="/path"
+    style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"
+    width="100%"
+  />
+</DocumentFragment>
+`);
   });
 
-  it('renders with params', function() {
-    let renderer = TestUtils.createRenderer();
-    renderer.render(
-      <IFrame src="/path" params={{a: 'b'}} />
+  it("renders with params", function() {
+    let rendered = ReactTesting.render(
+      <IFrame src="/path" params={{ a: "b" }} />
     );
-    let root = renderer.getRenderOutput();
-    assert(root.type.Component === 'iframe');
-    assert(root.props.src === '/path?a=b');
+    expect(rendered.asFragment()).toMatchInlineSnapshot(`
+<DocumentFragment>
+  <iframe
+    border="0"
+    frameborder="0"
+    height="100%"
+    src="/path?a=b"
+    style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"
+    width="100%"
+  />
+</DocumentFragment>
+`);
   });
 });
-
-

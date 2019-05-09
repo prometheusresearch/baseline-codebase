@@ -16,7 +16,7 @@ export let contextTypes = {
   widgetConfig: PropTypes.object,
 };
 
-export default class FormContext extends React.Component {
+export default class FormContext extends React.Component<any> {
 
   static childContextTypes = contextTypes;
 

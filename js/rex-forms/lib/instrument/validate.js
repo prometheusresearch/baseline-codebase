@@ -3,7 +3,7 @@
  * @flow
  */
 
-import type {FormValue} from 'react-forms';
+import type {Value, error} from 'react-forms';
 import type {I18N} from 'rex-i18n';
 import type {JSONSchemaExt} from '../types';
 
@@ -46,7 +46,7 @@ export function isEmptyValue(value: mixed): boolean {
 /**
 * Determine if field value is completed.
 */
-export function isFieldCompleted(formValue: FormValue): boolean {
+export function isFieldCompleted(formValue: Value): boolean {
   let {value, completeErrorList} = formValue;
   return !!(
     completeErrorList.length === 0 &&
@@ -286,10 +286,10 @@ export default class Validate {
         requiredColumns != null,
         'Invalid schema'
       );
-      let errorList = requiredColumns
+      let errorList: error[] = requiredColumns
         .filter(col => isEmptyValue(value[col]))
         .map((col) => {
-          let error = {
+          let error: error = {
             field: col + '.value',
             message: this.i18n.gettext('You must provide a response for this field.'),
             force: true,

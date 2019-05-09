@@ -1,4 +1,4 @@
-rexl = {}
+global.rexl = window.rexl = {}
 
 // export in CommonJS environment
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

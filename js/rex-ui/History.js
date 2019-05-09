@@ -34,6 +34,8 @@ export function getBrowserHistory(): BrowserHistory {
   return _browserHistory;
 }
 
+export { createLocation };
+
 export function getCurrentLocation(): Location {
   return createLocation(window.location.hash.slice(1));
 }

@@ -14,5 +14,5 @@ tests:
 
 - doctest: test/test_*.rst
 
-- coverage-check: 85.0
+- coverage-check: 70.0
 - coverage-report: ./build/coverage

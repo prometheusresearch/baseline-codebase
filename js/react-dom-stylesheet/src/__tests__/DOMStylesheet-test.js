@@ -2,7 +2,7 @@
  * @copyright 2015 Prometheus Research, LLC
  */
 
-import assert from 'power-assert';
+import assert from 'assert';
 import * as DOMStylesheet from '../DOMStylesheet';
 
 function assertCSS(css, ...expectations) {

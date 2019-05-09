@@ -1,26 +1,16 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
+ * @flow
  */
 
-import assert from 'power-assert';
-import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import Notification from '../Notification';
+import * as React from "react";
+import * as ReactTesting from "react-testing-library";
+import Notification from "../Notification";
 
-describe('<Notification />', function() {
+afterEach(ReactTesting.cleanup);
 
-  it('renders', function() {
-    let renderer = TestUtils.createRenderer();
-    renderer.render(
-      <Notification />
-    );
-    let root = renderer.getRenderOutput();
-    assert(root.type === 'div');
+describe("<Notification />", function() {
+  it("renders", function() {
+    let rendered = ReactTesting.render(<Notification />);
   });
-
 });
-
-
-
-
-

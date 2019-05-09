@@ -1,9 +1,10 @@
 /**
- * @copyright 2016, Prometheus Research, LLC
+ * @copyright 2016-present, Prometheus Research, LLC
+ * @noflow
  */
 
-import React from 'react';
-import {spy, stub, createRenderer, assert} from '../../testutils';
+import * as React from "react";
+import * as ReactTesting from "react-testing-library";
 
 import Chrome from '../Chrome';
 

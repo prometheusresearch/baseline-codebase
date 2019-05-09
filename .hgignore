@@ -8,6 +8,7 @@ syntax: glob
 build
 dist
 node_modules
+js/coverage
 *.sync-conflict-*
 __pycache__
 .pytest_cache

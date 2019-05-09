@@ -1,8 +1,9 @@
 /**
  * @copyright 2017, Prometheus Research, LLC
+ * @flow
  */
 
-import assert from 'power-assert';
+import assert from 'assert';
 import {shallowEquals, shallowParamsEquals} from '../shallowEquals';
 
 describe('shallowEquals', function() {

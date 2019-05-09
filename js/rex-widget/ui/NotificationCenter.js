@@ -19,7 +19,14 @@ let _notificationID: NotificationID = 0;
 
 let _layer: ?HTMLElement = null;
 
-function getLayer(): HTMLElement {
+/**
+ * Return a layer for notifications (creates one on first call).
+ *
+ * Exported for use in tests.
+ *
+ * Invariant: layer element should be attached to document.body.
+ */
+export function getLayer(): HTMLElement {
   if (_layer != null) {
     return _layer;
   }
@@ -27,6 +34,23 @@ function getLayer(): HTMLElement {
   invariant(document.body != null, "DOM is not available");
   document.body.appendChild(_layer);
   return _layer;
+}
+
+/**
+ * Dispose layer DOM node.
+ *
+ * Used only in tests.
+ *
+ * Invariant: layer element should be attached to document.body.
+ */
+export function disposeLayer(): void {
+  if (_layer == null) {
+    return;
+  }
+
+  invariant(document.body != null, "DOM is not available");
+  document.body.removeChild(_layer);
+  _layer = null;
 }
 
 let NotificationLayerStyle = {

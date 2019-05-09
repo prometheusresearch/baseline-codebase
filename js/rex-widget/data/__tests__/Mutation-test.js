@@ -1,31 +1,30 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
+ * @flow
  */
 
-import Sinon from 'sinon';
-import assert from 'power-assert';
+import { Mutation as BaseMutation } from "../Mutation";
 
-import {Mutation as BaseMutation} from '../Mutation';
-
-describe('Mutation', function() {
-
+describe("Mutation", function() {
   class Mutation extends BaseMutation {
-    static post = Sinon.spy();
+    static post = jest.fn();
 
     prepareFormData() {
       return {
-        append: Sinon.spy()
+        append: jest.fn()
       };
     }
   }
 
-  it('submits a mutation', function() {
-    let mutation = new Mutation('/path', {a: 'b'});
-    mutation = mutation.params({b: 'c'});
-    mutation.execute({data: 'new'}, {data: 'old'});
-    assert(Mutation.post.callCount === 1);
-    let [path, params] = Mutation.post.firstCall.args;
-    assert(path === '/path');
-    assert.deepEqual(params, {a: 'b', b: 'c'});
+  it("submits a mutation", function() {
+    let mutation = new Mutation("/path", { a: "b" });
+    mutation = mutation.params({ b: "c" });
+    mutation.execute({ data: "new" }, { data: "old" });
+    expect(Mutation.post).toBeCalledTimes(1);
+    expect(Mutation.post).toBeCalledWith(
+      "/path",
+      { a: "b", b: "c" },
+      expect.any(Object)
+    );
   });
 });

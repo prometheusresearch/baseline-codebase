@@ -5,7 +5,12 @@
 
 const NUMBER_RE = /^\-?[0-9]+?$/;
 
-export default function tryParseInt(value: string): string | number {
+export default function tryParseInt(
+  value: null | void | number | string
+): null | void | string | number {
+  if (value == null) {
+    return value;
+  }
   let parsed = parseInt(value, 10);
-  return isNaN(parsed) || !NUMBER_RE.exec(value) ? value : parsed;
+  return isNaN(parsed) || !NUMBER_RE.exec(value + '') ? value : parsed;
 }

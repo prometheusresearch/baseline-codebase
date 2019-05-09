@@ -5,7 +5,12 @@
 
 const NUMBER_RE = /^\-?[0-9]+(\.[0-9]*)?$/;
 
-export default function tryParseFloat(value: string): number | string {
+export default function tryParseFloat(
+  value: ?string
+): null | void | number | string {
+  if (value == null) {
+    return value;
+  }
   let parsed = parseFloat(value);
   if (isNaN(parsed) || !NUMBER_RE.exec(value)) {
     return value;
@@ -13,4 +18,3 @@ export default function tryParseFloat(value: string): number | string {
     return parsed;
   }
 }
-

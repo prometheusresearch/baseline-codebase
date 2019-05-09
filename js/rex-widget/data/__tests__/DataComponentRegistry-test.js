@@ -1,26 +1,19 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
+ * @flow
  */
 
-import {spy, assert} from '../../../testutils';
+import * as Registry from "../DataComponentRegistry";
 
-import * as Registry from '../DataComponentRegistry';
+test("forceRefresh() every registered component", function() {
+  let component = {
+    refresh: jest.fn()
+  };
+  Registry.registerDataComponent(component);
 
-describe('rex-widget/data', function() {
+  Registry.forceRefresh();
+  expect(component.refresh).toBeCalledTimes(1);
+  expect(component.refresh).toBeCalledWith(true);
 
-  describe('DataComponentRegistry', function() {
-
-    it('allows to forceRefresh() every registered component', function() {
-      let component = {
-        refresh: spy(),
-      };
-      Registry.registerDataComponent(component);
-      Registry.forceRefresh();
-      assert(component.refresh.calledOnce);
-      assert.deepEqual(component.refresh.firstCall.args, [true]);
-      Registry.unregisterDataComponent(component);
-    });
-
-  });
-
+  Registry.unregisterDataComponent(component);
 });

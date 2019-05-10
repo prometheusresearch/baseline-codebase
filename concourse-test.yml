@@ -25,5 +25,6 @@ run:
     sed -i 's/bind 127.0.0.1 ::1/bind 127.0.0.1/' /etc/redis/redis.conf
     service redis-server start
     make init-local
+    ./bin/pip list --format=legacy
     make test
   dir: codebase

@@ -4,7 +4,7 @@
 
 
 
-from redis import StrictRedis, RedisError
+from redis import Redis, RedisError
 
 from rex.core import Error
 
@@ -57,7 +57,7 @@ class RedisAsyncTransport(AsyncTransport):
                 params['host'] = parts[0]
 
         try:
-            self._redis = StrictRedis(**params)
+            self._redis = Redis(**params)
             self._redis.ping()
         except RedisError as exc:
             raise Error(

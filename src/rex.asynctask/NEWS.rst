@@ -8,8 +8,9 @@ REX.ASYNCTASK Change Log
 0.7.1
 =====
 
-* Loosened ``filelock`` dependency.
+* Fixed ``redis`` transport to work on Python 3.
 
+* Loosened ``filelock`` dependency.
 
 
 0.7.0 (2018-04-24)

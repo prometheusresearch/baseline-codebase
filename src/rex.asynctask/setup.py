@@ -34,7 +34,7 @@ setup(
         'rex.ctl',
         'rex.logging',
         'HTSQL',
-        'redis>=2.10,<2.11',
+        'redis>=3,<4',
         'psycopg2',
         'apscheduler>=3.3,<4',
         'ratelimiter>=1.2,<2',

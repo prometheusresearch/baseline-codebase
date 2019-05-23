@@ -53,23 +53,15 @@ tests:
   - py: |
       # check for redis
       import os
-      url = os.environ.get('REDIS_URL')
-      if not url:
+      redishost = os.environ.get('REDISHOST', 'localhost')
+      from redis import Redis, RedisError
+      client = Redis(host=redishost)
+      try:
+        client.ping()
+      except RedisError:
         __pbbt__['HAS_REDIS'] = False
       else:
-        from redis import StrictRedis, RedisError
-        host = url.split('//', 1)[-1]
-        if ':' in host:
-          host, port = host.split(':')
-        else:
-          port = None
-        client = StrictRedis(host=host, port=port)
-        try:
-          client.ping()
-        except RedisError:
-          __pbbt__['HAS_REDIS'] = False
-        else:
-          __pbbt__['HAS_REDIS'] = True
+        __pbbt__['HAS_REDIS'] = True
 
   - doctest: test/redis/test_*.rst
     if: HAS_REDIS

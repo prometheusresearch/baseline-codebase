@@ -34,7 +34,7 @@ class DumpToJSON(DumpToDomain):
     adapt(Domain, JSONDomain)
 
     def __call__(self):
-        self.format("CAST ({base} AS JSON)", base=self.base)
+        self.format("CAST ({base} AS JSONB)", base=self.base)
 
 
 class DumpJSON(DumpByDomain):
@@ -42,13 +42,13 @@ class DumpJSON(DumpByDomain):
     adapt(JSONDomain)
 
     def __call__(self):
-        self.format("{value:literal}::JSON", value=self.domain.dump(self.value))
+        self.format("{value:literal}::JSONB", value=self.domain.dump(self.value))
 
 
 class DumpConvertToJSON(DumpFunction):
 
     adapt(ToJSONSig)
-    template = "TO_JSON({op})"
+    template = "TO_JSONB({op})"
 
 
 class DumpJSONGet(DumpFunction):

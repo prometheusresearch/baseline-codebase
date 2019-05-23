@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.deploy',
-    version='2.11.0',
+    version='2.11.2',
     description="Database schema management for RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

@@ -18,7 +18,7 @@ The basic operations of submitting and retrieving tasks should work as
 expected::
 
     >>> rex.on()
-    >>> transport = get_transport(os.environ['REDIS_URL'])
+    >>> transport = get_transport('redis://' + os.environ.get('REDISHOST', 'localhost'))
     >>> transport  # doctest: +ELLIPSIS
     RedisAsyncTransport(...)
 
@@ -29,9 +29,9 @@ expected::
     >>> transport.poll_queue('foo')
     2
     >>> transport.get_task('foo')
-    {u'foo': 1}
+    {'foo': 1}
     >>> transport.get_task('foo')
-    {u'foo': 2}
+    {'foo': 2}
     >>> transport.get_task('foo') is None
     True
     >>> transport.poll_queue('foo')
@@ -42,7 +42,7 @@ expected::
 
     >>> transport.submit_task('foo', {'foo': 3})
     >>> transport.get_task('foo')
-    {u'foo': 3}
+    {'foo': 3}
     >>> transport.get_task('foo') is None
     True
 
@@ -50,7 +50,7 @@ expected::
     >>> transport.get_task('foo') is None
     True
     >>> transport.get_task('bar')
-    {u'bar': 1}
+    {'bar': 1}
     >>> transport.get_task('foo') is None
     True
 
@@ -77,7 +77,7 @@ connected to::
     >>> transport = get_transport('redis://hostname_that_doesnt_exist')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    Error: Failed to connect to the Redis server:
+    rex.core.Error: Failed to connect to the Redis server:
         Error ... connecting to hostname_that_doesnt_exist:6379. ... not known.
 
     >>> rex.off()

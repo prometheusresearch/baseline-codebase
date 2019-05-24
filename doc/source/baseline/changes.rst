@@ -1,5 +1,5 @@
-3.1.0 (TBD)
-===========
+3.1.0 (2019-05-23)
+==================
 
 * Upgraded the React-oriented JavaScript components to use React v16.
 * Enhanced the ``rex.widget`` and ``rex.action`` user interfaces to use

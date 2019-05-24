@@ -4,6 +4,22 @@
 * Upgraded the React-oriented JavaScript components to use React v16.
 * Enhanced the ``rex.widget`` and ``rex.action`` user interfaces to use
   Material UI.
+* Package updates:
+
+  * REX.ASYNCTASK: 0.7.1
+
+    * Fixed ``redis`` transport to work on Python 3.
+    * Loosened ``filelock`` dependency.
+
+  * REX.DEPLOY: 2.11.2
+
+    * Error translation fails on UNIQUE INDEX violation when there is no
+      corresponding constraint.
+
+  * REX.PORTAL_CLIENT: 0.7.0
+
+    * add `Shard.ensure_study` method
+    * remove `portal_client` setting (it's been non-functional anyway)
 
 
 3.0.1 (2019-04-12)

@@ -9,7 +9,6 @@ REX.ASYNCTASK Change Log
 =====
 
 * Fixed ``redis`` transport to work on Python 3.
-
 * Loosened ``filelock`` dependency.
 
 

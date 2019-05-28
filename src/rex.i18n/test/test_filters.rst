@@ -38,13 +38,13 @@ the currently active locale::
 
     >>> ctx.set_locale(fr)
     >>> filters.format_number(123456)
-    '123\xa0456'
+    '123\u202f456'
     >>> filters.format_decimal(123456.789)
-    '123\xa0456,789'
+    '123\u202f456,789'
     >>> filters.format_currency(123456.789, 'USD')
-    '123\xa0456,79\xa0$US'
+    '123\u202f456,79\xa0$US'
     >>> filters.format_currency(123456.789, 'EUR')
-    '123\xa0456,79\xa0\u20ac'
+    '123\u202f456,79\xa0€'
     >>> filters.format_percent(0.7823)
     '78\xa0%'
     >>> filters.format_scientific(1234567)
@@ -105,6 +105,6 @@ the currently active locale and currently active timezone::
     >>> filters.format_timedelta(dt).endswith(' ans')
     True
     >>> filters.format_timedelta(td)
-    '2 heures'
+    '2\xa0heures'
     >>> ctx.reset()
 

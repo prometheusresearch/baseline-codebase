@@ -6,7 +6,7 @@
 from rex.core import get_packages, get_settings, Error, cached
 from .fact import Driver
 from .sql import (sql_select_database, sql_create_database, sql_drop_database,
-        sql_rename_database)
+        sql_rename_database, sql_create_extensions)
 import htsql.core.util
 import datetime
 import psycopg2, psycopg2.extensions, psycopg2.extras
@@ -71,8 +71,16 @@ class Cluster:
 
     def create(self, name=None, template=None):
         """Creates a new database in the cluster."""
-        sql = sql_create_database(name or self.db.database, template=template)
+        name = name or self.db.database
+
+        sql = sql_create_database(name, template=template)
         self._master(sql)
+
+        sql = sql_create_extensions()
+        driver = self.drive(name)
+        driver.submit(sql)
+        driver.commit()
+        driver.close()
 
     def clone(self, template, name=None):
         """Creates a copy of the template database."""

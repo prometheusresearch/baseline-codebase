@@ -22,7 +22,7 @@ class IdentityFact(Fact):
     fields = [
             ('identity',
              SeqVal(PairVal(QLabelVal,
-                            MaybeVal(UChoiceVal('offset', 'random'))))),
+                            MaybeVal(UChoiceVal('offset', 'random', 'uuid'))))),
             ('of', LabelVal, None),
     ]
 
@@ -56,7 +56,7 @@ class IdentityFact(Fact):
             generators = [None]*len(labels)
         assert (isinstance(generators, list) and
                 len(generators) == len(labels) and
-                all(generator in (None, 'offset', 'random')
+                all(generator in (None, 'offset', 'random', 'uuid')
                     for generator in generators))
         self.table_label = table_label
         self.labels = labels

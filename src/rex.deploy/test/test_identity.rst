@@ -220,8 +220,8 @@ Identity generators
 ===================
 
 The identity value can be generated automatically.  ``rex.deploy`` provides
-two generators: *random* and *offset*.  To provide automatically generated
-values, a trigger is created::
+three generators: *random*, *offset*, and *uuid*.  To provide automatically
+generated values, a trigger is created::
 
     >>> driver("""{ identity: [individual.code: random] }""")       # doctest: +ELLIPSIS
     CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
@@ -272,6 +272,10 @@ Generators could be applied to *text* or *integer* columns::
     ... - { column: measure.no, type: text }
     ... - { column: measure.date_of_evaluation, type: date, default: today() }
     ... - { identity: [measure.individual, measure.measure_type, measure.no: offset] }
+    ... 
+    ... - { table: sample }
+    ... - { column: sample.uid, type: text }
+    ... - { identity: [sample.uid: uuid] }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE OR REPLACE FUNCTION "individual_pk"() ...
     ...
@@ -352,6 +356,17 @@ starting from ``'001'`` and grouped by other identity fields::
     >>> db.produce("delete(/measure{id()})")
     <Product null>
 
+A uuid generator on a text column creates a random sequence of letters
+and numbers::
+
+    >>> sample_id1 = db.produce("insert(sample := {})").data
+    >>> bool(re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', sample_id1[0]))
+    True
+
+    >>> sample_id2 = db.produce("insert(sample := {})").data
+    >>> bool(re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', sample_id2[0]))
+    True
+
 It is an error to set a generator on a link or a column of incompatible type::
 
     >>> driver("""{ identity: [visit.individual: random, visit.seq] }""")
@@ -367,6 +382,14 @@ It is an error to set a generator on a link or a column of incompatible type::
       ...
     rex.core.Error: Expected an integer or text column:
         date_of_evaluation
+    While deploying identity fact:
+        "<unicode string>", line 1
+
+    >>> driver("""{ identity: [measure_type.uid: uuid] }""")
+    Traceback (most recent call last):
+      ...
+    rex.core.Error: Expected a text column:
+        uid
     While deploying identity fact:
         "<unicode string>", line 1
 

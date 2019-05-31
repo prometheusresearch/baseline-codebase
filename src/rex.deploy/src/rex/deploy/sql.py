@@ -195,6 +195,13 @@ def sql_create_database(name, template=None):
 
 
 @sql_template
+def sql_create_extensions():
+    """
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    """
+
+
+@sql_template
 def sql_drop_database(name):
     """
     DROP DATABASE {{ name|n }};
@@ -725,4 +732,14 @@ def plpgsql_text_offset_key(table_qname, name, basis_names):
     END IF;
     """
 
+
+@sql_template
+def plpgsql_text_uuid_key(table_qname, name):
+    """
+    WHILE NEW.{{ name|n }} IS NULL LOOP
+        BEGIN
+            NEW.{{ name|n }} := gen_random_uuid();
+        END;
+    END LOOP;
+    """
 

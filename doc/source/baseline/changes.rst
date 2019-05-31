@@ -1,7 +1,8 @@
-3.1.1 (TBD)
-===========
+3.1.1 (2019-05-31)
+==================
 
-* 
+* rex.i18n: Fix tests broken by Babel update.
+* react-forms: Fix withFormValue HOC.
 
 
 3.1.0 (2019-05-23)

@@ -5,11 +5,11 @@
 
 import * as React from "react";
 import FormComponent from "./Component";
-import type {select, value} from "./types";
+import type { select, value } from "./types";
 
 type Props = {
   select?: select,
-  formValue?: value,
+  formValue?: value
 };
 
 function getComponentDisplayName<T>(ComponentType: React.AbstractComponent<T>) {
@@ -22,16 +22,26 @@ function getComponentDisplayName<T>(ComponentType: React.AbstractComponent<T>) {
   return displayName;
 }
 
-export default function withFormValue<T: Props>(Component: React.AbstractComponent<T>) {
+export default function withFormValue<T: Props>(
+  Component: React.AbstractComponent<T>
+): React.AbstractComponent<$Diff<T, { formValue?: value }>> {
   let displayName = getComponentDisplayName(Component);
 
-  return class extends React.Component<T> {
+  return class extends React.Component<$Diff<T, { formValue?: value }>> {
     static displayName = `withFormValue(${displayName})`;
 
     render() {
-      let {select, formValue, ...props} = this.props;
-      let render = ({formValue}) => <Component {...props} formValue={formValue} />;
-      return <FormComponent formValue={formValue} children={render} />;
+      let { select, formValue, ...props } = this.props;
+      let render = ({ formValue }) => (
+        <Component {...props} formValue={formValue} />
+      );
+      return (
+        <FormComponent
+          select={select}
+          formValue={formValue}
+          children={render}
+        />
+      );
     }
   };
 }

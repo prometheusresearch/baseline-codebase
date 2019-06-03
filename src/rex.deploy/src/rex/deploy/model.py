@@ -192,12 +192,14 @@ class ModelSchema:
     """
 
     __slots__ = (
-            'driver', 'image', 'system_image', 'image_to_entity',
-            '__weakref__')
+            'driver', 'catalog_image', 'image', 'system_image',
+            'image_to_entity', '__weakref__')
 
     def __init__(self, driver):
         # Catalog and database connection.
         self.driver = driver
+        # The catalog object.
+        self.catalog_image = driver.get_catalog()
         # The `public` schema.
         self.image = driver.get_schema()
         # The `pg_catalog` schema.
@@ -1236,6 +1238,12 @@ class IdentityModel(Model):
         for field in fields:
             for fk_image in field.image.foreign_keys:
                 fk_image.alter_on_delete(CASCADE)
+        # Enable required extensions.
+        catalog_image = schema.catalog_image
+        extension_names = cls._extensions(generators)
+        for extension_name in extension_names:
+            if extension_name not in catalog_image.extensions:
+                catalog_image.create_extension(extension_name)
         # Build the generator trigger.
         source = cls._generate(table.image, generators)
         if source:
@@ -1439,6 +1447,14 @@ class IdentityModel(Model):
         if not source:
             return None
         return plpgsql_primary_key_procedure(*source)
+
+    @classmethod
+    def _extensions(cls, generators):
+        extension_names = []
+        for generator in generators:
+            if generator == 'uuid':
+                extension_names.append('pgcrypto')
+        return extension_names
 
     def fact(self):
         from .identity import IdentityFact

@@ -195,13 +195,6 @@ def sql_create_database(name, template=None):
 
 
 @sql_template
-def sql_create_extensions():
-    """
-    CREATE EXTENSION IF NOT EXISTS pgcrypto;
-    """
-
-
-@sql_template
 def sql_drop_database(name):
     """
     DROP DATABASE {{ name|n }};
@@ -247,6 +240,20 @@ def sql_rename_schema(name, new_name):
 def sql_comment_on_schema(name, text):
     """
     COMMENT ON SCHEMA {{ name|n }} IS {{ text|v }};
+    """
+
+
+@sql_template
+def sql_create_extension(name):
+    """
+    CREATE EXTENSION {{ name|n }};
+    """
+
+
+@sql_template
+def sql_drop_extension(name):
+    """
+    DROP EXTENSION {{ name|n }};
     """
 
 

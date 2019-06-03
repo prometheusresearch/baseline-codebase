@@ -743,10 +743,8 @@ def plpgsql_text_offset_key(table_qname, name, basis_names):
 @sql_template
 def plpgsql_text_uuid_key(table_qname, name):
     """
-    WHILE NEW.{{ name|n }} IS NULL LOOP
-        BEGIN
-            NEW.{{ name|n }} := gen_random_uuid();
-        END;
-    END LOOP;
+    IF NEW.{{ name|n }} IS NULL THEN
+        NEW.{{ name|n }} := gen_random_uuid();
+    END IF;
     """
 

@@ -152,7 +152,7 @@ class PrimaryKeyMeta(Meta):
 
     fields = [
             ('generators',
-             SeqVal(MaybeVal(UChoiceVal('offset', 'random'))), None),
+             SeqVal(MaybeVal(UChoiceVal('offset', 'random', 'uuid'))), None),
     ]
 
 

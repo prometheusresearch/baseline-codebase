@@ -71,7 +71,8 @@ class Cluster:
 
     def create(self, name=None, template=None):
         """Creates a new database in the cluster."""
-        sql = sql_create_database(name or self.db.database, template=template)
+        name = name or self.db.database
+        sql = sql_create_database(name, template=template)
         self._master(sql)
 
     def clone(self, template, name=None):

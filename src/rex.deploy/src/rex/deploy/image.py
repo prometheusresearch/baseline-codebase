@@ -4,9 +4,10 @@
 
 
 from .sql import (sql_create_schema, sql_drop_schema, sql_rename_schema,
-        sql_comment_on_schema, sql_create_table, sql_drop_table,
-        sql_rename_table, sql_comment_on_table, sql_define_column,
-        sql_add_column, sql_drop_column, sql_rename_column, sql_copy_column,
+        sql_create_extension, sql_drop_extension, sql_comment_on_schema,
+        sql_create_table, sql_drop_table, sql_rename_table,
+        sql_comment_on_table, sql_define_column, sql_add_column,
+        sql_drop_column, sql_rename_column, sql_copy_column,
         sql_set_column_type, sql_set_column_not_null, sql_set_column_default,
         sql_comment_on_column, sql_create_enum_type, sql_drop_type,
         sql_rename_type, sql_add_unique_constraint,
@@ -234,12 +235,14 @@ class ImageMap:
 class CatalogImage(Image):
     """Database catalog."""
 
-    __slots__ = ('schemas',)
+    __slots__ = ('schemas', 'extensions')
 
     def __init__(self, cursor):
         super(CatalogImage, self).__init__(self, cursor)
         #: Collection of database schemas.
         self.schemas = ImageMap()
+        #: Collection of extensions.
+        self.extensions = ImageMap()
 
     def __contains__(self, name):
         """Is there a schema with the given name?"""
@@ -261,11 +264,21 @@ class CatalogImage(Image):
         """Adds a new schema."""
         return SchemaImage(self, name)
 
+    def add_extension(self, name):
+        """Adds a new extension."""
+        return ExtensionImage(self, name)
+
     def create_schema(self, name):
         """Creates a new schema."""
         sql = sql_create_schema(name)
         self.cursor.execute(sql)
         return self.add_schema(name)
+
+    def create_extension(self, name):
+        """Creates a new extension."""
+        sql = sql_create_extension(name)
+        self.cursor.execute(sql)
+        return self.add_extension(name)
 
 
 class SchemaImage(NamedImage):
@@ -412,6 +425,28 @@ class SchemaImage(NamedImage):
     def drop(self):
         """Deletes the schema."""
         sql = sql_drop_schema(self.name)
+        self.cursor.execute(sql)
+        self.remove()
+
+
+class ExtensionImage(NamedImage):
+    """Database extension."""
+
+    __slots__ = ()
+
+    def __init__(self, catalog, name):
+        super(ExtensionImage, self).__init__(catalog, name)
+        self.place(catalog.extensions)
+        catalog.link(self)
+
+    @property
+    def catalog(self):
+        """Schema owner."""
+        return self.owner()
+
+    def drop(self):
+        """Deletes the extension."""
+        sql = sql_drop_extension(self.name)
         self.cursor.execute(sql)
         self.remove()
 

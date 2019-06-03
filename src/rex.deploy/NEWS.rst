@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.12.0
+======
+
+* Added a ``uuid`` generator for identities.
+
+
 2.11.2 (2019-04-23)
 ===================
 

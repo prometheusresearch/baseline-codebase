@@ -33,6 +33,15 @@ def introspect(cursor):
         schema = catalog.add_schema(nspname)
         schema_by_oid[oid] = schema
 
+    # Extract extensions.
+    cursor.execute("""
+        SELECT e.extname
+        FROM pg_catalog.pg_extension e
+        ORDER BY e.extname
+    """)
+    for (extname,) in cursor.fetchall():
+        catalog.add_extension(extname)
+
     # Extract ENUM labels.
     labels_by_oid = {}
     cursor.execute("""

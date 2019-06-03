@@ -244,6 +244,20 @@ def sql_comment_on_schema(name, text):
 
 
 @sql_template
+def sql_create_extension(name):
+    """
+    CREATE EXTENSION {{ name|n }};
+    """
+
+
+@sql_template
+def sql_drop_extension(name):
+    """
+    DROP EXTENSION {{ name|n }};
+    """
+
+
+@sql_template
 def sql_create_table(qname, definitions, is_unlogged=False):
     """
     CREATE{% if is_unlogged %} UNLOGGED{% endif %} TABLE {{ qname|qn }} (
@@ -725,4 +739,12 @@ def plpgsql_text_offset_key(table_qname, name, basis_names):
     END IF;
     """
 
+
+@sql_template
+def plpgsql_text_uuid_key(table_qname, name):
+    """
+    IF NEW.{{ name|n }} IS NULL THEN
+        NEW.{{ name|n }} := gen_random_uuid();
+    END IF;
+    """
 

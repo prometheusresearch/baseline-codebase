@@ -892,8 +892,8 @@ identify every row in the table.
     Each name may include the table name separated by a period.
 
     Each column may have an associated generator, which populates an empty
-    column value when a new record are inserted.  Currently two generators
-    are supported: ``offset`` and ``random``.
+    column value when a new record are inserted.  Currently three generators
+    are supported: ``offset``, ``random``, and ``uuid``.
 
 `of`: ``<table_label>``
     The name of the table.
@@ -931,6 +931,9 @@ The following generators are supported:
 
     For a text column, the generated value is a sequence of random letters
     and numbers that follows pattern ``A00A0000``.
+
+`uuid` (for *text* columns)
+   Generates a version 4 UUID as the value for the column.
 
 Examples:
 

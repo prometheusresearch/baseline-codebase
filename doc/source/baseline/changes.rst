@@ -1,3 +1,11 @@
+3.2.0 (TBD)
+===========
+
+* rex.deploy: Added the ability to generate identities using UUIDs.
+* rex-i18n: Fixed warnings resulting from React 16 upgrade.
+
+
+
 3.1.1 (2019-05-31)
 ==================
 

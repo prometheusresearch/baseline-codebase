@@ -80,7 +80,8 @@ export default class Provider extends React.Component {
     this._mounted = false;
   }
 
-  componentWillReceiveProps(nextProps) {
+  // TODO: Ugly. Will break in React 17. Must revisit.
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (this.props.locale !== nextProps.locale) {
       let options = {
         onLoad: this.onI18NLoad,
@@ -89,10 +90,10 @@ export default class Provider extends React.Component {
         translationsUrl: nextProps.translationsUrl || this.state.RexI18N.config.translationsUrl
       };
       let instance = getInstance(nextProps.locale, options);
-      this.state = {
+      this.setState({
         RexI18N: instance,
         key: makeKey(instance)
-      };
+      });
     }
   }
 

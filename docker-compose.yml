@@ -43,8 +43,8 @@ services:
           default user@rexdb.com;
       }
       map $$host$$uri $$app_socket {
+          "~^([^/]+)(/~[^/]+)?(/@(?<app>[^/]+))" /run/app/$$app.socket;
           "~^(?<app>[^/]+)\.localhost/" /run/app/$$app.socket;
-          "~^localhost(/~[^/]+)?(/@(?<app>[^/]+))" /run/app/$$app.socket;
           default /run/app/socket;
       }
       map $$uri $$app_prefix {

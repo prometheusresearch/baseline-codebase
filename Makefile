@@ -17,6 +17,7 @@ PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg ide
 
 
 # Display available targets.
+.DEFAULT_GOAL = help
 help:
 	@echo "Available targets:"
 	@sed -n -e 's/^\([^:@]*\):.*#: \(.*\)/  make \1  |\2/p' Makefile Makefile.* | column -t -s '|'

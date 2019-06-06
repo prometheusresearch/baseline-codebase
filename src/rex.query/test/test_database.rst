@@ -246,6 +246,16 @@ Pagination::
     ...         ["navigate", "name"]])
     <Product ({'ALGERIA'}, {'ARGENTINA'}, {'BRAZIL'})>
 
+Using query variables::
+
+    >>> db.produce(
+    ...     ["filter",
+    ...         ["navigate", "nation"],
+    ...         ["=", ["navigate", "region"], ["var", "region"]]],
+    ...     values={'region': "'MIDDLE EAST'"}
+    ... ) # doctest: +ELLIPSIS
+    <Product ({'EGYPT', ['MIDDLE EAST'], '...'}, ...)>
+
 Type conversion::
 
     >>> db.produce(["+", ["date", "2016-09-13"], 10])

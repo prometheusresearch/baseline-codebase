@@ -29,33 +29,33 @@ class Database(object):
 
     parse = QueryVal()
 
-    def translate(self, query):
+    def translate(self, query, values):
         query = self.parse(query)
         with self.db:
-            state = RexBindingState()
+            state = RexBindingState(values=values)
             binding = state(query)
             plan = translate(binding, limit=query.limit, offset=query.offset)
         return plan
 
-    def produce(self, query):
+    def produce(self, query, values=None):
         query = self.parse(query)
         with self.db:
             if query.is_catalog():
                 return produce_catalog(
                     ignore_entities=self.ignore_catalog_entities,
                 )
-            pipe = self.translate(query)
+            pipe = self.translate(query, values=values)
             product = pipe()(None)
             return product
 
-    def describe(self, query):
+    def describe(self, query, values=None):
         query = self.parse(query)
         with self.db:
             if query.is_catalog():
                 return produce_catalog(
                     ignore_entities=self.ignore_catalog_entities,
                 )
-            pipe = self.translate(query)
+            pipe = self.translate(query, values=values)
             return Product(pipe.meta, None)
 
     def __call__(self, req):
@@ -75,7 +75,7 @@ class Database(object):
                     ignore_entities=self.ignore_catalog_entities,
                 )
             else:
-                pipe = self.translate(query)
+                pipe = self.translate(query, values=None)
                 if 'dry-run' in req.GET:
                     product = Product(pipe.meta, None)
                 else:

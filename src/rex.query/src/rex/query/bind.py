@@ -16,7 +16,7 @@ from htsql.core.syn.syntax import (
         IdentifierSyntax, CollectSyntax, ComposeSyntax, SelectSyntax,
         RecordSyntax, AssignSyntax, SpecifySyntax, FunctionSyntax,
         FilterSyntax, OperatorSyntax, PrefixSyntax, DirectSyntax, GroupSyntax,
-        ProjectSyntax)
+        ReferenceSyntax, ProjectSyntax)
 from htsql.core.cmd.embed import Embed
 from htsql.core.tr.binding import (
         RootBinding, LiteralBinding, TableBinding, ChainBinding,
@@ -58,10 +58,20 @@ class Output(object):
 
 class RexBindingState(BindingState):
 
-    def __init__(self):
+    def __init__(self, values=None):
         super(RexBindingState, self).__init__(RootBinding(VoidSyntax()))
         self.enable_let_syntax = False
         self.enable_let_syntax_stack = []
+
+        if values is None:
+            values_bindings = {}
+        else:
+            values_bindings = {}
+            for name, value in values.items():
+                if not isinstance(value, Output):
+                    value = self(LiteralSyntax(value))
+                values_bindings[name] = value
+        self.values = values_bindings
 
     def push_enable_let_syntax(self, enable):
         self.enable_let_syntax_stack.append(self.enable_let_syntax)
@@ -150,6 +160,18 @@ class RexBindingState(BindingState):
         if isinstance(binding, RerouteBinding):
             binding = binding.target
         return Output(binding)
+
+    def bind_var_op(self, args):
+        if not (len(args) == 1 and
+                isinstance(args[0], LiteralSyntax) and
+                isinstance(args[0].val, str)):
+            raise Error("Expected an identifier,"
+                        " got:", ", ".join(map(str, args)))
+        name = args[0].val
+        output = self.values.get(name)
+        if output is None:
+            raise Error("unknown variable:", name)
+        return output
 
     def bind_navigate_op(self, args):
         if not (len(args) == 1 and

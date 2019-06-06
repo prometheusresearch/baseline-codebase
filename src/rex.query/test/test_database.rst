@@ -246,6 +246,24 @@ Pagination::
     ...         ["navigate", "name"]])
     <Product ({'ALGERIA'}, {'ARGENTINA'}, {'BRAZIL'})>
 
+Acccessing the first element::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["first",
+    ...             ["navigate", "nation"]],
+    ...         ["navigate", "name"]])
+    <Product {'ALGERIA'}>
+
+Acccessing the first element (after select)::
+
+    >>> db.produce(
+    ...     ["first",
+    ...         ["select",
+    ...             ["navigate", "nation"],
+    ...             ["navigate", "name"]]])
+    <Product {'ALGERIA'}>
+
 Using query variables::
 
     >>> db.produce(

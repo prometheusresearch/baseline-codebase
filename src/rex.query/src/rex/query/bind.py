@@ -23,9 +23,9 @@ from htsql.core.tr.binding import (
         CollectBinding, SieveBinding, DefineBinding, IdentityBinding,
         SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
         TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
-        ImplicitCastBinding, WrappingBinding, RerouteBinding, FreeTableRecipe,
-        AttachedTableRecipe, ColumnRecipe, KernelRecipe, ComplementRecipe,
-        ClosedRecipe)
+        ImplicitCastBinding, WrappingBinding, RerouteBinding, LocateBinding,
+        FreeTableRecipe, AttachedTableRecipe, ColumnRecipe, KernelRecipe,
+        ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
 from htsql.core.tr.lookup import (
         lookup_attribute, unwrap, guess_tag, identify, expand, direct)
@@ -398,6 +398,40 @@ class RexBindingState(BindingState):
                 binding = SelectionBinding(
                         binding, recipes, elements, domain, binding.syntax)
         return Output(binding, optional=True, plural=base.plural)
+
+    def bind_first_op(self, args):
+        if not (len(args) == 1):
+            raise Error("Expected two arguments,"
+                        " got:", ", ".join(map(str, args)))
+        base = self(args[0])
+        if not base.plural:
+            raise Error("Expected a plural expression, got:", args[0])
+        limit = 1
+        syntax = ComposeSyntax(
+                base.binding.syntax,
+                FunctionSyntax(
+                    IdentifierSyntax("limit"),
+                    [IntegerSyntax(str(limit))]))
+        binding = ClipBinding(
+                self.scope, base.binding, [],
+                limit, None, syntax)
+        binding = LocateBinding(self.scope, binding, [], None, binding.syntax)
+        if isinstance(base.binding.domain, RecordDomain):
+            syntax_recipes = expand(
+                    base.binding,
+                    with_syntax=True, with_wild=True, with_class=True)
+            if syntax_recipes is not None:
+                elements = []
+                recipes = []
+                for syntax, recipe in syntax_recipes:
+                    recipes.append(recipe)
+                    element = self.use(recipe, syntax, scope=binding)
+                    elements.append(element)
+                fields = [decorate(element) for element in elements]
+                domain = RecordDomain(fields)
+                binding = SelectionBinding(
+                        binding, recipes, elements, domain, binding.syntax)
+        return Output(binding, optional=True, plural=False)
 
     def bind_group_op(self, args):
         if not (len(args) >= 2):

@@ -246,6 +246,16 @@ Pagination::
     ...         ["navigate", "name"]])
     <Product ({'ALGERIA'}, {'ARGENTINA'}, {'BRAZIL'})>
 
+Pagination with offset::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["take",
+    ...             ["navigate", "nation"],
+    ...             3, 1],
+    ...         ["navigate", "name"]])
+    <Product ({'ARGENTINA'}, {'BRAZIL'}, {'CANADA'})>
+
 Acccessing the first element::
 
     >>> db.produce(

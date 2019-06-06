@@ -364,8 +364,9 @@ class RexBindingState(BindingState):
                 plural=base.plural)
 
     def bind_take_op(self, args):
-        if not (len(args) == 2):
-            raise Error("Expected two arguments,"
+        len_args = len(args)
+        if not (2 <= len_args <= 3):
+            raise Error("Expected two or three arguments,"
                         " got:", ", ".join(map(str, args)))
         base = self(args[0])
         if not base.plural:
@@ -374,6 +375,12 @@ class RexBindingState(BindingState):
                 isinstance(args[1].val, int)):
             raise Error("Expected an integer literal, got:", args[1])
         limit = args[1].val
+        offset = None
+        if len_args == 3:
+            if not (isinstance(args[2], LiteralSyntax) and
+                    isinstance(args[2].val, int)):
+                raise Error("Expected an integer literal, got:", args[2])
+            offset = args[2].val
         syntax = ComposeSyntax(
                 base.binding.syntax,
                 FunctionSyntax(
@@ -381,7 +388,7 @@ class RexBindingState(BindingState):
                     [IntegerSyntax(str(limit))]))
         binding = ClipBinding(
                 self.scope, base.binding, [],
-                limit, None, syntax)
+                limit, offset, syntax)
         if isinstance(base.binding.domain, RecordDomain):
             syntax_recipes = expand(
                     base.binding,

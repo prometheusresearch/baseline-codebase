@@ -1,6 +1,6 @@
 
 # Lists of source packages.
-include Makefile.src
+include Makefile.*
 
 
 # Development mode (local, docker, or kube).
@@ -19,22 +19,12 @@ PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg ide
 # Display available targets.
 help:
 	@echo "Available targets:"
-	@echo "make init                    initialize the development environment"
-	@echo "make status                  show the configuration of the development environment"
-	@echo "make up                      restart the environment"
-	@echo "make down                    suspend the environment"
-	@echo "make purge                   delete the environment and free the associated resources"
-	@echo "make develop                 recompile source packages"
-	@echo "make test                    test all source packages (specify PKG=<package> to test a single package)"
-	@echo "make dist                    build the application image"
-	@echo "make upload REGISTRY=<URL>   upload the application image to the Docker registry"
-	@echo "make shell                   opens a bash shell in the build container"
-	@echo "make sync                    start synchronizing files with the build container"
+	@sed -n -e 's/^\([^:@]*\):.*#: \(.*\)/  make \1  |\2/p' Makefile Makefile.* | column -t -s '|'
 .PHONY: help
 
 
 # Initialize the development environment.
-init: .devmode
+init: .devmode	#: initialize the development environment
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
 	${MAKE} --no-print-directory init-${DEVMODE}
 .PHONY: init
@@ -116,7 +106,7 @@ init-env:
 
 
 # Show the configuration of the development environment.
-status:
+status:	#: show the configuration of the development environment
 	@[ -e .devmode -a -e ./bin/activate ] && \
 	${MAKE} -s status-${DEVMODE} || \
 	echo "${RED}Development environment is not initialized.${NORM}"
@@ -166,7 +156,7 @@ status-kube:
 
 
 # Restart the development environment.
-up:
+up:	#: restart the environment
 	${MAKE} up-${DEVMODE}
 .PHONY: up
 
@@ -199,7 +189,7 @@ up-kube:
 
 
 # Suspend the development environment.
-down:
+down:	#: suspend the environment
 	${MAKE} down-${DEVMODE}
 .PHONY: down
 
@@ -218,7 +208,7 @@ down-kube:
 
 
 # Delete the development environment.
-purge:
+purge:	#: delete the environment and free the associated resources
 	${MAKE} --no-print-directory purge-${DEVMODE}
 .PHONY: purge
 
@@ -245,7 +235,7 @@ purge-kube:
 
 
 # Open up a shell in the develop container
-shell: ./bin/activate
+shell: ./bin/activate	#: open a shell in the build container
 	@if [ "${DEVMODE}" = "docker" -o "${DEVMODE}" = "kube" ]; then \
 		./bin/rsh ;\
 	else \
@@ -294,7 +284,7 @@ build-docs: ./bin/activate
 
 
 # Compile source packages in development mode.
-develop: ./bin/activate
+develop: ./bin/activate	#: recompile source packages
 	${MAKE} build-js
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \
@@ -336,7 +326,7 @@ install: ./bin/activate
 
 
 # Test source packages.
-test: ./bin/activate
+test: ./bin/activate	#: test all source packages (specify PKG=<SRC> to test a single package)
 	@. ./bin/activate; \
 	FAILURES=; \
 	for src in ${TEST_PY}; do \
@@ -373,7 +363,7 @@ test: ./bin/activate
 
 
 # Build the application docker image for distribution.
-dist:
+dist:	#: build the application image
 	docker build --force-rm -t rexdb/${PRJ_NAME}:${PRJ_VER} .
 .PHONY: dist
 
@@ -385,7 +375,7 @@ dist-local:
 
 
 # Upload the distribution image.
-upload:
+upload:	#: upload the application image to a Docker registry (specify with REGISTRY=<URL>)
 	@if [ -z "${REGISTRY}" ]; then echo "${RED}REGISTRY is not set!${NORM}"; false; fi
 	docker tag rexdb/${PRJ_NAME}:${PRJ_VER} ${REGISTRY}/${PRJ_NAME}:${PRJ_VER}
 	docker push ${REGISTRY}/${PRJ_NAME}:${PRJ_VER}
@@ -393,7 +383,7 @@ upload:
 
 
 # Start synchronizing files with the container.
-sync: bin/sync sync-bin
+sync: bin/sync sync-bin	#: start synchronizing files with the build container
 	@./bin/sync
 .PHONY: sync
 

@@ -3,6 +3,7 @@
 #
 
 
+import contextlib
 from rex.core import Error, guard
 from .query import Query, ApplySyntax, LiteralSyntax
 from htsql.core.adapter import adapt
@@ -58,20 +59,26 @@ class Output(object):
 
 class RexBindingState(BindingState):
 
-    def __init__(self, values=None):
+    def __init__(self, vars=None):
         super(RexBindingState, self).__init__(RootBinding(VoidSyntax()))
         self.enable_let_syntax = False
         self.enable_let_syntax_stack = []
+        self.vars = self._bind_vars(vars or {})
 
-        if values is None:
-            values_bindings = {}
-        else:
-            values_bindings = {}
-            for name, value in values.items():
-                if not isinstance(value, Output):
-                    value = self(LiteralSyntax(value))
-                values_bindings[name] = value
-        self.values = values_bindings
+    def _bind_vars(self, vars):
+        return {
+            name: value
+                  if isinstance(value, Output)
+                  else self(LiteralSyntax(value))
+            for name, value in vars.items()
+        }
+
+    @contextlib.contextmanager
+    def with_vars(self, vars):
+        prev_vars = self.vars
+        self.vars = self._bind_vars(vars or {})
+        yield
+        self.vars = prev_vars
 
     def push_enable_let_syntax(self, enable):
         self.enable_let_syntax_stack.append(self.enable_let_syntax)
@@ -168,7 +175,7 @@ class RexBindingState(BindingState):
             raise Error("Expected an identifier,"
                         " got:", ", ".join(map(str, args)))
         name = args[0].val
-        output = self.values.get(name)
+        output = self.vars.get(name)
         if output is None:
             raise Error("unknown variable:", name)
         return output

@@ -280,7 +280,7 @@ Using query variables::
     ...     ["filter",
     ...         ["navigate", "nation"],
     ...         ["=", ["navigate", "region"], ["var", "region"]]],
-    ...     values={'region': "'MIDDLE EAST'"}
+    ...     vars={'region': "'MIDDLE EAST'"}
     ... ) # doctest: +ELLIPSIS
     <Product ({'EGYPT', ['MIDDLE EAST'], '...'}, ...)>
 

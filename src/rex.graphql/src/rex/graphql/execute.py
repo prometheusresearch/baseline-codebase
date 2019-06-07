@@ -860,13 +860,14 @@ def resolve_field(
 
 
 def execute_query_field(ctx, field: model.QueryField, field_nodes):
-    b = bind_query_field(None, ctx, field, field_nodes)
-    pipe = translate(b)
+    state = RexBindingState()
+    binding = bind_query_field(state, ctx, field, field_nodes)
+    pipe = translate(binding)
     product = pipe()(None)
     return product.data
 
 
-def bind_query_field(parent, ctx, field: model.QueryField, field_nodes):
+def bind_query_field(state, ctx, field: model.QueryField, field_nodes):
     def finalize(b):
         if field.plural:
             syn = syntax.CollectSyntax(b.syntax)
@@ -879,8 +880,7 @@ def bind_query_field(parent, ctx, field: model.QueryField, field_nodes):
     args = ctx.get_argument_values(field, field_node)
 
     # Bind GraphQL arguments
-    values = {}
-    state = RexBindingState()
+    vars = {}
     for name, arg in field.args.items():
         if name not in args:
             # It's ok since we validated arguments above
@@ -888,12 +888,7 @@ def bind_query_field(parent, ctx, field: model.QueryField, field_nodes):
         arg_type = model.find_named_type(arg.type)
         assert arg_type is not None
         assert arg_type.bind_value is not None, f"{arg_type!r}"
-        values[name] = arg_type.bind_value(state, args[name])
-
-    # Push parent into scope
-    state = RexBindingState(values=values)
-    if parent is not None:
-        state.push_scope(parent.binding)
+        vars[name] = arg_type.bind_value(state, args[name])
 
     # Initial query
     query = field.descriptor.query
@@ -908,7 +903,8 @@ def bind_query_field(parent, ctx, field: model.QueryField, field_nodes):
     for filter in field.descriptor.filters:
         query = filter.apply(query, args)
 
-    output = state(query.syn)
+    with state.with_vars(vars):
+        output = state(query.syn)
     entity_type = model.find_named_type(field.type)
 
     # It's not an entity, so just return
@@ -918,6 +914,7 @@ def bind_query_field(parent, ctx, field: model.QueryField, field_nodes):
     # Descent to subfields
     subfield_nodes = ctx.get_sub_fields(entity_type, field_nodes)
     elements = []
+    state.push_scope(output.binding)
     for name, subfield_nodes in subfield_nodes.items():
         field_name = subfield_nodes[0].name.value
         subfield = entity_type.fields.get(field_name)
@@ -931,9 +928,10 @@ def bind_query_field(parent, ctx, field: model.QueryField, field_nodes):
             # to process later.
             continue
 
-        element = bind_query_field(output, ctx, subfield, subfield_nodes)
+        element = bind_query_field(state, ctx, subfield, subfield_nodes)
         element = binding.AliasBinding(element, syntax.IdentifierSyntax(name))
         elements.append(element)
+    state.pop_scope()
 
     # Create a selection
     fields = [decorate(element) for element in elements]

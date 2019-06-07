@@ -538,33 +538,33 @@ def construct(descriptor, ctx, name):
         for arg_name, arg in descriptor.args.items():
             args[arg_name] = construct(arg, ctx.root)
 
-        values = {}
         state = RexBindingState()
+
+        vars = {}
         for name, arg in args.items():
             if not is_query_input_type(arg.type):
                 raise Error(
                     f"Unsupported query argument type `{name} : {arg.type}`:",
                     arg.loc,
                 )
-            values[name] = state.bind_cast(
+            vars[name] = state.bind_cast(
                 arg.type.domain, [LiteralSyntax(None)]
             )
-
-        state = RexBindingState(values=values)
 
         # Bring the context into binding state
         if isinstance(ctx.parent, QuerySchemaContext):
             state.push_scope(ctx.parent.output.binding)
 
         # Finally produce binding
-        output = state(descriptor.query.syn)
+        with state.with_vars(vars):
+            output = state(descriptor.query.syn)
 
-        # Try to bind filters (if they are specified via queries)
-        state.push_scope(output.binding)
-        for filter in descriptor.filters:
-            if isinstance(filter, desc.FilterOfQuery):
-                state(filter.query.syn)
-        state.pop_scope()
+            # Try to bind filters (if they are specified via queries)
+            state.push_scope(output.binding)
+            for filter in descriptor.filters:
+                if isinstance(filter, desc.FilterOfQuery):
+                    state(filter.query.syn)
+            state.pop_scope()
 
         # Probe the kind of output
         probe = output.binding

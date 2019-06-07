@@ -32,29 +32,7 @@ class Field(Desc):
     """ Base class for schema fields."""
 
 
-class Object(Type):
-    """ Object type.
-
-    Values of object types are produced by computed fields. The root type is
-    also an object type.
-    """
-
-    def __init__(self, name, fields, description=None, loc=autoloc):
-        if not callable(fields):
-            raise Error("Argument 'fields' should be a function")
-
-        self.loc = code_location.here() if loc is autoloc else loc
-        self.name = name
-        self.fields = fields
-        self.description = description
-
-
-class Entity(Type):
-    """ Entity type.
-
-    Values of entity types are queried from database using query fields.
-    """
-
+class ObjectLike(Type):
     def __init__(self, name, fields, description=None, loc=autoloc):
         if not callable(fields):
             raise Error("Argument 'fields' should be a function")
@@ -69,7 +47,33 @@ class Entity(Type):
         return {**self._fields(), **self._extra_fields}
 
     def add_field(self, name, field):
+        """ Add new field."""
+        assert isinstance(field, Field)
         self._extra_fields[name] = field
+
+
+class Object(ObjectLike):
+    """ Object type.
+
+    Values of object types are produced by computed fields. The root type is
+    also an object type.
+    """
+
+
+class Record(ObjectLike):
+    """ Record type corresponds to a database query.
+
+    Values of a record type are queried from database using query fields. If the
+    result of a query is a row from a table it is more convenient to use
+    :class:Entity type instead.
+    """
+
+
+class Entity(Record):
+    """ Entity type corresponds to a table.
+
+    Values of an entity type are queried from database using query fields.
+    """
 
 
 class compute(Field):
@@ -384,7 +388,7 @@ def compute_from_function(**config):
             for name in args:
                 kwargs[name] = values[name]
             if require_self_arg:
-                kwargs['self'] = parent
+                kwargs["self"] = parent
             return f(**kwargs)
 
         return compute(args=args.values(), f=run, type=return_type, **config)

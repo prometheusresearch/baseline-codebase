@@ -4,6 +4,7 @@ import json
 
 from rex.graphql import (
     Entity,
+    Record,
     Object,
     List,
     scalar,
@@ -20,7 +21,7 @@ from rex.graphql import (
     filter_from_function,
     compute_from_function,
 )
-from rex.core import Rex, Error
+from rex.core import Rex, Error, cached
 
 
 @pytest.fixture(scope="module")
@@ -1306,6 +1307,7 @@ def test_exec_err_compute_raises():
     sch = schema(fields=lambda: {"number": number})
 
     from rex.core import get_sentry
+
     try:
         execute(
             sch,
@@ -1335,3 +1337,194 @@ def test_conf_err_unknown_field_via_second_path():
                 "region": query(q.region, type=part),
             }
         )
+
+
+def test_query_record():
+    named = Record(name="named", fields=lambda: {"name": query(q.name)})
+    sch = schema(
+        fields=lambda: {
+            "region": query(q.region, named),
+            "nation": query(q.nation, named),
+        }
+    )
+    data = execute(
+        sch,
+        """
+        query {
+            region { name }
+        }
+        """,
+    )
+    assert data == {
+        "region": [
+            {"name": "AFRICA"},
+            {"name": "AMERICA"},
+            {"name": "ASIA"},
+            {"name": "EUROPE"},
+            {"name": "MIDDLE EAST"},
+        ]
+    }
+
+
+def test_query_record_select():
+    expect = {
+        "region": [
+            {"name": "AFRICA"},
+            {"name": "AMERICA"},
+            {"name": "ASIA"},
+            {"name": "EUROPE"},
+            {"name": "MIDDLE EAST"},
+        ]
+    }
+
+    named = Record(
+        name="named", fields=lambda: {"display_name": query(q.display_name)}
+    )
+    sch = schema(
+        fields=lambda: {
+            "region": query(q.region.select(display_name=q.name), named),
+            "nation": query(q.nation.select(display_name=q.name), named),
+        }
+    )
+    assert (
+        execute(
+            sch,
+            """
+        query {
+            region { name: display_name }
+        }
+        """,
+        )
+        == expect
+    )
+
+
+def test_query_record_define():
+    expect = {
+        "region": [
+            {"name": "AFRICA"},
+            {"name": "AMERICA"},
+            {"name": "ASIA"},
+            {"name": "EUROPE"},
+            {"name": "MIDDLE EAST"},
+        ]
+    }
+
+    named = Record(
+        name="named", fields=lambda: {"display_name": query(q.display_name)}
+    )
+    sch = schema(
+        fields=lambda: {
+            "region": query(q.region.define(display_name=q.name), named),
+            "nation": query(q.nation.define(display_name=q.name), named),
+        }
+    )
+    assert (
+        execute(
+            sch,
+            """
+        query {
+            region { name: display_name }
+        }
+        """,
+        )
+        == expect
+    )
+
+
+def test_err_query_record_define_missing():
+    named = Record(
+        name="named", fields=lambda: {"display_name": query(q.display_name)}
+    )
+    with pytest.raises(Error):
+        schema(
+            fields=lambda: {
+                "region": query(q.region.define(display_name=q.name), named),
+                "nation": query(q.nation, named),
+            }
+        )
+
+
+def test_err_query_record_select_missing():
+    named = Record(
+        name="named", fields=lambda: {"display_name": query(q.display_name)}
+    )
+    with pytest.raises(Error):
+        schema(
+            fields=lambda: {
+                "region": query(q.region.select(display_name=q.name), named),
+                "nation": query(q.nation, named),
+            }
+        )
+
+
+def test_query_connection_via_record():
+    # For a specified entity type this produces a query field which allows to
+    # query for the entity in different manners: counts all items, get all
+    # items, paginate, get single item.
+    @cached
+    def connect(entitytype):
+        connectiontype = Record(
+            name=f"{entitytype.name}_connection",
+            fields=lambda: {
+                "all": query(q.entity, type=entitytype),
+                "count": query(q.entity.count()),
+            },
+        )
+        return query(
+            q.define(entity=q.navigate(entitytype.name)),
+            type=connectiontype,
+            description="Connection to {entitytype.name}",
+        )
+
+    # Now we define entity types but instead of using raw query fields we define
+    # links with connections which allow ricj query capabilities (we can query
+    # for the count of related entities).
+
+    region = Entity(
+        name="region",
+        fields=lambda: {
+            "name": query(q.name),
+            # We can query for nations for each region.
+            "nation": connect(nation),
+        },
+    )
+
+    nation = Entity(name="nation", fields=lambda: {"name": query(q.name)})
+
+    assert connect(nation) is connect(nation)
+    assert connect(region) is connect(region)
+    assert not (connect(region) is connect(nation))
+
+    sch = schema(
+        fields=lambda: {"region": connect(region), "nation": connect(nation)}
+    )
+
+    data = execute(
+        sch,
+        """
+        query {
+            region {
+                count
+                all {
+                    name
+                    nation {
+                        count
+                    }
+                }
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region": {
+            "count": 5,
+            "all": [
+                {"name": "AFRICA", "nation": {"count": 5}},
+                {"name": "AMERICA", "nation": {"count": 5}},
+                {"name": "ASIA", "nation": {"count": 5}},
+                {"name": "EUROPE", "nation": {"count": 5}},
+                {"name": "MIDDLE EAST", "nation": {"count": 5}},
+            ],
+        }
+    }

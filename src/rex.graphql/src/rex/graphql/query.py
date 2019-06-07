@@ -93,6 +93,24 @@ class Query:
         syn = ApplySyntax("group", syns)
         return Query(syn, args)
 
+    def define(self, **what):
+        base = self.syn if self.syn is not None else ApplySyntax("here", [])
+        syns = [base]
+        args = self.args
+        for k, v in what.items():
+            v = lift(v)
+            args = merge_args(args, v.args)
+            syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
+        syn = ApplySyntax("define", syns)
+        return Query(syn, args)
+
+    def let(self, name, value):
+        base = self.syn if self.syn is not None else ApplySyntax("here", [])
+        value = lift(value)
+        args = merge_args(self.args, v.args)
+        syn = ApplySyntax("let", [LiteralSyntax(name), value.syn])
+        return Query(syn, args)
+
     def select(self, **what):
         syns = [self.syn]
         args = self.args

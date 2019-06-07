@@ -594,7 +594,7 @@ def execute_field(
 def complete_data(
     ctx: ExecutionContext,
     return_type: model.Type,
-    entity_type: model.EntityType,
+    entity_type: model.RecordType,
     field_nodes,
     info,
     path,
@@ -638,7 +638,7 @@ def complete_data(
             )
         return result
 
-    if isinstance(return_type, model.EntityType):
+    if isinstance(return_type, model.RecordType):
         subfield_nodes = ctx.get_sub_fields(return_type, field_nodes)
         result = collections.OrderedDict()
         data_idx = 0
@@ -690,7 +690,7 @@ def complete_value(
 
     # Now check if we are dealing with entity type
     entity_type = model.find_named_type(return_type)
-    if isinstance(entity_type, model.EntityType):
+    if isinstance(entity_type, model.RecordType):
         # TODO: assert isinstance(product, htsql.Product)
         return complete_data(
             ctx=ctx,
@@ -908,7 +908,7 @@ def bind_query_field(state, ctx, field: model.QueryField, field_nodes):
     entity_type = model.find_named_type(field.type)
 
     # It's not an entity, so just return
-    if not isinstance(entity_type, model.EntityType):
+    if not isinstance(entity_type, model.RecordType):
         return finalize(output.binding)
 
     # Descent to subfields

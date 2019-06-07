@@ -9,6 +9,7 @@ from .desc import (
     scalar,
     Object,
     Entity,
+    Record,
     List,
     NonNull,
     Enum,

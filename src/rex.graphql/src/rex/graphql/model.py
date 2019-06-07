@@ -16,6 +16,7 @@ import cached_property
 
 from htsql_rex_deploy import domain as domain_extra
 from htsql.core.tr.binding import (
+    DefineBinding,
     SelectionBinding,
     TableBinding,
     LocateBinding,
@@ -89,7 +90,11 @@ class ObjectType(Type):
         return self.fields[name]
 
 
-class EntityType(ObjectType):
+class RecordType(ObjectType):
+    pass
+
+
+class EntityType(RecordType):
     def __init__(self, descriptor, table, fields):
         super(EntityType, self).__init__(descriptor=descriptor, fields=fields)
         self.table = table
@@ -255,6 +260,13 @@ class ComputedField(Field):
     )
     loc = property(lambda self: self.descriptor.loc)
 
+    def __eq__(self, o):
+        assert isinstance(o, self.__class__)
+        return self.type == o.type and self.descriptor == o.descriptor
+
+    def __hash__(self):
+        return id(self)
+
 
 class QueryField(Field):
     def __init__(self, descriptor, type, plural, optional, args):
@@ -272,6 +284,13 @@ class QueryField(Field):
 
     def __getitem__(self, name):
         return self.type[name]
+
+    def __eq__(self, o):
+        assert isinstance(o, self.__class__)
+        return self.type == o.type and self.descriptor == o.descriptor
+
+    def __hash__(self):
+        return id(self)
 
 
 def type_from_domain(ctx, dom: domain.Domain):
@@ -433,10 +452,11 @@ def construct(descriptor, ctx):
         next_ctx = TypeSchemaContext(
             name=descriptor.name, parent=ctx, loc=descriptor.loc
         )
-        desc_fields = list(descriptor.fields().items()) + [
-            ("__typename", introspection.typename_field),
-            ("id", desc.query(q.id(), type=desc.scalar.ID)),
-        ]
+
+        desc_fields = list(descriptor.fields().items())
+        desc_fields.append(("__typename", introspection.typename_field))
+        desc_fields.append(("id", desc.query(q.id(), type=desc.scalar.ID)))
+
         for name, field in desc_fields:
             field_loc = field.loc
             field = construct(field, next_ctx, name)
@@ -458,18 +478,87 @@ def construct(descriptor, ctx):
     return type
 
 
+@construct.for_type(desc.Record)
+def construct(descriptor, ctx):
+    err_ctx = lambda: code_location.context(
+        descriptor.loc, desc=f"While configuring record '{descriptor.name}':"
+    )
+
+    with err_ctx():
+        with code_location.context(
+            ctx.loc, desc="Type is used in the context:"
+        ):
+            # Check that we are in the query context.
+            if not isinstance(ctx, QuerySchemaContext):
+                raise Error("Entity type can only be queried with query(..)")
+
+    # Try to check if we have it constructed already.
+    type = ctx.root.types.get(descriptor.name)
+    if type is None:
+        # First store it in cache so we can refer to it recursively...
+        fields = {}
+        type = RecordType(fields=fields, descriptor=descriptor)
+        ctx.root.types[descriptor.name] = type
+        # ...and then validate its fields
+        next_ctx = TypeSchemaContext(
+            name=descriptor.name, parent=ctx, loc=descriptor.loc
+        )
+
+        desc_fields = list(descriptor.fields().items())
+        desc_fields.append(("__typename", introspection.typename_field))
+
+        for name, field in desc_fields:
+            field_loc = field.loc
+            field = construct(field, next_ctx, name)
+            if not isinstance(field, QueryField) and name != "__typename":
+                with err_ctx():
+                    msg = "Record types can only contain queries but got:"
+                    raise Error(msg, field_loc)
+            fields[name] = field
+    else:
+        with err_ctx():
+            # Check that the type is originating from the same descriptor,
+            # otherwise it's an error.
+            if not descriptor is type.descriptor:
+                msg = "Type with the same name is already defined:"
+                raise Error(msg, type.loc)
+        if not isinstance(type, RecordType):
+            raise Error("Expected record type but got:", type)
+        check(type, ctx)
+    return type
+
+
 @check.for_type(EntityType)
 def check(type, ctx: QuerySchemaContext):
     assert isinstance(ctx, QuerySchemaContext)
     assert isinstance(ctx.parent, TypeSchemaContext)
     assert ctx.table is not None
 
+    # As EntityType type corresponds to a database table we can just check that
+    # the type is used in the context of the same table it was instantiated
+    # before.
     if ctx.table is not type.table:
         raise Error(
             f"Type '{type.name}' represents database table '{type.table}'"
             f" but was used in the context of query which results in table"
             f" '{ctx.table}'"
         )
+
+
+@check.for_type(RecordType)
+def check(type, ctx: QuerySchemaContext):
+    assert isinstance(ctx, QuerySchemaContext)
+    assert isinstance(ctx.parent, TypeSchemaContext)
+    # We need to make sure we can construct all fields of the type in the
+    # current context too! Then check that those fields constructed are
+    # identical to the ones we have too.
+    next_ctx = TypeSchemaContext(
+        name=type.name, parent=ctx, loc=type.descriptor.loc
+    )
+    for name, field in type.fields.items():
+        this_field = construct(field.descriptor, next_ctx, name)
+        # TODO: raise Error instead
+        assert this_field == field
 
 
 @construct.for_type(desc.List)
@@ -566,40 +655,53 @@ def construct(descriptor, ctx, name):
                     state(filter.query.syn)
             state.pop_scope()
 
+        def base(binding):
+            if isinstance(binding, (LocateBinding, ClipBinding)):
+                return base(binding.seed)
+            elif isinstance(binding, (DefineBinding,)):
+                return base(binding.base)
+            else:
+                return binding
+
         # Probe the kind of output
-        probe = output.binding
-        while isinstance(probe, (LocateBinding, ClipBinding)):
-            probe = probe.seed
+        probe = base(output.binding)
         selection_binding = unwrap(probe, SelectionBinding, is_deep=True)
         table_binding = unwrap(probe, TableBinding, is_deep=True)
 
-        if selection_binding is not None:
-            # This means the query results in a record (has `some {...}`
-            # syntax at the end. We don't support queries which result in a
-            # record at the moment.
-            msg = (
-                f"Queries which result in a record are not supported yet,"
-                f" only entities or scalars are allowed at the momemnt."
-                f" The query in question is:"
+        if selection_binding:
+            # This means the query results in a record (has `some {...}` syntax
+            # at the end.
+            if descriptor.type is None:
+                msg = (
+                    f"Query results in a record but no type is provided,"
+                    f" please specify it like this:"
+                )
+                raise Error(msg, "query(..., type=TYPE)")
+
+            ctx = QuerySchemaContext(
+                parent=ctx,
+                output=output,
+                table=None,
+                loc=descriptor.loc,
             )
-            raise Error(msg, descriptor.query.syn)
-        elif table_binding is not None:
-            assert table_binding.table is not None
-            # It's a table, we require type to be specified in that case.
+            type = construct(descriptor.type, ctx)
+
+        elif table_binding:
+
             if descriptor.type is None:
                 msg = (
                     f"Query results in an entity (table '{table_binding.table}')"
                     f" but no type is provided, please specify it like this:"
                 )
                 raise Error(msg, "query(..., type=TYPE)")
-            type = descriptor.type
+
             ctx = QuerySchemaContext(
                 parent=ctx,
                 output=output,
                 table=table_binding.table,
                 loc=descriptor.loc,
             )
-            type = construct(type, ctx)
+            type = construct(descriptor.type, ctx)
         else:
             # Neither a table nor selection, a scalar then!
             # TODO: Confirm with @xi

@@ -319,7 +319,11 @@ Then we can obtain GraphQL schema from reflection::
 
 Such schema can be used to query for data.
 
-For each database table reflection provides query field which queries a single record from the table by the identify::
+For each database table reflection generates a connection API - a field which
+can be used to query a single record, all records, all records by page and count
+records in the table.
+
+To query a single record by id ``get`` subfield can be used::
 
    >>> res = execute(sch, """
    ...   query {
@@ -333,13 +337,12 @@ For each database table reflection provides query field which queries a single r
    >>> res.data
    OrderedDict([('region', OrderedDict([('africa', OrderedDict([('name', 'AFRICA')]))]))])
 
-To access all records from the ``region`` table there's ``region__all`` query
-field::
+To query all records ``all`` subfield can be used::
 
    >>> res = execute(sch, """
    ...   query {
    ...     region {
-   ...       all {
+   ...       items: all {
    ...         name
    ...       }
    ...     }
@@ -347,16 +350,16 @@ field::
    ... """)
    >>> res.data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
    OrderedDict([('region',
-                 OrderedDict([('all',
+                 OrderedDict([('items',
                                [OrderedDict([('name', 'AFRICA')]), ...])]))])
 
-We can also paginate through the table ``region`` using ``region__paginated``
-query field::
+We can also query all records using ``paginated`` subfield which canbe passed
+``limit: Int`` and ``offset: Int`` arguments::
 
    >>> res = execute(sch, """
    ...   query {
    ...     region {
-   ...       paginated(limit: 2, offset: 1) {
+   ...       items: paginated(limit: 2, offset: 1) {
    ...         name
    ...       }
    ...     }
@@ -364,9 +367,9 @@ query field::
    ... """)
    >>> res.data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
    OrderedDict([('region',
-                 OrderedDict([('paginated',
+                 OrderedDict([('items',
                                [OrderedDict([('name', 'AMERICA')]), ...])]))])
-   >>> len(res.data['region']['paginated'])
+   >>> len(res.data['region']['items'])
    2
 
 ::

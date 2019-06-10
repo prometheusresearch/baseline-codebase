@@ -144,12 +144,12 @@ def test_compute_from_function():
     assert data == {"add": 3}
 
 
-def test_compute_from_function_with_self():
+def test_compute_from_function_with_parent():
     Number = Object(name="Number", fields=lambda: {"add": add})
 
     @compute_from_function()
-    def add(self, x: scalar.Int) -> scalar.Int:
-        return self + x
+    def add(parent, x: scalar.Int) -> scalar.Int:
+        return parent + x
 
     @compute_from_function()
     def forthytwo() -> Number:

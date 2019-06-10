@@ -303,11 +303,11 @@ class FilterOfQuery(Filter):
 def extract_params(f, mark_as_nonnull_if_no_default_value=False):
     sig = inspect.signature(f)
     params = {}
-    require_self_arg = False
+    inject_parent_arg = False
     for param in sig.parameters.values():
         name = param.name
-        if name == "self":
-            require_self_arg = True
+        if name == "parent":
+            inject_parent_arg = True
             continue
         if isinstance(param.annotation, Param):
             params[name] = param.annotation
@@ -331,7 +331,7 @@ def extract_params(f, mark_as_nonnull_if_no_default_value=False):
     if sig.return_annotation is not inspect._empty:
         return_type = sig.return_annotation
 
-    return params, require_self_arg, return_type
+    return params, inject_parent_arg, return_type
 
 
 def filter_from_function(f):
@@ -341,7 +341,7 @@ def filter_from_function(f):
 
 def compute_from_function(**config):
     def decorate(f):
-        params, require_self_arg, return_type = extract_params(
+        params, inject_parent_arg, return_type = extract_params(
             f, mark_as_nonnull_if_no_default_value=True
         )
 
@@ -352,8 +352,8 @@ def compute_from_function(**config):
             kwargs = {}
             for name in params:
                 kwargs[name] = values[name]
-            if require_self_arg:
-                kwargs["self"] = parent
+            if inject_parent_arg:
+                kwargs["parent"] = parent
             return f(**kwargs)
 
         return compute(

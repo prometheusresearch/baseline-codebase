@@ -15,10 +15,11 @@ class multidispatch:
         self.default = default
         self.by_type = {}
 
-    def for_type(self, type):
+    def for_type(self, *types):
         def register(f):
-            assert type not in self.by_type
-            self.by_type[type] = f
+            for type in types:
+                assert type not in self.by_type
+                self.by_type[type] = f
             return self
 
         return register

@@ -13,6 +13,7 @@ from rex.graphql import (
     EnumValue,
     q,
     query,
+    connect,
     compute,
     argument,
     schema,
@@ -1458,43 +1459,12 @@ def test_err_query_record_select_missing():
         )
 
 
-def test_query_connection_via_record():
-    # For a specified entity type this produces a query field which allows to
-    # query for the entity in different manners: counts all items, get all
-    # items, paginate, get single item.
-    @cached
-    def connect(entitytype):
-        connectiontype = Record(
-            name=f"{entitytype.name}_connection",
-            fields=lambda: {
-                "all": query(q.entity, type=entitytype),
-                "count": query(q.entity.count()),
-            },
-        )
-        return query(
-            q.define(entity=q.navigate(entitytype.name)),
-            type=connectiontype,
-            description="Connection to {entitytype.name}",
-        )
-
-    # Now we define entity types but instead of using raw query fields we define
-    # links with connections which allow ricj query capabilities (we can query
-    # for the count of related entities).
-
+def test_query_connect():
     region = Entity(
         name="region",
-        fields=lambda: {
-            "name": query(q.name),
-            # We can query for nations for each region.
-            "nation": connect(nation),
-        },
+        fields=lambda: {"name": query(q.name), "nation": connect(nation)},
     )
-
     nation = Entity(name="nation", fields=lambda: {"name": query(q.name)})
-
-    assert connect(nation) is connect(nation)
-    assert connect(region) is connect(region)
-    assert not (connect(region) is connect(nation))
 
     sch = schema(
         fields=lambda: {"region": connect(region), "nation": connect(nation)}
@@ -1506,6 +1476,12 @@ def test_query_connection_via_record():
         query {
             region {
                 count
+                africa: get(id: "AFRICA") {
+                    name
+                }
+                firstTwo: paginated(limit: 2) {
+                    name
+                }
                 all {
                     name
                     nation {
@@ -1519,6 +1495,8 @@ def test_query_connection_via_record():
     assert data == {
         "region": {
             "count": 5,
+            "africa": {"name": "AFRICA"},
+            "firstTwo": [{"name": "AFRICA"}, {"name": "AMERICA"}],
             "all": [
                 {"name": "AFRICA", "nation": {"count": 5}},
                 {"name": "AMERICA", "nation": {"count": 5}},

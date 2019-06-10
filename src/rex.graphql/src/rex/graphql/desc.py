@@ -12,9 +12,9 @@
 import inspect
 import abc
 
-from rex.core import Error
+from rex.core import Error, cached
 
-from . import code_location
+from . import code_location, multidispatch
 
 
 autoloc = object()
@@ -40,16 +40,18 @@ class ObjectLike(Type):
         self.loc = code_location.here() if loc is autoloc else loc
         self.name = name
         self._fields = fields
-        self._extra_fields = {}
         self.description = description
 
+    @property
     def fields(self):
-        return {**self._fields(), **self._extra_fields}
+        if callable(self._fields):
+            seal(self)
+        return self._fields
 
     def add_field(self, name, field):
         """ Add new field."""
         assert isinstance(field, Field)
-        self._extra_fields[name] = field
+        self.fields[name] = field
 
 
 class Object(ObjectLike):
@@ -76,7 +78,7 @@ class Entity(Record):
     """
 
 
-class compute(Field):
+class Compute(Field):
     """ Compute value."""
 
     def __init__(
@@ -107,7 +109,7 @@ class compute(Field):
         self.deprecation_reason = deprecation_reason
 
 
-class query(Field):
+class Query(Field):
     """ Query values from database."""
 
     def __init__(
@@ -250,7 +252,7 @@ class NonNull(Type):
         self.type = type
 
 
-class argument(Desc):
+class Argument(Desc):
     def __init__(
         self,
         name,
@@ -394,3 +396,96 @@ def compute_from_function(**config):
         return compute(args=args.values(), f=run, type=return_type, **config)
 
     return decorate
+
+
+def connectiontype_name(entitytype):
+    return f"{entitytype.name}_connection"
+
+
+def connectiontype_uncached(entitytype, filters=None):
+    from .query import q
+
+    by_id = q.id.text() == argument("id", NonNull(scalar.ID))
+    return Record(
+        name=connectiontype_name(entitytype),
+        fields=lambda: {
+            "get": query(
+                q.entity.filter(by_id).first(),
+                type=entitytype,
+                description=f"Get {entitytype.name} by id",
+                loc=None,
+            ),
+            "all": query(
+                q.entity,
+                type=entitytype,
+                filters=filters,
+                description=f"Get all {entitytype.name} items",
+                loc=None,
+            ),
+            "paginated": query(
+                q.entity,
+                type=entitytype,
+                filters=filters,
+                paginate=True,
+                description=f"Get all {entitytype.name} items (paginated)",
+                loc=None,
+            ),
+            "count": query(
+                q.entity.count(),
+                description="Get the number of {entitytype.name} items",
+                loc=None,
+            ),
+        },
+        loc=None,
+    )
+
+
+connectiontype = cached(connectiontype_uncached)
+
+
+def connect(type, query=None, filters=None, loc=autoloc):
+    from .query import q
+
+    loc = code_location.here() if loc is autoloc else loc
+    if query is None:
+        query = q.navigate(type.name)
+    return Query(
+        query=q.define(entity=query),
+        type=connectiontype(type),
+        description="Connection to {entitytype.name}",
+        loc=loc,
+    )
+
+
+query = Query
+compute = Compute
+argument = Argument
+
+
+@multidispatch.multidispatch
+def seal(descriptor):
+    assert False, f"Do not know how to seal {descriptor!r}"
+
+
+@seal.for_type(Object, Record, Entity)
+def seal(descriptor):
+    if callable(descriptor._fields):
+        descriptor._fields = descriptor._fields()
+        for v in descriptor._fields.values():
+            seal(v)
+
+
+@seal.for_type(List, NonNull)
+def seal(descriptor):
+    seal(descriptor.type)
+
+
+@seal.for_type(Scalar, Enum)
+def seal(descriptor):
+    pass
+
+
+@seal.for_type(Query, Compute)
+def seal(descriptor):
+    if descriptor.type is not None:
+        seal(descriptor.type)

@@ -405,7 +405,7 @@ def construct(descriptor, ctx):
             next_ctx = TypeSchemaContext(
                 name=descriptor.name, parent=ctx, loc=descriptor.loc
             )
-            desc_fields = list(descriptor.fields().items()) + [
+            desc_fields = list(descriptor.fields.items()) + [
                 ("__typename", introspection.typename_field)
             ]
             for name, field in desc_fields:
@@ -453,7 +453,7 @@ def construct(descriptor, ctx):
             name=descriptor.name, parent=ctx, loc=descriptor.loc
         )
 
-        desc_fields = list(descriptor.fields().items())
+        desc_fields = list(descriptor.fields.items())
         desc_fields.append(("__typename", introspection.typename_field))
         desc_fields.append(("id", desc.query(q.id(), type=desc.scalar.ID)))
 
@@ -504,7 +504,7 @@ def construct(descriptor, ctx):
             name=descriptor.name, parent=ctx, loc=descriptor.loc
         )
 
-        desc_fields = list(descriptor.fields().items())
+        desc_fields = list(descriptor.fields.items())
         desc_fields.append(("__typename", introspection.typename_field))
 
         for name, field in desc_fields:

@@ -17,6 +17,7 @@ from .desc import (
     argument,
     query,
     compute,
+    connect,
     filter_from_function,
     compute_from_function,
 )

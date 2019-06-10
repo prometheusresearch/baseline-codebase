@@ -16,6 +16,7 @@ from .desc import (
     EnumValue,
     argument,
     param,
+    parent_param,
     query,
     compute,
     connect,

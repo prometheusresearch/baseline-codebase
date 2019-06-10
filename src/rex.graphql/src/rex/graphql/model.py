@@ -606,7 +606,7 @@ def _(descriptor, ctx):
     return type
 
 
-@construct.register(desc.compute)
+@construct.register(desc.Compute)
 def _(descriptor, ctx, name):
     assert isinstance(ctx, TypeSchemaContext)
 
@@ -621,12 +621,12 @@ def _(descriptor, ctx, name):
 
         params = {}
         for param_name, param in descriptor.params.items():
-            params[param_name] = construct(param, ctx.root)
+            params[param_name] = construct(param, ctx)
 
         return ComputedField(descriptor=descriptor, type=type, params=params)
 
 
-@construct.register(desc.query)
+@construct.register(desc.Query)
 def _(descriptor, ctx, name):
     assert isinstance(ctx, TypeSchemaContext)
 
@@ -636,7 +636,9 @@ def _(descriptor, ctx, name):
 
         params = {}
         for param_name, param in descriptor.params.items():
-            params[param_name] = construct(param, ctx.root)
+            if param.type is None:
+                raise Error("Cannot use param without type:", param.name)
+            params[param_name] = construct(param, ctx)
 
         state = RexBindingState()
 
@@ -753,8 +755,16 @@ def _(descriptor, ctx, name):
         )
 
 
-@construct.register(desc.Param)
+@construct.register(desc.Argument)
 def _(descriptor, ctx):
-    assert isinstance(ctx, RootSchemaContext)
-    type = construct(descriptor.type, ctx)
+    type = construct(descriptor.type, ctx.root)
     return descriptor.with_type(type)
+
+
+@construct.register(desc.ComputedParam)
+def _(descriptor, ctx):
+    if descriptor.type is not None:
+        type = construct(descriptor.type, ctx.root)
+        return descriptor.with_type(type)
+    else:
+        return descriptor

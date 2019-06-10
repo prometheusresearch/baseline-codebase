@@ -17,6 +17,7 @@ from rex.graphql import (
     compute,
     argument,
     param,
+    parent_param,
     schema,
     execute_exn,
     GraphQLError,
@@ -148,7 +149,7 @@ def test_compute_from_function_with_parent():
     Number = Object(name="Number", fields=lambda: {"add": add})
 
     @compute_from_function()
-    def add(parent, x: scalar.Int) -> scalar.Int:
+    def add(parent: parent_param, x: scalar.Int) -> scalar.Int:
         return parent + x
 
     @compute_from_function()

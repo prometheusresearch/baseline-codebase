@@ -453,7 +453,7 @@ def connect(type, query=None, filters=None, loc=autoloc):
     return Query(
         query=q.define(entity=query),
         type=connectiontype(type),
-        description=f"Connection to {entitytype.name}",
+        description=f"Connection to {type.name}",
         loc=loc,
     )
 

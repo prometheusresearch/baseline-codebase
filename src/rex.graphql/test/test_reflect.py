@@ -310,6 +310,66 @@ def test_reflect_by_page():
     assert res2.data["order"]["items"][:-2] == res.data["order"]["items"][2:]
 
 
+def test_reflect_related_direct():
+    reflection = reflect(include_tables={"region", "nation"})
+    schema = reflection.to_schema()
+    res = execute(
+        schema,
+        """
+        query {
+            nation {
+                egypt: get(id: "EGYPT") {
+                    region {
+                        name
+                    }
+                }
+            }
+        }
+        """,
+    )
+    assert not res.errors
+    assert res.data == {
+        "nation": {"egypt": {"region": {"name": "MIDDLE EAST"}}}
+    }
+
+
+def test_reflect_related_reverse():
+    reflection = reflect(include_tables={"region", "nation"})
+    schema = reflection.to_schema()
+    res = execute(
+        schema,
+        """
+        query {
+            region {
+                asia: get(id: "ASIA") {
+                    nation {
+                        all {
+                            name
+                        }
+                    }
+                }
+            }
+        }
+        """,
+    )
+    assert not res.errors
+    assert res.data == {
+        "region": {
+            "asia": {
+                "nation": {
+                    "all": [
+                        {"name": "CHINA"},
+                        {"name": "INDIA"},
+                        {"name": "INDONESIA"},
+                        {"name": "JAPAN"},
+                        {"name": "VIETNAM"},
+                    ]
+                }
+            }
+        }
+    }
+
+
 def test_reflect_add_field():
     reflection = reflect(include_tables={"region"})
 

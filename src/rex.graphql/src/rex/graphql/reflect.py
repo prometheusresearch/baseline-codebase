@@ -163,14 +163,23 @@ class Reflect:
                     fields[label.name] = desc.query(
                         query, type=fieldtype, loc=None
                     )
-                elif isinstance(label.arc, (TableArc, ChainArc)):
-                    table = label.target.table
+                elif isinstance(label.arc, ChainArc):
+                    table = label.arc.target.table
                     if not self.is_table_allowed(table):
                         continue
-                    fieldtype = self.types[table.name]
-                    fields[f"{label.name}"] = desc.query(
-                        query, type=fieldtype, loc=None
+                    is_connection = all(
+                        join.is_reverse and not join.is_contracting
+                        for join in label.arc.joins
                     )
+                    if is_connection:
+                        fields[label.name] = self._reflect_connection(
+                            label.arc, query
+                        )
+                    else:
+                        fieldtype = self.types[table.name]
+                        fields[label.name] = desc.query(
+                            query, type=fieldtype, loc=None
+                        )
                 elif isinstance(label.arc, InvalidArc):
                     # TODO: Print a warning
                     continue

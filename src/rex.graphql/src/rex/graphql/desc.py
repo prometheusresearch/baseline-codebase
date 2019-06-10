@@ -11,10 +11,11 @@
 
 import inspect
 import abc
+import functools
 
 from rex.core import Error, cached
 
-from . import code_location, multidispatch
+from . import code_location
 
 
 autoloc = object()
@@ -462,30 +463,35 @@ compute = Compute
 argument = Argument
 
 
-@multidispatch.multidispatch
+@functools.singledispatch
 def seal(descriptor):
     assert False, f"Do not know how to seal {descriptor!r}"
 
 
-@seal.for_type(Object, Record, Entity)
-def seal(descriptor):
+@seal.register(Object)
+@seal.register(Record)
+@seal.register(Entity)
+def _(descriptor):
     if callable(descriptor._fields):
         descriptor._fields = descriptor._fields()
         for v in descriptor._fields.values():
             seal(v)
 
 
-@seal.for_type(List, NonNull)
-def seal(descriptor):
+@seal.register(List)
+@seal.register(NonNull)
+def _(descriptor):
     seal(descriptor.type)
 
 
-@seal.for_type(Scalar, Enum)
-def seal(descriptor):
+@seal.register(Enum)
+@seal.register(Scalar)
+def _(descriptor):
     pass
 
 
-@seal.for_type(Query, Compute)
-def seal(descriptor):
+@seal.register(Compute)
+@seal.register(Query)
+def _(descriptor):
     if descriptor.type is not None:
         seal(descriptor.type)

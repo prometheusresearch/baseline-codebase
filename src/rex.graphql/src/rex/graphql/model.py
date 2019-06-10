@@ -13,6 +13,7 @@ import hashlib
 import typing
 import abc
 import cached_property
+import functools
 
 from htsql_rex_deploy import domain as domain_extra
 from htsql.core.tr.binding import (
@@ -32,7 +33,7 @@ from rex.db import get_db
 from rex.query.bind import RexBindingState
 from rex.query.query import LiteralSyntax
 
-from . import code_location, desc, introspection, multidispatch, q
+from . import code_location, desc, introspection, q
 
 
 class SchemaNode(abc.ABC):
@@ -376,20 +377,20 @@ class ComputeSchemaContext(SchemaContext):
         self.loc = loc
 
 
-@multidispatch.multidispatch
+@functools.singledispatch
 def construct(arg, ctx, *args):
     """ Construct schema node out of description."""
     assert False, f"Do not know how to construct schema of {arg!r}"
 
 
-@multidispatch.multidispatch
+@functools.singledispatch
 def check(arg, ctx, *args):
     """ Check schema node against context."""
     assert False, f"Do not know how to check {arg!r}"
 
 
-@construct.for_type(desc.Object)
-def construct(descriptor, ctx):
+@construct.register(desc.Object)
+def _(descriptor, ctx):
     with code_location.context(
         descriptor.loc,
         desc=f"While configuring object type '{descriptor.name}':",
@@ -420,8 +421,8 @@ def construct(descriptor, ctx):
         return type
 
 
-@construct.for_type(desc.Entity)
-def construct(descriptor, ctx):
+@construct.register(desc.Entity)
+def _(descriptor, ctx):
     err_ctx = lambda: code_location.context(
         descriptor.loc, desc=f"While configuring entity '{descriptor.name}':"
     )
@@ -478,8 +479,8 @@ def construct(descriptor, ctx):
     return type
 
 
-@construct.for_type(desc.Record)
-def construct(descriptor, ctx):
+@construct.register(desc.Record)
+def _(descriptor, ctx):
     err_ctx = lambda: code_location.context(
         descriptor.loc, desc=f"While configuring record '{descriptor.name}':"
     )
@@ -528,8 +529,8 @@ def construct(descriptor, ctx):
     return type
 
 
-@check.for_type(EntityType)
-def check(type, ctx: QuerySchemaContext):
+@check.register(EntityType)
+def _(type, ctx: QuerySchemaContext):
     assert isinstance(ctx, QuerySchemaContext)
     assert isinstance(ctx.parent, TypeSchemaContext)
     assert ctx.table is not None
@@ -545,8 +546,8 @@ def check(type, ctx: QuerySchemaContext):
         )
 
 
-@check.for_type(RecordType)
-def check(type, ctx: QuerySchemaContext):
+@check.register(RecordType)
+def _(type, ctx: QuerySchemaContext):
     assert isinstance(ctx, QuerySchemaContext)
     assert isinstance(ctx.parent, TypeSchemaContext)
     # We need to make sure we can construct all fields of the type in the
@@ -561,18 +562,18 @@ def check(type, ctx: QuerySchemaContext):
         assert this_field == field
 
 
-@construct.for_type(desc.List)
-def construct(descriptor, ctx):
+@construct.register(desc.List)
+def _(descriptor, ctx):
     return ListType(construct(descriptor.type, ctx))
 
 
-@construct.for_type(desc.NonNull)
-def construct(descriptor, ctx):
+@construct.register(desc.NonNull)
+def _(descriptor, ctx):
     return NonNullType(construct(descriptor.type, ctx))
 
 
-@construct.for_type(desc.Enum)
-def construct(descriptor, ctx):
+@construct.register(desc.Enum)
+def _(descriptor, ctx):
     type = ctx.root.types.get(descriptor.name)
     if type is None:
         type = EnumType(descriptor=descriptor)
@@ -585,8 +586,8 @@ def construct(descriptor, ctx):
     return type
 
 
-@construct.for_type(desc.Scalar)
-def construct(descriptor, ctx):
+@construct.register(desc.Scalar)
+def _(descriptor, ctx):
     type = ctx.root.types.get(descriptor.name)
     if type is None:
         raise Error(f"No type with name {descriptor.name} defined")
@@ -595,8 +596,8 @@ def construct(descriptor, ctx):
     return type
 
 
-@construct.for_type(desc.compute)
-def construct(descriptor, ctx, name):
+@construct.register(desc.compute)
+def _(descriptor, ctx, name):
     assert isinstance(ctx, TypeSchemaContext)
 
     with code_location.context(
@@ -615,8 +616,8 @@ def construct(descriptor, ctx, name):
         return ComputedField(descriptor=descriptor, type=type, args=args)
 
 
-@construct.for_type(desc.query)
-def construct(descriptor, ctx, name):
+@construct.register(desc.query)
+def _(descriptor, ctx, name):
     assert isinstance(ctx, TypeSchemaContext)
 
     with code_location.context(
@@ -745,8 +746,8 @@ def construct(descriptor, ctx, name):
         )
 
 
-@construct.for_type(desc.argument)
-def construct(descriptor, ctx):
+@construct.register(desc.argument)
+def _(descriptor, ctx):
     assert isinstance(ctx, RootSchemaContext)
     type = construct(descriptor.type, ctx)
     return desc.argument(

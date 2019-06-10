@@ -17,7 +17,7 @@ relation databases or just compute data on-demand.
 Usage
 =====
 
-There are three steps to start using ``rex.graphql``::
+There are three steps to start using ``rex.graphql``:
 
 1. Define types which describe your data
 2. Create schema and validate it against database

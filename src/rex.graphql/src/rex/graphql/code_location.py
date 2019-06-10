@@ -19,7 +19,12 @@ import rex.core
 __all__ = ("here", "context", "autoloc")
 
 
-autoloc = object()
+class autoloc:
+    def __repr__(self):
+        return "<current location>"
+
+
+autoloc = autoloc()
 
 
 class CodeLocation:

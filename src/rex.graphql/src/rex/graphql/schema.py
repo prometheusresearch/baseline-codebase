@@ -27,7 +27,24 @@ class Schema:
 
 
 def schema(fields, db=None, loc=desc.autoloc):
-    """ Create GraphQL schema."""
+    """ Define a GraphQL schema.
+
+    Schema is defined by supplying a set of either :func:`compute` or
+    :func:`query` fields.
+
+    Example::
+
+        sch = schema(
+            fields=lambda: {
+                'region': query(q.region, type=region),
+                'settings': compute(get_settings, type=settings)
+            }
+        )
+
+    If ``db`` argument is passed then it will be used to validate query fields
+    against the database, otherwise the default database (returned via
+    ``rex.db.get_db()`` will be used).
+    """
     if not callable(fields):
         raise Error("Argument 'fields' should be a function")
 

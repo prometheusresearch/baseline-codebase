@@ -24,15 +24,15 @@ autoloc = code_location.autoloc
 
 
 class Desc:
-    """ Base class for configuration language."""
+    pass
 
 
 class Type(Desc):
-    """ Base class for schema types."""
+    pass
 
 
 class Field(Desc):
-    """ Base class for schema fields."""
+    pass
 
 
 class ObjectLike(Type):
@@ -58,31 +58,33 @@ class ObjectLike(Type):
 
 
 class Object(ObjectLike):
-    """ Object type.
+    """ Define an object type.
 
-    Values of object types are produced by computed fields. The root type is
-    also an object type.
+    Values of an object type are produced by :func:`compute` fields. The root
+    type of a :func:`schema` is also an object type.
     """
 
 
 class Record(ObjectLike):
-    """ Record type corresponds to a database query.
+    """ Define a record type.
 
-    Values of a record type are queried from database using query fields. If the
-    result of a query is a row from a table it is more convenient to use
-    :class:Entity type instead.
+    Values of a record type are produced by :func:`query` fields.
+
+    If the result of a query is a row from a table it is more convenient to use
+    :class:`Entity` type instead.
     """
 
 
 class Entity(Record):
-    """ Entity type corresponds to a table.
+    """ Define an entity type.
 
-    Values of an entity type are queried from database using query fields.
+    Values of a record type are produced by :func:`query` fields when the
+    corresponding query results in a row of some table.
     """
 
 
 class Compute(Field):
-    """ Compute value."""
+    """ Compute"""
 
     def __init__(
         self,
@@ -331,11 +333,31 @@ def extract_params(f, mark_as_nonnull_if_no_default_value=False):
 
 
 def filter_from_function(f):
+    """ Decorator which allows to define a filter from a function.
+
+    .. note::
+        Filters defined using :func:`filter_from_function` are not being
+        typechecked against database schema and therefore it is advised not to
+        use it unless absolutely neccessary. Prefer to use filters-as-queries.
+    """
     params, _ = extract_params(f)
     return FilterOfFunction(params=params, f=f)
 
 
 def compute_from_function(**config):
+    """ Decorator which allows to define a :func:`compute` field from a
+    function.
+
+    Annotations are used to define arguments and return type. If an argument has
+    no default value then the type will be automatically marked as
+    :class:`NonNull`.
+
+    Example::
+
+        @compute_from_function
+        def add_numbers(x: scalar.Int, y: scalar.Int) -> scalar.Int:
+            return x + y
+    """
     def decorate(f):
         params, return_type = extract_params(
             f, mark_as_nonnull_if_no_default_value=True
@@ -507,11 +529,60 @@ def _(descriptor):
         seal(descriptor.type)
 
 
+#: Define a field which queries values from a database.
+#:
+#: Example::
+#:
+#:   schema(fields=lambda: {
+#:      'regionCount': query(
+#:        query=q.region.count(),
+#:      )
+#:   })
+#:
+#: In case query results in a scalar value (like the example above) rex.graphql
+#: can infer result type automatically. Oherwise you need to specify it::
+#:
+#:   region = Entity(name="region", fields=lambda: { ... })
+#:   schema(fields=lambda: {
+#:      'regionCount': query(
+#:        query=q.region,
+#:        type=region,
+#:      )
+#:   })
+#:
 query = Query
+
+#: Define a field which computes value at runtime.
+#:
+#: Example::
+#:
+#:   settings = Object(
+#:     name='Settings',
+#:     fields=lambda: {'title': compute(scalar.String)}
+#:   )
+#:
+#:   def get_settings():
+#:       return {'title': 'App'}
+#:
+#:   schema(fields=lambda: {
+#:      'settings': compute(
+#:        type=settings,
+#:        f=get_settings
+#:      )
+#:   })
+#:
+#: By default :func:`compute` computes the value as ``getattr(parent, name)``
+#: but ``f`` argument can be supplied instead.
+#:
 compute = Compute
+
+#: Define a GraphQL argument.
 argument = Argument
+
+#: Define a parameter.
 param = ComputedParam
 
+#: Parameter which points to the parent object in GraphQL schema.
 parent_param = ComputedParam(
     name="parent", type=None, compute=lambda parent, ctx: parent
 )

@@ -16,7 +16,10 @@ import contextlib
 
 import rex.core
 
-__all__ = ("here", "context")
+__all__ = ("here", "context", "autoloc")
+
+
+autoloc = object()
 
 
 class CodeLocation:

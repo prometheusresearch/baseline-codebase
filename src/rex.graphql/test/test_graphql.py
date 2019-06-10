@@ -16,6 +16,7 @@ from rex.graphql import (
     connect,
     compute,
     argument,
+    param,
     schema,
     execute_exn,
     GraphQLError,
@@ -400,7 +401,7 @@ def test_computed_field():
     sch = schema(
         fields=lambda: {
             "message": compute(
-                scalar.String, lambda parent, info, args: "Hello!"
+                scalar.String, lambda parent, info, params: "Hello!"
             )
         }
     )
@@ -430,7 +431,7 @@ def test_data_computed_field():
         fields=lambda: {
             "name": query(q.name),
             "title": compute(
-                scalar.String, lambda parent, info, args: "Hello!"
+                scalar.String, lambda parent, info, params: "Hello!"
             ),
         },
     )
@@ -439,8 +440,8 @@ def test_data_computed_field():
 
 
 def test_computed_arg_simple():
-    def get_message(parent, info, args):
-        name = args.get("name", "Mr.None")
+    def get_message(parent, info, params):
+        name = params.get("name", "Mr.None")
         return f"Hello, {name}!"
 
     sch = schema(
@@ -448,7 +449,7 @@ def test_computed_arg_simple():
             "message": compute(
                 scalar.String,
                 get_message,
-                args=[argument("name", scalar.String)],
+                params=[argument("name", scalar.String)],
             )
         }
     )
@@ -474,8 +475,8 @@ def test_computed_arg_simple():
 
 
 def test_computed_arg_nonnull():
-    def get_message(parent, info, args):
-        name = args["name"]
+    def get_message(parent, info, params):
+        name = params["name"]
         return f"Hello, {name}!"
 
     sch = schema(
@@ -483,7 +484,7 @@ def test_computed_arg_nonnull():
             "message": compute(
                 scalar.String,
                 get_message,
-                args=[argument("name", NonNull(scalar.String))],
+                params=[argument("name", NonNull(scalar.String))],
             )
         }
     )
@@ -509,8 +510,8 @@ def test_computed_arg_nonnull():
 
 
 def test_computed_arg_default():
-    def get_message(parent, info, args):
-        name = args["name"]
+    def get_message(parent, info, params):
+        name = params["name"]
         return f"Hello, {name}!"
 
     sch = schema(
@@ -518,7 +519,7 @@ def test_computed_arg_default():
             "message": compute(
                 scalar.String,
                 get_message,
-                args=[argument("name", scalar.String, "Default")],
+                params=[argument("name", scalar.String, "Default")],
             )
         }
     )
@@ -856,7 +857,7 @@ def test_scalar_json():
     sch = schema(
         fields=lambda: {
             "settings": compute(
-                scalar.JSON, f=lambda parent, info, args: {"a": "b"}
+                scalar.JSON, f=lambda parent, info, params: {"a": "b"}
             )
         }
     )
@@ -878,9 +879,9 @@ def test_scalar_date():
         fields=lambda: {
             "nextday": compute(
                 scalar.Date,
-                f=lambda parent, info, args: args["date"]
+                f=lambda parent, info, params: params["date"]
                 + datetime.timedelta(1),
-                args=[argument("date", NonNull(scalar.Date))],
+                params=[argument("date", NonNull(scalar.Date))],
             )
         }
     )
@@ -898,15 +899,15 @@ def test_scalar_date():
 def test_scalar_datetime():
     import datetime
 
-    def nextday(parent, info, args):
-        return args["date"] + datetime.timedelta(1)
+    def nextday(parent, info, params):
+        return params["date"] + datetime.timedelta(1)
 
     sch = schema(
         fields=lambda: {
             "nextday": compute(
                 scalar.Datetime,
                 f=nextday,
-                args=[argument("date", NonNull(scalar.Datetime))],
+                params=[argument("date", NonNull(scalar.Datetime))],
             )
         }
     )
@@ -938,8 +939,8 @@ def test_enum():
         fields=lambda: {
             "sameday": compute(
                 type=day,
-                f=lambda parent, info, args: args["day"],
-                args=[argument("day", NonNull(day))],
+                f=lambda parent, info, params: params["day"],
+                params=[argument("day", NonNull(day))],
             )
         }
     )
@@ -1146,7 +1147,9 @@ def test_query_on_object():
     )
     sch = schema(
         fields=lambda: {
-            "region": compute(type=region_api, f=lambda parent, info, args: {})
+            "region": compute(
+                type=region_api, f=lambda parent, info, params: {}
+            )
         }
     )
     assert (
@@ -1505,4 +1508,60 @@ def test_query_connect():
                 {"name": "MIDDLE EAST", "nation": {"count": 5}},
             ],
         }
+    }
+
+
+def test_query_param():
+    current_region = param(
+        name="current_region",
+        type=scalar.String,
+        compute=lambda parent, ctx: ctx["region"],
+    )
+    nation = Entity(name="nation", fields=lambda: {"name": query(q.name)})
+    sch = schema(
+        fields=lambda: {
+            "nation": query(
+                q.nation.filter(q.region.name == current_region), type=nation
+            )
+        }
+    )
+    data = execute(
+        sch,
+        """
+        query {
+            nation {
+                name
+            }
+        }
+        """,
+        context={"region": "ASIA"},
+    )
+    assert data == {
+        "nation": [
+            {"name": "CHINA"},
+            {"name": "INDIA"},
+            {"name": "INDONESIA"},
+            {"name": "JAPAN"},
+            {"name": "VIETNAM"},
+        ]
+    }
+    data = execute(
+        sch,
+        """
+        query {
+            nation {
+                name
+            }
+        }
+        """,
+        context={"region": "EUROPE"},
+    )
+    assert data == {
+        "nation": [
+            {"name": "FRANCE"},
+            {"name": "GERMANY"},
+            {"name": "ROMANIA"},
+            {"name": "RUSSIA"},
+            {"name": "UNITED KINGDOM"},
+        ]
     }

@@ -24,7 +24,7 @@ __Schema = Object(
         "types": compute(
             description="A List of all types supported by this server.",
             type=NonNull(List(NonNull(__Type))),
-            f=lambda schema, info, args: [
+            f=lambda schema, info, params: [
                 type
                 for type in schema.types.values()
                 if not type.name.startswith("__")
@@ -33,27 +33,27 @@ __Schema = Object(
         "queryType": compute(
             description="The type that query operations will be rooted at.",
             type=NonNull(__Type),
-            f=lambda schema, info, args: schema.type,
+            f=lambda schema, info, params: schema.type,
         ),
         "mutationType": compute(
             description="If this server supports mutation, the type that "
             "mutation operations will be rooted at.",
             type=__Type,
             # TODO: Fix this if-when we start supporting mutations.
-            f=lambda schema, info, args: None,
+            f=lambda schema, info, params: None,
         ),
         "subscriptionType": compute(
             description="If this server support subscription, the type "
             "that subscription operations will be rooted at.",
             type=__Type,
             # TODO: Fix this if-when we start supporting subscriptions.
-            f=lambda schema, info, args: None,
+            f=lambda schema, info, params: None,
         ),
         "directives": compute(
             description="A List of all directives supported by this server.",
             type=NonNull(List(NonNull(scalar.String))),
             # TODO: Fix this if-when we start supporting directives.
-            f=lambda schema, info, args: [],
+            f=lambda schema, info, params: [],
         ),
     },
 )
@@ -74,7 +74,7 @@ __Type = Object(
         "description": compute(scalar.String),
         "fields": compute(
             type=List(NonNull(__Field)),
-            args=[
+            params=[
                 argument(
                     "includeDeprecated", scalar.Boolean, default_value=False
                 )
@@ -89,7 +89,7 @@ __Type = Object(
         ),
         "enumValues": compute(
             type=List(NonNull(__EnumValue)),
-            args=[
+            params=[
                 argument(
                     "includeDeprecated", scalar.Boolean, default_value=False
                 )
@@ -174,16 +174,16 @@ __Field = Object(
             type=NonNull(
                 List(NonNull(__InputValue))  # type: ignore
             ),
-            f=lambda field, info, args: input_fields_to_list(field.args),
+            f=lambda field, info, params: input_fields_to_list(field.args),
         ),
         "type": compute(NonNull(__Type)),
         "isDeprecated": compute(
             type=NonNull(scalar.Boolean),
-            f=lambda field, info, args: bool(field.deprecation_reason),
+            f=lambda field, info, params: bool(field.deprecation_reason),
         ),
         "deprecationReason": compute(
             type=scalar.String,
-            f=lambda field, info, args: field.deprecation_reason,
+            f=lambda field, info, params: field.deprecation_reason,
         ),
     },
 )
@@ -218,11 +218,11 @@ __EnumValue = Object(
         "description": compute(scalar.String),
         "isDeprecated": compute(
             type=NonNull(scalar.Boolean),
-            f=lambda value, info, args: bool(value.deprecation_reason),
+            f=lambda value, info, params: bool(value.deprecation_reason),
         ),
         "deprecationReason": compute(
             type=scalar.String,
-            f=lambda value, info, args: value.deprecation_reason,
+            f=lambda value, info, params: value.deprecation_reason,
         ),
     },
 )
@@ -416,19 +416,19 @@ def ast_from_value(value, type=None):
 typename_field = compute(
     type=NonNull(scalar.String),
     description="The name of the current Object __Type at runtime.",
-    f=lambda source, info, args: info.parent_type.name,
+    f=lambda source, info, params: info.parent_type.name,
 )
 
 schema_field = compute(
     type=NonNull(__Schema),
     description="Access the current type schema of this server.",
-    f=lambda source, info, args: info.schema,
-    args={},
+    f=lambda source, info, params: info.schema,
+    params={},
 )
 
 type_field = compute(
     type=__Type,
     description="Request the type information of a single type.",
-    args=[argument("name", NonNull(scalar.String))],
-    f=lambda source, info, args: info.schema.get(args["name"]),
+    params=[argument("name", NonNull(scalar.String))],
+    f=lambda source, info, params: info.schema.get(params["name"]),
 )

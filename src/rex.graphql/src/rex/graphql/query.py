@@ -1,4 +1,3 @@
-# pyre-check
 """
 
     rex.graphql.query
@@ -39,13 +38,13 @@ from rex.query.bind import RexBindingState
 from rex.core import Error
 from rex.db import get_db
 
-from . import desc
+from . import param
 
 
 __all__ = ("query", "execute", "to_htsql_syntax")
 
 
-def merge_args(a, b):
+def merge_params(a, b):
     if not b:
         return a
     c = {**a}
@@ -58,11 +57,11 @@ def merge_args(a, b):
 
 class Query:
 
-    __slots__ = ("syn", "args")
+    __slots__ = ("syn", "params")
 
-    def __init__(self, syn: Optional[Syntax], args):
+    def __init__(self, syn: Optional[Syntax], params):
         self.syn = syn
-        self.args = args
+        self.params = params
 
     def __getattr__(self, name):
         return self.navigate(name)
@@ -70,181 +69,181 @@ class Query:
     def navigate(self, name):
         if self.syn is None:
             syn = ApplySyntax("navigate", [LiteralSyntax(name)])
-            return Query(syn, self.args)
+            return Query(syn, self.params)
         else:
             syn = ApplySyntax(
                 ".", [self.syn, ApplySyntax("navigate", [LiteralSyntax(name)])]
             )
-            return Query(syn, self.args)
+            return Query(syn, self.params)
 
     def filter(self, q):
         q = lift(q)
         syn = ApplySyntax("filter", [self.syn, q.syn])
-        args = merge_args(self.args, q.args)
-        return Query(syn, args)
+        params = merge_params(self.params, q.params)
+        return Query(syn, params)
 
     def group(self, **by):
         syns = [self.syn]
-        args = self.args
+        params = self.params
         for k, v in by.items():
             v = lift(v)
-            args = merge_args(args, v.args)
+            params = merge_params(params, v.params)
             syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
         syn = ApplySyntax("group", syns)
-        return Query(syn, args)
+        return Query(syn, params)
 
     def define(self, **what):
         base = self.syn if self.syn is not None else ApplySyntax("here", [])
         syns = [base]
-        args = self.args
+        params = self.params
         for k, v in what.items():
             v = lift(v)
-            args = merge_args(args, v.args)
+            params = merge_params(params, v.params)
             syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
         syn = ApplySyntax("define", syns)
-        return Query(syn, args)
+        return Query(syn, params)
 
     def let(self, name, value):
         base = self.syn if self.syn is not None else ApplySyntax("here", [])
         value = lift(value)
-        args = merge_args(self.args, v.args)
+        params = merge_params(self.params, v.params)
         syn = ApplySyntax("let", [LiteralSyntax(name), value.syn])
-        return Query(syn, args)
+        return Query(syn, params)
 
     def select(self, **what):
         syns = [self.syn]
-        args = self.args
+        params = self.params
         for k, v in what.items():
             v = lift(v)
-            args = merge_args(args, v.args)
+            params = merge_params(params, v.params)
             syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
         syn = ApplySyntax("select", syns)
-        return Query(syn, args)
+        return Query(syn, params)
 
     def __add__(self, other):
         other = lift(other)
         syn = ApplySyntax("+", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __radd__(self, other):
         other = lift(other)
         syn = ApplySyntax("+", [other.syn, self.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __sub__(self, other):
         other = lift(other)
         syn = ApplySyntax("-", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __rsub__(self, other):
         other = lift(other)
         syn = ApplySyntax("-", [other.syn, self.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __mul__(self, other):
         other = lift(other)
         syn = ApplySyntax("*", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __rmul__(self, other):
         other = lift(other)
         syn = ApplySyntax("*", [other.syn, self.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __truediv__(self, other):
         other = lift(other)
         syn = ApplySyntax("/", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __rtruediv__(self, other):
         other = lift(other)
         syn = ApplySyntax("/", [other.syn, self.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __gt__(self, other):
         other = lift(other)
         syn = ApplySyntax(">", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __ge__(self, other):
         other = lift(other)
         syn = ApplySyntax(">=", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __lt__(self, other):
         other = lift(other)
         syn = ApplySyntax("<", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __le__(self, other):
         other = lift(other)
         syn = ApplySyntax("<=", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __eq__(self, other):
         syns = [self.syn]
         if not isinstance(other, str) and isinstance(other, Iterable):
-            args = self.args
+            params = self.params
             for o in other:
                 o = lift(o)
                 syns.append(o.syn)
-                args = merge_args(args, o.args)
+                params = merge_params(params, o.params)
         else:
             other = lift(other)
             syns.append(other.syn)
-            args = merge_args(self.args, other.args)
+            params = merge_params(self.params, other.params)
         syn = ApplySyntax("=", syns)
-        return Query(syn, args)
+        return Query(syn, params)
 
     def __ne__(self, other):
         syns = [self.syn]
         if not isinstance(other, str) and isinstance(other, Iterable):
-            args = self.args
+            params = self.params
             for o in other:
                 o = lift(o)
                 syns.append(o.syn)
-                args = merge_args(args.args, o.args)
+                params = merge_params(params.params, o.params)
         else:
             other = lift(other)
             syns.append(other.syn)
-            args = merge_args(self.args, other.args)
+            params = merge_params(self.params, other.params)
         syn = ApplySyntax("!=", syns)
-        return Query(syn, args)
+        return Query(syn, params)
 
     def __and__(self, other):
         other = lift(other)
         syn = ApplySyntax("&", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __or__(self, other):
         other = lift(other)
         syn = ApplySyntax("|", [self.syn, other.syn])
-        args = merge_args(self.args, other.args)
-        return Query(syn, args)
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
 
     def __invert__(self):
         syn = ApplySyntax("!", [self.syn])
-        return Query(syn, self.args)
+        return Query(syn, self.params)
 
     def take(self, limit, offset=None):
-        args = [self.syn, LiteralSyntax(limit)]
+        syns = [self.syn, LiteralSyntax(limit)]
         if offset is not None:
-            args.append(LiteralSyntax(offset))
-        syn = ApplySyntax("take", args)
-        return Query(syn, self.args)
+            syns.append(LiteralSyntax(offset))
+        syn = ApplySyntax("take", syns)
+        return Query(syn, self.params)
 
     def __str__(self):
         return str(self.syn)
@@ -271,18 +270,18 @@ class Query:
             else:
                 raise Error("not a function")
         syns = []
-        args = self.args
+        params = self.params
         for o in others:
             syns.append(o.syn)
-            args = merge_args(args, o.args)
+            params = merge_params(params, o.params)
         syn = ApplySyntax(name, syns)
-        return Query(syn, args)
+        return Query(syn, params)
 
 
 def lift(v):
-    if type(v) is Query:
+    if isinstance(v, Query):
         return v
-    elif type(v) is desc.argument:
+    elif isinstance(v, param.Param):
         syn = ApplySyntax("var", [LiteralSyntax(v.name)])
         return Query(syn, {v.name: v})
     elif v is None:

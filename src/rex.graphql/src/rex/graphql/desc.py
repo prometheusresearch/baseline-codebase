@@ -16,9 +16,11 @@ import functools
 from rex.core import Error, cached
 
 from . import code_location
+from .param import Param
+from .query import lift, Query as QueryCombinator, q
 
 
-autoloc = object()
+autoloc = code_location.autoloc
 
 
 class Desc:
@@ -86,26 +88,23 @@ class Compute(Field):
         self,
         type,
         f=None,
-        args=None,
+        params=None,
         description=None,
         deprecation_reason=None,
         loc=autoloc,
     ):
         if f is None:
-            f = lambda parent, info, args: getattr(
+            f = lambda parent, info, params: getattr(
                 parent, info.field_name, None
             )
 
-        args_by_name = {}
-        if args is None:
-            args = []
-        for arg in args:
-            args_by_name[arg.name] = arg
+        if params is None:
+            params = []
 
         self.loc = code_location.here() if loc is autoloc else loc
         self.type = type
         self.resolver = f
-        self.args = args_by_name
+        self.params = {param.name: param for param in params}
         self.description = description
         self.deprecation_reason = deprecation_reason
 
@@ -123,24 +122,26 @@ class Query(Field):
         paginate=False,
         loc=autoloc,
     ):
-        from .query import lift, Query
 
-        # init args first so we can use self._collect_arg further
-        self.args = {}
+        # init params first so we can use self._add_param further
+        self.params = {}
 
         query = lift(query)
-        if query.args:
-            for arg in query.args.values():
+        if query.params:
+            for param in query.params.values():
                 # As query argument value needs to be always available
                 # (otherwise we can't construct the query) we mark it as
                 # non-null in case it doesn't have default value specified.
-                if not isinstance(arg.type, NonNull):
-                    if arg.default_value is None:
-                        arg = arg.with_type(NonNull(arg.type))
-                self._collect_arg(arg)
+                if (
+                    isinstance(param, Argument)
+                    and not isinstance(param.type, NonNull)
+                    and param.default_value is None
+                ):
+                    param = param.with_type(NonNull(param.type))
+                self._add_param(param)
 
         if paginate:
-            self._collect_arg(
+            self._add_param(
                 argument(
                     name="offset",
                     type=scalar.Int,
@@ -148,7 +149,7 @@ class Query(Field):
                     description="Fetch skipping this number of items",
                 )
             )
-            self._collect_arg(
+            self._add_param(
                 argument(
                     name="limit",
                     type=scalar.Int,
@@ -169,28 +170,27 @@ class Query(Field):
         self.deprecation_reason = deprecation_reason
         self.paginate = paginate
 
-    def _collect_arg(self, arg):
-        assert isinstance(arg, argument)
-        if arg.name in self.args:
-            if self.args[arg.name] != arg:
+    def _add_param(self, param):
+        assert isinstance(param, Param)
+        if param.name in self.params:
+            if self.params[param.name] != param:
                 # TODO: more info here
-                raise Error("Inconsistent argument configuration:", arg.name)
+                raise Error("Inconsistent argument configuration:", param.name)
         else:
-            self.args[arg.name] = arg
+            self.params[param.name] = param
 
     def add_filter(self, filter):
-        from .query import Query
 
         if not isinstance(filter, Filter):
-            if isinstance(filter, Query):
+            if isinstance(filter, QueryCombinator):
                 filter = FilterOfQuery(query=filter)
             elif callable(filter):
                 filter = filter_from_function(filter)
             else:
                 raise Error("Invalid filter:", filter)
 
-        for arg in filter.args.values():
-            self._collect_arg(arg)
+        for param in filter.params.values():
+            self._add_param(param)
 
         self.filters.append(filter)
 
@@ -253,47 +253,9 @@ class NonNull(Type):
         self.type = type
 
 
-class Argument(Desc):
-    def __init__(
-        self,
-        name,
-        type,
-        default_value=None,
-        description=None,
-        out_name=None,
-        loc=autoloc,
-    ):
-        self.loc = code_location.here() if loc is autoloc else loc
-        self.name = name
-        self.type = type
-        self.default_value = default_value
-        self.description = description
-        self.out_name = out_name
-
-    def with_type(self, type):
-        return self.__class__(
-            name=self.name,
-            type=type,
-            default_value=self.default_value,
-            description=self.description,
-            out_name=self.out_name,
-            loc=self.loc,
-        )
-
-    def __eq__(self, o):
-        assert isinstance(o, argument), f"Expected argument but got: {o!r}"
-        return (
-            self.type == o.type
-            and self.name == o.name
-            and self.default_value == o.default_value
-            and self.description == o.description
-            and self.out_name == o.out_name
-        )
-
-
 class Filter(abc.ABC):
     @abc.abstractproperty
-    def args(self):
+    def params(self):
         """ Arguments which filter accepts."""
 
     @abc.abstractmethod
@@ -302,18 +264,18 @@ class Filter(abc.ABC):
 
 
 class FilterOfFunction(Filter):
-    def __init__(self, args, f):
-        self._args = args
+    def __init__(self, params, f):
+        self._params = params
         self.f = f
 
     @property
-    def args(self):
-        return self._args
+    def params(self):
+        return self._params
 
     def apply(self, query, values):
         kwargs = {}
-        for name in self.args:
-            # skip filter if some args are not defined
+        for name in self.params:
+            # skip filter if some params are not defined
             if not name in values:
                 return query
             kwargs[name] = values[name]
@@ -327,28 +289,28 @@ class FilterOfQuery(Filter):
         self.query = query
 
     @property
-    def args(self):
-        return self.query.args
+    def params(self):
+        return self.query.params
 
     def apply(self, query, values):
-        for name in self.args:
-            # skip filter if some args are not defined
+        for name in self.params:
+            # skip filter if some params are not defined
             if not name in values:
                 return query
         return query.filter(self.query)
 
 
-def extract_args(f, mark_as_nonnull_if_no_default_value=False):
+def extract_params(f, mark_as_nonnull_if_no_default_value=False):
     sig = inspect.signature(f)
-    args = {}
+    params = {}
     require_self_arg = False
     for param in sig.parameters.values():
         name = param.name
         if name == "self":
             require_self_arg = True
             continue
-        if isinstance(param.annotation, argument):
-            args[name] = param.annotation
+        if isinstance(param.annotation, Param):
+            params[name] = param.annotation
         else:
             if not isinstance(param.annotation, Type):
                 raise Error(
@@ -361,7 +323,7 @@ def extract_args(f, mark_as_nonnull_if_no_default_value=False):
             else:
                 if mark_as_nonnull_if_no_default_value:
                     type = NonNull(type)
-            args[name] = argument(
+            params[name] = argument(
                 name=name, type=type, default_value=default_value
             )
 
@@ -369,17 +331,17 @@ def extract_args(f, mark_as_nonnull_if_no_default_value=False):
     if sig.return_annotation is not inspect._empty:
         return_type = sig.return_annotation
 
-    return args, require_self_arg, return_type
+    return params, require_self_arg, return_type
 
 
 def filter_from_function(f):
-    args, _, _ = extract_args(f)
-    return FilterOfFunction(args=args, f=f)
+    params, _, _ = extract_params(f)
+    return FilterOfFunction(params=params, f=f)
 
 
 def compute_from_function(**config):
     def decorate(f):
-        args, require_self_arg, return_type = extract_args(
+        params, require_self_arg, return_type = extract_params(
             f, mark_as_nonnull_if_no_default_value=True
         )
 
@@ -388,13 +350,15 @@ def compute_from_function(**config):
 
         def run(parent, info, values):
             kwargs = {}
-            for name in args:
+            for name in params:
                 kwargs[name] = values[name]
             if require_self_arg:
                 kwargs["self"] = parent
             return f(**kwargs)
 
-        return compute(args=args.values(), f=run, type=return_type, **config)
+        return compute(
+            params=params.values(), f=run, type=return_type, **config
+        )
 
     return decorate
 
@@ -404,7 +368,6 @@ def connectiontype_name(entitytype):
 
 
 def connectiontype_uncached(entitytype, filters=None):
-    from .query import q
 
     by_id = q.id.text() == argument("id", NonNull(scalar.ID))
     return Record(
@@ -445,7 +408,6 @@ connectiontype = cached(connectiontype_uncached)
 
 
 def connect(type, query=None, filters=None, loc=autoloc):
-    from .query import q
 
     loc = code_location.here() if loc is autoloc else loc
     if query is None:
@@ -458,9 +420,63 @@ def connect(type, query=None, filters=None, loc=autoloc):
     )
 
 
-query = Query
-compute = Compute
-argument = Argument
+class Argument(Param):
+    """ Param passed an GraphQL argument."""
+
+    def __init__(
+        self,
+        name,
+        type,
+        default_value=None,
+        description=None,
+        out_name=None,
+        loc=autoloc,
+    ):
+        self.loc = code_location.here() if loc is autoloc else loc
+        self.name = name
+        self.type = type
+        self.default_value = default_value
+        self.description = description
+        self.out_name = out_name
+
+    def with_type(self, type):
+        return self.__class__(
+            name=self.name,
+            type=type,
+            default_value=self.default_value,
+            description=self.description,
+            out_name=self.out_name,
+            loc=self.loc,
+        )
+
+    def __eq__(self, o):
+        return (
+            self.__class__ == o.__class__
+            and self.name == o.name
+            and self.type == o.type
+            and self.default_value == o.default_value
+            and self.out_name == o.out_name
+        )
+
+
+class ComputedParam(Param):
+    """ Param computed at runtime."""
+
+    def __init__(self, name, type, compute):
+        self.name = name
+        self.type = type
+        self.compute = compute
+
+    def with_type(self, type):
+        return self.__class__(name=self.name, type=type, compute=self.compute)
+
+    def __eq__(self, o):
+        return (
+            self.__class__ == o.__class__
+            and self.name == o.name
+            and self.type == o.type
+            and self.compute == o.compute
+        )
 
 
 @functools.singledispatch
@@ -495,3 +511,9 @@ def _(descriptor):
 def _(descriptor):
     if descriptor.type is not None:
         seal(descriptor.type)
+
+
+query = Query
+compute = Compute
+argument = Argument
+param = ComputedParam

@@ -17,6 +17,7 @@ import json
 import typing
 import collections
 import traceback
+import typing as t
 
 from htsql.core.tr.bind import BindingState, Select
 from htsql.core.tr.translate import translate
@@ -33,8 +34,7 @@ from rex.query.query import ApplySyntax, LiteralSyntax
 from rex.db import get_db
 from rex.query.bind import RexBindingState
 from .schema import Schema
-from . import model
-from . import introspection
+from . import model, desc, introspection
 
 
 logger = get_logger("rex.graphql.execute")
@@ -180,18 +180,23 @@ class ExecutionContext:
         self.variable_values = variable_values
         self.errors = []
         self.context_value = context_value
-        self.argument_values_cache = {}
+        self._arguments_cache = {}
         self._subfields_cache = {}
 
-    def get_argument_values(self, field_def, field_node):
-        # type: (GraphQLField, Field) -> Dict[str, Any]
-        k = field_def, field_node
-        if k not in self.argument_values_cache:
-            self.argument_values_cache[k] = get_argument_values(
-                field_def.args, field_node.arguments, self.variable_values
+    def get_param_values(
+        self, parent, field: model.Field, field_node: language.ast.Field
+    ):
+        k = field, field_node
+        if k not in self._arguments_cache:
+            self._arguments_cache[k] = get_param_values(
+                self,
+                parent,
+                field.params,
+                field_node.arguments,
+                self.variable_values,
             )
 
-        return self.argument_values_cache[k]
+        return self._arguments_cache[k]
 
     def raise_error(self, msg, exc_info=None):
         if exc_info is not None:
@@ -278,69 +283,75 @@ def collect_fields(
     return fields
 
 
-def get_argument_values(
-    arg_defs,  # type: Union[Dict[str, GraphQLArgument], Dict]
-    arg_nodes,  # type: Optional[List[Argument]]
-    variables=None,  # type: Optional[Dict[str, Union[List, Dict, int, float, bool, str, None]]]
-):
-    # type: (...) -> Dict[str, Any]
-    """Prepares an object map of argument values given a list of argument
-    definitions and list of argument AST nodes."""
-    if not arg_defs:
+def get_param_values(
+    ctx: ExecutionContext,
+    parent: t.Any,
+    params: t.Dict[str, desc.Param],
+    arg_nodes: t.List[language.ast.Argument],
+    variables: t.Optional[t.Dict[str, t.Any]] = None,
+) -> t.Dict[str, t.Any]:
+    if not params:
         return {}
 
-    if arg_nodes:
-        arg_node_map = {
-            arg.name.value: arg for arg in arg_nodes
-        }  # type: Dict[str, Argument]
-    else:
-        arg_node_map = {}
+    if not arg_nodes:
+        arg_node = []
 
+    arg_node_map = {arg.name.value: arg for arg in arg_nodes}
     result = {}
-    for name, arg_def in arg_defs.items():
-        arg_type = arg_def.type
-        arg_node = arg_node_map.get(name)
-        if name not in arg_node_map:
-            if arg_def.default_value is not None:
-                result[arg_def.out_name or name] = arg_def.default_value
-                continue
-            elif isinstance(arg_type, model.NonNullType):
-                raise error.GraphQLError(
-                    f'Argument "{name}" of required type {arg_type}"'
-                    f" was not provided.",
-                    nodes=arg_nodes,
-                )
-        elif isinstance(arg_node.value, language.ast.Variable):  # type: ignore
-            variable_name = arg_node.value.name.value  # type: ignore
-            if variables and variable_name in variables:
-                result[arg_def.out_name or name] = variables[variable_name]
-            elif arg_def.default_value is not None:
-                result[arg_def.out_name or name] = arg_def.default_value
-            elif isinstance(arg_type, model.NonNullType):
-                raise error.GraphQLError(
-                    f'Argument "{name}" of required type {arg_type}" provided'
-                    f' the variable "${variable_name}" which was not provided',
-                    nodes=arg_nodes,
-                )
-            continue
 
-        else:
-            value = value_from_node(
-                arg_node.value, arg_type, variables
-            )  # type: ignore
-            if value is None:
-                if arg_def.default_value is not None:
-                    value = arg_def.default_value
-                    result[arg_def.out_name or name] = value
+    for name, param in params.items():
+        if isinstance(param, desc.Argument):
+            arg_type = param.type
+            arg_name = param.out_name or name
+            arg_node = arg_node_map.get(name)
+            if name not in arg_node_map:
+                if param.default_value is not None:
+                    result[arg_name] = param.default_value
+                    continue
+                elif isinstance(arg_type, model.NonNullType):
+                    raise error.GraphQLError(
+                        f'Argument "{name}" of required type {arg_type}"'
+                        f" was not provided.",
+                        nodes=arg_nodes,
+                    )
+            elif isinstance(arg_node.value, language.ast.Variable):
+                variable_name = arg_node.value.name.value  # type: ignore
+                if variables and variable_name in variables:
+                    result[arg_name] = variables[variable_name]
+                elif param.default_value is not None:
+                    result[arg_name] = param.default_value
+                elif isinstance(arg_type, model.NonNullType):
+                    raise error.GraphQLError(
+                        f'Argument "{name}" of required type {arg_type}" provided'
+                        f' the variable "${variable_name}" which was not provided',
+                        nodes=arg_nodes,
+                    )
+                continue
+
             else:
-                # We use out_name as the output name for the
-                # dict if exists
-                result[arg_def.out_name or name] = value
+                value = value_from_node(
+                    arg_node.value, arg_type, variables
+                )  # type: ignore
+                if value is None:
+                    if param.default_value is not None:
+                        value = param.default_value
+                        result[arg_name] = value
+                else:
+                    result[arg_name] = value
+        elif isinstance(param, desc.ComputedParam):
+            try:
+                result[param.name] = param.compute(parent, ctx.context_value)
+            except Exception as err:
+                get_sentry().captureException()
+                ctx.raise_error(
+                    msg=f"Error while computing param {param.name}",
+                    exc_info=sys.exc_info(),
+                )
 
     # Check for extra args
     extra_args = []
     for name in arg_node_map:
-        if not name in arg_defs:
+        if not isinstance(params.get(name), desc.Argument):
             extra_args.append(name)
     if extra_args:
         names = ", ".join(f'"{name}"' for name in extra_args)
@@ -841,10 +852,10 @@ def resolve_field(
     if isinstance(field_def, model.ComputedField):
         # Build a dict of arguments from the field.arguments AST, using the
         # variables scope to fulfill any variable references.
-        args = ctx.get_argument_values(field_def, field_node)
+        params = ctx.get_param_values(parent, field_def, field_node)
         resolve_fn = field_def.resolver
         try:
-            result = resolve_fn(parent, info, args)
+            result = resolve_fn(parent, info, params)
         except Exception as err:
             get_sentry().captureException()
             ctx.raise_error(
@@ -852,22 +863,22 @@ def resolve_field(
                 exc_info=sys.exc_info(),
             )
     elif isinstance(field_def, model.QueryField):
-        result = execute_query_field(ctx, field_def, field_nodes)
+        result = execute_query_field(ctx, parent, field_def, field_nodes)
     else:
         assert False, f"unknown field type"
 
     return result, info, return_type
 
 
-def execute_query_field(ctx, field: model.QueryField, field_nodes):
+def execute_query_field(ctx, parent, field: model.QueryField, field_nodes):
     state = RexBindingState()
-    binding = bind_query_field(state, ctx, field, field_nodes)
+    binding = bind_query_field(state, ctx, parent, field, field_nodes)
     pipe = translate(binding)
     product = pipe()(None)
     return product.data
 
 
-def bind_query_field(state, ctx, field: model.QueryField, field_nodes):
+def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
     def finalize(b):
         if field.plural:
             syn = syntax.CollectSyntax(b.syntax)
@@ -877,31 +888,31 @@ def bind_query_field(state, ctx, field: model.QueryField, field_nodes):
         return b
 
     field_node = field_nodes[0]
-    args = ctx.get_argument_values(field, field_node)
+    params = ctx.get_param_values(parent, field, field_node)
 
     # Bind GraphQL arguments
     vars = {}
-    for name, arg in field.args.items():
-        if name not in args:
+    for name, arg in field.params.items():
+        if name not in params:
             # It's ok since we validated arguments above
             continue
         arg_type = model.find_named_type(arg.type)
         assert arg_type is not None
         assert arg_type.bind_value is not None, f"{arg_type!r}"
-        vars[name] = arg_type.bind_value(state, args[name])
+        vars[name] = arg_type.bind_value(state, params[name])
 
     # Initial query
     query = field.descriptor.query
 
     # Apply pagination
     if field.descriptor.paginate:
-        assert "limit" in args, "'limit' is not configured"
-        assert "offset" in args, "'offset' is not configured"
-        query = query.take(args["limit"], args["offset"])
+        assert "limit" in params, "'limit' is not configured"
+        assert "offset" in params, "'offset' is not configured"
+        query = query.take(params["limit"], params["offset"])
 
     # Apply filters
     for filter in field.descriptor.filters:
-        query = filter.apply(query, args)
+        query = filter.apply(query, params)
 
     with state.with_vars(vars):
         output = state(query.syn)
@@ -928,7 +939,9 @@ def bind_query_field(state, ctx, field: model.QueryField, field_nodes):
             # to process later.
             continue
 
-        element = bind_query_field(state, ctx, subfield, subfield_nodes)
+        element = bind_query_field(
+            state, ctx, parent, subfield, subfield_nodes
+        )
         element = binding.AliasBinding(element, syntax.IdentifierSyntax(name))
         elements.append(element)
     state.pop_scope()
@@ -1018,14 +1031,14 @@ def value_from_node(value_node, type, variables=None):
     return type.parse_literal(value_node)
 
 
-def execute_exn(schema, query: str, variables=None, db=None):
+def execute_exn(schema, query: str, variables=None, context=None, db=None):
     document_node = language.parser.parse(query)
 
     ctx = ExecutionContext(
         schema=schema,
         document_node=document_node,
         root_value=None,
-        context_value=None,
+        context_value=context or {},
         variable_values=variables or {},
         operation_name=None,
     )
@@ -1061,10 +1074,14 @@ def execute_exn(schema, query: str, variables=None, db=None):
     return data
 
 
-def execute(schema: Schema, query: str, variables=None, db=None):
+def execute(schema: Schema, query: str, variables=None, context=None, db=None):
     try:
         data = execute_exn(
-            schema=schema, query=query, variables=variables, db=db
+            schema=schema,
+            query=query,
+            variables=variables,
+            context=None,
+            db=db,
         )
         return Result(data=data)
     except error.GraphQLError as err:

@@ -82,7 +82,7 @@ class EqFilter(desc.Filter):
         self.query = query
 
     @property
-    def args(self):
+    def params(self):
         return {self.arg.name: self.arg}
 
     def apply(self, query, values):

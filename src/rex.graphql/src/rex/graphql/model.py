@@ -245,14 +245,24 @@ class DatabaseEnumType(ScalarType):
 class Field(SchemaNode):
     """ Base class for fields."""
 
+    params = NotImplemented
+
+    @cached_property.cached_property
+    def args(self):
+        return {
+            name: param
+            for name, param in self.params.items()
+            if isinstance(param, desc.Argument)
+        }
+
 
 class ComputedField(Field):
     """ Fields computed with resolver."""
 
-    def __init__(self, descriptor, type, args):
+    def __init__(self, descriptor, type, params):
         self.descriptor = descriptor
         self.type = type
-        self.args = args
+        self.params = params
 
     resolver = property(lambda self: self.descriptor.resolver)
     description = property(lambda self: self.descriptor.description)
@@ -270,12 +280,12 @@ class ComputedField(Field):
 
 
 class QueryField(Field):
-    def __init__(self, descriptor, type, plural, optional, args):
+    def __init__(self, descriptor, type, plural, optional, params):
         self.descriptor = descriptor
         self.plural = plural
         self.optional = optional
         self.type = type
-        self.args = args
+        self.params = params
 
     loc = property(lambda self: self.descriptor.loc)
     description = property(lambda self: self.descriptor.description)
@@ -609,11 +619,11 @@ def _(descriptor, ctx, name):
         if named_type.name not in ctx.root.types:
             ctx.root.types[named_type.name] = named_type
 
-        args = {}
-        for arg_name, arg in descriptor.args.items():
-            args[arg_name] = construct(arg, ctx.root)
+        params = {}
+        for param_name, param in descriptor.params.items():
+            params[param_name] = construct(param, ctx.root)
 
-        return ComputedField(descriptor=descriptor, type=type, args=args)
+        return ComputedField(descriptor=descriptor, type=type, params=params)
 
 
 @construct.register(desc.query)
@@ -624,21 +634,21 @@ def _(descriptor, ctx, name):
         descriptor.loc, desc="While configuring query:"
     ):
 
-        args = {}
-        for arg_name, arg in descriptor.args.items():
-            args[arg_name] = construct(arg, ctx.root)
+        params = {}
+        for param_name, param in descriptor.params.items():
+            params[param_name] = construct(param, ctx.root)
 
         state = RexBindingState()
 
         vars = {}
-        for name, arg in args.items():
-            if not is_query_input_type(arg.type):
+        for param_name, param in params.items():
+            if not is_query_input_type(param.type):
                 raise Error(
-                    f"Unsupported query argument type `{name} : {arg.type}`:",
-                    arg.loc,
+                    f"Unsupported query argument type `{param_name} : {param.type}`:",
+                    param.loc,
                 )
-            vars[name] = state.bind_cast(
-                arg.type.domain, [LiteralSyntax(None)]
+            vars[param_name] = state.bind_cast(
+                param.type.domain, [LiteralSyntax(None)]
             )
 
         # Bring the context into binding state
@@ -680,10 +690,7 @@ def _(descriptor, ctx, name):
                 raise Error(msg, "query(..., type=TYPE)")
 
             ctx = QuerySchemaContext(
-                parent=ctx,
-                output=output,
-                table=None,
-                loc=descriptor.loc,
+                parent=ctx, output=output, table=None, loc=descriptor.loc
             )
             type = construct(descriptor.type, ctx)
 
@@ -742,19 +749,12 @@ def _(descriptor, ctx, name):
             optional=output.optional,
             plural=output.plural,
             type=type,
-            args=args,
+            params=params,
         )
 
 
-@construct.register(desc.argument)
+@construct.register(desc.Param)
 def _(descriptor, ctx):
     assert isinstance(ctx, RootSchemaContext)
     type = construct(descriptor.type, ctx)
-    return desc.argument(
-        name=descriptor.name,
-        type=type,
-        default_value=descriptor.default_value,
-        description=descriptor.description,
-        out_name=descriptor.out_name,
-        loc=descriptor.loc,
-    )
+    return descriptor.with_type(type)

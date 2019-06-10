@@ -433,7 +433,7 @@ def connectiontype_uncached(entitytype, filters=None):
             ),
             "count": query(
                 q.entity.count(),
-                description="Get the number of {entitytype.name} items",
+                description=f"Get the number of {entitytype.name} items",
                 loc=None,
             ),
         },
@@ -453,7 +453,7 @@ def connect(type, query=None, filters=None, loc=autoloc):
     return Query(
         query=q.define(entity=query),
         type=connectiontype(type),
-        description="Connection to {entitytype.name}",
+        description=f"Connection to {entitytype.name}",
         loc=loc,
     )
 

@@ -340,13 +340,21 @@ def get_param_values(
                     result[arg_name] = value
         elif isinstance(param, desc.ComputedParam):
             try:
-                result[param.name] = param.compute(parent, ctx.context_value)
+                param_value = param.compute(parent, ctx.context_value)
             except Exception as err:
                 get_sentry().captureException()
                 ctx.raise_error(
                     msg=f"Error while computing param {param.name}",
                     exc_info=sys.exc_info(),
                 )
+            if param.type is not None:
+                errors = is_valid_value(param_value, param.type)
+                if errors:
+                    message = "\n".join(errors)
+                    raise error.GraphQLError(
+                        f'Param "{param.name}" got invalid value:\n{message}'
+                    )
+            result[param.name] = param_value
 
     # Check for extra args
     extra_args = []
@@ -538,8 +546,11 @@ def is_valid_value(value, type):
 
     # Scalar/Enum input checks to ensure the type can parse the value to
     # a non-null value.
-    parse_result = type.parse_value(value)
-    if parse_result is None:
+    try:
+        parse_result = type.parse_value(value)
+        if parse_result is None:
+            return [f'Expected type "{type}", found {json.dumps(value)}.']
+    except ValueError:
         return [f'Expected type "{type}", found {json.dumps(value)}.']
 
     return []

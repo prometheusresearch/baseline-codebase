@@ -1566,3 +1566,30 @@ def test_query_param():
             {"name": "UNITED KINGDOM"},
         ]
     }
+
+
+def test_err_query_param_invalid_type():
+    num_nations = param(
+        name="current_region",
+        type=scalar.Int,
+        compute=lambda parent, ctx: "oops",
+    )
+    region = Entity(name="region", fields=lambda: {"name": query(q.name)})
+    sch = schema(
+        fields=lambda: {
+            "region": query(
+                q.region.filter(q.nation.count() == num_nations), type=region
+            )
+        }
+    )
+    with pytest.raises(GraphQLError):
+        execute(
+            sch,
+            """
+            query {
+                region {
+                    name
+                }
+            }
+            """,
+        )

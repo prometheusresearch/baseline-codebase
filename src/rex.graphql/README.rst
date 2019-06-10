@@ -323,40 +323,50 @@ For each database table reflection provides query field which queries a single r
 
    >>> res = execute(sch, """
    ...   query {
-   ...     region(id: "AFRICA") {
-   ...       name
+   ...     region {
+   ...       africa: get(id: "AFRICA") {
+   ...         name
+   ...       }
    ...     }
    ...   }
    ... """)
    >>> res.data
-   OrderedDict([('region', OrderedDict([('name', 'AFRICA')]))])
+   OrderedDict([('region', OrderedDict([('africa', OrderedDict([('name', 'AFRICA')]))]))])
 
 To access all records from the ``region`` table there's ``region__all`` query
 field::
 
    >>> res = execute(sch, """
    ...   query {
-   ...     region__all {
-   ...       name
+   ...     region {
+   ...       all {
+   ...         name
+   ...       }
    ...     }
    ...   }
    ... """)
-   >>> res.data # doctest: +ELLIPSIS
-   OrderedDict([('region__all', [OrderedDict([('name', 'AFRICA')]), ...])])
+   >>> res.data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+   OrderedDict([('region',
+                 OrderedDict([('all',
+                               [OrderedDict([('name', 'AFRICA')]), ...])]))])
 
 We can also paginate through the table ``region`` using ``region__paginated``
 query field::
 
    >>> res = execute(sch, """
    ...   query {
-   ...     region__paginated(limit: 2, offset: 1) {
-   ...       name
+   ...     region {
+   ...       paginated(limit: 2, offset: 1) {
+   ...         name
+   ...       }
    ...     }
    ...   }
    ... """)
-   >>> res.data # doctest: +ELLIPSIS
-   OrderedDict([('region__paginated', [OrderedDict([('name', 'AMERICA')]), ...])])
-   >>> len(res.data['region__paginated'])
+   >>> res.data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+   OrderedDict([('region',
+                 OrderedDict([('paginated',
+                               [OrderedDict([('name', 'AMERICA')]), ...])]))])
+   >>> len(res.data['region']['paginated'])
    2
 
 ::

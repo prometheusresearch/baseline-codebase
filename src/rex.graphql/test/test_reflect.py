@@ -35,31 +35,37 @@ def test_reflect_simple():
         schema,
         """
         query {
-            region(id: "AMERICA") {
-                name
+            region {
+                america: get(id: "AMERICA") {
+                    name
+                }
             }
         }
         """,
     )
-    assert norm(res.data) == {"region": {"name": "AMERICA"}}
+    assert norm(res.data) == {"region": {"america": {"name": "AMERICA"}}}
     res = execute(
         schema,
         """
         query {
-            region__all {
-                name
+            region {
+                all {
+                    name
+                }
             }
         }
         """,
     )
     assert norm(res.data) == {
-        "region__all": [
-            {"name": "AFRICA"},
-            {"name": "AMERICA"},
-            {"name": "ASIA"},
-            {"name": "EUROPE"},
-            {"name": "MIDDLE EAST"},
-        ]
+        "region": {
+            "all": [
+                {"name": "AFRICA"},
+                {"name": "AMERICA"},
+                {"name": "ASIA"},
+                {"name": "EUROPE"},
+                {"name": "MIDDLE EAST"},
+            ]
+        }
     }
 
 
@@ -86,192 +92,222 @@ def test_reflect_filter_date():
         schema,
         """
         query {
-            order__all(orderdate__eq: ["1998-08-02"]) {
-                id
-                orderdate
+            order {
+                all(orderdate__eq: ["1998-08-02"]) {
+                    id
+                    orderdate
+                }
             }
         }
         """,
     )
     assert not res.errors
     assert norm(res.data) == {
-        "order__all": [
-            {"id": "4678", "orderdate": "1998-08-02"},
-            {"id": "7969", "orderdate": "1998-08-02"},
-            {"id": "12324", "orderdate": "1998-08-02"},
-            {"id": "12384", "orderdate": "1998-08-02"},
-            {"id": "20195", "orderdate": "1998-08-02"},
-            {"id": "45955", "orderdate": "1998-08-02"},
-        ]
+        "order": {
+            "all": [
+                {"id": "4678", "orderdate": "1998-08-02"},
+                {"id": "7969", "orderdate": "1998-08-02"},
+                {"id": "12324", "orderdate": "1998-08-02"},
+                {"id": "12384", "orderdate": "1998-08-02"},
+                {"id": "20195", "orderdate": "1998-08-02"},
+                {"id": "45955", "orderdate": "1998-08-02"},
+            ]
+        }
     }
     res = execute(
         schema,
         """
         query {
-            order__all(orderdate__eq: ["1998-08-02", "1998-08-01"]) {
-                id
-                orderdate
+            order {
+                all(orderdate__eq: ["1998-08-02", "1998-08-01"]) {
+                    id
+                    orderdate
+                }
             }
         }
         """,
     )
     assert not res.errors
     assert norm(res.data) == {
-        "order__all": [
-            {"id": "4678", "orderdate": "1998-08-02"},
-            {"id": "7969", "orderdate": "1998-08-02"},
-            {"id": "12324", "orderdate": "1998-08-02"},
-            {"id": "12384", "orderdate": "1998-08-02"},
-            {"id": "20195", "orderdate": "1998-08-02"},
-            {"id": "22403", "orderdate": "1998-08-01"},
-            {"id": "27588", "orderdate": "1998-08-01"},
-            {"id": "37735", "orderdate": "1998-08-01"},
-            {"id": "45955", "orderdate": "1998-08-02"},
-        ]
+        "order": {
+            "all": [
+                {"id": "4678", "orderdate": "1998-08-02"},
+                {"id": "7969", "orderdate": "1998-08-02"},
+                {"id": "12324", "orderdate": "1998-08-02"},
+                {"id": "12384", "orderdate": "1998-08-02"},
+                {"id": "20195", "orderdate": "1998-08-02"},
+                {"id": "22403", "orderdate": "1998-08-01"},
+                {"id": "27588", "orderdate": "1998-08-01"},
+                {"id": "37735", "orderdate": "1998-08-01"},
+                {"id": "45955", "orderdate": "1998-08-02"},
+            ]
+        }
     }
     # gt
     res = execute(
         schema,
         """
         query {
-            order__all(orderdate__gt: "1998-08-01") {
-                id
-                orderdate
+            order {
+                all(orderdate__gt: "1998-08-01") {
+                    id
+                    orderdate
+                }
             }
         }
         """,
     )
     assert not res.errors
     assert norm(res.data) == {
-        "order__all": [
-            {"id": "4678", "orderdate": "1998-08-02"},
-            {"id": "7969", "orderdate": "1998-08-02"},
-            {"id": "12324", "orderdate": "1998-08-02"},
-            {"id": "12384", "orderdate": "1998-08-02"},
-            {"id": "20195", "orderdate": "1998-08-02"},
-            {"id": "45955", "orderdate": "1998-08-02"},
-        ]
+        "order": {
+            "all": [
+                {"id": "4678", "orderdate": "1998-08-02"},
+                {"id": "7969", "orderdate": "1998-08-02"},
+                {"id": "12324", "orderdate": "1998-08-02"},
+                {"id": "12384", "orderdate": "1998-08-02"},
+                {"id": "20195", "orderdate": "1998-08-02"},
+                {"id": "45955", "orderdate": "1998-08-02"},
+            ]
+        }
     }
     # ge
     res = execute(
         schema,
         """
         query {
-            order__all(orderdate__ge: "1998-08-01") {
-                id
-                orderdate
+            order {
+                all(orderdate__ge: "1998-08-01") {
+                    id
+                    orderdate
+                }
             }
         }
         """,
     )
     assert not res.errors
     assert norm(res.data) == {
-        "order__all": [
-            {"id": "4678", "orderdate": "1998-08-02"},
-            {"id": "7969", "orderdate": "1998-08-02"},
-            {"id": "12324", "orderdate": "1998-08-02"},
-            {"id": "12384", "orderdate": "1998-08-02"},
-            {"id": "20195", "orderdate": "1998-08-02"},
-            {"id": "22403", "orderdate": "1998-08-01"},
-            {"id": "27588", "orderdate": "1998-08-01"},
-            {"id": "37735", "orderdate": "1998-08-01"},
-            {"id": "45955", "orderdate": "1998-08-02"},
-        ]
+        "order": {
+            "all": [
+                {"id": "4678", "orderdate": "1998-08-02"},
+                {"id": "7969", "orderdate": "1998-08-02"},
+                {"id": "12324", "orderdate": "1998-08-02"},
+                {"id": "12384", "orderdate": "1998-08-02"},
+                {"id": "20195", "orderdate": "1998-08-02"},
+                {"id": "22403", "orderdate": "1998-08-01"},
+                {"id": "27588", "orderdate": "1998-08-01"},
+                {"id": "37735", "orderdate": "1998-08-01"},
+                {"id": "45955", "orderdate": "1998-08-02"},
+            ]
+        }
     }
     # lt
     res = execute(
         schema,
         """
         query {
-            order__all(orderdate__lt: "1992-01-02") {
-                id
-                orderdate
+            order {
+                all(orderdate__lt: "1992-01-02") {
+                    id
+                    orderdate
+                }
             }
         }
         """,
     )
     assert not res.errors
     assert norm(res.data) == {
-        "order__all": [
-            {"id": "3271", "orderdate": "1992-01-01"},
-            {"id": "5607", "orderdate": "1992-01-01"},
-            {"id": "20742", "orderdate": "1992-01-01"},
-            {"id": "23010", "orderdate": "1992-01-01"},
-            {"id": "27015", "orderdate": "1992-01-01"},
-            {"id": "27137", "orderdate": "1992-01-01"},
-            {"id": "37543", "orderdate": "1992-01-01"},
-            {"id": "45697", "orderdate": "1992-01-01"},
-        ]
+        "order": {
+            "all": [
+                {"id": "3271", "orderdate": "1992-01-01"},
+                {"id": "5607", "orderdate": "1992-01-01"},
+                {"id": "20742", "orderdate": "1992-01-01"},
+                {"id": "23010", "orderdate": "1992-01-01"},
+                {"id": "27015", "orderdate": "1992-01-01"},
+                {"id": "27137", "orderdate": "1992-01-01"},
+                {"id": "37543", "orderdate": "1992-01-01"},
+                {"id": "45697", "orderdate": "1992-01-01"},
+            ]
+        }
     }
     # le
     res = execute(
         schema,
         """
         query {
-            order__all(orderdate__le: "1992-01-02") {
-                id
-                orderdate
+            order {
+                all(orderdate__le: "1992-01-02") {
+                    id
+                    orderdate
+                }
             }
         }
         """,
     )
     assert not res.errors
     assert norm(res.data) == {
-        "order__all": [
-            {"id": "1248", "orderdate": "1992-01-02"},
-            {"id": "3139", "orderdate": "1992-01-02"},
-            {"id": "3271", "orderdate": "1992-01-01"},
-            {"id": "3712", "orderdate": "1992-01-02"},
-            {"id": "5607", "orderdate": "1992-01-01"},
-            {"id": "20742", "orderdate": "1992-01-01"},
-            {"id": "23010", "orderdate": "1992-01-01"},
-            {"id": "27015", "orderdate": "1992-01-01"},
-            {"id": "27137", "orderdate": "1992-01-01"},
-            {"id": "37543", "orderdate": "1992-01-01"},
-            {"id": "45697", "orderdate": "1992-01-01"},
-        ]
+        "order": {
+            "all": [
+                {"id": "1248", "orderdate": "1992-01-02"},
+                {"id": "3139", "orderdate": "1992-01-02"},
+                {"id": "3271", "orderdate": "1992-01-01"},
+                {"id": "3712", "orderdate": "1992-01-02"},
+                {"id": "5607", "orderdate": "1992-01-01"},
+                {"id": "20742", "orderdate": "1992-01-01"},
+                {"id": "23010", "orderdate": "1992-01-01"},
+                {"id": "27015", "orderdate": "1992-01-01"},
+                {"id": "27137", "orderdate": "1992-01-01"},
+                {"id": "37543", "orderdate": "1992-01-01"},
+                {"id": "45697", "orderdate": "1992-01-01"},
+            ]
+        }
     }
 
 
-def test_reflect_paginated():
+def test_reflect_by_page():
     schema = reflect(include_tables={"order"}).to_schema()
     res = execute(
         schema,
         """
         query {
-            items: order__paginated {
-                id
+            order {
+                items: paginated {
+                    id
+                }
             }
         }
         """,
     )
     assert not res.errors
-    assert len(res.data["items"]) == 20
+    assert len(res.data["order"]["items"]) == 20
     res = execute(
         schema,
         """
         query {
-            items: order__paginated(limit: 10) {
-                id
+            order {
+                items: paginated(limit: 10) {
+                    id
+                }
             }
         }
         """,
     )
     assert not res.errors
-    assert len(res.data["items"]) == 10
+    assert len(res.data["order"]["items"]) == 10
     res2 = execute(
         schema,
         """
         query {
-            items: order__paginated(limit: 10, offset: 2) {
-                id
+            order {
+                items: paginated(limit: 10, offset: 2) {
+                    id
+                }
             }
         }
         """,
     )
     assert not res2.errors
-    assert len(res2.data["items"]) == 10
-    assert res2.data["items"][:-2] == res.data["items"][2:]
+    assert len(res2.data["order"]["items"]) == 10
+    assert res2.data["order"]["items"][:-2] == res.data["order"]["items"][2:]
 
 
 def test_reflect_add_field():
@@ -309,19 +345,21 @@ def test_reflect_add_entity_field():
         schema,
         """
         query {
-            region(id: "AFRICA") {
-                name_name
+            region {
+                africa: get(id: "AFRICA") {
+                    name_name
+                }
             }
         }
         """,
     )
     assert not res.errors
-    assert res.data == {"region": {"name_name": "AFRICA_AFRICA"}}
+    assert res.data == {"region": {"africa": {"name_name": "AFRICA_AFRICA"}}}
 
 
 def test_reflect_add_filter():
     reflection = reflect(include_tables={"region"})
-    all_regions = reflection.fields["region__all"]
+    all_regions = reflection.types["region_connection"].fields["all"]
 
     # We can add a new filter for the query.
     @all_regions.add_filter
@@ -334,9 +372,13 @@ def test_reflect_add_filter():
         schema,
         """
         query {
-            region__all(name: "AFRICA") {name}
+            region {
+                all(name: "AFRICA") {
+                    name
+                }
+            }
         }
         """,
     )
     assert not res.errors
-    assert res.data == {"region__all": [{"name": "AFRICA"}]}
+    assert res.data == {"region": {"all": [{"name": "AFRICA"}]}}

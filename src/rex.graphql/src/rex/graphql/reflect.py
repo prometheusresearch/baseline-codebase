@@ -92,7 +92,7 @@ class EqFilter(desc.Filter):
         return query.filter(self.query == v)
 
 
-class reflect:
+class Reflect:
     def __init__(
         self,
         db=None,
@@ -172,15 +172,16 @@ class reflect:
                         query, type=fieldtype, loc=None
                     )
                 elif isinstance(label.arc, InvalidArc):
+                    # TODO: Print a warning
                     continue
                 else:
-                    # TODO: Print a warning instead?
+                    # TODO: Print a warning
                     continue
             return fields
 
         return fields
 
-    def _collect_filters(self, query, fieldtype, node):
+    def _reflect_filters(self, query, fieldtype, node):
         for label in classify(node):
             if not isinstance(label.target, DomainNode):
                 continue
@@ -230,35 +231,38 @@ class reflect:
                 )
                 yield arg_query >= arg
 
-    def _create_all_connection(self, query, fieldtype, node):
-        filters = (
-            list(
-                self._collect_filters(
-                    query=query, fieldtype=fieldtype, node=node
-                )
-            )
-            if not self.disable_filter_reflecton
-            else []
-        )
-        return desc.query(
-            query=query, type=fieldtype, filters=filters, loc=None
-        )
+    def _reflect_connection(self, arc, query):
+        table = arc.target.table
 
-    def _create_paginated_connection(self, query, fieldtype, node):
-        filters = (
-            list(
-                self._collect_filters(
-                    query=query, fieldtype=fieldtype, node=node
-                )
+        # Get entitytype for the table
+        entitytype = self.types.get(table.name)
+        if entitytype is None:
+            entitytype = desc.Entity(
+                name=table.name, fields=self._reflect_fields(arc), loc=None
             )
-            if not self.disable_filter_reflecton
-            else []
-        )
+            self.types[table.name] = entitytype
+
+        # Get connectiontype for the entitytype
+        connectiontype_name = desc.connectiontype_name(entitytype)
+        connectiontype = self.types.get(connectiontype_name)
+        if connectiontype is None:
+            filters = []
+            if not self.disable_filter_reflecton:
+                filters = list(
+                    self._reflect_filters(
+                        query=query, fieldtype=entitytype, node=arc.target
+                    )
+                )
+
+            connectiontype = desc.connectiontype_uncached(
+                entitytype, filters=filters
+            )
+            self.types[connectiontype_name] = connectiontype
+
         return desc.query(
-            query=query,
-            type=fieldtype,
-            filters=filters,
-            paginate=True,
+            query=q.define(entity=query),
+            type=connectiontype,
+            description="Connection to {entitytype.name}",
             loc=None,
         )
 
@@ -266,37 +270,14 @@ class reflect:
         for label in classify(HomeNode()):
             if not isinstance(label.arc, TableArc):
                 continue
-            table = label.target.table
-
-            if not self.is_table_allowed(table):
-                continue
-
-            entitytype = desc.Entity(
-                name=label.name,
-                fields=self._reflect_fields(label.arc),
-                loc=None,
-            )
-            self.types[table.name] = entitytype
-
+            arc = label.arc
             query = q.navigate(label.name)
-
-            self.fields[f"{label.name}"] = desc.query(
-                query.filter(
-                    q.id.text() == desc.argument("id", desc.scalar.ID)
-                ).first(),
-                type=entitytype,
-                loc=None,
-            )
-
-            self.fields[f"{label.name}__all"] = self._create_all_connection(
-                query=query, fieldtype=entitytype, node=label.target
-            )
-
-            self.fields[
-                f"{label.name}__paginated"
-            ] = self._create_paginated_connection(
-                query=query, fieldtype=entitytype, node=label.target
-            )
+            if not self.is_table_allowed(arc.target.table):
+                continue
+            self.fields[label.name] = self._reflect_connection(arc, query)
+        # Seal all fields so all reflection code runs here
+        for field in self.fields.values():
+            desc.seal(field)
 
     def add_field(self, name, field):
         self._extra_fields[name] = field
@@ -304,3 +285,6 @@ class reflect:
     def to_schema(self):
         fields = lambda: {**self.fields, **self._extra_fields}
         return schema(fields=fields, db=self.db, loc=None)
+
+
+reflect = Reflect

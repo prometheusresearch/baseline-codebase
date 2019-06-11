@@ -1,7 +1,7 @@
 BIN = $(PWD)/node_modules/.bin
 
 test:
-	@yarn run jest
+	@yarn run jest --no-watch --no-watchman
 
 install:
 	@yarn

@@ -12,6 +12,7 @@ SRC_PY = \
 	src/rex.db \
 	src/rex.port \
 	src/rex.deploy \
+	src/rex.graphql \
 	src/rex.attach \
 	src/rex.urlmap \
 	src/rex.file \

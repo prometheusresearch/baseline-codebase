@@ -19,6 +19,7 @@ syntax: regexp
 ^.kubeconfig$
 ^.st/
 ^[^/]+.yaml$
+^Procfile$
 ^.env$
 ^bin/
 ^data/

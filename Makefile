@@ -392,6 +392,11 @@ sync: bin/sync sync-bin	#: start synchronizing files with the build container
 .PHONY: sync
 
 
+start: ./bin/activate #: start application daemons using development configurations
+	@./bin/honcho start ${SERVICE}
+.PHONY: start
+
+
 sync-once:
 	${RSYNC} \
 		--exclude /.hg/ \

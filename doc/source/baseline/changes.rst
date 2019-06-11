@@ -3,7 +3,15 @@
 
 * rex.deploy: Added the ability to generate identities using UUIDs.
 * rex-i18n: Fixed warnings resulting from React 16 upgrade.
+* rex.graphql: Added a new package to enable creation of GraphQL endpoints in
+  RexDB applications.
+* Makefile refinements:
 
+  * You can now create project-specific Makefiles named
+    ``Makefile.<YOUR_PROJECT>`` and they will be automatically included for
+    use.
+  * There is now a ``start`` target that uses ``honcho`` to launch the daemons
+    defined in your ``Procfile``.
 
 
 3.1.1 (2019-05-31)

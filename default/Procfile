@@ -1,0 +1,2 @@
+demo: rex --config=demo.baseline.yaml serve-uwsgi
+

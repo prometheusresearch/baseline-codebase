@@ -9,4 +9,6 @@ uwsgi:
   buffer-size: 65535
   processes: 2
   threads: 2
+  die-on-term: true     # ensures that uwsgi dies when honcho tells it to
+  exit-on-reload: true  # ensures that uwsgi dies when the terminal is lost
 

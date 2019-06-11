@@ -11,8 +11,8 @@ Unless otherwise overridden by a descendent codebase, you can launch the
 built-in demo application by doing::
 
     $ make init
-    $ ./bin/rex deploy
-    $ ./bin/rex serve-uwsgi
+    $ ./bin/rex --config=demo.baseline.yaml deploy
+    $ make start
 
 The application can then be accessed at: `<http://localhost:8080/>`_
 

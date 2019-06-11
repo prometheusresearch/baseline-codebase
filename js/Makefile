@@ -1,14 +1,14 @@
 BIN = $(PWD)/node_modules/.bin
 
 test:
-	@$(BIN)/jest
+	@yarn run jest --no-watch --no-watchman
 
 install:
 	@yarn
 
 showcase:
-	@$(BIN)/cosmos
+	@yarn run cosmos
 
 check:
-	@$(BIN)/flow
+	@yarn run flow
 

@@ -340,6 +340,8 @@ test: ./bin/activate	#: test all source packages (specify PKG=<SRC> to test a si
 			fi; \
 		fi; \
 	done; \
+	echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing JS...${NORM}"; \
+	$(MAKE) -C js test; \
 	for src in ${TEST_JS}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
@@ -347,6 +349,7 @@ test: ./bin/activate	#: test all source packages (specify PKG=<SRC> to test a si
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
+	if [ $$? != 0 ]; then FAILURES="$$FAILURES JS"; fi; \
 	for src in ${TEST_MAKE}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \

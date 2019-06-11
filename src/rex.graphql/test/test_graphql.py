@@ -1371,6 +1371,51 @@ def test_query_record():
     }
 
 
+def test_query_group():
+    # We are going to use Record as the result of this is not a table but a
+    # select.
+    region_stat = Record(
+        name="region_stat",
+        fields=lambda: {
+            "region_name": query(q.region_name),
+            "nation_count": query(q.nation_count),
+        },
+    )
+    sch = schema(
+        fields=lambda: {
+            "region_stat": query(
+                query=(
+                    q.nation.group(region_name=q.region.name).select(
+                        region_name=q.region_name,
+                        nation_count=q.nation.count(),
+                    )
+                ),
+                type=region_stat,
+            )
+        }
+    )
+    data = execute(
+        sch,
+        """
+        query {
+            region_stat {
+                region_name
+                nation_count
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region_stat": [
+            {"nation_count": 5, "region_name": "AFRICA"},
+            {"nation_count": 5, "region_name": "AMERICA"},
+            {"nation_count": 5, "region_name": "ASIA"},
+            {"nation_count": 5, "region_name": "EUROPE"},
+            {"nation_count": 5, "region_name": "MIDDLE EAST"},
+        ]
+    }
+
+
 def test_query_record_select():
     expect = {
         "region": [

@@ -7,8 +7,10 @@
 
 """
 
+import typing as t
+
 from rex.core import Error
-from rex.db import get_db
+from rex.db import get_db, RexHTSQL
 
 from . import introspection, model, model_scalar, desc, code_location
 
@@ -26,8 +28,15 @@ class Schema:
         return self.types.get(name, default)
 
 
-def schema(fields, db=None, loc=desc.autoloc):
+def schema(
+    fields: desc.FieldsType,
+    db: t.Optional[t.Union[RexHTSQL, str]] = None,
+    loc=desc.autoloc,
+):
     """ Define a GraphQL schema.
+
+    :param fields: Fields for the root query type
+    :param db: Database to use, if ``None`` then the default one is used
 
     Schema is defined by supplying a set of either :func:`compute` or
     :func:`query` fields.

@@ -1,10 +1,16 @@
-#
-# Copyright (c) 2019-present, Prometheus Research, LLC
-#
-# pyre-check
+"""
+
+    rex.graphql
+    ===========
+
+    GraphQL API for Rex applications.
+
+"""
 
 __all__ = (
     "schema",
+    "Field",
+    "Type",
     "Object",
     "Enum",
     "EnumValue",
@@ -29,6 +35,8 @@ __all__ = (
 from graphql import GraphQLError
 from .query import query as q, execute as execute_q
 from .desc import (
+    Field,
+    Type,
     scalar,
     Object,
     Entity,

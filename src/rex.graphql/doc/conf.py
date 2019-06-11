@@ -3,12 +3,14 @@
 #
 
 
-project = 'rex.graphql'
+project = "rex.graphql"
 html_title = "REX.GRAPHQL Documentation"
-extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.autorex']
-master_doc = 'index'
-default_role = 'obj'
-autodoc_default_flags = ['members']
-autodoc_member_order = 'bysource'
-
-
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinxcontrib.autorex",
+    "sphinx_autodoc_typehints",
+]
+master_doc = "index"
+default_role = "obj"
+autodoc_default_flags = ["members"]
+autodoc_member_order = "bysource"

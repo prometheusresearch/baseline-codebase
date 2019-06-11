@@ -3,14 +3,13 @@
     rex.graphql.serve
     =================
 
-    Serve GraphQL :class:`webob.Request` with the specified schema.
+    Serve GraphQL :class:`webob.Request`.
 
     Based on code from ``graphql`` package.
 
-    :copyright: 2016 GraphQL Python
-    :copyright: 2019-present Prometheus Research, LLC
-
 """
+# copyright: 2016 GraphQL Python
+# copyright: 2019-present Prometheus Research, LLC
 
 from typing import Any
 import json
@@ -29,7 +28,7 @@ __all__ = ("serve",)
 def serve(
     schema: Schema, req: Request, db: Any = None, graphiql_enabled: bool = True
 ) -> Response:
-    """ Serve HTTP request with GraphQL query according to schema."""
+    """ Serve GraphQL :class:`webob.Request`."""
 
     method = req.method.lower()
 

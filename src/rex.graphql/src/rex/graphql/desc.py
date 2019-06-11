@@ -12,6 +12,7 @@
 import inspect
 import abc
 import functools
+import typing as t
 
 from rex.core import Error, cached
 
@@ -28,15 +29,36 @@ class Desc:
 
 
 class Type(Desc):
-    pass
+    """ A GraphQL Type.
+
+    You can use :class:`Entity`, :class:`Record` or :class:`Object` to create
+    new types. Also see :class:`List` and :class:`NonNull` to produce types out
+    of existing types.
+
+    The :data:`scalar` namespace represents scalar types, e.g. `scala.String` is
+    a string type.
+    """
 
 
 class Field(Desc):
-    pass
+    """ A GraphQL Field.
+
+    You can use :func:`compute` to define fields which compute values at runtime
+    or :func:`query` for fields which query data from a database.
+    """
+
+
+FieldsType = t.Callable[[], t.Dict[str, Field]]
 
 
 class ObjectLike(Type):
-    def __init__(self, name, fields, description=None, loc=autoloc):
+    def __init__(
+        self,
+        name: str,
+        fields: FieldsType,
+        description: t.Optional[str] = None,
+        loc=autoloc,
+    ):
         if not callable(fields):
             raise Error("Argument 'fields' should be a function")
 
@@ -62,6 +84,9 @@ class Object(ObjectLike):
 
     Values of an object type are produced by :func:`compute` fields. The root
     type of a :func:`schema` is also an object type.
+
+    :param name: Name of the type
+    :param fields: Object fields
     """
 
 
@@ -72,20 +97,24 @@ class Record(ObjectLike):
 
     If the result of a query is a row from a table it is more convenient to use
     :class:`Entity` type instead.
+
+    :param name: Name of the type
+    :param fields: Record fields
     """
 
 
 class Entity(Record):
     """ Define an entity type.
 
-    Values of a record type are produced by :func:`query` fields when the
+    Values of an Entity type are produced by :func:`query` fields when the
     corresponding query results in a row of some table.
+
+    :param name: Name of the type
+    :param fields: Entity fields
     """
 
 
 class Compute(Field):
-    """ Compute"""
-
     def __init__(
         self,
         type,
@@ -112,8 +141,6 @@ class Compute(Field):
 
 
 class Query(Field):
-    """ Query values from database."""
-
     def __init__(
         self,
         query,
@@ -181,7 +208,11 @@ class Query(Field):
         else:
             self.params[param.name] = param
 
-    def add_filter(self, filter):
+    def add_filter(self, filter: t.Union[QueryCombinator, 'Filter']):
+        """ Add new filter
+
+        :param filter: Filter to add.
+        """
 
         if not isinstance(filter, Filter):
             if isinstance(filter, QueryCombinator):
@@ -246,11 +277,27 @@ class EnumValue:
 
 
 class List(Type):
+    """ Define a list type for a specified type.
+
+    Use when field results in a list of items of a specified type::
+
+        compute(get_items, type=List(Item))
+
+    """
+
     def __init__(self, type):
         self.type = type
 
 
 class NonNull(Type):
+    """ Define a non-null type for a specified type.
+
+    Use when field results in a value which should not be ``None``::
+
+        compute(get_exact_item, type=NonNull(Item))
+
+    """
+
     def __init__(self, type):
         self.type = type
 
@@ -358,6 +405,7 @@ def compute_from_function(**config):
         def add_numbers(x: scalar.Int, y: scalar.Int) -> scalar.Int:
             return x + y
     """
+
     def decorate(f):
         params, return_type = extract_params(
             f, mark_as_nonnull_if_no_default_value=True
@@ -529,52 +577,104 @@ def _(descriptor):
         seal(descriptor.type)
 
 
-#: Define a field which queries values from a database.
-#:
-#: Example::
-#:
-#:   schema(fields=lambda: {
-#:      'regionCount': query(
-#:        query=q.region.count(),
-#:      )
-#:   })
-#:
-#: In case query results in a scalar value (like the example above) rex.graphql
-#: can infer result type automatically. Oherwise you need to specify it::
-#:
-#:   region = Entity(name="region", fields=lambda: { ... })
-#:   schema(fields=lambda: {
-#:      'regionCount': query(
-#:        query=q.region,
-#:        type=region,
-#:      )
-#:   })
-#:
-query = Query
+def query(
+    query: QueryCombinator,
+    type: Type = None,
+    filters: t.List[t.Union[QueryCombinator, Filter]] = None,
+    description: t.Optional[str] = None,
+    deprecation_reason: t.Optional[str] = None,
+    paginate: bool = False,
+    loc=autoloc,
+) -> Field:
+    """
+    Define a field which queries values from a database.
 
-#: Define a field which computes value at runtime.
-#:
-#: Example::
-#:
-#:   settings = Object(
-#:     name='Settings',
-#:     fields=lambda: {'title': compute(scalar.String)}
-#:   )
-#:
-#:   def get_settings():
-#:       return {'title': 'App'}
-#:
-#:   schema(fields=lambda: {
-#:      'settings': compute(
-#:        type=settings,
-#:        f=get_settings
-#:      )
-#:   })
-#:
-#: By default :func:`compute` computes the value as ``getattr(parent, name)``
-#: but ``f`` argument can be supplied instead.
-#:
-compute = Compute
+    :param query:
+    :param type: GraphQL type
+    :param filters: A list of filters to apply
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
+    :param paginate: If automatic offset/limit arguments should be added
+
+    Example::
+
+        schema(fields=lambda: {
+            'regionCount': query(
+            query=q.region.count(),
+            )
+        })
+
+    In case query results in a scalar value (like the example above) rex.graphql
+    can infer result type automatically. Oherwise you need to specify it::
+
+        region = Entity(name="region", fields=lambda: { ... })
+        schema(fields=lambda: {
+            'regionCount': query(
+            query=q.region,
+            type=region,
+            )
+        })
+
+    """
+    loc = code_location.here() if loc is autoloc else loc
+    return Query(
+        query=query,
+        type=type,
+        filters=filters,
+        description=description,
+        deprecation_reason=deprecation_reason,
+        paginate=paginate,
+        loc=loc,
+    )
+
+
+def compute(
+    type: Type,
+    f=None,
+    params: t.Dict[str, Param] = None,
+    description: t.Optional[str] = None,
+    deprecation_reason: t.Optional[str] = None,
+    loc=autoloc,
+) -> Field:
+    """
+    Define a field which computes value at runtime.
+
+    :param type: GraphQL type
+    :param f: Function used to compute the value of the field
+    :param params: Field params
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
+
+    Example::
+
+        settings = Object(
+            name='Settings',
+            fields=lambda: {'title': compute(scalar.String)}
+        )
+
+        def get_settings():
+            return {'title': 'App'}
+
+        schema(fields=lambda: {
+            'settings': compute(
+            type=settings,
+            f=get_settings
+            )
+        })
+
+    By default :func:`compute` computes the value as ``getattr(parent, name)``
+    but ``f`` argument can be supplied instead.
+    """
+    loc = code_location.here() if loc is autoloc else loc
+    return Compute(
+        type=type,
+        f=f,
+        params=params,
+        description=description,
+        deprecation_reason=deprecation_reason,
+        loc=loc,
+    )
+
 
 #: Define a GraphQL argument.
 argument = Argument

@@ -23,6 +23,7 @@ setup(
         "rex.logging",
         "HTSQL",
         "webob >=1.8.2, <1.9",
+        "sphinx-autodoc-typehints == 1.6.0",
         "graphql-core == 2.1",
     ],
     dependency_links=["https://dist.rexdb.org/packages/"],

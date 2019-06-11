@@ -45,7 +45,11 @@ export async function fetchGraphQL(
       Accept: "application/json"
     }
   });
-  return resp.json();
+  if (!resp.ok) {
+    throw new Error(`Invalid response: ${resp.status}`);
+  } else {
+    return resp.json();
+  }
 }
 
 export function useQuery(
@@ -85,24 +89,37 @@ export function useQuery(
       lifecycle.onLoading(({}: any));
     }
 
-    // TODO: catch network failures
-    fetchGraphQL(endpoint, query, variables).then(data => {
-      if (!isMounted) {
-        return;
+    fetchGraphQL(endpoint, query, variables).then(
+      data => {
+        if (!isMounted) {
+          return;
+        }
+        let hasError = data.errors != null && data.errors.length > 0;
+        let errors = data.errors || [];
+        if (lifecycle.onError != null && hasError) {
+          lifecycle.onError({ query, errors });
+        }
+        if (lifecycle.onData != null && !hasError) {
+          lifecycle.onData({ data: data.data });
+        }
+        setResult({
+          data: data.data,
+          errors,
+          loading: false
+        });
+      },
+      error => {
+        let errors = [error];
+        if (lifecycle.onError != null) {
+          lifecycle.onError({ query, errors });
+        }
+        setResult({
+          data: null,
+          errors,
+          loading: false
+        });
       }
-      let hasError = data.errors != null && data.errors.length > 0;
-      if (lifecycle.onError != null && hasError) {
-        lifecycle.onError({ query, errors: data.errors });
-      }
-      if (lifecycle.onData != null && !hasError) {
-        lifecycle.onData({ data: data.data });
-      }
-      setResult({
-        data: data.data,
-        errors: data.errors || [],
-        loading: false
-      });
-    });
+    );
   });
 
   return result;

@@ -1,0 +1,15 @@
+{
+  "name": "rex-graphql",
+  "version": "1.0.0",
+  "description": "GraphQL client for React",
+  "main": "./index.js",
+  "dependencies": {
+    "@material-ui/core": "*",
+    "deep-is": "^0.1.3",
+    "react": "*",
+    "react-dom": "*"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  }
+}

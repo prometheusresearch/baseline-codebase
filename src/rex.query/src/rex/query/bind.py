@@ -3,6 +3,7 @@
 #
 
 
+import contextlib
 from rex.core import Error, guard
 from .query import Query, ApplySyntax, LiteralSyntax
 from htsql.core.adapter import adapt
@@ -16,16 +17,16 @@ from htsql.core.syn.syntax import (
         IdentifierSyntax, CollectSyntax, ComposeSyntax, SelectSyntax,
         RecordSyntax, AssignSyntax, SpecifySyntax, FunctionSyntax,
         FilterSyntax, OperatorSyntax, PrefixSyntax, DirectSyntax, GroupSyntax,
-        ProjectSyntax)
+        ReferenceSyntax, ProjectSyntax)
 from htsql.core.cmd.embed import Embed
 from htsql.core.tr.binding import (
         RootBinding, LiteralBinding, TableBinding, ChainBinding,
         CollectBinding, SieveBinding, DefineBinding, IdentityBinding,
         SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
         TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
-        ImplicitCastBinding, WrappingBinding, RerouteBinding, FreeTableRecipe,
-        AttachedTableRecipe, ColumnRecipe, KernelRecipe, ComplementRecipe,
-        ClosedRecipe)
+        ImplicitCastBinding, WrappingBinding, RerouteBinding, LocateBinding,
+        FreeTableRecipe, AttachedTableRecipe, ColumnRecipe, KernelRecipe,
+        ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
 from htsql.core.tr.lookup import (
         lookup_attribute, unwrap, guess_tag, identify, expand, direct)
@@ -58,10 +59,26 @@ class Output(object):
 
 class RexBindingState(BindingState):
 
-    def __init__(self):
+    def __init__(self, vars=None):
         super(RexBindingState, self).__init__(RootBinding(VoidSyntax()))
         self.enable_let_syntax = False
         self.enable_let_syntax_stack = []
+        self.vars = self._bind_vars(vars or {})
+
+    def _bind_vars(self, vars):
+        return {
+            name: value
+                  if isinstance(value, Output)
+                  else self(LiteralSyntax(value))
+            for name, value in vars.items()
+        }
+
+    @contextlib.contextmanager
+    def with_vars(self, vars):
+        prev_vars = self.vars
+        self.vars = self._bind_vars(vars or {})
+        yield
+        self.vars = prev_vars
 
     def push_enable_let_syntax(self, enable):
         self.enable_let_syntax_stack.append(self.enable_let_syntax)
@@ -150,6 +167,18 @@ class RexBindingState(BindingState):
         if isinstance(binding, RerouteBinding):
             binding = binding.target
         return Output(binding)
+
+    def bind_var_op(self, args):
+        if not (len(args) == 1 and
+                isinstance(args[0], LiteralSyntax) and
+                isinstance(args[0].val, str)):
+            raise Error("Expected an identifier,"
+                        " got:", ", ".join(map(str, args)))
+        name = args[0].val
+        output = self.vars.get(name)
+        if output is None:
+            raise Error("unknown variable:", name)
+        return output
 
     def bind_navigate_op(self, args):
         if not (len(args) == 1 and
@@ -342,8 +371,9 @@ class RexBindingState(BindingState):
                 plural=base.plural)
 
     def bind_take_op(self, args):
-        if not (len(args) == 2):
-            raise Error("Expected two arguments,"
+        len_args = len(args)
+        if not (2 <= len_args <= 3):
+            raise Error("Expected two or three arguments,"
                         " got:", ", ".join(map(str, args)))
         base = self(args[0])
         if not base.plural:
@@ -352,6 +382,12 @@ class RexBindingState(BindingState):
                 isinstance(args[1].val, int)):
             raise Error("Expected an integer literal, got:", args[1])
         limit = args[1].val
+        offset = None
+        if len_args == 3:
+            if not (isinstance(args[2], LiteralSyntax) and
+                    isinstance(args[2].val, int)):
+                raise Error("Expected an integer literal, got:", args[2])
+            offset = args[2].val
         syntax = ComposeSyntax(
                 base.binding.syntax,
                 FunctionSyntax(
@@ -359,7 +395,7 @@ class RexBindingState(BindingState):
                     [IntegerSyntax(str(limit))]))
         binding = ClipBinding(
                 self.scope, base.binding, [],
-                limit, None, syntax)
+                limit, offset, syntax)
         if isinstance(base.binding.domain, RecordDomain):
             syntax_recipes = expand(
                     base.binding,
@@ -376,6 +412,40 @@ class RexBindingState(BindingState):
                 binding = SelectionBinding(
                         binding, recipes, elements, domain, binding.syntax)
         return Output(binding, optional=True, plural=base.plural)
+
+    def bind_first_op(self, args):
+        if not (len(args) == 1):
+            raise Error("Expected two arguments,"
+                        " got:", ", ".join(map(str, args)))
+        base = self(args[0])
+        if not base.plural:
+            raise Error("Expected a plural expression, got:", args[0])
+        limit = 1
+        syntax = ComposeSyntax(
+                base.binding.syntax,
+                FunctionSyntax(
+                    IdentifierSyntax("limit"),
+                    [IntegerSyntax(str(limit))]))
+        binding = ClipBinding(
+                self.scope, base.binding, [],
+                limit, None, syntax)
+        binding = LocateBinding(self.scope, binding, [], None, binding.syntax)
+        if isinstance(base.binding.domain, RecordDomain):
+            syntax_recipes = expand(
+                    base.binding,
+                    with_syntax=True, with_wild=True, with_class=True)
+            if syntax_recipes is not None:
+                elements = []
+                recipes = []
+                for syntax, recipe in syntax_recipes:
+                    recipes.append(recipe)
+                    element = self.use(recipe, syntax, scope=binding)
+                    elements.append(element)
+                fields = [decorate(element) for element in elements]
+                domain = RecordDomain(fields)
+                binding = SelectionBinding(
+                        binding, recipes, elements, domain, binding.syntax)
+        return Output(binding, optional=True, plural=False)
 
     def bind_group_op(self, args):
         if not (len(args) >= 2):

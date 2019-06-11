@@ -1,0 +1,19 @@
+title: REX.GRAPHQL
+tests:
+
+- coverage: setup.cfg
+
+- sh: pip install -q -e ../rex.query/demo
+  ignore: true
+- sh: rex dropdb -q rex.query_demo
+  ignore: true
+- sh: rex query-demo-populate rex.query_demo -q
+  ignore: true
+
+- pytest: .
+
+- sh: pip uninstall -q -y rex.query_demo
+  ignore: true
+
+- coverage-check: 70.0
+- coverage-report: ./build/coverage

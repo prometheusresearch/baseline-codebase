@@ -246,6 +246,44 @@ Pagination::
     ...         ["navigate", "name"]])
     <Product ({'ALGERIA'}, {'ARGENTINA'}, {'BRAZIL'})>
 
+Pagination with offset::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["take",
+    ...             ["navigate", "nation"],
+    ...             3, 1],
+    ...         ["navigate", "name"]])
+    <Product ({'ARGENTINA'}, {'BRAZIL'}, {'CANADA'})>
+
+Acccessing the first element::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["first",
+    ...             ["navigate", "nation"]],
+    ...         ["navigate", "name"]])
+    <Product {'ALGERIA'}>
+
+Acccessing the first element (after select)::
+
+    >>> db.produce(
+    ...     ["first",
+    ...         ["select",
+    ...             ["navigate", "nation"],
+    ...             ["navigate", "name"]]])
+    <Product {'ALGERIA'}>
+
+Using query variables::
+
+    >>> db.produce(
+    ...     ["filter",
+    ...         ["navigate", "nation"],
+    ...         ["=", ["navigate", "region"], ["var", "region"]]],
+    ...     vars={'region': "'MIDDLE EAST'"}
+    ... ) # doctest: +ELLIPSIS
+    <Product ({'EGYPT', ['MIDDLE EAST'], '...'}, ...)>
+
 Type conversion::
 
     >>> db.produce(["+", ["date", "2016-09-13"], 10])

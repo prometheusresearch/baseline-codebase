@@ -12,6 +12,7 @@
 import inspect
 import abc
 import functools
+import typing as t
 
 from rex.core import Error, cached
 
@@ -28,15 +29,36 @@ class Desc:
 
 
 class Type(Desc):
-    pass
+    """ A GraphQL Type.
+
+    You can use :class:`Entity`, :class:`Record` or :class:`Object` to create
+    new types. Also see :class:`List` and :class:`NonNull` to produce types out
+    of existing types.
+
+    The :data:`scalar` namespace represents scalar types, e.g. `scala.String` is
+    a string type.
+    """
 
 
 class Field(Desc):
-    pass
+    """ A GraphQL Field.
+
+    You can use :func:`compute` to define fields which compute values at runtime
+    or :func:`query` for fields which query data from a database.
+    """
+
+
+FieldsType = t.Callable[[], t.Dict[str, Field]]
 
 
 class ObjectLike(Type):
-    def __init__(self, name, fields, description=None, loc=autoloc):
+    def __init__(
+        self,
+        name: str,
+        fields: FieldsType,
+        description: t.Optional[str] = None,
+        loc=autoloc,
+    ):
         if not callable(fields):
             raise Error("Argument 'fields' should be a function")
 
@@ -62,6 +84,9 @@ class Object(ObjectLike):
 
     Values of an object type are produced by :func:`compute` fields. The root
     type of a :func:`schema` is also an object type.
+
+    :param name: Name of the type
+    :param fields: Object fields
     """
 
 
@@ -72,20 +97,72 @@ class Record(ObjectLike):
 
     If the result of a query is a row from a table it is more convenient to use
     :class:`Entity` type instead.
+
+    Example::
+
+        >>> stats = Record(
+        ...     name="stats",
+        ...     fields=lambda: {
+        ...         "name": query(q.name),
+        ...         "nation_count": query(q.nation_count),
+        ...     }
+        ... )
+
+    Now we can use it with a :func:`query` field::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'regionStats': query(
+        ...         q.nation
+        ...          .group(name=q.region.name)
+        ...          .select(name=q.name, nation_count=q.nation.count()),
+        ...         type=stats
+        ...     )
+        ... })
+
+    :param name: Name of the type
+    :param fields: Record fields
     """
 
 
 class Entity(Record):
     """ Define an entity type.
 
-    Values of a record type are produced by :func:`query` fields when the
-    corresponding query results in a row of some table.
+    Values of an Entity type are produced by :func:`query` fields when the
+    corresponding query results in a row of some table. This also automatically
+    adds an ``id`` field which returns the value of primary keys for the table.
+
+    Example::
+
+        >>> region = Entity(
+        ...     name="region",
+        ...     fields=lambda: {
+        ...         'name': query(q.name),
+        ...         'nation': query(q.nation, type=nation),
+        ...     }
+        ... )
+
+        >>> nation = Entity(
+        ...     name="nation",
+        ...     fields=lambda: {
+        ...         'name': query(q.name),
+        ...         'region': query(q.region, type=region),
+        ...     }
+        ... )
+
+    Note how using ``lambda: ...`` for fields allows us to define mutually
+    recursive type definitions. Now we can construct a schema::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region),
+        ...     'nation': query(q.nation, type=nation),
+        ... })
+
+    :param name: Name of the type
+    :param fields: Entity fields
     """
 
 
 class Compute(Field):
-    """ Compute"""
-
     def __init__(
         self,
         type,
@@ -112,8 +189,6 @@ class Compute(Field):
 
 
 class Query(Field):
-    """ Query values from database."""
-
     def __init__(
         self,
         query,
@@ -181,7 +256,11 @@ class Query(Field):
         else:
             self.params[param.name] = param
 
-    def add_filter(self, filter):
+    def add_filter(self, filter: t.Union[QueryCombinator, "Filter"]):
+        """ Add new filter
+
+        :param filter: Filter to add.
+        """
 
         if not isinstance(filter, Filter):
             if isinstance(filter, QueryCombinator):
@@ -208,6 +287,13 @@ class ScalarTypeFactory:
         return Scalar(name=name, loc=None)
 
 
+#: Namespace to describe GraphQL scalar types by its name.
+#:
+#: Example::
+#:
+#:   String = scalar.String
+#:   Int = scalar.Int
+#:
 scalar = ScalarTypeFactory()
 
 
@@ -246,11 +332,27 @@ class EnumValue:
 
 
 class List(Type):
+    """ Define a list type for a specified type.
+
+    Use when field results in a list of items of a specified type::
+
+        >>> field = compute(List(scalar.String))
+
+    """
+
     def __init__(self, type):
         self.type = type
 
 
 class NonNull(Type):
+    """ Define a non-null type for a specified type.
+
+    Use when field results in a value which should not be ``None``::
+
+        >>> field = compute(NonNull(scalar.String))
+
+    """
+
     def __init__(self, type):
         self.type = type
 
@@ -335,16 +437,43 @@ def extract_params(f, mark_as_nonnull_if_no_default_value=False):
 def filter_from_function(f):
     """ Decorator which allows to define a filter from a function.
 
+    The signature of a function is used to infer arguments and their types.
+
+    Example::
+
+        >>> @filter_from_function
+        ... def by_name(name: scalar.String):
+        ...     yield q.name == name
+
+    Now we can pass the filter to :func:`query` field::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region, filters=[by_name])
+        ... })
+
+    Note how ``name`` argument is configured for the ``region`` field::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region(name: "AFRICA") { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['AFRICA']
+
     .. note::
         Filters defined using :func:`filter_from_function` are not being
         typechecked against database schema and therefore it is advised not to
         use it unless absolutely neccessary. Prefer to use filters-as-queries.
+
     """
     params, _ = extract_params(f)
     return FilterOfFunction(params=params, f=f)
 
 
-def compute_from_function(**config):
+def compute_from_function(
+    description=None, deprecation_reason=None, loc=autoloc
+) -> Field:
     """ Decorator which allows to define a :func:`compute` field from a
     function.
 
@@ -354,10 +483,20 @@ def compute_from_function(**config):
 
     Example::
 
-        @compute_from_function
-        def add_numbers(x: scalar.Int, y: scalar.Int) -> scalar.Int:
-            return x + y
+        >>> @compute_from_function()
+        ... def add_numbers(x: scalar.Int, y: scalar.Int) -> scalar.Int:
+        ...     return x + y
+
+        >>> sch = schema(fields=lambda: {'add': add_numbers})
+        >>> data = execute(sch, '{ four: add(x: 2, y: 2) }')
+        >>> data.data['four']
+        4
+
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
     """
+    loc = code_location.here() if loc is autoloc else loc
+
     def decorate(f):
         params, return_type = extract_params(
             f, mark_as_nonnull_if_no_default_value=True
@@ -373,7 +512,11 @@ def compute_from_function(**config):
             return f(**kwargs)
 
         return compute(
-            params=params.values(), f=run, type=return_type, **config
+            params=params.values(),
+            f=run,
+            type=return_type,
+            deprecation_reason=deprecation_reason,
+            description=description,
         )
 
     return decorate
@@ -423,7 +566,78 @@ def connectiontype_uncached(entitytype, filters=None):
 connectiontype = cached(connectiontype_uncached)
 
 
-def connect(type, query=None, filters=None, loc=autoloc):
+def connect(
+    type: Entity,
+    query: QueryCombinator = None,
+    filters: t.List[Filter] = None,
+    loc=autoloc,
+):
+    """ Configure a :func:`query` field for querying tables or one-to-many
+    links between tables.
+
+    This generates a new :func:`Record` type with fields: ``get`` to query for a
+    single row by id, ``all`` - all rows, ``paginated`` - all rows paginated and
+    ``count`` - count all rows in a table.
+
+    Example::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': connect(region, query=q.region)
+        ... })
+
+    Getting a row by id::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         africa: get(id: "AFRICA") { name }
+        ...     }
+        ... }
+        ... ''')
+        >>> data.data["region"]["africa"]["name"]
+        'AFRICA'
+
+    Getting all rows::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         all { name }
+        ...     }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']['all']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+
+    Getting all rows by page::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         paginated(limit: 2) { name }
+        ...     }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']['paginated']]
+        ['AFRICA', 'AMERICA']
+
+    Count all rows::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         count
+        ...     }
+        ... }
+        ... ''')
+        >>> data.data["region"]["count"]
+        5
+
+    :param type: Entity type configure connect field for
+    :param query:
+        Query, if ``None`` is passed then the name of the entity type is used
+    :param filters: List of filters to add to ``all`` and ``paginated`` fields.
+    """
 
     loc = code_location.here() if loc is autoloc else loc
     if query is None:
@@ -478,13 +692,13 @@ class Argument(Param):
 class ComputedParam(Param):
     """ Param computed at runtime."""
 
-    def __init__(self, name, type, compute):
+    def __init__(self, name, type, f):
         self.name = name
         self.type = type
-        self.compute = compute
+        self.compute = f
 
     def with_type(self, type):
-        return self.__class__(name=self.name, type=type, compute=self.compute)
+        return self.__class__(name=self.name, type=type, f=self.compute)
 
     def __eq__(self, o):
         return (
@@ -493,6 +707,236 @@ class ComputedParam(Param):
             and self.type == o.type
             and self.compute == o.compute
         )
+
+
+def query(
+    query: QueryCombinator,
+    type: Type = None,
+    filters: t.List[t.Union[QueryCombinator, Filter]] = None,
+    description: t.Optional[str] = None,
+    deprecation_reason: t.Optional[str] = None,
+    paginate: bool = False,
+    loc=autoloc,
+) -> Field:
+    """
+    Define a field which queries data from a database.
+
+    Example::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'regionCount': query(q.region.count())
+        ... })
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     regionCount
+        ... }
+        ... ''')
+        >>> data.data['regionCount']
+        5
+
+    In case query results in a scalar value (like the example above) rex.graphql
+    can infer result type automatically. Oherwise you need to specify it (the
+    type should be described by :class:`Entity` or :class:`Record`)::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region)
+        ... })
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+
+    :param query:
+    :param type: GraphQL type
+    :param filters: A list of filters to apply
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
+    :param paginate: If automatic offset/limit arguments should be added
+    """
+    loc = code_location.here() if loc is autoloc else loc
+    return Query(
+        query=query,
+        type=type,
+        filters=filters,
+        description=description,
+        deprecation_reason=deprecation_reason,
+        paginate=paginate,
+        loc=loc,
+    )
+
+
+def compute(
+    type: Type,
+    f=None,
+    params: t.Dict[str, Param] = None,
+    description: t.Optional[str] = None,
+    deprecation_reason: t.Optional[str] = None,
+    loc=autoloc,
+) -> Field:
+    """
+    Define a field which computes value at runtime.
+
+    Example::
+
+        >>> class AppSettings:
+        ...     title = 'AppTitle'
+
+        >>> settings = Object(
+        ...     name='Settings',
+        ...     fields=lambda: {
+        ...         'title': compute(scalar.String)
+        ...     }
+        ... )
+
+        >>> sch = schema(fields=lambda: {
+        ...     'settings': compute(
+        ...         type=settings,
+        ...         f=lambda parent, info, args: AppSettings
+        ...     )
+        ... })
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     settings { title }
+        ... }
+        ... ''')
+        >>> data.data['settings']
+        OrderedDict([('title', 'AppTitle')])
+
+    By default :func:`compute` computes the value as ``getattr(parent, name)``
+    but ``f`` argument can be supplied instead.
+
+    :param type: GraphQL type
+    :param f: Function used to compute the value of the field
+    :param params: Field params
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
+    """
+    loc = code_location.here() if loc is autoloc else loc
+    return Compute(
+        type=type,
+        f=f,
+        params=params,
+        description=description,
+        deprecation_reason=deprecation_reason,
+        loc=loc,
+    )
+
+
+#: Define a GraphQL argument.
+def argument(
+    name: str,
+    type: Type,
+    default_value: t.Any = None,
+    description: str = None,
+    out_name: str = None,
+    loc=autoloc,
+) -> Param:
+    """ Define a parameter as a GraphQL argument.
+
+    Example usage with :func:`query` fields::
+
+        >>> name = argument(
+        ...     name="name",
+        ...     type=scalar.String,
+        ... )
+
+    Use an argument inside a query::
+
+        >>> sch = schema(
+        ...     fields=lambda: {
+        ...         'regionByName': query(
+        ...             q.region.filter(q.name == name).first(),
+        ...             type=region,
+        ...         )
+        ...     }
+        ... )
+        >>> data = execute(sch, '''
+        ... {
+        ...     regionByName(name: "AFRICA") { name }
+        ... }
+        ... ''')
+        >>> data.data['regionByName']['name']
+        'AFRICA'
+
+    :param name: Name of the parameter
+    :param type: Type of the parameter
+    :param default_value:
+        Default value which will be used if argument was not
+        provided
+    :param description: Description of the parameter
+    """
+    loc = code_location.here() if loc is autoloc else loc
+    return Argument(
+        name=name,
+        type=type,
+        default_value=default_value,
+        description=description,
+        out_name=out_name,
+        loc=loc,
+    )
+
+
+#: Define a parameter.
+def param(
+    name: str, type: t.Optional[Type], f: t.Callable[[t.Any, t.Any], t.Any]
+) -> Param:
+    """ Define a parameter which computes its value at runtime.
+
+    Example::
+
+        >>> current_region = param(
+        ...     name='region',
+        ...     type=scalar.String,
+        ...     f=lambda parent, context: context['region']
+        ... )
+
+    Define a field which references this param::
+
+        >>> sch = schema(
+        ...     fields=lambda: {
+        ...         'currentRegion': query(
+        ...             q.region.filter(q.name == current_region).first(),
+        ...             type=region,
+        ...         )
+        ...     }
+        ... )
+
+    Then later supply the corresponding context to :func:`execute`::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     currentRegion { name }
+        ... }
+        ... ''', context={'region': 'AFRICA'})
+        >>> data.data['currentRegion']['name']
+        'AFRICA'
+
+    :param name: Name of the parameter
+    :param type: Type of the parameter
+    :param f:
+        Function which takes the parent object and context and returns the
+        paramer value
+    """
+    return ComputedParam(name=name, type=type, f=f)
+
+
+#: Parameter which points to the parent object in GraphQL schema.
+#:
+#: Note that this can be used only for :func:`compute` fields.
+#:
+#: Example::
+#:
+#:   >>> @compute_from_function
+#:   ... def get_parent(parent: parent_param):
+#:   ...    return parent.name
+#:
+parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)
 
 
 @functools.singledispatch
@@ -527,62 +971,3 @@ def _(descriptor):
 def _(descriptor):
     if descriptor.type is not None:
         seal(descriptor.type)
-
-
-#: Define a field which queries values from a database.
-#:
-#: Example::
-#:
-#:   schema(fields=lambda: {
-#:      'regionCount': query(
-#:        query=q.region.count(),
-#:      )
-#:   })
-#:
-#: In case query results in a scalar value (like the example above) rex.graphql
-#: can infer result type automatically. Oherwise you need to specify it::
-#:
-#:   region = Entity(name="region", fields=lambda: { ... })
-#:   schema(fields=lambda: {
-#:      'regionCount': query(
-#:        query=q.region,
-#:        type=region,
-#:      )
-#:   })
-#:
-query = Query
-
-#: Define a field which computes value at runtime.
-#:
-#: Example::
-#:
-#:   settings = Object(
-#:     name='Settings',
-#:     fields=lambda: {'title': compute(scalar.String)}
-#:   )
-#:
-#:   def get_settings():
-#:       return {'title': 'App'}
-#:
-#:   schema(fields=lambda: {
-#:      'settings': compute(
-#:        type=settings,
-#:        f=get_settings
-#:      )
-#:   })
-#:
-#: By default :func:`compute` computes the value as ``getattr(parent, name)``
-#: but ``f`` argument can be supplied instead.
-#:
-compute = Compute
-
-#: Define a GraphQL argument.
-argument = Argument
-
-#: Define a parameter.
-param = ComputedParam
-
-#: Parameter which points to the parent object in GraphQL schema.
-parent_param = ComputedParam(
-    name="parent", type=None, compute=lambda parent, ctx: parent
-)

@@ -84,9 +84,12 @@ class ExecutionInfo:
 
 
 class Result:
-    """The result of execution. `data` is the result of executing the
-    query, `errors` is null if no errors occurred, and is a
-    non-empty array if an error occurred."""
+    """ Result of a GraphQL query execution.
+
+    :attribute data: Produced data. Set to ``None`` if result is invalid.
+    :attribute errors: Errors collected during query execution.
+    :attribute invalid: If result is invalid.
+    """
 
     __slots__ = ("data", "errors", "invalid")
 
@@ -101,7 +104,7 @@ class Result:
 
     def __eq__(self, other):
         return self is other or (
-            isinstance(other, ExecutionResult)
+            isinstance(other, Result)
             and self.data == other.data
             and self.errors == other.errors
             and self.invalid == other.invalid
@@ -1085,13 +1088,32 @@ def execute_exn(schema, query: str, variables=None, context=None, db=None):
     return data
 
 
-def execute(schema: Schema, query: str, variables=None, context=None, db=None):
+def execute(
+    schema: Schema,
+    query: str,
+    variables: t.Dict[str, t.Any] = None,
+    context: t.Any = None,
+    db=None,
+) -> Result:
+    """ Execute GraphQL query.
+
+    This function shouldn't raise but instead return a :class:`Result` with
+    either produced data or collected errors.
+
+    :param schema: GraphQL schema
+    :param query: GraphQL query
+    :param variables: Variable values
+    :param context:
+        Context value. This is an artbitrary value which can be accessed from
+        any point of computed and query fields. Use this to pass generally
+        available data such as current user id.
+    """
     try:
         data = execute_exn(
             schema=schema,
             query=query,
             variables=variables,
-            context=None,
+            context=context,
             db=db,
         )
         return Result(data=data)

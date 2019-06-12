@@ -1,0 +1,31 @@
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def conf_doctest(doctest_namespace):
+    from rex import graphql
+    from rex.core import Rex
+
+    db = "pgsql:query_demo"
+    rex = Rex("rex.query_demo", db=db)
+
+    class Settings:
+        title = "AppTitle"
+
+    def get_settings(parent, info, args):
+        return Settings
+
+    for name in graphql.__all__:
+        doctest_namespace[name] = getattr(graphql, name)
+
+    doctest_namespace["region"] = graphql.Entity(
+        name="region", fields=lambda: {"name": graphql.query(graphql.q.name)}
+    )
+    doctest_namespace["settings"] = graphql.Object(
+        name="settings",
+        fields=lambda: {"title": graphql.compute(graphql.scalar.String)},
+    )
+    doctest_namespace["get_settings"] = get_settings
+
+    with rex:
+        yield

@@ -5,9 +5,25 @@
 
     Reflect database schema into GraphQL schema.
 
-    :copyright: 2019-present Prometheus Research, LLC
+    First we need to create a reflection with :func:`reflect` function::
+
+        reflection = reflect()
+
+    Now that we have a reflection we can customize it by adding more fields::
+
+        reflection.add_field(
+            name="regionCount",
+            field=query(q.region.count())
+        )
+
+    Finally we can obtain :class:`rex.graphql.schema` instance by calling
+    :meth:`Reflect.to_schema` method::
+
+        schema = reflection.to_schema()
 
 """
+
+import typing as t
 
 from cached_property import cached_property
 from rex.db import get_db
@@ -33,8 +49,10 @@ from htsql.core.model import (
 )
 from htsql.core.classify import classify, localize, relabel
 
-from . import desc, introspection, model, model_scalar, schema
+from . import desc, introspection, model, model_scalar, schema, Schema
 from .query import query as q
+
+__all__ = ("reflect", "Reflect")
 
 
 def type_from_domain(dom: domain.Domain):
@@ -93,6 +111,8 @@ class EqFilter(desc.Filter):
 
 
 class Reflect:
+    """ Use this to customize reflected GraphQL schema."""
+
     def __init__(
         self,
         db=None,
@@ -100,8 +120,8 @@ class Reflect:
         exclude_tables=None,
         disable_filter_reflecton=False,
     ):
-        self.types = {}
-        self.fields = {}
+        self._types = {}
+        self._fields = {}
         self._extra_fields = {}
         self._db = db
         self.include_tables = include_tables
@@ -110,6 +130,25 @@ class Reflect:
 
         with self.db:
             self._reflect()
+
+    @property
+    def types(self) -> t.Dict[str, desc.Type]:
+        """ A dict of types reflected from a database schema.
+
+        Use this to access types and add new fields::
+
+            reflection.types['region'].add_field(
+                name="greeting",
+                field=query("Hello, " + q.name + "!")
+            )
+
+        """
+        return self._types
+
+    @property
+    def fields(self) -> t.Dict[str, desc.Field]:
+        """ A dict of fields reflected from a database schema."""
+        return self._fields
 
     @cached_property
     def db(self):
@@ -154,7 +193,7 @@ class Reflect:
                         # and raise an error.
                         pass
                     elif table_binding is not None:
-                        fieldtype = self.types[table_binding.table.name]
+                        fieldtype = self._types[table_binding.table.name]
                     else:
                         # This is likely a column, the type will be inferred by
                         # rex.graphql.model later.
@@ -176,7 +215,7 @@ class Reflect:
                             label.arc, query
                         )
                     else:
-                        fieldtype = self.types[table.name]
+                        fieldtype = self._types[table.name]
                         fields[label.name] = desc.query(
                             query, type=fieldtype, loc=None
                         )
@@ -244,16 +283,16 @@ class Reflect:
         table = arc.target.table
 
         # Get entitytype for the table
-        entitytype = self.types.get(table.name)
+        entitytype = self._types.get(table.name)
         if entitytype is None:
             entitytype = desc.Entity(
                 name=table.name, fields=self._reflect_fields(arc), loc=None
             )
-            self.types[table.name] = entitytype
+            self._types[table.name] = entitytype
 
         # Get connectiontype for the entitytype
         connectiontype_name = desc.connectiontype_name(entitytype)
-        connectiontype = self.types.get(connectiontype_name)
+        connectiontype = self._types.get(connectiontype_name)
         if connectiontype is None:
             filters = []
             if not self.disable_filter_reflecton:
@@ -266,7 +305,7 @@ class Reflect:
             connectiontype = desc.connectiontype_uncached(
                 entitytype, filters=filters
             )
-            self.types[connectiontype_name] = connectiontype
+            self._types[connectiontype_name] = connectiontype
 
         return desc.query(
             query=q.define(entity=query),
@@ -283,17 +322,39 @@ class Reflect:
             query = q.navigate(label.name)
             if not self.is_table_allowed(arc.target.table):
                 continue
-            self.fields[label.name] = self._reflect_connection(arc, query)
+            self._fields[label.name] = self._reflect_connection(arc, query)
         # Seal all fields so all reflection code runs here
-        for field in self.fields.values():
+        for field in self._fields.values():
             desc.seal(field)
 
     def add_field(self, name, field):
+        """ Add new GraphQL field.
+
+        Example::
+
+            reflection.add_field(
+                name="region_count",
+                field=query(q.region.count())
+            )
+        """
         self._extra_fields[name] = field
 
-    def to_schema(self):
-        fields = lambda: {**self.fields, **self._extra_fields}
+    def to_schema(self) -> Schema:
+        """ Obtain reflected GraphQL schema."""
+        fields = lambda: {**self._fields, **self._extra_fields}
         return schema(fields=fields, db=self.db, loc=None)
 
 
-reflect = Reflect
+def reflect(
+    db=None,
+    include_tables=None,
+    exclude_tables=None,
+    disable_filter_reflecton=False,
+):
+    """ Create :class:`Reflect` instance."""
+    return Reflect(
+        db=db,
+        include_tables=include_tables,
+        exclude_tables=exclude_tables,
+        disable_filter_reflecton=disable_filter_reflecton,
+    )

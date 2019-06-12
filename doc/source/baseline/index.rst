@@ -47,6 +47,7 @@ Components
    REX.PORTAL_CLIENT <rex.portal_client/index>
    REX.QUERY <rex.query/index>
    REX.RESTFUL <rex.restful/index>
+   REX.GRAPHQL <rex.graphql/index>
    REX.SENDMAIL <rex.sendmail/index>
    REX.SETUP <rex.setup/index>
    REX.SMS <rex.sms/index>

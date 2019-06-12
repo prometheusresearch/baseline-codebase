@@ -1371,6 +1371,51 @@ def test_query_record():
     }
 
 
+def test_query_group():
+    # We are going to use Record as the result of this is not a table but a
+    # select.
+    region_stat = Record(
+        name="region_stat",
+        fields=lambda: {
+            "region_name": query(q.region_name),
+            "nation_count": query(q.nation_count),
+        },
+    )
+    sch = schema(
+        fields=lambda: {
+            "region_stat": query(
+                query=(
+                    q.nation.group(region_name=q.region.name).select(
+                        region_name=q.region_name,
+                        nation_count=q.nation.count(),
+                    )
+                ),
+                type=region_stat,
+            )
+        }
+    )
+    data = execute(
+        sch,
+        """
+        query {
+            region_stat {
+                region_name
+                nation_count
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region_stat": [
+            {"nation_count": 5, "region_name": "AFRICA"},
+            {"nation_count": 5, "region_name": "AMERICA"},
+            {"nation_count": 5, "region_name": "ASIA"},
+            {"nation_count": 5, "region_name": "EUROPE"},
+            {"nation_count": 5, "region_name": "MIDDLE EAST"},
+        ]
+    }
+
+
 def test_query_record_select():
     expect = {
         "region": [
@@ -1516,7 +1561,7 @@ def test_query_param():
     current_region = param(
         name="current_region",
         type=scalar.String,
-        compute=lambda parent, ctx: ctx["region"],
+        f=lambda parent, ctx: ctx["region"],
     )
     nation = Entity(name="nation", fields=lambda: {"name": query(q.name)})
     sch = schema(
@@ -1572,7 +1617,7 @@ def test_err_query_param_invalid_type():
     num_nations = param(
         name="current_region",
         type=scalar.Int,
-        compute=lambda parent, ctx: "oops",
+        f=lambda parent, ctx: "oops",
     )
     region = Entity(name="region", fields=lambda: {"name": query(q.name)})
     sch = schema(

@@ -7,13 +7,17 @@
 
 """
 
+import typing as t
+
 from rex.core import Error
-from rex.db import get_db
+from rex.db import get_db, RexHTSQL
 
 from . import introspection, model, model_scalar, desc, code_location
 
 
 class Schema:
+    """ GraphQL schema."""
+
     def __init__(self, type, types, loc):
         self.type = type
         self.types = types
@@ -26,7 +30,11 @@ class Schema:
         return self.types.get(name, default)
 
 
-def schema(fields, db=None, loc=desc.autoloc):
+def schema(
+    fields: desc.FieldsType,
+    db: t.Optional[t.Union[RexHTSQL, str]] = None,
+    loc=desc.autoloc,
+) -> Schema:
     """ Define a GraphQL schema.
 
     Schema is defined by supplying a set of either :func:`compute` or
@@ -34,16 +42,19 @@ def schema(fields, db=None, loc=desc.autoloc):
 
     Example::
 
-        sch = schema(
-            fields=lambda: {
-                'region': query(q.region, type=region),
-                'settings': compute(get_settings, type=settings)
-            }
-        )
+        >>> sch = schema(
+        ...     fields=lambda: {
+        ...         'region': query(q.region, type=region),
+        ...         'settings': compute(type=settings, f=get_settings)
+        ...     }
+        ... )
 
     If ``db`` argument is passed then it will be used to validate query fields
     against the database, otherwise the default database (returned via
     ``rex.db.get_db()`` will be used).
+
+    :param fields: Fields for the root query type
+    :param db: Database to use, if ``None`` then the default one is used
     """
     if not callable(fields):
         raise Error("Argument 'fields' should be a function")

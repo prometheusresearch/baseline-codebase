@@ -662,13 +662,13 @@ def compute(
             fields=lambda: {'title': compute(scalar.String)}
         )
 
-        def get_settings():
+        def get_settings(parent, info, args):
             return {'title': 'App'}
 
         schema(fields=lambda: {
             'settings': compute(
-            type=settings,
-            f=get_settings
+                type=settings,
+                f=get_settings
             )
         })
 
@@ -694,14 +694,22 @@ def compute(
 
 #: Define a GraphQL argument.
 def argument(
-    name,
-    type,
-    default_value=None,
-    description=None,
-    out_name=None,
+    name: str,
+    type: Type,
+    default_value: t.Any = None,
+    description: str = None,
+    out_name: str = None,
     loc=autoloc,
 ) -> Param:
-    """ Define a parameter as a GraphQL argument."""
+    """ Define a parameter as a GraphQL argument.
+
+    :param name: Name of the parameter
+    :param type: Type of the parameter
+    :param default_value:
+        Default value which will be used if argument was not
+        provided
+    :param description: Description of the parameter
+    """
     loc = code_location.here() if loc is autoloc else loc
     return Argument(
         name=name,
@@ -714,12 +722,48 @@ def argument(
 
 
 #: Define a parameter.
-def param(name, type, f) -> Param:
-    """ Define a parameter which computes its value at runtime."""
+def param(
+    name: str, type: t.Optional[Type], f: t.Callable[[t.Any, t.Any], t.Any]
+) -> Param:
+    """ Define a parameter which computes its value at runtime.
+
+    Example::
+
+        current_user = param(
+            name='user',
+            type=scalar.String,
+            f=lambda parent, context: context['user']
+        )
+
+    Define a field which references this param::
+
+        query(
+            q.user.filter(q.name == current_user).first(),
+            type=user,
+            description="Current user"
+        )
+
+    Then later supply the corresponding context to :func:`execute`::
+
+        execute(query, context={'user': req.current_user})
+
+    :param name: Name of the parameter
+    :param type: Type of the parameter
+    :param f:
+        Function which takes the parent object and context and returns the
+        paramer value
+    """
     return ComputedParam(name=name, type=type, f=f)
 
 
 #: Parameter which points to the parent object in GraphQL schema.
-parent_param = ComputedParam(
-    name="parent", type=None, f=lambda parent, ctx: parent
-)
+#:
+#: Note that this can be used only for :func:`compute` fields.
+#:
+#: Example::
+#:
+#:   @compute_from_function
+#:   def get_parent(parent: parent_param):
+#:       return parent.name
+#:
+parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)

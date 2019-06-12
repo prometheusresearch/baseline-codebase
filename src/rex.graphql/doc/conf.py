@@ -7,8 +7,7 @@ project = "rex.graphql"
 html_title = "REX.GRAPHQL Documentation"
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinxcontrib.autorex",
-    "sphinx_autodoc_typehints",
+    "sphinxcontrib.autorex"
 ]
 master_doc = "index"
 default_role = "obj"

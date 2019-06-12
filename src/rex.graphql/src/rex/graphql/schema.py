@@ -16,6 +16,8 @@ from . import introspection, model, model_scalar, desc, code_location
 
 
 class Schema:
+    """ GraphQL schema."""
+
     def __init__(self, type, types, loc):
         self.type = type
         self.types = types
@@ -32,11 +34,8 @@ def schema(
     fields: desc.FieldsType,
     db: t.Optional[t.Union[RexHTSQL, str]] = None,
     loc=desc.autoloc,
-):
+) -> Schema:
     """ Define a GraphQL schema.
-
-    :param fields: Fields for the root query type
-    :param db: Database to use, if ``None`` then the default one is used
 
     Schema is defined by supplying a set of either :func:`compute` or
     :func:`query` fields.
@@ -53,6 +52,9 @@ def schema(
     If ``db`` argument is passed then it will be used to validate query fields
     against the database, otherwise the default database (returned via
     ``rex.db.get_db()`` will be used).
+
+    :param fields: Fields for the root query type
+    :param db: Database to use, if ``None`` then the default one is used
     """
     if not callable(fields):
         raise Error("Argument 'fields' should be a function")

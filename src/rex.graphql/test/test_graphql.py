@@ -1561,7 +1561,7 @@ def test_query_param():
     current_region = param(
         name="current_region",
         type=scalar.String,
-        compute=lambda parent, ctx: ctx["region"],
+        f=lambda parent, ctx: ctx["region"],
     )
     nation = Entity(name="nation", fields=lambda: {"name": query(q.name)})
     sch = schema(
@@ -1617,7 +1617,7 @@ def test_err_query_param_invalid_type():
     num_nations = param(
         name="current_region",
         type=scalar.Int,
-        compute=lambda parent, ctx: "oops",
+        f=lambda parent, ctx: "oops",
     )
     region = Entity(name="region", fields=lambda: {"name": query(q.name)})
     sch = schema(

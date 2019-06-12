@@ -208,7 +208,7 @@ class Query(Field):
         else:
             self.params[param.name] = param
 
-    def add_filter(self, filter: t.Union[QueryCombinator, 'Filter']):
+    def add_filter(self, filter: t.Union[QueryCombinator, "Filter"]):
         """ Add new filter
 
         :param filter: Filter to add.
@@ -239,6 +239,13 @@ class ScalarTypeFactory:
         return Scalar(name=name, loc=None)
 
 
+#: Namespace to describe GraphQL scalar types by its name.
+#:
+#: Example::
+#:
+#:   String = scalar.String
+#:   Int = scalar.Int
+#:
 scalar = ScalarTypeFactory()
 
 
@@ -391,7 +398,9 @@ def filter_from_function(f):
     return FilterOfFunction(params=params, f=f)
 
 
-def compute_from_function(**config):
+def compute_from_function(
+    description=None, deprecation_reason=None, loc=autoloc
+) -> Field:
     """ Decorator which allows to define a :func:`compute` field from a
     function.
 
@@ -404,7 +413,11 @@ def compute_from_function(**config):
         @compute_from_function
         def add_numbers(x: scalar.Int, y: scalar.Int) -> scalar.Int:
             return x + y
+
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
     """
+    loc = code_location.here() if loc is autoloc else loc
 
     def decorate(f):
         params, return_type = extract_params(
@@ -421,7 +434,11 @@ def compute_from_function(**config):
             return f(**kwargs)
 
         return compute(
-            params=params.values(), f=run, type=return_type, **config
+            params=params.values(),
+            f=run,
+            type=return_type,
+            deprecation_reason=deprecation_reason,
+            description=description,
         )
 
     return decorate
@@ -526,13 +543,13 @@ class Argument(Param):
 class ComputedParam(Param):
     """ Param computed at runtime."""
 
-    def __init__(self, name, type, compute):
+    def __init__(self, name, type, f):
         self.name = name
         self.type = type
-        self.compute = compute
+        self.compute = f
 
     def with_type(self, type):
-        return self.__class__(name=self.name, type=type, compute=self.compute)
+        return self.__class__(name=self.name, type=type, f=self.compute)
 
     def __eq__(self, o):
         return (
@@ -589,13 +606,6 @@ def query(
     """
     Define a field which queries values from a database.
 
-    :param query:
-    :param type: GraphQL type
-    :param filters: A list of filters to apply
-    :param description: Description
-    :param deprecation_reason: Reason for deprecation
-    :param paginate: If automatic offset/limit arguments should be added
-
     Example::
 
         schema(fields=lambda: {
@@ -615,6 +625,12 @@ def query(
             )
         })
 
+    :param query:
+    :param type: GraphQL type
+    :param filters: A list of filters to apply
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
+    :param paginate: If automatic offset/limit arguments should be added
     """
     loc = code_location.here() if loc is autoloc else loc
     return Query(
@@ -639,12 +655,6 @@ def compute(
     """
     Define a field which computes value at runtime.
 
-    :param type: GraphQL type
-    :param f: Function used to compute the value of the field
-    :param params: Field params
-    :param description: Description
-    :param deprecation_reason: Reason for deprecation
-
     Example::
 
         settings = Object(
@@ -664,6 +674,12 @@ def compute(
 
     By default :func:`compute` computes the value as ``getattr(parent, name)``
     but ``f`` argument can be supplied instead.
+
+    :param type: GraphQL type
+    :param f: Function used to compute the value of the field
+    :param params: Field params
+    :param description: Description
+    :param deprecation_reason: Reason for deprecation
     """
     loc = code_location.here() if loc is autoloc else loc
     return Compute(
@@ -677,12 +693,33 @@ def compute(
 
 
 #: Define a GraphQL argument.
-argument = Argument
+def argument(
+    name,
+    type,
+    default_value=None,
+    description=None,
+    out_name=None,
+    loc=autoloc,
+) -> Param:
+    """ Define a parameter as a GraphQL argument."""
+    loc = code_location.here() if loc is autoloc else loc
+    return Argument(
+        name=name,
+        type=type,
+        default_value=default_value,
+        description=description,
+        out_name=out_name,
+        loc=loc,
+    )
+
 
 #: Define a parameter.
-param = ComputedParam
+def param(name, type, f) -> Param:
+    """ Define a parameter which computes its value at runtime."""
+    return ComputedParam(name=name, type=type, f=f)
+
 
 #: Parameter which points to the parent object in GraphQL schema.
 parent_param = ComputedParam(
-    name="parent", type=None, compute=lambda parent, ctx: parent
+    name="parent", type=None, f=lambda parent, ctx: parent
 )

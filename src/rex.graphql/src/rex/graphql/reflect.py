@@ -23,6 +23,8 @@
 
 """
 
+import typing as t
+
 from cached_property import cached_property
 from rex.db import get_db
 from htsql.core.tr.lookup import prescribe, unwrap
@@ -47,10 +49,11 @@ from htsql.core.model import (
 )
 from htsql.core.classify import classify, localize, relabel
 
-from . import desc, introspection, model, model_scalar, schema
+from . import desc, introspection, model, model_scalar, schema, Schema
 from .query import query as q
 
 __all__ = ("reflect", "Reflect")
+
 
 def type_from_domain(dom: domain.Domain):
     if isinstance(dom, domain.BooleanDomain):
@@ -118,7 +121,7 @@ class Reflect:
         disable_filter_reflecton=False,
     ):
         self._types = {}
-        self.fields = {}
+        self._fields = {}
         self._extra_fields = {}
         self._db = db
         self.include_tables = include_tables
@@ -129,7 +132,7 @@ class Reflect:
             self._reflect()
 
     @property
-    def types(self):
+    def types(self) -> t.Dict[str, desc.Type]:
         """ A dict of types reflected from a database schema.
 
         Use this to access types and add new fields::
@@ -141,6 +144,11 @@ class Reflect:
 
         """
         return self._types
+
+    @property
+    def fields(self) -> t.Dict[str, desc.Field]:
+        """ A dict of fields reflected from a database schema."""
+        return self._fields
 
     @cached_property
     def db(self):
@@ -314,9 +322,9 @@ class Reflect:
             query = q.navigate(label.name)
             if not self.is_table_allowed(arc.target.table):
                 continue
-            self.fields[label.name] = self._reflect_connection(arc, query)
+            self._fields[label.name] = self._reflect_connection(arc, query)
         # Seal all fields so all reflection code runs here
-        for field in self.fields.values():
+        for field in self._fields.values():
             desc.seal(field)
 
     def add_field(self, name, field):
@@ -331,9 +339,9 @@ class Reflect:
         """
         self._extra_fields[name] = field
 
-    def to_schema(self):
+    def to_schema(self) -> Schema:
         """ Obtain reflected GraphQL schema."""
-        fields = lambda: {**self.fields, **self._extra_fields}
+        fields = lambda: {**self._fields, **self._extra_fields}
         return schema(fields=fields, db=self.db, loc=None)
 
 
@@ -348,5 +356,5 @@ def reflect(
         db=db,
         include_tables=include_tables,
         exclude_tables=exclude_tables,
-        disable_filter_reflecton=disable_filter_reflecton
+        disable_filter_reflecton=disable_filter_reflecton,
     )

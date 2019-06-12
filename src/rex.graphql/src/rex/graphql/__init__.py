@@ -3,32 +3,43 @@
     rex.graphql
     ===========
 
-    GraphQL API for Rex applications.
+    :copyright: 2019-present Prometheus Research, LLC
 
 """
 
 __all__ = (
     "schema",
-    "Field",
+    "Schema",
+    # Abstract Base Classes
     "Type",
+    "Field",
+    "Param",
+    # Types: Types for Computed Fields
     "Object",
+    "List",
+    "NonNull",
+    "scalar",
+    # Types: Types for Computed Fields: Enums
     "Enum",
     "EnumValue",
-    "scalar",
-    "NonNull",
-    "List",
+    # Types: Types for Query Fields
     "Entity",
     "Record",
+    # Fields: Computed Fields
     "compute",
+    "compute_from_function",
+    # Fields: Query Fields
     "query",
     "connect",
+    "filter_from_function",
     "q",
+    # Parameters
     "argument",
     "param",
     "parent_param",
+    # Execution
     "execute",
-    "filter_from_function",
-    "compute_from_function",
+    "Result",
     "GraphQLError",
 )
 
@@ -37,6 +48,7 @@ from .query import query as q, execute as execute_q
 from .desc import (
     Field,
     Type,
+    Param,
     scalar,
     Object,
     Entity,
@@ -54,5 +66,5 @@ from .desc import (
     filter_from_function,
     compute_from_function,
 )
-from .execute import execute, execute_exn
-from .schema import schema
+from .execute import execute, execute_exn, Result
+from .schema import schema, Schema

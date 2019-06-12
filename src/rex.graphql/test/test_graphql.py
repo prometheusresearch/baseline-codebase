@@ -1650,5 +1650,60 @@ def test_mutation_simple():
 
     sch = schema(fields=lambda: {}, mutations=[increment])
     data = execute(sch, "mutation { increment(v: 10) }")
-    assert data == {'increment': 10}
+    assert data == {"increment": 10}
+    assert counter == 10
+
+
+def test_mutation_query_result():
+    counter = 0
+
+    RegionWithCounter = Record(
+        name="RegionWithCounter",
+        fields=lambda: {"name": query(q.name), "counter": query(q.counter)},
+    )
+
+    counter_param = param(
+        name="counter",
+        type=scalar.Int,
+        f=lambda parent, ctx: parent["counter"],
+    )
+
+    IncrementResult = Object(
+        name="IncrementResult",
+        fields=lambda: {
+            "region": query(
+                q.region.select(name=q.name, counter=counter_param),
+                type=RegionWithCounter,
+            )
+        },
+    )
+
+    @mutation_from_function()
+    def increment(v: scalar.Int) -> IncrementResult:
+        nonlocal counter
+        counter = counter + v
+        return {"counter": counter}
+
+    sch = schema(fields=lambda: {}, mutations=[increment])
+    data = execute(
+        sch,
+        """
+        mutation {
+            increment(v: 10) {
+                region { name, counter }
+            }
+        }
+        """,
+    )
+    assert data == {
+        "increment": {
+            "region": [
+                {"name": "AFRICA", "counter": 10},
+                {"name": "AMERICA", "counter": 10},
+                {"name": "ASIA", "counter": 10},
+                {"name": "EUROPE", "counter": 10},
+                {"name": "MIDDLE EAST", "counter": 10},
+            ]
+        }
+    }
     assert counter == 10

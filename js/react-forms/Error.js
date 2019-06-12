@@ -11,7 +11,7 @@ let safeToString = msg => {
     return msg;
   } else {
     // $FlowFixMe: ...
-    console.warning(msg);
+    console.warn(msg);
     return JSON.stringify(msg);
   }
 };

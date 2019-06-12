@@ -372,7 +372,7 @@ class WindowRPC {
       if (resolve != null) {
         resolve(evt.data.data);
       } else {
-        console.warning("Orphaned response:", evt);
+        console.warn("Orphaned response:", evt);
       }
     }
   };

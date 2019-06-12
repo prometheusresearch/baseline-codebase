@@ -253,6 +253,7 @@ class RexBindingState(BindingState):
             fields.append(field)
             recipe = SelectSyntaxRecipe(
                     binding, arg,
+                    vars=self.vars,
                     optional=selection.optional,
                     plural=selection.plural)
             recipes.append(recipe)
@@ -260,6 +261,7 @@ class RexBindingState(BindingState):
             if tag is not None:
                 recipe = DefinitionRecipe(
                         binding, arg,
+                        vars=self.vars,
                         optional=selection.optional,
                         plural=selection.plural)
                 recipe = ClosedRecipe(recipe)
@@ -313,6 +315,7 @@ class RexBindingState(BindingState):
                             " got:", ", ".join(map(str, args)))
             recipe = DefinitionRecipe(
                     binding, arg,
+                    vars=self.vars,
                     optional=definition.optional,
                     plural=definition.plural)
             #recipe = ClosedRecipe(recipe)

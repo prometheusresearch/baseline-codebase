@@ -31,14 +31,15 @@ class BindingRecipe(BindingRecipe):
 
 class DefinitionRecipe(Recipe):
 
-    def __init__(self, base, definition, optional=False, plural=False):
+    def __init__(self, base, definition, vars, optional=False, plural=False):
         self.base = base
         self.definition = definition
+        self.vars = vars
         self.optional = optional
         self.plural = plural
 
     def __basis__(self):
-        return (self.base, self.definition, self.optional, self.plural)
+        return (self.base, self.definition, self.optional, self.plural, self.vars)
 
 
 class SelectSyntaxRecipe(DefinitionRecipe):
@@ -55,7 +56,8 @@ class BindByDefinition(BindByRecipe):
                 self.recipe.base,
                 self.state.scope.syntax)
         self.state.push_scope(scope)
-        binding = self.state(self.recipe.definition).binding
+        with self.state.with_vars(self.recipe.vars):
+            binding = self.state(self.recipe.definition).binding
         self.state.pop_scope()
         return binding
 
@@ -70,7 +72,8 @@ class BindBySelectSyntax(BindByRecipe):
                 self.recipe.base,
                 self.state.scope.syntax)
         self.state.push_scope(scope)
-        binding = self.state.collect(self.state(self.recipe.definition))
+        with self.state.with_vars(self.recipe.vars):
+            binding = self.state.collect(self.state(self.recipe.definition))
         self.state.pop_scope()
         return binding
 

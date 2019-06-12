@@ -98,6 +98,27 @@ class Record(ObjectLike):
     If the result of a query is a row from a table it is more convenient to use
     :class:`Entity` type instead.
 
+    Example::
+
+        >>> stats = Record(
+        ...     name="stats",
+        ...     fields=lambda: {
+        ...         "name": query(q.name),
+        ...         "nation_count": query(q.nation_count),
+        ...     }
+        ... )
+
+    Now we can use it with a :func:`query` field::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'regionStats': query(
+        ...         q.nation
+        ...          .group(name=q.region.name)
+        ...          .select(name=q.name, nation_count=q.nation.count()),
+        ...         type=stats
+        ...     )
+        ... })
+
     :param name: Name of the type
     :param fields: Record fields
     """
@@ -108,6 +129,32 @@ class Entity(Record):
 
     Values of an Entity type are produced by :func:`query` fields when the
     corresponding query results in a row of some table.
+
+    Example::
+
+        >>> region = Entity(
+        ...     name="region",
+        ...     fields=lambda: {
+        ...         'name': query(q.name),
+        ...         'nation': query(q.nation, type=nation),
+        ...     }
+        ... )
+
+        >>> nation = Entity(
+        ...     name="nation",
+        ...     fields=lambda: {
+        ...         'name': query(q.name),
+        ...         'region': query(q.region, type=region),
+        ...     }
+        ... )
+
+    Note how using ``lambda: ...`` for fields allows us to define mutually
+    recursive type definitions. Now we can construct a schema::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region),
+        ...     'nation': query(q.nation, type=nation),
+        ... })
 
     :param name: Name of the type
     :param fields: Entity fields
@@ -288,7 +335,7 @@ class List(Type):
 
     Use when field results in a list of items of a specified type::
 
-        compute(get_items, type=List(Item))
+        >>> field = compute(List(scalar.String))
 
     """
 
@@ -301,7 +348,7 @@ class NonNull(Type):
 
     Use when field results in a value which should not be ``None``::
 
-        compute(get_exact_item, type=NonNull(Item))
+        >>> field = compute(NonNull(scalar.String))
 
     """
 
@@ -389,10 +436,35 @@ def extract_params(f, mark_as_nonnull_if_no_default_value=False):
 def filter_from_function(f):
     """ Decorator which allows to define a filter from a function.
 
+    The signature of a function is used to infer arguments and their types.
+
+    Example::
+
+        >>> @filter_from_function
+        ... def by_name(name: scalar.String):
+        ...     yield q.name == name
+
+    Now we can pass the filter to :func:`query` field::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region, filters=[by_name])
+        ... })
+
+    Note how ``name`` argument is configured for the ``region`` field::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region(name: "AFRICA") { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['AFRICA']
+
     .. note::
         Filters defined using :func:`filter_from_function` are not being
         typechecked against database schema and therefore it is advised not to
         use it unless absolutely neccessary. Prefer to use filters-as-queries.
+
     """
     params, _ = extract_params(f)
     return FilterOfFunction(params=params, f=f)
@@ -410,9 +482,14 @@ def compute_from_function(
 
     Example::
 
-        @compute_from_function
-        def add_numbers(x: scalar.Int, y: scalar.Int) -> scalar.Int:
-            return x + y
+        >>> @compute_from_function()
+        ... def add_numbers(x: scalar.Int, y: scalar.Int) -> scalar.Int:
+        ...     return x + y
+
+        >>> sch = schema(fields=lambda: {'add': add_numbers})
+        >>> data = execute(sch, '{ four: add(x: 2, y: 2) }')
+        >>> data.data['four']
+        4
 
     :param description: Description
     :param deprecation_reason: Reason for deprecation
@@ -488,7 +565,78 @@ def connectiontype_uncached(entitytype, filters=None):
 connectiontype = cached(connectiontype_uncached)
 
 
-def connect(type, query=None, filters=None, loc=autoloc):
+def connect(
+    type: Entity,
+    query: QueryCombinator = None,
+    filters: t.List[Filter] = None,
+    loc=autoloc,
+):
+    """ Configure a :func:`query` field for querying tables or one-to-many
+    links between tables.
+
+    This generates a new :func:`Record` type with fields: ``get`` to query for a
+    single row by id, ``all`` - all rows, ``paginated`` - all rows paginated and
+    ``count`` - count all rows in a table.
+
+    Example::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': connect(region, query=q.region)
+        ... })
+
+    Getting a row by id::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         africa: get(id: "AFRICA") { name }
+        ...     }
+        ... }
+        ... ''')
+        >>> data.data["region"]["africa"]["name"]
+        'AFRICA'
+
+    Getting all rows::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         all { name }
+        ...     }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']['all']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+
+    Getting all rows by page::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         paginated(limit: 2) { name }
+        ...     }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']['paginated']]
+        ['AFRICA', 'AMERICA']
+
+    Count all rows::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region {
+        ...         count
+        ...     }
+        ... }
+        ... ''')
+        >>> data.data["region"]["count"]
+        5
+
+    :param type: Entity type configure connect field for
+    :param query:
+        Query, if ``None`` is passed then the name of the entity type is used
+    :param filters: List of filters to add to ``all`` and ``paginated`` fields.
+    """
 
     loc = code_location.here() if loc is autoloc else loc
     if query is None:
@@ -560,40 +708,6 @@ class ComputedParam(Param):
         )
 
 
-@functools.singledispatch
-def seal(descriptor):
-    assert False, f"Do not know how to seal {descriptor!r}"
-
-
-@seal.register(Object)
-@seal.register(Record)
-@seal.register(Entity)
-def _(descriptor):
-    if callable(descriptor._fields):
-        descriptor._fields = descriptor._fields()
-        for v in descriptor._fields.values():
-            seal(v)
-
-
-@seal.register(List)
-@seal.register(NonNull)
-def _(descriptor):
-    seal(descriptor.type)
-
-
-@seal.register(Enum)
-@seal.register(Scalar)
-def _(descriptor):
-    pass
-
-
-@seal.register(Compute)
-@seal.register(Query)
-def _(descriptor):
-    if descriptor.type is not None:
-        seal(descriptor.type)
-
-
 def query(
     query: QueryCombinator,
     type: Type = None,
@@ -604,26 +718,37 @@ def query(
     loc=autoloc,
 ) -> Field:
     """
-    Define a field which queries values from a database.
+    Define a field which queries data from a database.
 
     Example::
 
-        schema(fields=lambda: {
-            'regionCount': query(
-            query=q.region.count(),
-            )
-        })
+        >>> sch = schema(fields=lambda: {
+        ...     'regionCount': query(q.region.count())
+        ... })
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     regionCount
+        ... }
+        ... ''')
+        >>> data.data['regionCount']
+        5
 
     In case query results in a scalar value (like the example above) rex.graphql
-    can infer result type automatically. Oherwise you need to specify it::
+    can infer result type automatically. Oherwise you need to specify it (the
+    type should be described by :class:`Entity` or :class:`Record`)::
 
-        region = Entity(name="region", fields=lambda: { ... })
-        schema(fields=lambda: {
-            'regionCount': query(
-            query=q.region,
-            type=region,
-            )
-        })
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region)
+        ... })
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
 
     :param query:
     :param type: GraphQL type
@@ -657,20 +782,30 @@ def compute(
 
     Example::
 
-        settings = Object(
-            name='Settings',
-            fields=lambda: {'title': compute(scalar.String)}
-        )
+        >>> class AppSettings:
+        ...     title = 'AppTitle'
 
-        def get_settings(parent, info, args):
-            return {'title': 'App'}
+        >>> settings = Object(
+        ...     name='Settings',
+        ...     fields=lambda: {
+        ...         'title': compute(scalar.String)
+        ...     }
+        ... )
 
-        schema(fields=lambda: {
-            'settings': compute(
-                type=settings,
-                f=get_settings
-            )
-        })
+        >>> sch = schema(fields=lambda: {
+        ...     'settings': compute(
+        ...         type=settings,
+        ...         f=lambda parent, info, args: AppSettings
+        ...     )
+        ... })
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     settings { title }
+        ... }
+        ... ''')
+        >>> data.data['settings']
+        OrderedDict([('title', 'AppTitle')])
 
     By default :func:`compute` computes the value as ``getattr(parent, name)``
     but ``f`` argument can be supplied instead.
@@ -703,6 +838,31 @@ def argument(
 ) -> Param:
     """ Define a parameter as a GraphQL argument.
 
+    Example usage with :func:`query` fields::
+
+        >>> name = argument(
+        ...     name="name",
+        ...     type=scalar.String,
+        ... )
+
+    Use an argument inside a query::
+
+        >>> sch = schema(
+        ...     fields=lambda: {
+        ...         'regionByName': query(
+        ...             q.region.filter(q.name == name).first(),
+        ...             type=region,
+        ...         )
+        ...     }
+        ... )
+        >>> data = execute(sch, '''
+        ... {
+        ...     regionByName(name: "AFRICA") { name }
+        ... }
+        ... ''')
+        >>> data.data['regionByName']['name']
+        'AFRICA'
+
     :param name: Name of the parameter
     :param type: Type of the parameter
     :param default_value:
@@ -729,23 +889,32 @@ def param(
 
     Example::
 
-        current_user = param(
-            name='user',
-            type=scalar.String,
-            f=lambda parent, context: context['user']
-        )
+        >>> current_region = param(
+        ...     name='region',
+        ...     type=scalar.String,
+        ...     f=lambda parent, context: context['region']
+        ... )
 
     Define a field which references this param::
 
-        query(
-            q.user.filter(q.name == current_user).first(),
-            type=user,
-            description="Current user"
-        )
+        >>> sch = schema(
+        ...     fields=lambda: {
+        ...         'currentRegion': query(
+        ...             q.region.filter(q.name == current_region).first(),
+        ...             type=region,
+        ...         )
+        ...     }
+        ... )
 
     Then later supply the corresponding context to :func:`execute`::
 
-        execute(query, context={'user': req.current_user})
+        >>> data = execute(sch, '''
+        ... {
+        ...     currentRegion { name }
+        ... }
+        ... ''', context={'region': 'AFRICA'})
+        >>> data.data['currentRegion']['name']
+        'AFRICA'
 
     :param name: Name of the parameter
     :param type: Type of the parameter
@@ -762,8 +931,42 @@ def param(
 #:
 #: Example::
 #:
-#:   @compute_from_function
-#:   def get_parent(parent: parent_param):
-#:       return parent.name
+#:   >>> @compute_from_function
+#:   ... def get_parent(parent: parent_param):
+#:   ...    return parent.name
 #:
 parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)
+
+
+@functools.singledispatch
+def seal(descriptor):
+    assert False, f"Do not know how to seal {descriptor!r}"
+
+
+@seal.register(Object)
+@seal.register(Record)
+@seal.register(Entity)
+def _(descriptor):
+    if callable(descriptor._fields):
+        descriptor._fields = descriptor._fields()
+        for v in descriptor._fields.values():
+            seal(v)
+
+
+@seal.register(List)
+@seal.register(NonNull)
+def _(descriptor):
+    seal(descriptor.type)
+
+
+@seal.register(Enum)
+@seal.register(Scalar)
+def _(descriptor):
+    pass
+
+
+@seal.register(Compute)
+@seal.register(Query)
+def _(descriptor):
+    if descriptor.type is not None:
+        seal(descriptor.type)

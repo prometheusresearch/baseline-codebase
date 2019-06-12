@@ -1113,7 +1113,7 @@ def execute(
             schema=schema,
             query=query,
             variables=variables,
-            context=None,
+            context=context,
             db=db,
         )
         return Result(data=data)

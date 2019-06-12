@@ -42,12 +42,12 @@ def schema(
 
     Example::
 
-        sch = schema(
-            fields=lambda: {
-                'region': query(q.region, type=region),
-                'settings': compute(get_settings, type=settings)
-            }
-        )
+        >>> sch = schema(
+        ...     fields=lambda: {
+        ...         'region': query(q.region, type=region),
+        ...         'settings': compute(type=settings, f=get_settings)
+        ...     }
+        ... )
 
     If ``db`` argument is passed then it will be used to validate query fields
     against the database, otherwise the default database (returned via

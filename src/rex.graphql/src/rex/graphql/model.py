@@ -608,7 +608,6 @@ def _(descriptor, ctx):
 
 @construct.register(desc.Compute)
 def _(descriptor, ctx, name):
-    assert isinstance(ctx, TypeSchemaContext)
 
     with code_location.context(
         descriptor.loc, desc="While configuring computation:"

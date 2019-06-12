@@ -22,8 +22,8 @@ Setup::
    ...         return
    ...     #assert False, "expected rex.core.Error exception"
 
-   >>> db = "pgsql:query_demo"
-   >>> rex = Rex("rex.query_demo", db=db)
+   >>> db = "pgsql:graphql_demo"
+   >>> rex = Rex("rex.graphql_demo", db=db)
    >>> rex.on()
 
 Multiple entities defined with the same name::

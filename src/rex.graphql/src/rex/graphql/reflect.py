@@ -122,6 +122,7 @@ class Reflect:
     ):
         self._types = {}
         self._fields = {}
+        self._mutations = []
         self._extra_fields = {}
         self._db = db
         self.include_tables = include_tables
@@ -339,10 +340,16 @@ class Reflect:
         """
         self._extra_fields[name] = field
 
+    def add_mutation(self, mutation: desc.Mutation):
+        """ Add new GraphQL mutation."""
+        self._mutations.append(mutation)
+
     def to_schema(self) -> Schema:
         """ Obtain reflected GraphQL schema."""
         fields = lambda: {**self._fields, **self._extra_fields}
-        return schema(fields=fields, db=self.db, loc=None)
+        return schema(
+            fields=fields, db=self.db, mutations=self._mutations, loc=None
+        )
 
 
 def reflect(

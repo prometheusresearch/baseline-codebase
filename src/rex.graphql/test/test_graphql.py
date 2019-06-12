@@ -23,6 +23,7 @@ from rex.graphql import (
     GraphQLError,
     filter_from_function,
     compute_from_function,
+    mutation_from_function,
 )
 from rex.core import Rex, Error, cached
 
@@ -30,8 +31,8 @@ from rex.core import Rex, Error, cached
 @pytest.fixture(scope="module")
 def rex():
     # Create Rex instance for all tests.
-    db = "pgsql:query_demo"
-    rex = Rex("rex.query_demo", db=db)
+    db = "pgsql:graphql_demo"
+    rex = Rex("rex.graphql_demo", db=db)
     return rex
 
 
@@ -1615,9 +1616,7 @@ def test_query_param():
 
 def test_err_query_param_invalid_type():
     num_nations = param(
-        name="current_region",
-        type=scalar.Int,
-        f=lambda parent, ctx: "oops",
+        name="current_region", type=scalar.Int, f=lambda parent, ctx: "oops"
     )
     region = Entity(name="region", fields=lambda: {"name": query(q.name)})
     sch = schema(
@@ -1638,3 +1637,18 @@ def test_err_query_param_invalid_type():
             }
             """,
         )
+
+
+def test_mutation_simple():
+    counter = 0
+
+    @mutation_from_function()
+    def increment(v: scalar.Int) -> scalar.Int:
+        nonlocal counter
+        counter = counter + v
+        return counter
+
+    sch = schema(fields=lambda: {}, mutations=[increment])
+    data = execute(sch, "mutation { increment(v: 10) }")
+    assert data == {'increment': 10}
+    assert counter == 10

@@ -33,14 +33,13 @@ __Schema = Object(
         "queryType": compute(
             description="The type that query operations will be rooted at.",
             type=NonNull(__Type),
-            f=lambda schema, info, params: schema.type,
+            f=lambda schema, info, params: schema.query_type,
         ),
         "mutationType": compute(
             description="If this server supports mutation, the type that "
             "mutation operations will be rooted at.",
             type=__Type,
-            # TODO: Fix this if-when we start supporting mutations.
-            f=lambda schema, info, params: None,
+            f=lambda schema, info, params: schema.mutation_type,
         ),
         "subscriptionType": compute(
             description="If this server support subscription, the type "

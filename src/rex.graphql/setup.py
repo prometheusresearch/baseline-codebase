@@ -21,6 +21,8 @@ setup(
         "rex.db",
         "rex.web",
         "rex.logging",
+        "rex.query",
+        "rex.deploy",
         "HTSQL",
         "webob >=1.8.2, <1.9",
         "graphql-core == 2.1",

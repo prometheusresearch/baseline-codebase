@@ -3,16 +3,16 @@ tests:
 
 - coverage: setup.cfg
 
-- sh: pip install -q -e ../rex.query/demo
+- sh: pip install -q -e ./demo
   ignore: true
-- sh: rex dropdb -q rex.query_demo
+- sh: rex dropdb -q rex.graphql_demo
   ignore: true
-- sh: rex query-demo-populate rex.query_demo -q
+- sh: rex graphql-demo-populate rex.graphql_demo -q
   ignore: true
 
 - pytest: .
 
-- sh: pip uninstall -q -y rex.query_demo
+- sh: pip uninstall -q -y rex.graphql_demo
   ignore: true
 
 - coverage-check: 70.0

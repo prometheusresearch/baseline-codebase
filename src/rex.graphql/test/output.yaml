@@ -4,13 +4,11 @@
 ---
 suite: rex.graphql
 tests:
-- sh: pip install -q -e ../rex.query/demo
+- sh: pip install -q -e ./demo
   stdout: |
     You are using pip version 18.1, however version 19.1.1 is available.
     You should consider upgrading via the 'pip install --upgrade pip' command.
-- sh: rex dropdb -q rex.query_demo
+- sh: rex dropdb -q rex.graphql_demo
   stdout: ''
-- sh: rex query-demo-populate rex.query_demo -q
-  stdout: ''
-- sh: pip uninstall -q -y rex.query_demo
+- sh: rex graphql-demo-populate rex.graphql_demo -q
   stdout: ''

@@ -1059,15 +1059,16 @@ def execute_exn(schema, query: str, variables=None, context=None, db=None):
     operation = ctx.operation
 
     if operation.operation == "mutation":
-        # TODO: support mutations
-        raise NotImplementedError("GraphQL mutations are not supported")
-    if operation.operation == "subscription":
+        root_type = schema.mutation_type
+    elif operation.operation == "query":
+        root_type = schema.query_type
+    elif operation.operation == "subscription":
         # TODO: support subscriptions
         raise NotImplementedError("GraphQL subscriptions are not supported")
 
     fields = collect_fields(
         ctx=ctx,
-        runtime_type=schema.type,
+        runtime_type=root_type,
         selection_set=operation.selection_set,
         fields={},
     )
@@ -1078,7 +1079,7 @@ def execute_exn(schema, query: str, variables=None, context=None, db=None):
     with db:
         data = execute_fields(
             ctx=ctx,
-            parent_type=schema.type,
+            parent_type=root_type,
             parent=ctx.root_value,
             fields=fields,
             path=[],

@@ -6,8 +6,8 @@ from rex.core import Rex
 @pytest.fixture(scope="module")
 def rex():
     # Create Rex instance for all tests.
-    db = "pgsql:query_demo"
-    rex = Rex("rex.query_demo", db=db)
+    db = "pgsql:graphql_demo"
+    rex = Rex("rex.graphql_demo", db=db)
     return rex
 
 

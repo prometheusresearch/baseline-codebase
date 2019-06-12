@@ -1,0 +1,147 @@
+
+- table: region
+  with:
+  - column: name
+    type: text
+  - column: comment
+    type: text
+    required: false
+  - identity: [name]
+
+- table: nation
+  with:
+  - column: name
+    type: text
+  - link: region
+  - column: comment
+    type: text
+    required: false
+  - identity: [name]
+
+- table: customer
+  with:
+  - column: name
+    type: text
+  - column: address
+    type: text
+  - link: nation
+  - column: phone
+    type: text
+  - column: acctbal
+    type: decimal
+  - column: mktsegment
+    type: text
+  - column: comment
+    type: text
+    required: false
+  - identity: [name]
+
+- table: supplier
+  with:
+  - column: name
+    type: text
+  - column: address
+    type: text
+  - link: nation
+  - column: phone
+    type: text
+  - column: acctbal
+    type: decimal
+  - column: comment
+    type: text
+    required: false
+  - identity: [name]
+
+- table: part
+  with:
+  - column: name
+    type: text
+  - column: mfgr
+    type: text
+  - column: brand
+    type: text
+  - column: type
+    type: text
+  - column: size
+    type: integer
+  - column: container
+    type: text
+  - column: retailprice
+    type: decimal
+  - column: comment
+    type: text
+    required: false
+  - identity: [name]
+
+- table: partsupp
+  with:
+  - link: part
+  - link: supplier
+  - column: availqty
+    type: integer
+  - column: supplycost
+    type: decimal
+  - column: comment
+    type: text
+    required: false
+  - identity: [part, supplier]
+
+- table: order
+  with:
+  - column: key
+    type: integer
+  - link: customer
+  - column: orderstatus
+    type: [F, O, P]
+  - column: totalprice
+    type: decimal
+  - column: orderdate
+    type: date
+  - column: orderpriority
+    type: text
+  - column: clerk
+    type: text
+  - column: shippriority
+    type: integer
+  - column: comment
+    type: text
+    required: false
+  - identity: [key: offset]
+
+- table: lineitem
+  with:
+  - link: order
+  - link: partsupp
+  - column: linenumber
+    type: integer
+  - column: quantity
+    type: integer
+  - column: extendedprice
+    type: decimal
+  - column: discount
+    type: decimal
+  - column: tax
+    type: decimal
+  - column: returnflag
+    type: [A, N, R]
+  - column: linestatus
+    type: [F, O]
+  - column: shipdate
+    type: date
+  - column: commitdate
+    type: date
+  - column: receiptdate
+    type: date
+  - column: shipinstruct
+    type: text
+  - column: shipmode
+    type: text
+  - column: comment
+    type: text
+    required: false
+  - alias: part
+    expression: partsupp.part
+  - alias: supplier
+    expression: partsupp.supplier
+  - identity: [order, linenumber]
+

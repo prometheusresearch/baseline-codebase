@@ -939,6 +939,29 @@ def param(
 parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)
 
 
+class Mutation(Desc):
+    """ A GraphQL Mutation.
+    """
+
+    def __init__(self, name, compute):
+        self.name = name
+        self.compute = compute
+
+
+def mutation_from_function(
+    description=None, deprecation_reason=None, loc=autoloc
+):
+    make = compute_from_function(
+        description=description, deprecation_reason=deprecation_reason, loc=loc
+    )
+
+    def decorate(f):
+        name = f.__name__
+        return Mutation(name=name, compute=make(f))
+
+    return decorate
+
+
 @functools.singledispatch
 def seal(descriptor):
     assert False, f"Do not know how to seal {descriptor!r}"

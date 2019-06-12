@@ -37,6 +37,8 @@ __all__ = (
     "argument",
     "param",
     "parent_param",
+    # Mutations
+    "mutation_from_function",
     # Execution
     "execute",
     "Result",
@@ -65,6 +67,7 @@ from .desc import (
     connect,
     filter_from_function,
     compute_from_function,
+    mutation_from_function,
 )
 from .execute import execute, execute_exn, Result
 from .schema import schema, Schema

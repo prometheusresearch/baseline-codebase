@@ -6,8 +6,8 @@ def conf_doctest(doctest_namespace):
     from rex import graphql
     from rex.core import Rex
 
-    db = "pgsql:query_demo"
-    rex = Rex("rex.query_demo", db=db)
+    db = "pgsql:graphql_demo"
+    rex = Rex("rex.graphql_demo", db=db)
 
     class Settings:
         title = "AppTitle"

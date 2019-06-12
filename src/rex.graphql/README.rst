@@ -88,7 +88,7 @@ can only be created with an active Rex application as it uses it to validate
 types against database schema::
 
    >>> from rex.core import Rex
-   >>> rex = Rex('rex.query_demo')
+   >>> rex = Rex('rex.graphql_demo')
    >>> rex.on()
 
 Now we create our schema by supplying fields for the root query::
@@ -155,7 +155,7 @@ attempts to describe it with the help of examples.
 First we need an active Rex application so we can execute queries::
 
    >>> from rex.core import Rex
-   >>> rex = Rex('rex.query_demo')
+   >>> rex = Rex('rex.graphql_demo')
    >>> rex.on()
 
 All queries start with an initial query::
@@ -296,7 +296,7 @@ To use reflection API one must have Rex application active as the mechanism
 access the database to learn its schema::
 
    >>> from rex.core import Rex
-   >>> rex = Rex('rex.query_demo')
+   >>> rex = Rex('rex.graphql_demo')
    >>> rex.on()
 
 Use ``rex.graphql.reflect.reflect`` function to learn the database schema::

@@ -128,7 +128,8 @@ class Entity(Record):
     """ Define an entity type.
 
     Values of an Entity type are produced by :func:`query` fields when the
-    corresponding query results in a row of some table.
+    corresponding query results in a row of some table. This also automatically
+    adds an ``id`` field which returns the value of primary keys for the table.
 
     Example::
 

@@ -403,7 +403,7 @@ def check(arg, ctx, *args):
 def _(descriptor, ctx):
     with code_location.context(
         descriptor.loc,
-        desc=f"While configuring object type '{descriptor.name}':",
+        desc=f'While configuring object type "{descriptor.name}":',
     ):
         # Try to check if we have it constructd already
         type = ctx.root.types.get(descriptor.name)
@@ -434,7 +434,7 @@ def _(descriptor, ctx):
 @construct.register(desc.Entity)
 def _(descriptor, ctx):
     err_ctx = lambda: code_location.context(
-        descriptor.loc, desc=f"While configuring entity '{descriptor.name}':"
+        descriptor.loc, desc=f'While configuring entity "{descriptor.name}":'
     )
 
     with err_ctx():
@@ -492,7 +492,7 @@ def _(descriptor, ctx):
 @construct.register(desc.Record)
 def _(descriptor, ctx):
     err_ctx = lambda: code_location.context(
-        descriptor.loc, desc=f"While configuring record '{descriptor.name}':"
+        descriptor.loc, desc=f'While configuring record "{descriptor.name}":'
     )
 
     with err_ctx():
@@ -610,7 +610,7 @@ def _(descriptor, ctx):
 def _(descriptor, ctx, name):
 
     with code_location.context(
-        descriptor.loc, desc="While configuring computation:"
+        descriptor.loc, desc=f'While configuring computation "{name}":'
     ):
         ctx = ComputeSchemaContext(parent=ctx, loc=descriptor.loc)
         type = construct(descriptor.type, ctx)
@@ -630,7 +630,7 @@ def _(descriptor, ctx, name):
     assert isinstance(ctx, TypeSchemaContext)
 
     with code_location.context(
-        descriptor.loc, desc="While configuring query:"
+        descriptor.loc, desc=f'While configuring query "{name}":'
     ):
 
         params = {}

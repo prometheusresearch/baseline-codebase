@@ -22,7 +22,6 @@ SRC_PY = \
 	src/rex.i18n \
 	src/rex.forms \
 	src/rex.logging \
-	src/rex.graphql \
 	src/rex.restful \
 	src/rex.sms \
 	src/rex.widget_chrome \
@@ -35,6 +34,7 @@ SRC_PY = \
 	src/rex.job \
 	src/rex.mart \
 	src/rex.query \
+	src/rex.graphql \
 	src/rex.mart_actions \
 	src/rex.acquire_actions \
 	src/rex.assessment_import \

@@ -19,6 +19,8 @@ __all__ = (
     "List",
     "NonNull",
     "scalar",
+    "InputObject",
+    "InputObjectField",
     # Types: Types for Computed Fields: Enums
     "Enum",
     "EnumValue",
@@ -55,6 +57,8 @@ from .desc import (
     Object,
     Entity,
     Record,
+    InputObject,
+    InputObjectField,
     List,
     NonNull,
     Enum,

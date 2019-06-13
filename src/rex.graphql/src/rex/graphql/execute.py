@@ -15,9 +15,9 @@
 import sys
 import json
 import typing
-import collections
 import traceback
 import typing as t
+from collections import Iterable, OrderedDict, Mapping
 
 from htsql.core.tr.bind import BindingState, Select
 from htsql.core.tr.translate import translate
@@ -34,6 +34,7 @@ from rex.query.query import ApplySyntax, LiteralSyntax
 from rex.db import get_db
 from rex.query.bind import RexBindingState
 from .schema import Schema
+from .input_coercion import coerce_input_value, coerce_input_node, undefined
 from . import model, desc, introspection
 
 
@@ -310,7 +311,6 @@ def get_param_values(
             if name not in arg_node_map:
                 if param.default_value is not None:
                     result[arg_name] = param.default_value
-                    continue
                 elif isinstance(arg_type, model.NonNullType):
                     raise error.GraphQLError(
                         f'Argument "{name}" of required type {arg_type}"'
@@ -318,7 +318,7 @@ def get_param_values(
                         nodes=arg_nodes,
                     )
             elif isinstance(arg_node.value, language.ast.Variable):
-                variable_name = arg_node.value.name.value  # type: ignore
+                variable_name = arg_node.value.name.value
                 if variables and variable_name in variables:
                     result[arg_name] = variables[variable_name]
                 elif param.default_value is not None:
@@ -329,12 +329,13 @@ def get_param_values(
                         f' the variable "${variable_name}" which was not provided',
                         nodes=arg_nodes,
                     )
-                continue
-
             else:
-                value = value_from_node(
-                    arg_node.value, arg_type, variables
-                )  # type: ignore
+                value = coerce_input_node(
+                    arg_type,
+                    arg_node.value,
+                    variables=variables,
+                    message=f'Argument "{arg_name} : {arg_type}"',
+                )
                 if value is None:
                     if param.default_value is not None:
                         value = param.default_value
@@ -351,12 +352,10 @@ def get_param_values(
                     exc_info=sys.exc_info(),
                 )
             if param.type is not None:
-                errors = is_valid_value(param_value, param.type)
-                if errors:
-                    message = "\n".join(errors)
-                    raise error.GraphQLError(
-                        f'Param "{param.name}" got invalid value:\n{message}'
-                    )
+                message = f'Parameter "{param.name}" got invalid value:'
+                param_value = coerce_input_value(
+                    param.type, param_value, message=message, nodes=[]
+                )
             result[param.name] = param_value
 
     # Check for extra args
@@ -387,91 +386,41 @@ def get_variable_values(schema: Schema, definition_nodes, inputs):
     for def_node in definition_nodes:
         var_name = def_node.variable.name.value
         var_type = type_from_node(schema, def_node.type)
-        value = inputs.get(var_name)
+        value = inputs.get(var_name, undefined)
 
         if not model.is_input_type(var_type):
             var_type = language.printer.print_ast(def_node.type)
+            print(var_type, repr(var_type), var_type.__class__)
             raise error.GraphQLError(
                 f'Variable "${var_name}" expected value of type "{var_type}"'
                 f" which cannot be used as an input type.",
                 nodes=[def_node],
             )
-        elif value is None:
+        elif value is undefined or value is None:
             if def_node.default_value is not None:
-                values[var_name] = value_from_node(
-                    def_node.default_value, var_type
-                )  # type: ignore
-            if isinstance(var_type, model.NonNullType):
+                values[var_name] = coerce_input_node(
+                    var_type,
+                    def_node.default_value,
+                    variables=None,
+                    message=f'Variable "${var_name} : {var_type}" has invalid default value',
+                )
+            elif isinstance(var_type, model.NonNullType):
                 raise error.GraphQLError(
                     f'Variable "${var_name}" of required type "{var_type}" was'
                     f" not provided.",
                     nodes=[def_node],
                 )
         else:
-            errors = is_valid_value(value, var_type)
-            if errors:
-                message = "\n" + "\n".join(errors)
-                raise error.GraphQLError(
-                    'Variable "${}" got invalid value {}.{}'.format(
-                        var_name, json.dumps(value, sort_keys=True), message
-                    ),
-                    nodes=[def_node],
-                )
-            coerced_value = coerce_value(var_type, value)
-            if coerced_value is None:
-                raise Exception("Should have reported error.")
-
-            values[var_name] = coerced_value
+            message = f'Variable "${var_name} : {var_type}" got invalid value'
+            value = coerce_input_value(
+                var_type, value, message=message, nodes=[def_node]
+            )
+            values[var_name] = value
 
     return values
 
 
-def coerce_value(type, value):
-    # type: (Any, Any) -> Union[List, Dict, int, float, bool, str, None]
-    """Given a type and any value, return a runtime value coerced to match the
-    type."""
-    if isinstance(type, model.NonNullType):
-        # Note: we're not checking that the result of coerceValue is
-        # non-null.
-        # We only call this function after calling isValidValue.
-        return coerce_value(type.type, value)
-
-    if value is None:
-        return None
-
-    if isinstance(type, model.ListType):
-        item_type = type.type
-        if not isinstance(value, str) and isinstance(
-            value, collections.Iterable
-        ):
-            return [coerce_value(item_type, item) for item in value]
-        else:
-            return [coerce_value(item_type, value)]
-
-    # TODO:
-    # if isinstance(type, model.ObjectType):
-    #     fields = type.fields
-    #     obj = {}
-    #     for field_name, field in fields.items():
-    #         if field_name not in value:
-    #             if field.default_value is not None:
-    #                 field_value = field.default_value
-    #                 obj[field.out_name or field_name] = field_value
-    #         else:
-    #             field_value = coerce_value(field.type, value.get(field_name))
-    #             obj[field.out_name or field_name] = field_value
-
-    #     return type.create_container(obj)
-
-    assert isinstance(
-        type, (model.ScalarType, model.EnumType)
-    ), "Must be input type"
-
-    return type.parse_value(value)
-
-
 def type_from_node(schema, type_node):
-    # type: (GraphQLSchema, Union[ListType, NamedType, NonNullType]) -> Union[GraphQLList, GraphQLNonNull, GraphQLNamedType]
     if isinstance(type_node, language.ast.ListType):
         inner_type = type_from_node(schema, type_node.type)
         if not inner_type:
@@ -492,81 +441,6 @@ def type_from_node(schema, type_node):
     )
 
 
-def is_valid_value(value, type):
-    """Given a type and any value, return True if that value is valid."""
-    if isinstance(type, model.NonNullType):
-        of_type = type.type
-        if value is None:
-            return ['Expected "{}", found null.'.format(type)]
-
-        return is_valid_value(value, of_type)
-
-    if value is None:
-        return []
-
-    if isinstance(type, model.ListType):
-        item_type = type.type
-        if not isinstance(value, str) and isinstance(
-            value, collections.Iterable
-        ):
-            errors = []
-            for i, item in enumerate(value):
-                item_errors = is_valid_value(item, item_type)
-                for err in item_errors:
-                    errors.append("In element #{}: {}".format(i, err))
-
-            return errors
-
-        else:
-            return is_valid_value(value, item_type)
-
-    # TODO:
-    # if isinstance(type, GraphQLInputObjectType):
-    #     if not isinstance(value, collections.Mapping):
-    #         return ['Expected "{}", found not an object.'.format(type)]
-
-    #     fields = type.fields
-    #     errors = []
-
-    #     for provided_field in sorted(value.keys()):
-    #         if provided_field not in fields:
-    #             errors.append(
-    #                 'In field "{}": Unknown field.'.format(provided_field)
-    #             )
-
-    #     for field_name, field in fields.items():
-    #         subfield_errors = is_valid_value(value.get(field_name), field.type)
-    #         errors.extend(
-    #             'In field "{}": {}'.format(field_name, e)
-    #             for e in subfield_errors
-    #         )
-
-    #     return errors
-
-    assert isinstance(
-        type, (model.ScalarType, model.EnumType)
-    ), "Must be input type"
-
-    # Scalar/Enum input checks to ensure the type can parse the value to
-    # a non-null value.
-    try:
-        parse_result = type.parse_value(value)
-        if parse_result is None:
-            return [f'Expected type "{type}", found {json.dumps(value)}.']
-    except ValueError:
-        return [f'Expected type "{type}", found {json.dumps(value)}.']
-
-    return []
-
-
-class undefined(object):
-    def __repr__(self):
-        return "undefined"
-
-
-undefined = undefined()
-
-
 def execute_fields(
     ctx: ExecutionContext,
     parent_type: model.Type,
@@ -575,7 +449,7 @@ def execute_fields(
     path: typing.List,
     info: None,
 ) -> typing.Dict[str, typing.Any]:
-    result = collections.OrderedDict()
+    result = OrderedDict()
 
     for name, field_nodes in fields.items():
         field_result = execute_field(
@@ -665,7 +539,7 @@ def complete_data(
 
     if isinstance(return_type, model.RecordType):
         subfield_nodes = ctx.get_sub_fields(return_type, field_nodes)
-        result = collections.OrderedDict()
+        result = OrderedDict()
         data_idx = 0
         for name, field_nodes in subfield_nodes.items():
             field_node = field_nodes[0]
@@ -751,7 +625,7 @@ def complete_value(
 
     # If field type is List, complete each item in the list with the inner type
     if isinstance(return_type, model.ListType):
-        assert isinstance(result, collections.Iterable), (
+        assert isinstance(result, Iterable), (
             f"User Error: expected iterable, but did not find one "
             + f"for field {info.parent_type.name}.{info.field_name}."
         )
@@ -971,78 +845,6 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
     b = Select.__invoke__(b, state)
 
     return finalize(b)
-
-
-def value_from_node(value_node, type, variables=None):
-    """Given a type and a value AST node known to match this type, build a
-    runtime value."""
-    if isinstance(type, model.NonNullType):
-        # Note: we're not checking that the result of coerceValueAST is
-        # non-null.  We're assuming that this query has been validated and the
-        # value used here is of the correct type.
-        return value_from_node(value_node, type.type, variables)
-
-    if value_node is None:
-        return None
-
-    if isinstance(value_node, language.ast.Variable):
-        variable_name = value_node.name.value
-        if not variables or variable_name not in variables:
-            return None
-
-        # Note: we're not doing any checking that this variable is correct.
-        # We're assuming that this query has been validated and the variable
-        # usage here is of the correct type.
-        return variables.get(variable_name)
-
-    if isinstance(type, model.ListType):
-        item_type = type.type
-        if isinstance(value_node, language.ast.ListValue):
-            return [
-                value_from_node(item_node, item_type, variables)
-                for item_node in value_node.values
-            ]
-
-        else:
-            return [value_from_node(value_node, item_type, variables)]
-
-    if isinstance(type, model.ObjectType):
-        fields = type.fields
-        if not isinstance(value_node, language.ast.ObjectValue):
-            return None
-
-        field_nodes = {}
-
-        for field_node in value_node.fields:
-            field_nodes[field_node.name.value] = field_node
-
-        obj = {}
-        for field_name, field in fields.items():
-            if field_name not in field_nodes:
-                if field.default_value is not None:
-                    # We use out_name as the output name for the
-                    # dict if exists
-                    obj[field.out_name or field_name] = field.default_value
-
-                continue
-
-            field_node = field_nodes[field_name]
-            field_value_node = field_node.value
-            field_value = value_from_node(
-                field_value_node, field.type, variables
-            )
-
-            # We use out_name as the output name for the
-            # dict if exists
-            obj[field.out_name or field_name] = field_value
-
-        return type.create_container(obj)
-
-    assert isinstance(
-        type, (model.ScalarType, model.EnumType)
-    ), "Must be input type"
-
-    return type.parse_literal(value_node)
 
 
 def execute_exn(schema, query: str, variables=None, context=None, db=None):

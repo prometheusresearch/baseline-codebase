@@ -162,6 +162,38 @@ class Entity(Record):
     """
 
 
+class InputObject(Type):
+    """ InputObject type.
+
+    An object which is used as an input value (passed via argument).
+    """
+
+    def __init__(
+        self, name: str, fields: FieldsType, description=None, loc=autoloc
+    ):
+        if not callable(fields):
+            raise Error("Argument 'fields' should be a function")
+
+        self.loc = code_location.here() if loc is autoloc else loc
+        self.name = name
+        self.description = description
+        self._fields = fields
+
+    @property
+    def fields(self):
+        if callable(self._fields):
+            seal(self)
+        return self._fields
+
+
+class InputObjectField:
+    def __init__(self, type, default_value=None, out_name=None, loc=autoloc):
+        self.type = type
+        self.default_value = default_value
+        self.out_name = out_name
+        self.loc = code_location.here() if loc is autoloc else loc
+
+
 class Compute(Field):
     def __init__(
         self,
@@ -970,6 +1002,7 @@ def seal(descriptor):
 @seal.register(Object)
 @seal.register(Record)
 @seal.register(Entity)
+@seal.register(InputObject)
 def _(descriptor):
     if callable(descriptor._fields):
         descriptor._fields = descriptor._fields()
@@ -977,6 +1010,7 @@ def _(descriptor):
             seal(v)
 
 
+@seal.register(InputObjectField)
 @seal.register(List)
 @seal.register(NonNull)
 def _(descriptor):

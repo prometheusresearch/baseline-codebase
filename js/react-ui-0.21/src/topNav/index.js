@@ -2,8 +2,18 @@
  * @copyright 2016-present, Prometheus Research, LLC
  */
 
-export Title from './Title';
-export PrimaryButton from './PrimaryButton';
-export {PrimaryMenu, PrimaryMenuItem} from './PrimaryMenu';
-export SecondaryButton from './SecondaryButton';
-export Navigation from './Navigation';
+import Title from './Title';
+export {Title};
+
+import PrimaryButton from './PrimaryButton';
+export {PrimaryButton}
+
+import {PrimaryMenu, PrimaryMenuItem} from './PrimaryMenu';
+export {PrimaryMenu, PrimaryMenuItem};
+
+import SecondaryButton from './SecondaryButton';
+export {SecondaryButton};
+
+import Navigation from './Navigation';
+export {Navigation};
+

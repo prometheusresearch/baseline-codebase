@@ -1,0 +1,4 @@
+app: rex serve-uwsgi rex.forms_demo --set-uwsgi=socket=./run/forms.socket --set-uwsgi=chmod-socket=777 --set-uwsgi=buffer-size=65535 --set-uwsgi=die-on-term=true --set-uwsgi=exit-on-reload=true
+
+js: yarn --cwd js/rex-forms-demo run watch
+

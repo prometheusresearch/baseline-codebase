@@ -1,0 +1,8 @@
+@import "~normalize.css/normalize.css";
+
+body {
+  font-family: -apple-system, system, Helvetica, sans-serif;
+  font-size: 90%;
+  font-weight: 400;
+}
+

@@ -1,1 +1,1 @@
-module.exports = require('./lib/topNav');
+module.exports = require('./src/topNav');

@@ -1,0 +1,35 @@
+{
+  "name": "rex-forms-demo",
+  "version": "2.5.0",
+  "private": true,
+  "main": "./src/index.js",
+  "dependencies": {
+    "rex-forms": "*",
+    "rex-i18n": "*",
+    "react-dom-stylesheet": "*",
+    "@prometheusresearch/react-ui-0.21": "*",
+    "normalize.css": "^4.1.1",
+    "react": "*",
+    "react-dom": "*",
+    "lodash": "*"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "watch": "node scripts/watch.js",
+    "test": "exit 0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  }
+}

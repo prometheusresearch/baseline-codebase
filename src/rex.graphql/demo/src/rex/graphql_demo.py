@@ -1,5 +1,6 @@
 import os
 import tempfile
+import collections
 import urllib.request, urllib.parse, urllib.error
 import csv
 
@@ -7,7 +8,15 @@ from rex.ctl import RexTask, option, log
 from rex.db import get_db
 from rex.web import HandleLocation
 from rex.core import cached
-from rex.graphql import mutation_from_function, compute_from_function, scalar
+from rex.graphql import (
+    mutation_from_function,
+    compute_from_function,
+    compute,
+    scalar,
+    Object,
+    InputObject,
+    InputObjectField,
+)
 from rex.graphql.serve import serve
 from rex.graphql.reflect import reflect
 
@@ -15,10 +24,6 @@ BASE_URL = "https://raw.githubusercontent.com/rbt-lang/rbt-proto/47f0b7148ad2f9c
 BASE_DIR = os.path.join(
     tempfile.gettempdir(), "rex.graphql_demo.%s" % os.geteuid()
 )
-
-
-class State:
-    counter = 0
 
 
 class API(HandleLocation):
@@ -30,17 +35,56 @@ class API(HandleLocation):
     def schema(self):
         reflection = reflect()
 
-        @reflection.add_mutation
+        # Add mutation
+
+        class State:
+            counter = 0
+
+        @reflection.add_mutation()
         @mutation_from_function()
         def increment(v: scalar.Int) -> scalar.Int:
             State.counter += v
             return State.counter
 
+        @reflection.add_field()
         @compute_from_function()
-        def get_counter() -> scalar.Int:
+        def counter() -> scalar.Int:
             return State.counter
 
-        reflection.add_field(name="counter", field=get_counter)
+        # Add basic computation with input object
+
+        PointOut = Object(
+            name="Point",
+            description="Point",
+            fields=lambda: {
+                "x": compute(scalar.Int),
+                "y": compute(scalar.Int),
+            },
+        )
+
+        PointIn = InputObject(
+            name="PointIn",
+            description="Point",
+            fields=lambda: {
+                "x": InputObjectField(scalar.Int),
+                "y": InputObjectField(scalar.Int),
+            },
+            parse=lambda data: Point(x=data.get("x"), y=data.get("y")),
+        )
+
+        Point = collections.namedtuple("Point", ["x", "y"])
+
+        @reflection.add_field()
+        @compute_from_function(description="Move point")
+        def move(
+            point: PointIn, x: scalar.Int = None, y: scalar.Int = None
+        ) -> PointOut:
+            print(point, x, y)
+            if x is not None:
+                point = Point(x=x, y=point.y)
+            if y is not None:
+                point = Point(x=point.x, y=y)
+            return point
 
         return reflection.to_schema()
 

@@ -63,6 +63,7 @@ subinclude:src/rex.i18n/.hgignore
 subinclude:src/rex.forms/.hgignore
 subinclude:src/rex.logging/.hgignore
 subinclude:src/rex.restful/.hgignore
+subinclude:src/rex.graphql/.hgignore
 subinclude:src/rex.sms/.hgignore
 subinclude:src/rex.widget_chrome/.hgignore
 subinclude:src/rex.dbgui/.hgignore

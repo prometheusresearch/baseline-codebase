@@ -120,6 +120,12 @@ class Query:
         syn = ApplySyntax("select", syns)
         return Query(syn, params)
 
+    def matches(self, other):
+        other = lift(other)
+        syn = ApplySyntax("~", [self.syn, other.syn])
+        params = merge_params(self.params, other.params)
+        return Query(syn, params)
+
     def __add__(self, other):
         other = lift(other)
         syn = ApplySyntax("+", [self.syn, other.syn])

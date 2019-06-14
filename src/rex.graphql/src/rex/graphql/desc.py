@@ -73,10 +73,27 @@ class ObjectLike(Type):
             seal(self)
         return self._fields
 
-    def add_field(self, name, field):
+    def add_field(self, name=None, field=None):
         """ Add new field."""
-        assert isinstance(field, Field)
-        self.fields[name] = field
+
+        def register(field):
+            assert isinstance(field, Field), "Expected a field"
+            field_name = name
+            if field_name is None:
+                if not field.name:
+                    raise Error("Missing field name")
+                field_name = field.name
+            self.fields[field_name] = field
+
+        if field is None:
+
+            def decorate(field):
+                register(field)
+                return field
+
+            return decorate
+        else:
+            register(field)
 
 
 class Object(ObjectLike):
@@ -162,12 +179,59 @@ class Entity(Record):
     """
 
 
+class InputObject(Type):
+    """ InputObject type.
+
+    An object which is used as an input value (passed via argument).
+    """
+
+    def __init__(
+        self,
+        name: str,
+        fields: FieldsType,
+        parse=None,
+        description=None,
+        loc=autoloc,
+    ):
+        if not callable(fields):
+            raise Error("Argument 'fields' should be a function")
+
+        self.loc = code_location.here() if loc is autoloc else loc
+        self.name = name
+        self.description = description
+        self.parse = parse
+        self._fields = fields
+
+    @property
+    def fields(self):
+        if callable(self._fields):
+            seal(self)
+        return self._fields
+
+
+class InputObjectField:
+    def __init__(
+        self,
+        type,
+        default_value=None,
+        out_name=None,
+        description=None,
+        loc=autoloc,
+    ):
+        self.type = type
+        self.default_value = default_value
+        self.out_name = out_name
+        self.description = description
+        self.loc = code_location.here() if loc is autoloc else loc
+
+
 class Compute(Field):
     def __init__(
         self,
         type,
         f=None,
         params=None,
+        name=None,
         description=None,
         deprecation_reason=None,
         loc=autoloc,
@@ -184,6 +248,7 @@ class Compute(Field):
         self.type = type
         self.resolver = f
         self.params = {param.name: param for param in params}
+        self.name = name
         self.description = description
         self.deprecation_reason = deprecation_reason
 
@@ -194,6 +259,7 @@ class Query(Field):
         query,
         type=None,
         filters=None,
+        name=None,
         description=None,
         deprecation_reason=None,
         paginate=False,
@@ -243,6 +309,7 @@ class Query(Field):
         self.loc = code_location.here() if loc is autoloc else loc
         self.query = query
         self.type = type
+        self.name = name
         self.description = description
         self.deprecation_reason = deprecation_reason
         self.paginate = paginate
@@ -251,29 +318,53 @@ class Query(Field):
         assert isinstance(param, Param)
         if param.name in self.params:
             if self.params[param.name] != param:
-                # TODO: more info here
                 raise Error("Inconsistent argument configuration:", param.name)
         else:
             self.params[param.name] = param
 
-    def add_filter(self, filter: t.Union[QueryCombinator, "Filter"]):
-        """ Add new filter
+    def add_filter(self, filter=None):
+        """ Add new filter.
 
-        :param filter: Filter to add.
+        Consider you have a query field::
+
+            >>> regions = query(q.region, type=region)
+
+        Now we can add new filters via queries::
+
+            >>> regions.add_filter(q.name == argument('name', scalar.String))
+
+        Or we can chain it with :func:`filter_from_function` as a decorator::
+
+            >>> @regions.add_filter()
+            ... @filter_from_function()
+            ... def by_comment(comment: scalar.Int):
+            ...     yield q.comment == comment
+
         """
 
-        if not isinstance(filter, Filter):
-            if isinstance(filter, QueryCombinator):
-                filter = FilterOfQuery(query=filter)
-            elif callable(filter):
-                filter = filter_from_function(filter)
-            else:
-                raise Error("Invalid filter:", filter)
+        def register(filter):
+            if not isinstance(filter, Filter):
+                if isinstance(filter, QueryCombinator):
+                    filter = FilterOfQuery(query=filter)
+                elif callable(filter):
+                    filter = filter_from_function(filter)
+                else:
+                    raise Error("Invalid filter:", filter)
 
-        for param in filter.params.values():
-            self._add_param(param)
+            for param in filter.params.values():
+                self._add_param(param)
 
-        self.filters.append(filter)
+            self.filters.append(filter)
+
+        if filter is None:
+
+            def decorate(filter):
+                register(filter)
+                return filter
+
+            return decorate
+        else:
+            register(filter)
 
 
 class Scalar(Type):
@@ -434,14 +525,14 @@ def extract_params(f, mark_as_nonnull_if_no_default_value=False):
     return params, return_type
 
 
-def filter_from_function(f):
+def filter_from_function():
     """ Decorator which allows to define a filter from a function.
 
     The signature of a function is used to infer arguments and their types.
 
     Example::
 
-        >>> @filter_from_function
+        >>> @filter_from_function()
         ... def by_name(name: scalar.String):
         ...     yield q.name == name
 
@@ -467,12 +558,16 @@ def filter_from_function(f):
         use it unless absolutely neccessary. Prefer to use filters-as-queries.
 
     """
-    params, _ = extract_params(f)
-    return FilterOfFunction(params=params, f=f)
+
+    def decorate(f):
+        params, _ = extract_params(f)
+        return FilterOfFunction(params=params, f=f)
+
+    return decorate
 
 
 def compute_from_function(
-    description=None, deprecation_reason=None, loc=autoloc
+    name=None, description=None, deprecation_reason=None, loc=autoloc
 ) -> Field:
     """ Decorator which allows to define a :func:`compute` field from a
     function.
@@ -498,6 +593,10 @@ def compute_from_function(
     loc = code_location.here() if loc is autoloc else loc
 
     def decorate(f):
+        field_name = name
+        if field_name is None:
+            field_name = f.__name__
+
         params, return_type = extract_params(
             f, mark_as_nonnull_if_no_default_value=True
         )
@@ -508,7 +607,8 @@ def compute_from_function(
         def run(parent, info, values):
             kwargs = {}
             for name in params:
-                kwargs[name] = values[name]
+                if name in values:
+                    kwargs[name] = values[name]
             return f(**kwargs)
 
         return compute(
@@ -516,6 +616,7 @@ def compute_from_function(
             f=run,
             type=return_type,
             deprecation_reason=deprecation_reason,
+            name=field_name,
             description=description,
         )
 
@@ -713,6 +814,7 @@ def query(
     query: QueryCombinator,
     type: Type = None,
     filters: t.List[t.Union[QueryCombinator, Filter]] = None,
+    name: t.Optional[str] = None,
     description: t.Optional[str] = None,
     deprecation_reason: t.Optional[str] = None,
     paginate: bool = False,
@@ -754,6 +856,7 @@ def query(
     :param query:
     :param type: GraphQL type
     :param filters: A list of filters to apply
+    :param name: Name
     :param description: Description
     :param deprecation_reason: Reason for deprecation
     :param paginate: If automatic offset/limit arguments should be added
@@ -763,6 +866,7 @@ def query(
         query=query,
         type=type,
         filters=filters,
+        name=name,
         description=description,
         deprecation_reason=deprecation_reason,
         paginate=paginate,
@@ -775,6 +879,7 @@ def compute(
     f=None,
     params: t.Dict[str, Param] = None,
     description: t.Optional[str] = None,
+    name: t.Optional[str] = None,
     deprecation_reason: t.Optional[str] = None,
     loc=autoloc,
 ) -> Field:
@@ -814,6 +919,7 @@ def compute(
     :param type: GraphQL type
     :param f: Function used to compute the value of the field
     :param params: Field params
+    :param name: Name
     :param description: Description
     :param deprecation_reason: Reason for deprecation
     """
@@ -822,6 +928,7 @@ def compute(
         type=type,
         f=f,
         params=params,
+        name=name,
         description=description,
         deprecation_reason=deprecation_reason,
         loc=loc,
@@ -939,6 +1046,29 @@ def param(
 parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)
 
 
+class Mutation(Desc):
+    """ A GraphQL Mutation.
+    """
+
+    def __init__(self, name, compute):
+        self.name = name
+        self.compute = compute
+
+
+def mutation_from_function(
+    description=None, deprecation_reason=None, loc=autoloc
+):
+    make = compute_from_function(
+        description=description, deprecation_reason=deprecation_reason, loc=loc
+    )
+
+    def decorate(f):
+        name = f.__name__
+        return Mutation(name=name, compute=make(f))
+
+    return decorate
+
+
 @functools.singledispatch
 def seal(descriptor):
     assert False, f"Do not know how to seal {descriptor!r}"
@@ -947,6 +1077,7 @@ def seal(descriptor):
 @seal.register(Object)
 @seal.register(Record)
 @seal.register(Entity)
+@seal.register(InputObject)
 def _(descriptor):
     if callable(descriptor._fields):
         descriptor._fields = descriptor._fields()
@@ -954,6 +1085,7 @@ def _(descriptor):
             seal(v)
 
 
+@seal.register(InputObjectField)
 @seal.register(List)
 @seal.register(NonNull)
 def _(descriptor):

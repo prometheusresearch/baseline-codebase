@@ -19,6 +19,8 @@ __all__ = (
     "List",
     "NonNull",
     "scalar",
+    "InputObject",
+    "InputObjectField",
     # Types: Types for Computed Fields: Enums
     "Enum",
     "EnumValue",
@@ -37,6 +39,8 @@ __all__ = (
     "argument",
     "param",
     "parent_param",
+    # Mutations
+    "mutation_from_function",
     # Execution
     "execute",
     "Result",
@@ -53,6 +57,8 @@ from .desc import (
     Object,
     Entity,
     Record,
+    InputObject,
+    InputObjectField,
     List,
     NonNull,
     Enum,
@@ -65,6 +71,7 @@ from .desc import (
     connect,
     filter_from_function,
     compute_from_function,
+    mutation_from_function,
 )
 from .execute import execute, execute_exn, Result
 from .schema import schema, Schema

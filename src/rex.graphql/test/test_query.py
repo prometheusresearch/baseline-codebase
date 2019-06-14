@@ -6,8 +6,8 @@ from rex.core import Rex
 @pytest.fixture(scope="module")
 def rex():
     # Create Rex instance for all tests.
-    db = "pgsql:query_demo"
-    rex = Rex("rex.query_demo", db=db)
+    db = "pgsql:graphql_demo"
+    rex = Rex("rex.graphql_demo", db=db)
     return rex
 
 
@@ -59,4 +59,16 @@ def test_function():
 def test_function_postfix():
     query = q.nation.count()
     assert str(to_htsql_syntax(query)) == "count(nation)"
+    execute(query)
+
+
+def test_id():
+    query = q.nation.id
+    assert str(to_htsql_syntax(query)) == "/nation.id()"
+    execute(query)
+
+
+def test_matches():
+    query = q.nation.name.matches("something")
+    assert str(to_htsql_syntax(query)) == "/nation.name~'something'"
     execute(query)

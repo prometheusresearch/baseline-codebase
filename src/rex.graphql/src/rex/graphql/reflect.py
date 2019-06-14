@@ -26,6 +26,7 @@
 import typing as t
 
 from cached_property import cached_property
+from rex.core import Error
 from rex.db import get_db
 from htsql.core.tr.lookup import prescribe, unwrap
 from htsql.core.tr.bind import BindingState
@@ -122,6 +123,7 @@ class Reflect:
     ):
         self._types = {}
         self._fields = {}
+        self._mutations = []
         self._extra_fields = {}
         self._db = db
         self.include_tables = include_tables
@@ -327,22 +329,80 @@ class Reflect:
         for field in self._fields.values():
             desc.seal(field)
 
-    def add_field(self, name, field):
-        """ Add new GraphQL field.
+    def add_field(self, name=None, field=None):
+        """ Add new field.
+
+        After reflecting database schema one can add new fields with this method
+        before producing the GraphQL schema.
 
         Example::
 
-            reflection.add_field(
-                name="region_count",
-                field=query(q.region.count())
-            )
+            >>> reflection = reflect()
+
+            >>> reflection.add_field(
+            ...     name="region_count",
+            ...     field=query(q.region.count())
+            ... )
+
+        Or you can use chain it with :func:`compute_from_function` as a
+        decorator::
+
+            >>> @reflection.add_field()
+            ... @compute_from_function()
+            ... def number() -> scalar.Int:
+            ...     return 42
+
         """
-        self._extra_fields[name] = field
+
+        def register(field):
+            assert isinstance(field, desc.Field), "Expected a field"
+            field_name = name
+            if field_name is None:
+                if not field.name:
+                    raise Error("Missing field name")
+                field_name = field.name
+            self._extra_fields[field_name] = field
+
+        if field is None:
+
+            def decorate(field):
+                register(field)
+                return field
+
+            return decorate
+        else:
+            register(field)
+
+    def add_mutation(self):
+        """ Add new mutation.
+
+        After reflecting database schema one can add new mutations with this
+        method before producing the GraphQL schema.
+
+        Example::
+
+            >>> reflection = reflect()
+
+            >>> @reflection.add_mutation()
+            ... @mutation_from_function()
+            ... def increment(v: scalar.Int) -> scalar.Int:
+            ...     # do mutation here...
+            ...     return 42
+
+        """
+
+        def decorate(mutation: desc.Mutation):
+            self._mutations.append(mutation)
+            return mutation
+
+        return decorate
 
     def to_schema(self) -> Schema:
         """ Obtain reflected GraphQL schema."""
         fields = lambda: {**self._fields, **self._extra_fields}
-        return schema(fields=fields, db=self.db, loc=None)
+        return schema(
+            fields=fields, db=self.db, mutations=self._mutations, loc=None
+        )
 
 
 def reflect(

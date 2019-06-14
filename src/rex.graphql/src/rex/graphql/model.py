@@ -40,11 +40,11 @@ class SchemaNode(abc.ABC):
     """ Nodes of a GraphQL schemas, types, fields or descriptions of those."""
 
 
-class IsInputType(abc.ABC):
+class InputType(abc.ABC):
     """ Type which can be used for computed field arguments."""
 
 
-class IsQueryInputType(abc.ABC):
+class QueryInputType(abc.ABC):
     """ Type which can be used for query field arguments."""
 
     @abc.abstractmethod
@@ -72,7 +72,7 @@ class Type(SchemaNode):
         return value
 
 
-class ObjectType(Type):
+class ObjectLikeType(Type):
     def __init__(self, descriptor, fields):
         self.fields = fields
         self.descriptor = descriptor
@@ -90,6 +90,13 @@ class ObjectType(Type):
     def __getitem__(self, name):
         return self.fields[name]
 
+    def __str__(self):
+        return self.name
+
+
+class ObjectType(ObjectLikeType):
+    pass
+
 
 class RecordType(ObjectType):
     pass
@@ -101,7 +108,11 @@ class EntityType(RecordType):
         self.table = table
 
 
-class ListType(Type, IsInputType, IsQueryInputType):
+class InputObjectType(ObjectLikeType, InputType):
+    pass
+
+
+class ListType(Type, InputType, QueryInputType):
     def __init__(self, type):
         self.type = type
 
@@ -123,7 +134,7 @@ class ListType(Type, IsInputType, IsQueryInputType):
         return f"[{self.type}]"
 
 
-class NonNullType(Type, IsInputType, IsQueryInputType):
+class NonNullType(Type, InputType, QueryInputType):
     def __init__(self, type: SchemaNode):
         self.type = type
 
@@ -139,7 +150,7 @@ class NonNullType(Type, IsInputType, IsQueryInputType):
         return f"{self.type}!"
 
 
-class EnumType(Type, IsInputType):
+class EnumType(Type, InputType):
     def __init__(self, descriptor):
         self.descriptor = descriptor
         self._names = set(v.name for v in self.values)
@@ -161,13 +172,13 @@ class EnumType(Type, IsInputType):
             return None
         return v
 
-    def parse_value(self, v):
+    def coerce_value(self, v):
         if v not in self._names:
             return None
         return v
 
 
-class ScalarType(Type, IsInputType, IsQueryInputType):
+class ScalarType(Type, InputType, QueryInputType):
     """ Scalar types represent primitive leaf values in a GraphQL type system.
     GraphQL responses take the form of a hierarchical tree; the leaves on these
     trees are GraphQL scalars.
@@ -178,15 +189,15 @@ class ScalarType(Type, IsInputType, IsQueryInputType):
     the given scalar type, and server should use those types when appropriate.
     """
 
-    def __init__(self, name, serialize, parse_literal, parse_value, domain):
+    def __init__(self, name, serialize, parse_literal, coerce_value, domain):
         self.name = name
         self.serialize = serialize
         self.descriptor = self
         self.parse_literal = parse_literal
-        self.parse_value = parse_value
+        self.coerce_value = coerce_value
         self._domain = domain
 
-    # IsQueryInputType
+    # QueryInputType
     domain = property(lambda self: self._domain)
 
     def bind_value(self, state, value):
@@ -209,7 +220,7 @@ class DatabaseEnumType(ScalarType):
             name=name,
             serialize=self.serialize,
             parse_literal=self.parse_literal,
-            parse_value=self.parse_value,
+            coerce_value=self.coerce_value,
             domain=None,
         )
         if not isinstance(values, set):
@@ -219,7 +230,7 @@ class DatabaseEnumType(ScalarType):
     def serialize(self, v):
         return v
 
-    def parse_value(self, v):
+    def coerce_value(self, v):
         if v not in self.values:
             return None
         return v
@@ -228,7 +239,7 @@ class DatabaseEnumType(ScalarType):
         v = gql_scalars.parse_string_literal(ast)
         if v is None:
             return None
-        return self.parse_value(v)
+        return self.coerce_value(v)
 
     @classmethod
     def from_domain(cls, dom):
@@ -335,11 +346,11 @@ def type_from_domain(ctx, dom: domain.Domain):
 
 
 def is_input_type(type: Type):
-    return isinstance(type, IsInputType)
+    return isinstance(type, InputType)
 
 
 def is_query_input_type(type: Type):
-    return isinstance(type, IsQueryInputType) and type.domain is not None
+    return isinstance(type, QueryInputType) and type.domain is not None
 
 
 class SchemaContext:
@@ -403,7 +414,7 @@ def check(arg, ctx, *args):
 def _(descriptor, ctx):
     with code_location.context(
         descriptor.loc,
-        desc=f"While configuring object type '{descriptor.name}':",
+        desc=f'While configuring object type "{descriptor.name}":',
     ):
         # Try to check if we have it constructd already
         type = ctx.root.types.get(descriptor.name)
@@ -434,7 +445,7 @@ def _(descriptor, ctx):
 @construct.register(desc.Entity)
 def _(descriptor, ctx):
     err_ctx = lambda: code_location.context(
-        descriptor.loc, desc=f"While configuring entity '{descriptor.name}':"
+        descriptor.loc, desc=f'While configuring entity "{descriptor.name}":'
     )
 
     with err_ctx():
@@ -492,7 +503,7 @@ def _(descriptor, ctx):
 @construct.register(desc.Record)
 def _(descriptor, ctx):
     err_ctx = lambda: code_location.context(
-        descriptor.loc, desc=f"While configuring record '{descriptor.name}':"
+        descriptor.loc, desc=f'While configuring record "{descriptor.name}":'
     )
 
     with err_ctx():
@@ -608,10 +619,9 @@ def _(descriptor, ctx):
 
 @construct.register(desc.Compute)
 def _(descriptor, ctx, name):
-    assert isinstance(ctx, TypeSchemaContext)
 
     with code_location.context(
-        descriptor.loc, desc="While configuring computation:"
+        descriptor.loc, desc=f'While configuring computation "{name}":'
     ):
         ctx = ComputeSchemaContext(parent=ctx, loc=descriptor.loc)
         type = construct(descriptor.type, ctx)
@@ -631,7 +641,7 @@ def _(descriptor, ctx, name):
     assert isinstance(ctx, TypeSchemaContext)
 
     with code_location.context(
-        descriptor.loc, desc="While configuring query:"
+        descriptor.loc, desc=f'While configuring query "{name}":'
     ):
 
         params = {}
@@ -768,3 +778,30 @@ def _(descriptor, ctx):
         return descriptor.with_type(type)
     else:
         return descriptor
+
+
+@construct.register(desc.InputObject)
+def _(descriptor, ctx):
+    type = ctx.root.types.get(descriptor.name)
+    if not type:
+        fields = {}
+        type = InputObjectType(descriptor=descriptor, fields=fields)
+        ctx.root.types[descriptor.name] = type
+        for name, field in descriptor.fields.items():
+            fields[name] = construct(field, ctx)
+        return type
+    else:
+        if not type.descriptor == descriptor:
+            raise Error("Duplicate InputObject type:", descriptor.name)
+        return type
+
+
+@construct.register(desc.InputObjectField)
+def _(descriptor, ctx):
+    type = construct(descriptor.type, ctx)
+    return desc.InputObjectField(
+        type=type,
+        out_name=descriptor.out_name,
+        default_value=descriptor.default_value,
+        loc=descriptor.loc,
+    )

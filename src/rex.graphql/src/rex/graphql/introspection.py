@@ -33,14 +33,13 @@ __Schema = Object(
         "queryType": compute(
             description="The type that query operations will be rooted at.",
             type=NonNull(__Type),
-            f=lambda schema, info, params: schema.type,
+            f=lambda schema, info, params: schema.query_type,
         ),
         "mutationType": compute(
             description="If this server supports mutation, the type that "
             "mutation operations will be rooted at.",
             type=__Type,
-            # TODO: Fix this if-when we start supporting mutations.
-            f=lambda schema, info, params: None,
+            f=lambda schema, info, params: schema.mutation_type,
         ),
         "subscriptionType": compute(
             description="If this server support subscription, the type "
@@ -245,7 +244,7 @@ class TypeFieldResolvers:
             # (GraphQLInterfaceType, TypeKind.INTERFACE),
             # (GraphQLUnionType, TypeKind.UNION),
             (model.EnumType, TypeKind.ENUM),
-            # (GraphQLInputObjectType, TypeKind.INPUT_OBJECT),
+            (model.InputObjectType, TypeKind.INPUT_OBJECT),
             (model.ListType, TypeKind.LIST),
             (model.NonNullType, TypeKind.NON_NULL),
         )
@@ -265,14 +264,9 @@ class TypeFieldResolvers:
         raise Exception("Unknown kind of type: {}".format(type))
 
     @staticmethod
-    def fields(
-        type,  # type: Union[GraphQLInterfaceType, GraphQLUnionType]
-        info,  # type: ResolveInfo
-        args,
-    ):
-        # type: (...) -> Optional[List[Field]]
+    def fields(type, info, args):
         include_deprecated = args.get("includeDeprecated")
-        if isinstance(type, (model.ObjectType, model.EntityType)):
+        if isinstance(type, model.ObjectType):
             fields = []
             for field_name, field in type.fields.items():
                 if field_name.startswith("__"):
@@ -329,15 +323,11 @@ class TypeFieldResolvers:
 
     @staticmethod
     def input_fields(type, info, args):
-        # type: (GraphQLInputObjectType, ResolveInfo) -> List[InputField]
-        # TODO:
-        # if isinstance(type, GraphQLInputObjectType):
-        #     return input_fields_to_list(type.fields)
-        return []
+        if isinstance(type, model.InputObjectType):
+            return input_fields_to_list(type.fields)
 
 
 def input_fields_to_list(input_fields):
-    # type: (Dict[str, GraphQLInputObjectField]) -> List[InputField]
     fields = []
     for field_name, field in input_fields.items():
         fields.append(
@@ -394,9 +384,7 @@ def ast_from_value(value, type=None):
     assert isinstance(value, dict)
 
     fields = []
-    # TODO:
-    # is_graph_ql_input_object_type = isinstance(type, GraphQLInputObjectType)
-    is_graph_ql_input_object_type = False
+    is_graph_ql_input_object_type = isinstance(type, model.InputObject)
 
     for field_name, field_value in value.items():
         field_type = None

@@ -92,6 +92,14 @@ from context).
 .. autofunction:: rex.graphql.param
 .. autodata:: rex.graphql.parent_param
 
+Mutations
+---------
+
+Modifications to server internal state or to database state are performed
+through GraphQL mutations.
+
+.. autofunction:: rex.graphql.mutation_from_function
+
 Execution
 ---------
 

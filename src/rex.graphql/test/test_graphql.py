@@ -16,6 +16,8 @@ from rex.graphql import (
     connect,
     compute,
     argument,
+    InputObject,
+    InputObjectField,
     param,
     parent_param,
     schema,
@@ -23,6 +25,7 @@ from rex.graphql import (
     GraphQLError,
     filter_from_function,
     compute_from_function,
+    mutation_from_function,
 )
 from rex.core import Rex, Error, cached
 
@@ -30,8 +33,8 @@ from rex.core import Rex, Error, cached
 @pytest.fixture(scope="module")
 def rex():
     # Create Rex instance for all tests.
-    db = "pgsql:query_demo"
-    rex = Rex("rex.query_demo", db=db)
+    db = "pgsql:graphql_demo"
+    rex = Rex("rex.graphql_demo", db=db)
     return rex
 
 
@@ -546,7 +549,7 @@ def test_computed_arg_default():
 
 
 def test_query_filter_of_function():
-    @filter_from_function
+    @filter_from_function()
     def filter_region(africa_only: scalar.Boolean):
         if africa_only:
             yield q.name == "AFRICA"
@@ -1063,6 +1066,40 @@ def test_query_arg_first():
     assert execute(
         sch, 'query { regionByName(region: "UNKNOWN") { name } }'
     ) == {"regionByName": None}
+
+
+def test_err_query_arg_type_mismatch():
+    region = Entity("region", fields=lambda: {"name": query(q.name)})
+    count = argument("count", NonNull(scalar.Int))
+    sch = schema(
+        fields=lambda: {
+            "region": query(
+                query=q.region.filter(q.nation.count() == count), type=region
+            )
+        }
+    )
+
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch,
+            "query Q($count: Int) { region(count: $count) { name } }",
+            variables={"count": None},
+        )
+    assert (
+        info.value.message
+        == 'Argument "count : Int!" (supplied by "$count" variable) was not provided'
+    )
+
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch,
+            "query Q($count: String) { region(count: $count) { name } }",
+            variables={"count": "oops"},
+        )
+    assert (
+        info.value.message
+        == 'Variable "$count : String" is attempted to be used as a value of incompatible type "Int!"'
+    )
 
 
 def test_query_related_arg_first():
@@ -1615,9 +1652,7 @@ def test_query_param():
 
 def test_err_query_param_invalid_type():
     num_nations = param(
-        name="current_region",
-        type=scalar.Int,
-        f=lambda parent, ctx: "oops",
+        name="current_region", type=scalar.Int, f=lambda parent, ctx: "oops"
     )
     region = Entity(name="region", fields=lambda: {"name": query(q.name)})
     sch = schema(
@@ -1638,3 +1673,411 @@ def test_err_query_param_invalid_type():
             }
             """,
         )
+
+
+def test_mutation_simple():
+    counter = 0
+
+    @mutation_from_function()
+    def increment(v: scalar.Int) -> scalar.Int:
+        nonlocal counter
+        counter = counter + v
+        return counter
+
+    sch = schema(fields=lambda: {}, mutations=[increment])
+    data = execute(sch, "mutation { increment(v: 10) }")
+    assert data == {"increment": 10}
+    assert counter == 10
+
+
+def test_mutation_query_result():
+    counter = 0
+
+    RegionWithCounter = Record(
+        name="RegionWithCounter",
+        fields=lambda: {"name": query(q.name), "counter": query(q.counter)},
+    )
+
+    counter_param = param(
+        name="counter",
+        type=scalar.Int,
+        f=lambda parent, ctx: parent["counter"],
+    )
+
+    IncrementResult = Object(
+        name="IncrementResult",
+        fields=lambda: {
+            "region": query(
+                q.region.select(name=q.name, counter=counter_param),
+                type=RegionWithCounter,
+            )
+        },
+    )
+
+    @mutation_from_function()
+    def increment(v: scalar.Int) -> IncrementResult:
+        nonlocal counter
+        counter = counter + v
+        return {"counter": counter}
+
+    sch = schema(fields=lambda: {}, mutations=[increment])
+    data = execute(
+        sch,
+        """
+        mutation {
+            increment(v: 10) {
+                region { name, counter }
+            }
+        }
+        """,
+    )
+    assert data == {
+        "increment": {
+            "region": [
+                {"name": "AFRICA", "counter": 10},
+                {"name": "AMERICA", "counter": 10},
+                {"name": "ASIA", "counter": 10},
+                {"name": "EUROPE", "counter": 10},
+                {"name": "MIDDLE EAST", "counter": 10},
+            ]
+        }
+    }
+    assert counter == 10
+
+
+def test_arg_input_object():
+    getindex = lambda name: lambda parent, info, params: parent.get(name)
+
+    Pos = Object(
+        name="Pos",
+        fields=lambda: {
+            "r": compute(scalar.Int, f=getindex("r")),
+            "n": compute(scalar.Int, f=getindex("n")),
+            "rd": compute(scalar.Int, f=getindex("rd")),
+            "nd": compute(scalar.Int, f=getindex("nd")),
+        },
+    )
+
+    # InputObject type with variety of fields
+    InputPos = InputObject(
+        name="InputPos",
+        fields=lambda: {
+            "r": InputObjectField(scalar.Int),
+            "n": InputObjectField(NonNull(scalar.Int)),
+            "rd": InputObjectField(scalar.Int, default_value=1),
+            "nd": InputObjectField(NonNull(scalar.Int), default_value=2),
+        },
+    )
+
+    @compute_from_function()
+    def get_pos(pos: InputPos) -> Pos:
+        return pos
+
+    sch = schema(fields=lambda: {"pos": get_pos})
+
+    data = execute(
+        sch,
+        """
+        query {
+            pos(pos: {r: 42, n: 43, rd: 44, nd: 45}) {
+                r n rd nd
+            }
+        }
+        """,
+    )
+    assert data == {"pos": {"r": 42, "n": 43, "rd": 44, "nd": 45}}
+
+    # Suppling just a non null field without default value
+    data = execute(
+        sch,
+        """
+        query {
+            pos(pos: {n: 42}) {
+                r n rd nd
+            }
+        }
+        """,
+    )
+    assert data == {"pos": {"r": None, "n": 42, "rd": 1, "nd": 2}}
+
+    # Missing non null field with no default value
+    with pytest.raises(GraphQLError) as info:
+        execute(
+            sch,
+            """
+            query {
+                pos(pos: {r: 42}) {
+                    r n rd nd
+                }
+            }
+            """,
+        )
+    assert info.value.message == "\n".join(
+        ['Argument "pos : InputPos!":', 'Missing field "InputPos.n"']
+    )
+
+    # Now via variables
+    data = execute(
+        sch,
+        """
+        query Query($n: Int) {
+            pos(pos: {n: $n}) {
+                r n rd nd
+            }
+        }
+        """,
+        variables={"n": 50},
+    )
+    assert data == {"pos": {"r": None, "n": 50, "rd": 1, "nd": 2}}
+
+    # Now via variables (default value)
+    data = execute(
+        sch,
+        """
+        query Query($n: Int = 40) {
+            pos(pos: {n: $n}) {
+                r n rd nd
+            }
+        }
+        """,
+    )
+    assert data == {"pos": {"r": None, "n": 40, "rd": 1, "nd": 2}}
+
+    # vars: just a non null field with no default
+    data = execute(
+        sch,
+        """
+        query Query($pos: InputPos!) {
+            pos(pos: $pos) {
+                r n rd nd
+            }
+        }
+        """,
+        variables={"pos": {"n": 30}},
+    )
+    assert data == {"pos": {"r": None, "n": 30, "rd": 1, "nd": 2}}
+
+    # vars: explicit null
+    data = execute(
+        sch,
+        """
+        query Query($pos: InputPos!) {
+            pos(pos: $pos) {
+                r n rd nd
+            }
+        }
+        """,
+        variables={"pos": {"n": 30, "r": None}},
+    )
+    assert data == {"pos": {"r": None, "n": 30, "rd": 1, "nd": 2}}
+
+    # vars: all fields
+    data = execute(
+        sch,
+        """
+        query Query($pos: InputPos!) {
+            pos(pos: $pos) {
+                r n rd nd
+            }
+        }
+        """,
+        variables={"pos": {"r": 40, "n": 30, "rd": 50, "nd": 60}},
+    )
+    assert data == {"pos": {"r": 40, "n": 30, "rd": 50, "nd": 60}}
+
+    # vars: missing value for non null
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch,
+            """
+            query Query($pos: InputPos!) {
+                pos(pos: $pos) {
+                    r n rd nd
+                }
+            }
+            """,
+            variables={"pos": {"r": 40}},
+        )
+    assert info.value.message == "\n".join(
+        [
+            'Variable "$pos : InputPos!" got invalid value:',
+            'Field "InputPos.n": missing value',
+        ]
+    )
+
+    # vars: explicit null for non null
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch,
+            """
+            query Query($pos: InputPos!) {
+                pos(pos: $pos) {
+                    r n rd nd
+                }
+            }
+            """,
+            variables={"pos": {"n": None}},
+        )
+    assert info.value.message == "\n".join(
+        [
+            'Variable "$pos : InputPos!" got invalid value:',
+            'Field "InputPos.n": value could not be null',
+        ]
+    )
+
+    # vars: explicit null for non null with default
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch,
+            """
+            query Query($pos: InputPos!) {
+                pos(pos: $pos) {
+                    r n rd nd
+                }
+            }
+            """,
+            variables={"pos": {"n": 40, "nd": None}},
+        )
+    assert info.value.message == "\n".join(
+        [
+            'Variable "$pos : InputPos!" got invalid value:',
+            'Field "InputPos.nd": value could not be null',
+        ]
+    )
+
+
+def test_arg_list():
+    @compute_from_function()
+    def addone(nums: List(scalar.Int)) -> List(scalar.Int):
+        return [n + 1 for n in nums]
+
+    sch = schema(fields=lambda: {"addone": addone})
+
+    # Basic case
+    data = execute(
+        sch,
+        """
+        query {
+            addone(nums: [1, 2])
+        }
+        """,
+    )
+    assert data == {"addone": [2, 3]}
+
+    # Coerce single element to a one-element list
+    data = execute(
+        sch,
+        """
+        query {
+            addone(nums: 42)
+        }
+        """,
+    )
+    assert data == {"addone": [43]}
+
+    # Coerce single element to a one-element list
+    data = execute(
+        sch,
+        """
+        query {
+            addone(nums: 42)
+        }
+        """,
+    )
+    assert data == {"addone": [43]}
+
+    # Error: wrong element type
+    with pytest.raises(GraphQLError) as info:
+        execute(
+            sch,
+            """
+            query {
+                addone(nums: ["oops"])
+            }
+            """,
+        )
+    assert info.value.message == "\n".join(
+        ['Argument "nums : [Int]!":', '- At index 0: Expected "Int".']
+    )
+
+    # vars: basic
+    data = execute(
+        sch,
+        """
+        query Query($nums: [Int]!) {
+            addone(nums: $nums)
+        }
+        """,
+        variables={"nums": [1, 2]},
+    )
+    assert data == {"addone": [2, 3]}
+
+    # vars: via default
+    data = execute(
+        sch,
+        """
+        query Query($nums: [Int]! = [2, 3]) {
+            addone(nums: $nums)
+        }
+        """,
+    )
+    assert data == {"addone": [3, 4]}
+
+    # vars: override default
+    data = execute(
+        sch,
+        """
+        query Query($nums: [Int]! = [2, 3]) {
+            addone(nums: $nums)
+        }
+        """,
+        variables={"nums": [1, 2]},
+    )
+    assert data == {"addone": [2, 3]}
+
+    # vars: override default
+    data = execute(
+        sch,
+        """
+        query Query($nums: [Int]! = [2, 3]) {
+            addone(nums: $nums)
+        }
+        """,
+        variables={"nums": [1, 2]},
+    )
+    assert data == {"addone": [2, 3]}
+
+    # Error: wrong var value
+    with pytest.raises(GraphQLError) as info:
+        execute(
+            sch,
+            """
+            query Query($nums: [Int]!) {
+                addone(nums: $nums)
+            }
+            """,
+            variables={"nums": ["oops"]},
+        )
+    assert info.value.message == "\n".join(
+        [
+            'Variable "$nums : [Int]!" got invalid value:',
+            '- At index 0: Expected "Int".',
+        ]
+    )
+
+    # Error: wrong var default value
+    with pytest.raises(GraphQLError) as info:
+        execute(
+            sch,
+            """
+            query Query($nums: [Int]! = ["oops"]) {
+                addone(nums: $nums)
+            }
+            """,
+        )
+    assert info.value.message == "\n".join(
+        [
+            'Variable "$nums : [Int]!" has invalid default value:',
+            '- At index 0: Expected "Int".',
+        ]
+    )

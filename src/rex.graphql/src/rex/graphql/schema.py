@@ -18,8 +18,9 @@ from . import introspection, model, model_scalar, desc, code_location
 class Schema:
     """ GraphQL schema."""
 
-    def __init__(self, type, types, loc):
-        self.type = type
+    def __init__(self, query_type, mutation_type, types, loc):
+        self.query_type = query_type
+        self.mutation_type = mutation_type
         self.types = types
         self.loc = loc
 
@@ -32,6 +33,7 @@ class Schema:
 
 def schema(
     fields: desc.FieldsType,
+    mutations=None,
     db: t.Optional[t.Union[RexHTSQL, str]] = None,
     loc=desc.autoloc,
 ) -> Schema:
@@ -64,7 +66,7 @@ def schema(
     if db is None:
         db = get_db()
 
-    type = desc.Object(
+    query_type = desc.Object(
         name="Root",
         fields=lambda: {
             **fields(),
@@ -75,6 +77,18 @@ def schema(
         description=None,
         loc=None,
     )
+
+    if mutations:
+        mutation_type = desc.Object(
+            name="Mutations",
+            fields=lambda: {
+                mutation.name: mutation.compute for mutation in mutations
+            },
+            description=None,
+            loc=None,
+        )
+    else:
+        mutation_type = None
 
     types = {}
 
@@ -94,6 +108,13 @@ def schema(
     ctx = model.RootSchemaContext(types=types, loc=loc)
     with db:
         with code_location.context(loc, desc="While configuring schema:"):
-            type = model.construct(type, ctx)
+            query_type = model.construct(query_type, ctx)
+            if mutation_type:
+                mutation_type = model.construct(mutation_type, ctx)
 
-    return Schema(type=type, types=ctx.types, loc=loc)
+    return Schema(
+        query_type=query_type,
+        mutation_type=mutation_type,
+        types=ctx.types,
+        loc=loc,
+    )

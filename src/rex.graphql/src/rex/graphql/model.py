@@ -72,7 +72,7 @@ class Type(SchemaNode):
         return value
 
 
-class ObjectType(Type):
+class ObjectLikeType(Type):
     def __init__(self, descriptor, fields):
         self.fields = fields
         self.descriptor = descriptor
@@ -94,6 +94,10 @@ class ObjectType(Type):
         return self.name
 
 
+class ObjectType(ObjectLikeType):
+    pass
+
+
 class RecordType(ObjectType):
     pass
 
@@ -104,7 +108,7 @@ class EntityType(RecordType):
         self.table = table
 
 
-class InputObjectType(ObjectType, InputType):
+class InputObjectType(ObjectLikeType, InputType):
     pass
 
 

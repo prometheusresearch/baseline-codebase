@@ -199,6 +199,7 @@ class InputObject(Type):
         self.loc = code_location.here() if loc is autoloc else loc
         self.name = name
         self.description = description
+        self.parse = parse
         self._fields = fields
 
     @property

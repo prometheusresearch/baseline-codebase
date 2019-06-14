@@ -85,6 +85,9 @@ def coerce_input_value_impl(type, value):
                 errors.extend(field_errors)
                 obj[field_out_name] = field_value
 
+        if type.descriptor.parse is not None:
+            obj = type.descriptor.parse(obj)
+
         return obj, errors
 
     assert model.is_input_type(type)
@@ -171,6 +174,9 @@ def coerce_input_node_impl(type, node, variables):
             )
             errors.extend(field_errors)
             obj[field_out_name] = field_value
+
+        if type.descriptor.parse is not None:
+            obj = type.descriptor.parse(obj)
 
         return obj, errors
 

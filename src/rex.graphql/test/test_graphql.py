@@ -549,7 +549,7 @@ def test_computed_arg_default():
 
 
 def test_query_filter_of_function():
-    @filter_from_function
+    @filter_from_function()
     def filter_region(africa_only: scalar.Boolean):
         if africa_only:
             yield q.name == "AFRICA"

@@ -2,7 +2,16 @@ import pytest
 import json
 
 from rex.core import Rex
-from rex.graphql import reflect, execute, query, q, scalar
+from rex.graphql import (
+    reflect,
+    execute,
+    query,
+    q,
+    scalar,
+    filter_from_function,
+    compute_from_function,
+    mutation_from_function,
+)
 from rex.graphql.reflect import reflect
 
 
@@ -370,11 +379,11 @@ def test_reflect_related_reverse():
     }
 
 
-def test_reflect_add_field():
+def test_reflect_add_query_field():
     reflection = reflect(include_tables={"region"})
 
-    # Now we can modify reflected types by injectint new fields.
-    reflection.add_field("region_count", query(q.region.count()))
+    # Now we can modify reflected types by injecting new fields.
+    reflection.add_field(name="region_count", field=query(q.region.count()))
 
     # Finally we call produce working schema and do queries.
     schema = reflection.to_schema()
@@ -390,11 +399,67 @@ def test_reflect_add_field():
     assert res.data == {"region_count": 5}
 
 
+def test_reflect_add_compute_field():
+    reflection = reflect(include_tables={"region"})
+
+    @reflection.add_field()
+    @compute_from_function()
+    def some_number() -> scalar.Int:
+        return 42
+
+    # Finally we call produce working schema and do queries.
+    schema = reflection.to_schema()
+
+    res = execute(
+        schema,
+        """
+        query {
+            some_number
+        }
+        """,
+    )
+    assert not res.errors
+    assert res.data == {"some_number": 42}
+
+
+def test_reflect_add_mutation():
+    reflection = reflect(include_tables={"region"})
+
+    class Counter:
+        value = 0
+
+    @reflection.add_field()
+    @compute_from_function()
+    def counter() -> scalar.Int:
+        return Counter.value
+
+    @reflection.add_mutation()
+    @mutation_from_function()
+    def increment(v: scalar.Int) -> scalar.Int:
+        Counter.value += v
+        return Counter.value
+
+    # Finally we call produce working schema and do queries.
+    schema = reflection.to_schema()
+
+    res = execute(schema, "query { counter }")
+    assert not res.errors
+    assert res.data == {"counter": 0}
+
+    res = execute(schema, "mutation { counter: increment(v: 100) }")
+    assert not res.errors
+    assert res.data == {"counter": 100}
+
+    res = execute(schema, "query { counter }")
+    assert not res.errors
+    assert res.data == {"counter": 100}
+
+
 def test_reflect_add_entity_field():
     reflection = reflect(include_tables={"region"})
     assert "region" in reflection.types
 
-    # Now we can modify reflected types by injectint new fields.
+    # Now we can modify reflected types by injecting new fields.
     reflection.types["region"].add_field(
         "name_name", query(q.name + "_" + q.name)
     )
@@ -422,7 +487,8 @@ def test_reflect_add_filter():
     all_regions = reflection.types["region_connection"].fields["all"]
 
     # We can add a new filter for the query.
-    @all_regions.add_filter
+    @all_regions.add_filter()
+    @filter_from_function()
     def filter_by_name(name: scalar.String):
         yield q.name == name
 

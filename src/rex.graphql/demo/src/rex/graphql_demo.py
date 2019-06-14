@@ -5,7 +5,7 @@ import csv
 
 from rex.ctl import RexTask, option, log
 from rex.db import get_db
-from rex.web import Command
+from rex.web import HandleLocation
 from rex.core import cached
 from rex.graphql import mutation_from_function, compute_from_function, scalar
 from rex.graphql.serve import serve
@@ -17,12 +17,14 @@ BASE_DIR = os.path.join(
 )
 
 
-class API(Command):
+class State:
+    counter = 0
+
+
+class API(HandleLocation):
 
     path = "/"
     access = "anybody"
-
-    counter = 0
 
     @cached
     def schema(self):
@@ -31,18 +33,18 @@ class API(Command):
         @reflection.add_mutation
         @mutation_from_function()
         def increment(v: scalar.Int) -> scalar.Int:
-            self.__class__.counter = self.__class__.counter + v
-            return self.__class__.counter
+            State.counter += v
+            return State.counter
 
         @compute_from_function()
         def get_counter() -> scalar.Int:
-            return self.__class__.counter
+            return State.counter
 
         reflection.add_field(name="counter", field=get_counter)
 
         return reflection.to_schema()
 
-    def render(self, req):
+    def __call__(self, req):
         return serve(self.schema(), req)
 
 

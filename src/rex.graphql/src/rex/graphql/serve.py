@@ -26,7 +26,11 @@ __all__ = ("serve",)
 
 
 def serve(
-    schema: Schema, req: Request, db: Any = None, graphiql_enabled: bool = True
+    schema: Schema,
+    req: Request,
+    db: Any = None,
+    context: Any = None,
+    graphiql_enabled: bool = True,
 ) -> Response:
     """ Serve GraphQL :class:`webob.Request`."""
 
@@ -51,6 +55,7 @@ def serve(
             schema=schema,
             variables=params.variables,
             db=db,
+            context=context,
         )
 
     if show_graphiql:

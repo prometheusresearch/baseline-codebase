@@ -7,9 +7,15 @@ import * as ReactForms from 'react-forms/reactive';
 import {style} from '@prometheusresearch/react-ui-0.21/stylesheet';
 import Error from './Error';
 
-export default style(ReactForms.ErrorList, {
 
-  Error({error}) {
-    return <Error text={error.message} />;
-  },
-});
+export default function (props) {
+  return (
+    <ReactForms.ErrorList
+      {...props}
+      errorComponent={({error}) => {
+        return <Error text={error.message} />;
+      }}
+    />
+  );
+}
+

@@ -28,10 +28,12 @@ type Props = {
   noLabel?: boolean,
 
   label?: string,
+
+  errorComponent?: React.Node,
 };
 
 function ErrorList(props: Props) {
-  let {noLabel, hideNonForced, complete, schemaType, formValue, ...rest} = props;
+  let {noLabel, hideNonForced, complete, schemaType, formValue, errorComponent, ...rest} = props;
   let errorList = Boolean(complete) ? formValue.completeErrorList : formValue.errorList;
   if (schemaType !== undefined) {
     errorList = errorList.filter(error =>
@@ -44,6 +46,7 @@ function ErrorList(props: Props) {
   if (errorList.length === 0) {
     return null;
   }
+  Error = errorComponent || Error;
   let items = errorList.map((error, index) => (
     <Error
       key={error.field + "__" + index}

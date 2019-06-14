@@ -61,7 +61,14 @@ def test_function_postfix():
     assert str(to_htsql_syntax(query)) == "count(nation)"
     execute(query)
 
+
 def test_id():
     query = q.nation.id
     assert str(to_htsql_syntax(query)) == "/nation.id()"
+    execute(query)
+
+
+def test_matches():
+    query = q.nation.name.matches("something")
+    assert str(to_htsql_syntax(query)) == "/nation.name~'something'"
     execute(query)

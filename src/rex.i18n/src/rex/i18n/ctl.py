@@ -66,12 +66,17 @@ class I18NExtractTask(I18NTask):
 
     The project-path argument is the path to the project source repository. If
     not specified, it will assume the current directory.
+
+    The js-path argument is the path to the JavaScript code that is associated
+    with the project. Use this when the JS code is not stored in the legacy
+    locations of ``<project-path>/static/js`` or ``<project-path>/js``.
     """
 
     name = 'i18n-extract'
 
     class arguments(object):  # noqa
         project_path = argument(str, default=os.getcwd())
+        js_path = argument(str, default=None)
 
     def __call__(self):
         with make_rex('rex.i18n'):
@@ -152,9 +157,11 @@ class I18NExtractTask(I18NTask):
             'babel-plugin-transform-flow-strip-types',
         ])
 
-        js_path = os.path.join(self.project_path, 'js')  # the 'new' convention
-        if not os.path.exists(js_path):
-            js_path = os.path.join(self.project_path, 'static/js')  # the 'old'
+        js_path = self.js_path
+        if not js_path:
+            js_path = os.path.join(self.project_path, 'js')  # the 'new' convention
+            if not os.path.exists(js_path):
+                js_path = os.path.join(self.project_path, 'static/js')  # the 'old'
         log('\nExtracting frontend strings from: %s' % (js_path,))
 
         args = [

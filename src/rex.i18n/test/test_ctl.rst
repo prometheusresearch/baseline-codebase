@@ -18,10 +18,14 @@ strings marked for translation and put them into POT files::
 
     >>> ctl('help i18n-extract')
     I18N-EXTRACT - extracts translatable strings from a project and creates POT file(s)
-    Usage: rex i18n-extract [<project-path>]
+    Usage: rex i18n-extract [<project-path> [<js-path>]]
     <BLANKLINE>
     The project-path argument is the path to the project source repository. If
     not specified, it will assume the current directory.
+    <BLANKLINE>
+    The js-path argument is the path to the JavaScript code that is associated
+    with the project. Use this when the JS code is not stored in the legacy
+    locations of <project-path>/static/js or <project-path>/js.
     <BLANKLINE>
     Options:
       --domain=DOMAIN          : the gettext domain(s) to operate on; can choose from: backend, frontend

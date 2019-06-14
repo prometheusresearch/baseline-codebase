@@ -1,17 +1,13 @@
-#
-# Translators:
-# Glorili Alejandro <glorili@prometheusresearch.com>, 2015
-# Jason Simeone, 2016
+
 msgid ""
 msgstr ""
-"Project-Id-Version:  rex.forms\n"
+"Project-Id-Version: rex.forms 2.5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-06-14 14:12+0000\n"
-"PO-Revision-Date: 2016-08-11 12:39+0000\n"
-"Last-Translator: Jason Simeone\n"
-"Language: es\n"
-"Language-Team: Spanish "
-"(http://www.transifex.com/rexdb/rexforms/language/es/)\n"
+"PO-Revision-Date: 2019-06-14 14:16+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pt\n"
+"Language-Team: pt <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -20,97 +16,95 @@ msgstr ""
 
 #: lib/AudioPlayer.js:119
 msgid "Audio is not supported by this browser."
-msgstr "El audio no esta apoyado por este navegador."
+msgstr ""
 
 #: lib/AudioPlayer.js:147
 msgid "Play"
-msgstr "Reproducir"
+msgstr ""
 
 #: lib/AudioPlayer.js:156
 msgid "Pause"
-msgstr "Pausa"
+msgstr ""
 
 #: lib/AudioPlayer.js:175
 msgid "Restart the Recording"
-msgstr "Reiniciar la grabación"
+msgstr ""
 
 #: lib/form/Annotation.js:35
 msgid "No annotation"
-msgstr "No hay anotación"
+msgstr ""
 
 #: lib/form/Annotation.js:39
 msgid "Annotation:"
-msgstr "Anotación:"
+msgstr ""
 
 #: lib/form/Annotation.js:51
 msgid "Please explain why you can't or won't respond to this question:"
 msgstr ""
-"Por favor explique porque no puede o no quisiera responder a esta "
-"pregunta:"
 
 #: lib/form/Annotation.js:80
 msgid "I can't (or won't) respond to this question."
-msgstr "Yo no puedo (no quisiera) responder a esta pregunta."
+msgstr ""
 
 #: lib/form/CalculationResults.js:101
 msgid "Close"
-msgstr "Cerrar"
+msgstr ""
 
 #: lib/form/CalculationResults.js:88
 msgid "This Form has no calculations."
-msgstr "Este formulario no tiene calculaciones."
+msgstr ""
 
 #: lib/form/CalculationResults.js:92
 msgid "Executing calculations..."
-msgstr "Ejecutando calculaciones…"
+msgstr ""
 
 #: lib/form/CalculationResults.js:98
 msgid "Calculation Results"
-msgstr "Resultados de Cálculo"
+msgstr ""
 
 #: lib/form/Explanation.js:34
 msgid "No explanation"
-msgstr "No hay explicación"
+msgstr ""
 
 #: lib/form/Explanation.js:50
 msgid "Explanation:"
-msgstr "Explicación: "
+msgstr ""
 
 #: lib/form/Explanation.js:61
 msgid "I don't want to provide this information."
-msgstr "Yo no quiero proveer esta informacion."
+msgstr ""
 
 #: lib/form/Explanation.js:73
 msgid "I would like to explain my response to this question."
-msgstr "Me gustaria explicar mi respuesta hacia esta pregunta."
+msgstr ""
 
 #: lib/form/FormEditor.js:228
 msgid "There was an error when executing the calculations."
-msgstr "Habia un error mientras se estaban ejecutando las calculaciones."
+msgstr ""
 
 #: lib/form/FormEditor.js:228
 msgid "Error"
-msgstr "Error"
+msgstr ""
 
 #: lib/form/FormEditor.js:332
 msgid "Review Submission"
-msgstr "Revisar"
+msgstr ""
 
 #: lib/form/FormEditor.js:338
 msgid "Go Back to the Form"
-msgstr "Regresa al formulario"
+msgstr ""
 
 #: lib/form/FormEditor.js:344
 msgid "Saving Your Progress, Please Wait..."
-msgstr "Guardando su progreso, espera por favor…"
+msgstr ""
 
 #: lib/form/FormEditor.js:345
 msgid "Complete Form"
-msgstr "Completar el formulario"
+msgstr ""
 
 #: lib/form/FormEditor.js:351
 msgid "Preview Calculation Results"
-msgstr "Vista previa de resultados de cálculo"
+msgstr ""
 
 #: lib/form/FormEntry.js:318
 msgid "Please complete all required fields before proceeding."
@@ -122,191 +116,191 @@ msgstr ""
 
 #: lib/form/FormPaginator.js:100
 msgid "Previous"
-msgstr "Previo"
+msgstr ""
 
 #: lib/form/FormPaginator.js:120
 msgid "Next"
-msgstr "Siguiente"
+msgstr ""
 
 #: lib/form/Question.js:117
 msgid "Save"
-msgstr "Guardar"
+msgstr ""
 
 #: lib/form/Question.js:125
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr ""
 
 #: lib/form/Question.js:136
 msgid "Edit"
-msgstr "Editar"
+msgstr ""
 
 #: lib/form/widget/RadioGroup.js:195
 msgid "Clear My Selection"
-msgstr "Quita mi selección"
+msgstr ""
 
 #: lib/form/widget/RecordList.js:110
 msgid "Remove"
-msgstr "Quitar"
+msgstr ""
 
 #: lib/form/widget/RecordList.js:110
 msgid "Add"
-msgstr "Añadir"
+msgstr ""
 
 #: lib/form/widget/ViewBooleanValue.js:10
 msgid "No"
-msgstr "No"
+msgstr ""
 
 #: lib/form/widget/ViewBooleanValue.js:10
 msgid "Yes"
-msgstr "Si"
+msgstr ""
 
 #: lib/form/widget/ViewValue.js:37
 msgid "No Value"
-msgstr "No hay valor"
+msgstr ""
 
 #: lib/instrument/validate.js:100
 msgid "Not a valid number."
-msgstr "No es un numero valido."
+msgstr ""
 
 #: lib/instrument/validate.js:117
 msgid "Not a valid whole number."
-msgstr "No es un número entero valido."
+msgstr ""
 
 #: lib/instrument/validate.js:134
 msgid "This must be entered in the form: YYYY-MM-DD"
-msgstr "Esto debe ser ingresado en este formato: AAAA-MM-DD"
+msgstr ""
 
 #: lib/instrument/validate.js:155
 msgid "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]"
-msgstr "Esto debe ser ingresado en este formato: AAAA-MM-DDTHH:MM[:SS]"
+msgstr ""
 
 #: lib/instrument/validate.js:160
 msgid "Not a valid date."
-msgstr "No es una fecha valida."
+msgstr ""
 
 #: lib/instrument/validate.js:181
 msgid "This must be entered in the form: HH:MM[:SS]"
-msgstr "Esto debe ser ingresado en este formato: HH:MM[:SS]"
+msgstr ""
 
 #: lib/instrument/validate.js:184
 msgid "Not a valid time."
-msgstr "No es un horario valido."
+msgstr ""
 
 #: lib/instrument/validate.js:209
 msgid "You must respond to at least one question in this record."
-msgstr "Por lo menos tiene que responder a una pregunta en este registro."
+msgstr ""
 
 #: lib/instrument/validate.js:244
 #, python-format
 msgid "Must enter between %(min)s and %(max)s records."
-msgstr "Debe ser ingresado entre %(min)s y %(max)s registros."
+msgstr ""
 
 #: lib/instrument/validate.js:246
 #, python-format
 msgid "Must enter at least %(min)s records."
-msgstr "Debe ingresar como mínimo %(min)s registros."
+msgstr ""
 
 #: lib/instrument/validate.js:248
 #, python-format
 msgid "Cannot enter more than %(max)s records."
-msgstr "No puede ingresar más de %(max)s registros."
+msgstr ""
 
 #: lib/instrument/validate.js:277
 msgid "You must provide a response for this row."
-msgstr "Tiene que proveer una respuesta en esta fila."
+msgstr ""
 
 #: lib/instrument/validate.js:294
 msgid "You must provide a response for this field."
-msgstr "Tiene que proveer una respuesta en este campo."
+msgstr ""
 
 #: lib/instrument/validate.js:322
 #, python-format
 msgid "Must select between %(min)s and %(max)s choices."
-msgstr "Debe de seleccionar entre %(min)s y %(max)s elecciones."
+msgstr ""
 
 #: lib/instrument/validate.js:324
 #, python-format
 msgid "Must select at least %(min)s choices."
-msgstr "Debe de seleccionar como mínimo %(min)s elecciones."
+msgstr ""
 
 #: lib/instrument/validate.js:326
 #, python-format
 msgid "Cannot select more than %(max)s choices."
-msgstr "No puede seleccionar más de %(max)s elecciones."
+msgstr ""
 
 #: lib/instrument/validate.js:351
 #, python-format
 msgid "Must be between %(min)s and %(max)s characters."
-msgstr "Debe de estar entre %(min)s y %(max)s caracteres."
+msgstr ""
 
 #: lib/instrument/validate.js:353
 #, python-format
 msgid "Must be at least %(min)s characters."
-msgstr "Debe de tener como mínimo %(min)s caracteres."
+msgstr ""
 
 #: lib/instrument/validate.js:355
 #, python-format
 msgid "Cannot be more than %(max)s characters."
-msgstr "No puede tener más de %(max)s caracteres."
+msgstr ""
 
 #: lib/instrument/validate.js:365
 msgid "Does not match the expected pattern."
-msgstr "No coincide con el patrón esperado."
+msgstr ""
 
 #: lib/instrument/validate.js:382
 #, python-format
 msgid "Must be between %(min)s and %(max)s."
-msgstr "Debe de estar entre %(min)s y %(max)s."
+msgstr ""
 
 #: lib/instrument/validate.js:384
 #, python-format
 msgid "Must be at least %(min)s."
-msgstr "Debe de tener como mínimo %(min)s."
+msgstr ""
 
 #: lib/instrument/validate.js:386
 #, python-format
 msgid "Cannot be beyond %(max)s."
-msgstr "No puede estar más allá de %(max)s."
+msgstr ""
 
 #: lib/reconcile/DiscrepancyChoices.js:85
 msgid "Manual Override"
-msgstr "Invalidación manual"
+msgstr ""
 
 #: lib/reconcile/Header.js:31
 #, python-format
 msgid "Entered By: %(username)s"
-msgstr "Ingresado por: %(username)s"
+msgstr ""
 
 #: lib/reconcile/Header.js:37
 msgid "Final Value"
-msgstr "Valor Final"
+msgstr ""
 
 #: lib/reconcile/PositionDescription.js:21
 #, python-format
 msgid "On Page %(page)s (%(field)s)"
-msgstr "En la pagina %(page)s (%(field)s)"
+msgstr ""
 
 #: lib/reconcile/PositionDescription.js:25
 #, python-format
 msgid "Top of Page %(page)s (%(field)s)"
-msgstr "Parte superior de la página %(page)s (%(field)s)"
+msgstr ""
 
 #: lib/reconcile/PositionDescription.js:27
 #, python-format
 msgid "Bottom of Page %(page)s (%(field)s)"
-msgstr "Parte inferior de la página %(page)s (%(field)s)"
+msgstr ""
 
 #: lib/reconcile/PositionDescription.js:29
 #, python-format
 msgid "Middle of Page %(page)s (%(field)s)"
-msgstr "Parte media de la página %(page)s (%(field)s)"
+msgstr ""
 
 #: lib/reconcile/Reconciler.js:152
 msgid "Complete Reconciliation"
-msgstr "Reconciliación Completa"
+msgstr ""
 
 #: lib/reconcile/RecordListDiscrepancy.js:88
 #, python-format
 msgid "Record %(recordId)s"
-msgstr "Registro %(recordId)s"
+msgstr ""
 

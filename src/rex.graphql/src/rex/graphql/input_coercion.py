@@ -127,8 +127,14 @@ def coerce_input_node_impl(type, node, variables):
         variable_name = node.name.value
         if not variables or variable_name not in variables:
             return None, []
-        # variables are already checked
-        return variables.get(variable_name), []
+        variable = variables[variable_name]
+        if not are_types_compatible(var_type=variable.type, loc_type=type):
+            err = (
+                f'Variable "${variable_name} : {variable.type}" is attempted'
+                f' to be used as a value of incompatible type "{type}"'
+            )
+            return variable.value, [err]
+        return variable.value, []
 
     if isinstance(type, model.ListType):
         if isinstance(node, language.ast.ListValue):
@@ -190,6 +196,43 @@ def coerce_input_node_impl(type, node, variables):
         return None, [f'Expected "{type}".']
     else:
         return coerced, []
+
+
+def are_types_compatible(var_type, loc_type):
+    """
+    1. If locationType is a non‐null type:
+        a. If variableType is NOT a non‐null type, return false.
+        b. Let nullableLocationType be the unwrapped nullable type of
+           locationType.
+        c. Let nullableVariableType be the unwrapped nullable type of
+            variableType.
+        d. Return AreTypesCompatible(nullableVariableType, nullableLocationType).
+    2. Otherwise, if variableType is a non‐null type:
+        a. Let nullableVariableType be the nullable type of variableType.
+        b. Return AreTypesCompatible(nullableVariableType, locationType).
+    3. Otherwise, if locationType is a list type:
+        a. If variableType is NOT a list type, return false.
+        b. Let itemLocationType be the unwrapped item type of locationType.
+        c. Let itemVariableType be the unwrapped item type of variableType.
+        d. Return AreTypesCompatible(itemVariableType, itemLocationType).
+    4. Otherwise, if variableType is a list type, return false.
+    5. Return true if variableType and locationType are identical, otherwise
+       false.
+    """
+    if isinstance(loc_type, model.NonNullType):
+        if not isinstance(var_type, model.NonNullType):
+            return False
+        return are_types_compatible(var_type.type, loc_type.type)
+    elif isinstance(var_type, model.NonNullType):
+        return are_types_compatible(var_type.type, loc_type)
+    elif isinstance(loc_type, model.ListType):
+        if not isinstance(var_type, model.ListType):
+            return False
+        return are_types_compatible(var_type.type, loc_type.type)
+    elif isinstance(var_type, model.ListType):
+        return False
+    else:
+        return var_type == loc_type
 
 
 class undefined(object):

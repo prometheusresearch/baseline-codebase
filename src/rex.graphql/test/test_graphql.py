@@ -1068,6 +1068,40 @@ def test_query_arg_first():
     ) == {"regionByName": None}
 
 
+def test_err_query_arg_type_mismatch():
+    region = Entity("region", fields=lambda: {"name": query(q.name)})
+    count = argument("count", NonNull(scalar.Int))
+    sch = schema(
+        fields=lambda: {
+            "region": query(
+                query=q.region.filter(q.nation.count() == count), type=region
+            )
+        }
+    )
+
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch,
+            "query Q($count: Int) { region(count: $count) { name } }",
+            variables={"count": None},
+        )
+    assert (
+        info.value.message
+        == 'Argument "count : Int!" (supplied by "$count" variable) was not provided'
+    )
+
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch,
+            "query Q($count: String) { region(count: $count) { name } }",
+            variables={"count": "oops"},
+        )
+    assert (
+        info.value.message
+        == 'Variable "$count : String" is attempted to be used as a value of incompatible type "Int!"'
+    )
+
+
 def test_query_related_arg_first():
     region = Entity(
         "region",
@@ -1813,7 +1847,7 @@ def test_arg_input_object():
     data = execute(
         sch,
         """
-        query Query($pos: InputPos) {
+        query Query($pos: InputPos!) {
             pos(pos: $pos) {
                 r n rd nd
             }
@@ -1827,7 +1861,7 @@ def test_arg_input_object():
     data = execute(
         sch,
         """
-        query Query($pos: InputPos) {
+        query Query($pos: InputPos!) {
             pos(pos: $pos) {
                 r n rd nd
             }
@@ -1841,7 +1875,7 @@ def test_arg_input_object():
     data = execute(
         sch,
         """
-        query Query($pos: InputPos) {
+        query Query($pos: InputPos!) {
             pos(pos: $pos) {
                 r n rd nd
             }
@@ -1856,7 +1890,7 @@ def test_arg_input_object():
         data = execute(
             sch,
             """
-            query Query($pos: InputPos) {
+            query Query($pos: InputPos!) {
                 pos(pos: $pos) {
                     r n rd nd
                 }
@@ -1866,7 +1900,7 @@ def test_arg_input_object():
         )
     assert info.value.message == "\n".join(
         [
-            'Variable "$pos : InputPos" got invalid value:',
+            'Variable "$pos : InputPos!" got invalid value:',
             'Field "InputPos.n": missing value',
         ]
     )
@@ -1876,7 +1910,7 @@ def test_arg_input_object():
         data = execute(
             sch,
             """
-            query Query($pos: InputPos) {
+            query Query($pos: InputPos!) {
                 pos(pos: $pos) {
                     r n rd nd
                 }
@@ -1886,7 +1920,7 @@ def test_arg_input_object():
         )
     assert info.value.message == "\n".join(
         [
-            'Variable "$pos : InputPos" got invalid value:',
+            'Variable "$pos : InputPos!" got invalid value:',
             'Field "InputPos.n": value could not be null',
         ]
     )
@@ -1896,7 +1930,7 @@ def test_arg_input_object():
         data = execute(
             sch,
             """
-            query Query($pos: InputPos) {
+            query Query($pos: InputPos!) {
                 pos(pos: $pos) {
                     r n rd nd
                 }
@@ -1906,7 +1940,7 @@ def test_arg_input_object():
         )
     assert info.value.message == "\n".join(
         [
-            'Variable "$pos : InputPos" got invalid value:',
+            'Variable "$pos : InputPos!" got invalid value:',
             'Field "InputPos.nd": value could not be null',
         ]
     )
@@ -1970,7 +2004,7 @@ def test_arg_list():
     data = execute(
         sch,
         """
-        query Query($nums: [Int]) {
+        query Query($nums: [Int]!) {
             addone(nums: $nums)
         }
         """,
@@ -1982,7 +2016,7 @@ def test_arg_list():
     data = execute(
         sch,
         """
-        query Query($nums: [Int] = [2, 3]) {
+        query Query($nums: [Int]! = [2, 3]) {
             addone(nums: $nums)
         }
         """,
@@ -1993,7 +2027,7 @@ def test_arg_list():
     data = execute(
         sch,
         """
-        query Query($nums: [Int] = [2, 3]) {
+        query Query($nums: [Int]! = [2, 3]) {
             addone(nums: $nums)
         }
         """,
@@ -2005,7 +2039,7 @@ def test_arg_list():
     data = execute(
         sch,
         """
-        query Query($nums: [Int] = [2, 3]) {
+        query Query($nums: [Int]! = [2, 3]) {
             addone(nums: $nums)
         }
         """,
@@ -2018,7 +2052,7 @@ def test_arg_list():
         execute(
             sch,
             """
-            query Query($nums: [Int]) {
+            query Query($nums: [Int]!) {
                 addone(nums: $nums)
             }
             """,
@@ -2026,7 +2060,7 @@ def test_arg_list():
         )
     assert info.value.message == "\n".join(
         [
-            'Variable "$nums : [Int]" got invalid value:',
+            'Variable "$nums : [Int]!" got invalid value:',
             '- At index 0: Expected "Int".',
         ]
     )
@@ -2036,14 +2070,14 @@ def test_arg_list():
         execute(
             sch,
             """
-            query Query($nums: [Int] = ["oops"]) {
+            query Query($nums: [Int]! = ["oops"]) {
                 addone(nums: $nums)
             }
             """,
         )
     assert info.value.message == "\n".join(
         [
-            'Variable "$nums : [Int]" has invalid default value:',
+            'Variable "$nums : [Int]!" has invalid default value:',
             '- At index 0: Expected "Int".',
         ]
     )

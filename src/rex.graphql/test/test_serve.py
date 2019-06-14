@@ -53,7 +53,7 @@ expected_all = {
 }
 
 vars_byname = {"name": "AFRICA"}
-query_byname = "query($name: String) { byname(name: $name) { name } }"
+query_byname = "query($name: String!) { byname(name: $name) { name } }"
 expected_byname = {"data": {"byname": {"name": "AFRICA"}}}
 
 

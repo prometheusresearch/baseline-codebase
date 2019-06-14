@@ -34,11 +34,28 @@ from rex.query.query import ApplySyntax, LiteralSyntax
 from rex.db import get_db
 from rex.query.bind import RexBindingState
 from .schema import Schema
-from .input_coercion import coerce_input_value, coerce_input_node, undefined
+from .input_coercion import (
+    coerce_input_value,
+    coerce_input_node,
+    undefined,
+    are_types_compatible,
+)
 from . import model, desc, introspection
 
 
 logger = get_logger("rex.graphql.execute")
+
+
+class VariableValue:
+    __slots__ = ("type", "value", "node")
+
+    def __init__(self, type, value, node):
+        self.type = type
+        self.value = value
+        self.node = node
+
+    def __str__(self):
+        return f"VariableValue(type={self.type}, value={self.value!r})"
 
 
 class ExecutionInfo:
@@ -320,13 +337,23 @@ def get_param_values(
             elif isinstance(arg_node.value, language.ast.Variable):
                 variable_name = arg_node.value.name.value
                 if variables and variable_name in variables:
-                    result[arg_name] = variables[variable_name]
+                    variable = variables[variable_name]
+                    if not are_types_compatible(
+                        var_type=variable.type, loc_type=arg_type
+                    ):
+                        raise error.GraphQLError(
+                            f'Variable "${variable_name} : {variable.type}" is attempted'
+                            f' to be used as a value of incompatible type "{arg_type}"',
+                            nodes=[arg_node, variable.node],
+                        )
+                    result[arg_name] = variable.value
                 elif param.default_value is not None:
                     result[arg_name] = param.default_value
                 elif isinstance(arg_type, model.NonNullType):
                     raise error.GraphQLError(
-                        f'Argument "{name}" of required type {arg_type}" provided'
-                        f' the variable "${variable_name}" which was not provided',
+                        f'Argument "{name} : {arg_type}"'
+                        f' (supplied by "${variable_name}" variable)'
+                        f" was not provided",
                         nodes=arg_nodes,
                     )
             else:
@@ -398,11 +425,14 @@ def get_variable_values(schema: Schema, definition_nodes, inputs):
             )
         elif value is undefined or value is None:
             if def_node.default_value is not None:
-                values[var_name] = coerce_input_node(
+                var_value = coerce_input_node(
                     var_type,
                     def_node.default_value,
                     variables=None,
                     message=f'Variable "${var_name} : {var_type}" has invalid default value',
+                )
+                values[var_name] = VariableValue(
+                    value=var_value, type=var_type, node=def_node
                 )
             elif isinstance(var_type, model.NonNullType):
                 raise error.GraphQLError(
@@ -412,10 +442,12 @@ def get_variable_values(schema: Schema, definition_nodes, inputs):
                 )
         else:
             message = f'Variable "${var_name} : {var_type}" got invalid value'
-            value = coerce_input_value(
+            var_value = coerce_input_value(
                 var_type, value, message=message, nodes=[def_node]
             )
-            values[var_name] = value
+            values[var_name] = VariableValue(
+                value=var_value, type=var_type, node=def_node
+            )
 
     return values
 

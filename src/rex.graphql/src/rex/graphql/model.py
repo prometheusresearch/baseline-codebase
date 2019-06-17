@@ -714,6 +714,20 @@ def _(descriptor, ctx, name):
         return ComputedField(descriptor=descriptor, type=type, params=params)
 
 
+def synthesize_id(d):
+    parts = []
+    for label in d.labels:
+        if isinstance(label, domain.TextDomain):
+            parts.append("text")
+        elif isinstance(label, domain.IntegerDomain):
+            parts.append(str(1))
+        elif isinstance(label, domain.IdentityDomain):
+            parts.append(synthesize_id(label))
+        else:
+            raise Error("Unknown identity:", label)
+    return ".".join(parts)
+
+
 @construct.register(desc.Query)
 def _(descriptor, ctx, name):
     assert isinstance(ctx, TypeSchemaContext)
@@ -738,10 +752,9 @@ def _(descriptor, ctx, name):
                     param.loc,
                 )
             if isinstance(find_named_type(param.type), EntityIdType):
-                labels = []
-                for label in param.type.domain.labels:
-                    labels.append("id")
-                vars[param_name] = state(LiteralSyntax(".".join(labels)))
+                vars[param_name] = state(
+                    LiteralSyntax(synthesize_id(param.type.domain))
+                )
             else:
                 vars[param_name] = state.bind_cast(
                     param.type.domain, [LiteralSyntax(None)]

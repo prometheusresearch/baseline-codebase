@@ -8,7 +8,7 @@ from rex.graphql import (
     Object,
     List,
     scalar,
-    id,
+    entity_id,
     NonNull,
     Enum,
     EnumValue,
@@ -2086,12 +2086,25 @@ def test_arg_list():
 
 def test_scalar_type_id():
     region = Entity("region", fields=lambda: {"name": query(q.name)})
+    region_id = entity_id.region
+    lineitem = Entity("lineitem", fields=lambda: {})
+    lineitem_id = entity_id.lineitem
+    partsupp = Entity("partsupp", fields=lambda: {})
+    partsupp_id = entity_id.partsupp
     sch = schema(
         fields=lambda: {
             "region": query(
-                q.region.filter(q.id == argument("id", id.region)).first(),
+                q.region.filter(q.id == argument("id", region_id)).first(),
                 type=region,
-            )
+            ),
+            "lineitem": query(
+                q.lineitem.filter(q.id == argument("id", lineitem_id)).first(),
+                type=lineitem,
+            ),
+            "partsupp": query(
+                q.partsupp.filter(q.id == argument("id", partsupp_id)).first(),
+                type=partsupp,
+            ),
         }
     )
     data = execute(
@@ -2099,9 +2112,48 @@ def test_scalar_type_id():
         """
         query {
             region(id: "AFRICA") {
+                id
                 name
             }
         }
         """,
     )
-    assert data == {"region": {"name": "AFRICA"}}
+    assert data == {"region": {"id": "AFRICA", "name": "AFRICA"}}
+    data = execute(
+        sch,
+        """
+        query {
+            region(id: "'MIDDLE EAST'") {
+                id
+                name
+            }
+        }
+        """,
+    )
+    assert data == {"region": {"id": "'MIDDLE EAST'", "name": "MIDDLE EAST"}}
+    data = execute(
+        sch,
+        """
+        query {
+            lineitem(id: "1.1") {
+                id
+            }
+        }
+        """,
+    )
+    assert data == {"lineitem": {"id": "1.1"}}
+    data = execute(
+        sch,
+        """
+        query {
+            partsupp(id: "'almond aquamarine mint misty red'.'Supplier#000000021'") {
+                id
+            }
+        }
+        """,
+    )
+    assert data == {
+        "partsupp": {
+            "id": "'almond aquamarine mint misty red'.'Supplier#000000021'"
+        }
+    }

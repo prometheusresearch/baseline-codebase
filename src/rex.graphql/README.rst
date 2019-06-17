@@ -211,6 +211,28 @@ to the current nation".
 We used ``==`` operator to check for equality. There are more operators: ``!=``,
 ``<``, ``>``, ``<=``, ``>=``. Also negation: ``~q``.
 
+Filtering with table id
+-----------------------
+
+The attribute id of any particular table has the special type which can be
+minted with :func:`rex.graphql.entity_id`::
+
+   >>> from rex.graphql import entity_id, argument
+
+   >>> region_id = entity_id.region
+
+Now we can use it when defininig arguments which compare with ``.id``
+attribute::
+
+   >>> query = (
+   ...   q.region
+   ...      .filter(q.id == argument("id", region_id))
+   ...      .select(name=q.name)
+   ...      .first()
+   ... )
+   >>> print(execute_q(query, variables={'id': 'AFRICA'}))
+   {'AFRICA'}
+
 Aggregating
 -----------
 

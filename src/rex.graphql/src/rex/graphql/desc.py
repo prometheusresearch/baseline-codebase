@@ -400,7 +400,14 @@ class EntityIdTypeFactory:
         return EntityId(table_name=table_name, loc=None)
 
 
-id = EntityIdTypeFactory()
+#: Namespace to describe entity id types.
+#:
+#: Example::
+#:
+#:   region_id = entity_id.region
+#:   nation_id = entity_id.nation
+#:
+entity_id = EntityIdTypeFactory()
 
 
 class Enum(Type):

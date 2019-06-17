@@ -834,6 +834,10 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
     for filter in field.descriptor.filters:
         query = filter.apply(query, params)
 
+    # Apply sort
+    if field.descriptor.sort:
+        query = query.sort(*field.descriptor.sort)
+
     with state.with_vars(vars):
         output = state(query.syn)
     entity_type = model.find_named_type(field.type)

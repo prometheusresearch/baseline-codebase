@@ -72,3 +72,16 @@ def test_matches():
     query = q.nation.name.matches("something")
     assert str(to_htsql_syntax(query)) == "/nation.name~'something'"
     execute(query)
+
+def test_sort():
+    query = q.region.sort(q.name)
+    assert str(to_htsql_syntax(query)) == "/region.sort(name)"
+    execute(query)
+
+    query = q.region.sort(q.name.desc())
+    assert str(to_htsql_syntax(query)) == "/region.sort(name-)"
+    execute(query)
+
+    query = q.region.sort(q.name.desc(), q.comment)
+    assert str(to_htsql_syntax(query)) == "/region.sort(name-,comment)"
+    execute(query)

@@ -2157,3 +2157,32 @@ def test_scalar_type_id():
             "id": "'almond aquamarine mint misty red'.'Supplier#000000021'"
         }
     }
+
+
+def test_sort():
+    region = Entity("region", fields=lambda: {"name": query(q.name)})
+    sch = schema(
+        fields=lambda: {
+            "region": query(q.region, sort=q.name.desc(), type=region)
+        }
+    )
+
+    data = execute(
+        sch,
+        """
+        query {
+            region {
+                name
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region": [
+            {"name": "MIDDLE EAST"},
+            {"name": "EUROPE"},
+            {"name": "ASIA"},
+            {"name": "AMERICA"},
+            {"name": "AFRICA"},
+        ]
+    }

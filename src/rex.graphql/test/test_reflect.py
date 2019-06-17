@@ -508,3 +508,36 @@ def test_reflect_add_filter():
     )
     assert not res.errors
     assert res.data == {"region": {"all": [{"name": "AFRICA"}]}}
+
+
+def test_reflect_set_sort():
+    reflection = reflect(include_tables={"region"})
+    all_regions = reflection.types["region_connection"].fields["all"]
+    all_regions.set_sort(q.name.desc())
+
+    # Finally we call produce working schema and do queries.
+    schema = reflection.to_schema()
+    res = execute(
+        schema,
+        """
+        query {
+            region {
+                all {
+                    name
+                }
+            }
+        }
+        """,
+    )
+    assert not res.errors
+    assert res.data == {
+        "region": {
+            "all": [
+                {"name": "MIDDLE EAST"},
+                {"name": "EUROPE"},
+                {"name": "ASIA"},
+                {"name": "AMERICA"},
+                {"name": "AFRICA"},
+            ]
+        }
+    }

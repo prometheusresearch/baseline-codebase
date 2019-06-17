@@ -8,6 +8,7 @@ from rex.graphql import (
     Object,
     List,
     scalar,
+    id,
     NonNull,
     Enum,
     EnumValue,
@@ -2081,3 +2082,26 @@ def test_arg_list():
             '- At index 0: Expected "Int".',
         ]
     )
+
+
+def test_scalar_type_id():
+    region = Entity("region", fields=lambda: {"name": query(q.name)})
+    sch = schema(
+        fields=lambda: {
+            "region": query(
+                q.region.filter(q.id == argument("id", id.region)).first(),
+                type=region,
+            )
+        }
+    )
+    data = execute(
+        sch,
+        """
+        query {
+            region(id: "AFRICA") {
+                name
+            }
+        }
+        """,
+    )
+    assert data == {"region": {"name": "AFRICA"}}

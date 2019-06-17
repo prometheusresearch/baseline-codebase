@@ -409,6 +409,28 @@ class ScalarTypeFactory:
 scalar = ScalarTypeFactory()
 
 
+class EntityId(Type):
+    def __init__(self, table_name, loc=autoloc):
+        self.name = f"{table_name}_id"
+        self.table_name = table_name
+        self.loc = code_location.here() if loc is autoloc else loc
+
+
+class EntityIdTypeFactory:
+    def __getattr__(self, table_name):
+        return EntityId(table_name=table_name, loc=None)
+
+
+#: Namespace to describe entity id types.
+#:
+#: Example::
+#:
+#:   region_id = entity_id.region
+#:   nation_id = entity_id.nation
+#:
+entity_id = EntityIdTypeFactory()
+
+
 class Enum(Type):
     def __init__(self, name, values, description=None, loc=autoloc):
         loc = code_location.here() if loc is autoloc else loc

@@ -25,6 +25,9 @@ from htsql.core.tr.binding import (
 )
 from htsql.core.tr.lookup import unwrap
 from htsql.core import domain
+from htsql.core.model import HomeNode, TableNode, TableArc, ChainArc
+from htsql.core.util import to_name
+from htsql.core.classify import classify, localize, relabel
 from graphql import error
 from graphql.type import scalars as gql_scalars
 
@@ -212,6 +215,33 @@ class ScalarType(Type, InputType, QueryInputType):
 
     def __str__(self):
         return self.name
+
+
+class EntityIdType(ScalarType):
+    def __init__(self, descriptor, domain):
+        super(EntityIdType, self).__init__(
+            name=descriptor.name,
+            serialize=self.serialize,
+            parse_literal=self.parse_literal,
+            coerce_value=self.coerce_value,
+            domain=domain,
+        )
+
+    def bind_value(self, state, value):
+        assert self.domain is not None, "is_input_type check should catch that"
+        return state(LiteralSyntax(value))
+
+    def serialize(self, v):
+        return v
+
+    def coerce_value(self, v):
+        return v
+
+    def parse_literal(self, ast):
+        v = gql_scalars.parse_string_literal(ast)
+        if v is None:
+            return None
+        return self.coerce_value(v)
 
 
 class DatabaseEnumType(ScalarType):
@@ -617,6 +647,54 @@ def _(descriptor, ctx):
     return type
 
 
+def identify(node):
+    arcs = localize(node)
+    if arcs is None:
+        node_name = None
+        if isinstance(node, TableNode):
+            node_arc = TableArc(node.table)
+            node_labels = relabel(node_arc)
+            if node_labels:
+                node_name = node_labels[0].name
+        if node_name is not None:
+            raise Error("Detected table without identity:", node_name)
+        else:
+            raise Error("Detected table without identity")
+    fields = []
+    for arc in arcs:
+        if isinstance(arc, ChainArc):
+            field = identify(arc.target)
+        else:
+            field = arc.column.domain
+        fields.append(field)
+    return domain.IdentityDomain(fields)
+
+
+def find_table_node(table_name):
+    node = None
+    for label in classify(HomeNode()):
+        if label.name == table_name:
+            node = label.target
+            break
+    return node
+
+
+@construct.register(desc.EntityId)
+def _(descriptor, ctx):
+    type = ctx.root.types.get(descriptor.name)
+    if type is not None:
+        if not isinstance(type, EntityIdType):
+            raise Error(f"Type {descriptor.name} is not an entity id type")
+        return type
+    else:
+        node = find_table_node(descriptor.table_name)
+        if node is None:
+            raise Error("Unknown table:", descriptor.table_name)
+        domain = identify(node)
+        type = EntityIdType(descriptor=descriptor, domain=domain)
+    return type
+
+
 @construct.register(desc.Compute)
 def _(descriptor, ctx, name):
 
@@ -634,6 +712,20 @@ def _(descriptor, ctx, name):
             params[param_name] = construct(param, ctx)
 
         return ComputedField(descriptor=descriptor, type=type, params=params)
+
+
+def synthesize_id(d):
+    parts = []
+    for label in d.labels:
+        if isinstance(label, domain.TextDomain):
+            parts.append("text")
+        elif isinstance(label, domain.IntegerDomain):
+            parts.append(str(1))
+        elif isinstance(label, domain.IdentityDomain):
+            parts.append(synthesize_id(label))
+        else:
+            raise Error("Unknown identity:", label)
+    return ".".join(parts)
 
 
 @construct.register(desc.Query)
@@ -659,9 +751,14 @@ def _(descriptor, ctx, name):
                     f"Unsupported query argument type `{param_name} : {param.type}`:",
                     param.loc,
                 )
-            vars[param_name] = state.bind_cast(
-                param.type.domain, [LiteralSyntax(None)]
-            )
+            if isinstance(find_named_type(param.type), EntityIdType):
+                vars[param_name] = state(
+                    LiteralSyntax(synthesize_id(param.type.domain))
+                )
+            else:
+                vars[param_name] = state.bind_cast(
+                    param.type.domain, [LiteralSyntax(None)]
+                )
 
         # Bring the context into binding state
         if isinstance(ctx.parent, QuerySchemaContext):

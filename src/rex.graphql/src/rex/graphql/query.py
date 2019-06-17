@@ -298,10 +298,12 @@ def lift(v):
         raise Error("Unable to create a query of value:", repr(v))
 
 
-def bind(query):
+def bind(query, variables=None):
+    variables = variables or {}
     state = RexBindingState()
-    binding = state(query.syn)
-    binding = state.collect(binding)
+    with state.with_vars(variables):
+        binding = state(query.syn)
+        binding = state.collect(binding)
     return binding
 
 
@@ -322,12 +324,12 @@ def to_sql_syntax(query, db=None):
     return pipe.properties["sql"]
 
 
-def execute(query, db=None):
+def execute(query, db=None, variables=None):
     """ Execute query."""
     if db is None:
         db = get_db()
     with db:
-        binding = bind(query)
+        binding = bind(query, variables=variables)
         pipe = translate(binding)
         product = pipe()(None)
     return product

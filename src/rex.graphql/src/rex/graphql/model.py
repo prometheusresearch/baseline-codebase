@@ -670,13 +670,22 @@ def _(descriptor, ctx, name):
         # Finally produce binding
         with state.with_vars(vars):
             output = state(descriptor.query.syn)
-
             # Try to bind filters (if they are specified via queries)
             state.push_scope(output.binding)
             for filter in descriptor.filters:
                 if isinstance(filter, desc.FilterOfQuery):
                     state(filter.query.syn)
             state.pop_scope()
+            # Try to bind sorts
+            state.push_scope(output.binding)
+            for q in descriptor.sort:
+                state(q.syn)
+            state.pop_scope()
+            # Check if paginate is ok
+            if descriptor.paginate and not output.plural:
+                raise Error(
+                    "cannot define paginated query field for a non plural output"
+                )
 
         def base(binding):
             if isinstance(binding, (LocateBinding, ClipBinding)):
@@ -741,11 +750,6 @@ def _(descriptor, ctx, name):
                 type = construct(type, ctx)
 
             table = None
-
-        if descriptor.paginate and not output.plural:
-            raise Error(
-                "cannot define paginated query field for a non plural output"
-            )
 
         if not output.optional:
             type = NonNullType(type)

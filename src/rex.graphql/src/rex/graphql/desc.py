@@ -262,6 +262,7 @@ class Query(Field):
         name=None,
         description=None,
         deprecation_reason=None,
+        sort=None,
         paginate=False,
         loc=autoloc,
     ):
@@ -313,6 +314,9 @@ class Query(Field):
         self.description = description
         self.deprecation_reason = deprecation_reason
         self.paginate = paginate
+        if sort is not None and not isinstance(sort, (tuple, list)):
+            sort = [sort]
+        self.sort = sort or []
 
     def _add_param(self, param):
         assert isinstance(param, Param)
@@ -321,6 +325,23 @@ class Query(Field):
                 raise Error("Inconsistent argument configuration:", param.name)
         else:
             self.params[param.name] = param
+
+    def set_sort(self, *sort):
+        """ Apply sorting for this field.
+
+        Consider you have a query field::
+
+            >>> regions = query(q.region, type=region)
+
+        Now you can add sorting::
+
+            >>> regions.set_sort(q.name, q.comment.desc())
+
+        """
+        if len(sort) == 1 and sort[0] is None:
+            self.sort = None
+        else:
+            self.sort = sort
 
     def add_filter(self, filter=None):
         """ Add new filter.
@@ -817,6 +838,7 @@ def query(
     name: t.Optional[str] = None,
     description: t.Optional[str] = None,
     deprecation_reason: t.Optional[str] = None,
+    sort: t.Optional[QueryCombinator] = None,
     paginate: bool = False,
     loc=autoloc,
 ) -> Field:
@@ -869,6 +891,7 @@ def query(
         name=name,
         description=description,
         deprecation_reason=deprecation_reason,
+        sort=sort,
         paginate=paginate,
         loc=loc,
     )

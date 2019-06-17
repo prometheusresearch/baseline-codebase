@@ -12,3 +12,5 @@ tests:
   stdout: ''
 - sh: rex graphql-demo-populate rex.graphql_demo -q
   stdout: ''
+- sh: pip uninstall -q -y rex.graphql_demo
+  stdout: ''

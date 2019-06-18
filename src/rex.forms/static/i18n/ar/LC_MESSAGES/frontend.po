@@ -1,24 +1,20 @@
-#
+# 
 # Translators:
 # Abdul Ahmad <ahmadabdul3@yahoo.com>, 2016
 # BobbiB <bobbi@prometheusresearch.com>, 2014
 # Jason Simeone, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version:  rex.forms\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-06-14 14:12+0000\n"
-"PO-Revision-Date: 2016-08-09 17:58+0000\n"
-"Last-Translator: Abdul Ahmad <ahmadabdul3@yahoo.com>\n"
-"Language: ar\n"
-"Language-Team: Arabic "
-"(http://www.transifex.com/rexdb/rexforms/language/ar/)\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : "
-"n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5\n"
+"Project-Id-Version: rex.forms\n"
+"POT-Creation-Date: 2019-06-14 14:12\n"
+"PO-Revision-Date: 2018-11-28 16:36+0000\n"
+"Last-Translator: Jason Simeone <jason@prometheusresearch.com>\n"
+"Language-Team: Arabic (http://www.transifex.com/rexdb/rexforms/language/ar/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #: lib/AudioPlayer.js:119
 msgid "Audio is not supported by this browser."
@@ -197,17 +193,14 @@ msgid "You must respond to at least one question in this record."
 msgstr "يجب ان تجاوب علا القل سؤال واحد في هاذا التسجيل."
 
 #: lib/instrument/validate.js:244
-#, python-format
 msgid "Must enter between %(min)s and %(max)s records."
 msgstr "يجب ادخال بين %(min)s و %(max)s تسجيلات."
 
 #: lib/instrument/validate.js:246
-#, python-format
 msgid "Must enter at least %(min)s records."
 msgstr "يجب ادخال علا الاقل %(min)s تسجيلات."
 
 #: lib/instrument/validate.js:248
-#, python-format
 msgid "Cannot enter more than %(max)s records."
 msgstr "ممنوع ادخال اكثر من %(max)s تسجيلات."
 
@@ -220,32 +213,26 @@ msgid "You must provide a response for this field."
 msgstr "يجب ان تدخل جواب لهاذا السؤال."
 
 #: lib/instrument/validate.js:322
-#, python-format
 msgid "Must select between %(min)s and %(max)s choices."
 msgstr "يجب ان تختار بين %(min)s و %(max)s اختيارات."
 
 #: lib/instrument/validate.js:324
-#, python-format
 msgid "Must select at least %(min)s choices."
 msgstr "يجب ان تختار علا الاقل %(min)s اختيارات."
 
 #: lib/instrument/validate.js:326
-#, python-format
 msgid "Cannot select more than %(max)s choices."
 msgstr "ممنوع اختيار اكثر من %(max)s اختيارات."
 
 #: lib/instrument/validate.js:351
-#, python-format
 msgid "Must be between %(min)s and %(max)s characters."
 msgstr "يجب ان يكون بين %(min)s و %(max)s حروف."
 
 #: lib/instrument/validate.js:353
-#, python-format
 msgid "Must be at least %(min)s characters."
 msgstr "يجب ان يكون علا الاقل %(min)s حروف."
 
 #: lib/instrument/validate.js:355
-#, python-format
 msgid "Cannot be more than %(max)s characters."
 msgstr "ممنوع ان يكون اكثر من %(max)s حروف."
 
@@ -254,17 +241,14 @@ msgid "Does not match the expected pattern."
 msgstr "لا يتطابق مع النموذج المتوقع."
 
 #: lib/instrument/validate.js:382
-#, python-format
 msgid "Must be between %(min)s and %(max)s."
 msgstr "يجب ان يكون بين %(min)s و %(max)s."
 
 #: lib/instrument/validate.js:384
-#, python-format
 msgid "Must be at least %(min)s."
 msgstr "يجب ان يكون علا الاقل %(min)s."
 
 #: lib/instrument/validate.js:386
-#, python-format
 msgid "Cannot be beyond %(max)s."
 msgstr "ممنوع ان يكون اكثر من %(max)s."
 
@@ -273,7 +257,6 @@ msgid "Manual Override"
 msgstr "تجاوز يدوي"
 
 #: lib/reconcile/Header.js:31
-#, python-format
 msgid "Entered By: %(username)s"
 msgstr "تم الدخول بواسطة: %(username)s"
 
@@ -282,22 +265,18 @@ msgid "Final Value"
 msgstr "القيمة النهائية"
 
 #: lib/reconcile/PositionDescription.js:21
-#, python-format
 msgid "On Page %(page)s (%(field)s)"
 msgstr "على الصفحة %(page)s (%(field)s)"
 
 #: lib/reconcile/PositionDescription.js:25
-#, python-format
 msgid "Top of Page %(page)s (%(field)s)"
 msgstr "أعلى الصفحة %(page)s (%(field)s)"
 
 #: lib/reconcile/PositionDescription.js:27
-#, python-format
 msgid "Bottom of Page %(page)s (%(field)s)"
 msgstr "أسفل الصفحة %(page)s (%(field)s)"
 
 #: lib/reconcile/PositionDescription.js:29
-#, python-format
 msgid "Middle of Page %(page)s (%(field)s)"
 msgstr "منتصف الصفحة %(page)s (%(field)s)"
 
@@ -306,7 +285,5 @@ msgid "Complete Reconciliation"
 msgstr " تصالح كامل"
 
 #: lib/reconcile/RecordListDiscrepancy.js:88
-#, python-format
 msgid "Record %(recordId)s"
 msgstr "سجل %(recordId)s"
-

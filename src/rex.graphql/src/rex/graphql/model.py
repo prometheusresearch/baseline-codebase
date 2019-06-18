@@ -735,10 +735,20 @@ def synthesize_id(d):
     for label in d.labels:
         if isinstance(label, domain.TextDomain):
             parts.append("text")
-        elif isinstance(label, domain.IntegerDomain):
+        elif isinstance(label, domain.NumberDomain):
             parts.append(str(1))
         elif isinstance(label, domain.IdentityDomain):
             parts.append(synthesize_id(label))
+        elif isinstance(label, domain.BooleanDomain):
+            parts.append("true")
+        elif isinstance(label, domain.EnumDomain):
+            parts.append(domain.labels[0])
+        elif isinstance(label, domain.DateDomain):
+            parts.append("'2012-12-12'")
+        elif isinstance(label, domain.TimeDomain):
+            parts.append("'00:00:00.000000'")
+        elif isinstance(label, domain.DateTimeDomain):
+            parts.append("'2012-12-12 00:00:00.000000'")
         else:
             raise Error("Unknown identity:", label)
     return ".".join(parts)

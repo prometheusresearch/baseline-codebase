@@ -36,6 +36,7 @@ const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
+const vendoredJsRegex = /(\/vendor\/).+\.js$/;
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -77,7 +78,7 @@ module.exports = function(webpackEnv) {
       },
       {
         // Options for PostCSS as we reference these options twice
-        // Adds vendor prefixing based on your specified browser support in
+        // Adds vendored prefixing based on your specified browser support in
         // package.json
         loader: require.resolve('postcss-loader'),
         options: {
@@ -169,7 +170,7 @@ module.exports = function(webpackEnv) {
       minimizer: [
         // This is only used in production mode
         new TerserPlugin({
-          exclude: /vendor/,
+          exclude: vendoredJsRegex,
           terserOptions: {
             parse: {
               // we want terser to parse ecma 8 code. However, we don't want it
@@ -284,6 +285,9 @@ module.exports = function(webpackEnv) {
       ],
     },
     module: {
+      // Do not parse vendored modules. This should boost the perf but does not
+      // allow to have import/require/... syntax inside those modules.
+      noParse: vendoredJsRegex,
       strictExportPresence: true,
       rules: [
         // Disable require.ensure as it's not a standard language feature.
@@ -293,6 +297,7 @@ module.exports = function(webpackEnv) {
         // It's important to do this before Babel processes the JS.
         {
           test: /\.(js|mjs|jsx)$/,
+          exclude: vendoredJsRegex,
           enforce: 'pre',
           use: [
             {
@@ -326,7 +331,7 @@ module.exports = function(webpackEnv) {
             {
               test: /(react-forms-old|rex-formbuilder).+\.js$/,
               include: paths.workspace,
-              exclude: /(\/vendor\/).+\.js$/,
+              exclude: vendoredJsRegex,
               loader: require.resolve('babel-loader'),
               options: {
                 sourceType: "unambiguous",
@@ -343,7 +348,7 @@ module.exports = function(webpackEnv) {
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.workspace,
-              exclude: /(node_modules|vendor)/,
+              exclude: [/node_modules/, vendoredJsRegex],
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve(
@@ -376,7 +381,7 @@ module.exports = function(webpackEnv) {
             // Unlike the application JS, we only compile the standard ES features.
             {
               test: /\.(js|mjs)$/,
-              exclude: /@babel(?:\/|\\{1,2})runtime/,
+              exclude: [/@babel(?:\/|\\{1,2})runtime/, vendoredJsRegex],
               loader: require.resolve('babel-loader'),
               options: {
                 babelrc: false,

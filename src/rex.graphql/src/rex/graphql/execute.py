@@ -601,7 +601,16 @@ def complete_data(
                 assert False, f"unknown field: {field_def!r}"
         return result
 
-    return data
+    assert isinstance(return_type, (model.ScalarType, model.EnumType))
+
+    return complete_value(
+        ctx=ctx,
+        return_type=return_type,
+        field_nodes=field_nodes,
+        info=info,
+        path=path,
+        result=data,
+    )
 
 
 def complete_value(

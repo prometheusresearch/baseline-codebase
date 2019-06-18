@@ -1139,6 +1139,7 @@ def _(descriptor):
 
 @seal.register(Enum)
 @seal.register(Scalar)
+@seal.register(EntityId)
 def _(descriptor):
     pass
 

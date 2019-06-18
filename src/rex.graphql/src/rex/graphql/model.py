@@ -232,7 +232,7 @@ class EntityIdType(ScalarType):
         return state(LiteralSyntax(value))
 
     def serialize(self, v):
-        return v
+        return str(v)
 
     def coerce_value(self, v):
         return v
@@ -242,6 +242,10 @@ class EntityIdType(ScalarType):
         if v is None:
             return None
         return self.coerce_value(v)
+
+
+class ThisEntityId(desc.Desc):
+    """ EntityId which refers to the current table."""
 
 
 class DatabaseEnumType(ScalarType):
@@ -507,7 +511,7 @@ def _(descriptor, ctx):
 
         desc_fields = list(descriptor.fields.items())
         desc_fields.append(("__typename", introspection.typename_field))
-        desc_fields.append(("id", desc.query(q.id(), type=desc.scalar.ID)))
+        desc_fields.append(("id", desc.query(q.id(), type=ThisEntityId())))
 
         for name, field in desc_fields:
             field_loc = field.loc
@@ -693,6 +697,18 @@ def _(descriptor, ctx):
         domain = identify(node)
         type = EntityIdType(descriptor=descriptor, domain=domain)
     return type
+
+
+@construct.register(ThisEntityId)
+def _(descriptor, ctx):
+    # ThisEntityId is only allowed on entities and thus we can get the query
+    # which return such entity by going to a grandparent context.
+    assert isinstance(ctx, QuerySchemaContext)
+    assert isinstance(ctx.parent, TypeSchemaContext)
+    assert isinstance(ctx.parent.parent, QuerySchemaContext)
+    assert ctx.parent.parent.table is not None
+    table = ctx.parent.parent.table
+    return construct(desc.EntityId(table.name), ctx)
 
 
 @construct.register(desc.Compute)

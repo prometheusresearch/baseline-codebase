@@ -953,7 +953,22 @@ def test_enum():
 
 
 def test_entity_id():
-    sch = get_simple_schema()
+    region = Entity(
+        "region",
+        fields=lambda: {
+            "name": query(q.name),
+            "nation_list": query(q.nation, nation),
+        },
+    )
+    nation = Entity("nation", fields=lambda: {"name": query(q.name)})
+    sch = schema(
+        fields=lambda: {
+            "region": query(q.region, region),
+            "first_region_id": query(
+                q.region.first().id, type=entity_id.region
+            ),
+        }
+    )
     assert execute(sch, "query { region { id } }") == {
         "region": [
             {"id": "AFRICA"},
@@ -1011,6 +1026,9 @@ def test_entity_id():
                 ]
             },
         ]
+    }
+    assert execute(sch, "query { first_region_id }") == {
+        "first_region_id": "AFRICA"
     }
 
 

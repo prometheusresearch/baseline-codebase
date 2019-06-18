@@ -27,7 +27,7 @@ function Field(props: Props) {
   let [dirty, setDirty] = React.useState(false);
 
   let onBlur = () => {
-    this.setState({dirty: true});
+    setDirty(true);
   };
 
   let onChange = e => {

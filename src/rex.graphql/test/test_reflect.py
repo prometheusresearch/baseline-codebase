@@ -78,6 +78,55 @@ def test_reflect_simple():
     }
 
 
+def test_reflect_all_filter_by_id_single():
+    schema = reflect(include_tables={"region"}).to_schema()
+    res = execute(
+        schema,
+        """
+        query {
+            region {
+                all(id__eq: "AFRICA") {
+                    name
+                }
+            }
+        }
+        """,
+    )
+    assert res.data == {"region": {"all": [{"name": "AFRICA"}]}}
+    res = execute(
+        schema,
+        """
+        query {
+            region {
+                all(id__eq: ["AFRICA"]) {
+                    name
+                }
+            }
+        }
+        """,
+    )
+    assert res.data == {"region": {"all": [{"name": "AFRICA"}]}}
+
+
+def test_reflect_all_filter_by_id_many():
+    schema = reflect(include_tables={"region"}).to_schema()
+    res = execute(
+        schema,
+        """
+        query {
+            region {
+                all(id__eq: ["AFRICA", "ASIA"]) {
+                    name
+                }
+            }
+        }
+        """,
+    )
+    assert res.data == {
+        "region": {"all": [{"name": "AFRICA"}, {"name": "ASIA"}]}
+    }
+
+
 def test_reflect_restrict_via_include():
     schema = reflect(include_tables={"region"}).to_schema()
     assert "region" in schema.types

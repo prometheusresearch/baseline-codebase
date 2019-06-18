@@ -672,7 +672,7 @@ def connectiontype_name(entitytype):
 
 def connectiontype_uncached(entitytype, filters=None):
 
-    by_id = q.id.text() == argument("id", NonNull(scalar.ID))
+    by_id = q.id == argument("id", NonNull(EntityId(entitytype.name)))
     return Record(
         name=connectiontype_name(entitytype),
         fields=lambda: {

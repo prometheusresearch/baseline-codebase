@@ -232,6 +232,15 @@ class Reflect:
         return fields
 
     def _reflect_filters(self, query, fieldtype, node):
+        # Filter by id
+        arg = desc.argument(
+            f"id__eq",
+            desc.List(desc.EntityId(node.table.name)),
+            loc=None,
+            description=f"Filter by id being equal to",
+        )
+        yield EqFilter(arg, q.id)
+        # Filters by columns
         for label in classify(node):
             if not isinstance(label.target, DomainNode):
                 continue
@@ -312,7 +321,7 @@ class Reflect:
         return desc.query(
             query=q.define(entity=query),
             type=connectiontype,
-            description="Connection to {entitytype.name}",
+            description=f"Query {entitytype.name}",
             loc=None,
         )
 

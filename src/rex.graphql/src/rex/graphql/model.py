@@ -767,10 +767,16 @@ def _(descriptor, ctx, name):
                     f"Unsupported query argument type `{param_name} : {param.type}`:",
                     param.loc,
                 )
-            if isinstance(find_named_type(param.type), EntityIdType):
-                vars[param_name] = state(
-                    LiteralSyntax(synthesize_id(param.type.domain))
-                )
+            # This is a "hack" to check usage of how we use arguments of entity
+            # identity types. We can just wrap them in the cast expressions
+            # (because of how rex.query/HTSQL works) and instead we synthesize a
+            # dummy id value.
+            named_type = find_named_type(param.type)
+            if isinstance(named_type, EntityIdType):
+                value = synthesize_id(named_type.domain)
+                if isinstance(param.type, ListType):
+                    value = [value]
+                vars[param_name] = state(LiteralSyntax(value))
             else:
                 vars[param_name] = state.bind_cast(
                     param.type.domain, [LiteralSyntax(None)]

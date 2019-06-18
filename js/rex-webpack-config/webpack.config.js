@@ -170,7 +170,11 @@ module.exports = function(webpackEnv) {
       minimizer: [
         // This is only used in production mode
         new TerserPlugin({
-          exclude: vendoredJsRegex,
+          // This exclude setting refers to the chunk name and not a module
+          // name. Make sure you use webpackChunkName setting with dynamic
+          // imports of venodred libs to mark such imports as with .vendor
+          // suffix so taht they don't slowdown the build process.
+          exclude: /\.vendor/,
           terserOptions: {
             parse: {
               // we want terser to parse ecma 8 code. However, we don't want it

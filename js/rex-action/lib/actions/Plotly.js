@@ -12,7 +12,7 @@ import Action from "../Action";
 import * as ContextUtils from "../ContextUtils";
 
 function loadPlotly() {
-  return import("../vendor/plotly");
+  return import(/* webpackChunkName: "plotly.vendor" */ "../vendor/plotly");
 }
 
 function fetchPlotData({ data, context, contextTypes }) {

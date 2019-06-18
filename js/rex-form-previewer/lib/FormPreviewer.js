@@ -156,11 +156,11 @@ export default InjectI18N(
       let fields = Object.keys(form.parameters)
         .sort()
         .map(param => {
-          let Input;
+          let renderInput;
           if (form.parameters[param].type === "boolean") {
-            Input = BooleanInput;
+            renderInput = props => <BooleanInput {...props} />;
           } else if (form.parameters[param].type === "numeric") {
-            Input = NumberInput;
+            renderInput = props => <NumberInput {...props} />;
           }
 
           return (
@@ -168,7 +168,7 @@ export default InjectI18N(
               <ReactForms.Field
                 select={param}
                 label={param}
-                renderInput={props => <Input {...props} />}
+                renderInput={renderInput}
               />
             </VBox>
           );

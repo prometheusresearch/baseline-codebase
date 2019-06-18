@@ -744,7 +744,7 @@ class RexBindingState(BindingState):
                 op = self.correlate_identity(
                         polarity, lop.binding, rop.binding, syntax)
                 ops.append(op)
-            binding = self.merge_identities(polarity, ops, syntax)
+            binding = self.merge_identities(-polarity, ops, syntax)
             return Output(binding, optional=optional, plural=plural)
         else:
             domains = [lop.domain] + [rop.domain for rop in rops]

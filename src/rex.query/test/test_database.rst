@@ -202,6 +202,12 @@ Filtering also works with identities::
 
     >>> db.produce(
     ...     ["filter",
+    ...         ["navigate", "nation"],
+    ...         ["=", ["navigate", "region"], "'MIDDLE EAST'", "AFRICA"]])        # doctest: +ELLIPSIS
+    <Product ({'ALGERIA', [AFRICA], '...'}, {'EGYPT', ['MIDDLE EAST'], '...'}, ...)>
+
+    >>> db.produce(
+    ...     ["filter",
     ...         ["navigate", "lineitem"],
     ...         ["=",
     ...             [".", ["navigate", "partsupp"], ["id"]],

@@ -1,6 +1,6 @@
 @import "~normalize.css/normalize.css";
 
-html, body {
+html.rex-widget-app, body.rex-widget-app {
   overflow: hidden;
   position: fixed;
   width: 100%;

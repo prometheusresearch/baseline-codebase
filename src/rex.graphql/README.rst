@@ -411,8 +411,6 @@ future as we identify missing pieces.
 The following GraphQL features are not supported at the moment:
 
 - Union types
-- Input object types
 - Interfaces
 - Directives
-- Mutations
 - Subscriptions

@@ -90,7 +90,7 @@ def coerce_input_value_impl(type, value):
 
         return obj, errors
 
-    assert model.is_input_type(type)
+    assert model.is_input_type(type), f"{type} is not an input type"
 
     try:
         coerced = type.coerce_value(value)

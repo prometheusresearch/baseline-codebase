@@ -1087,6 +1087,16 @@ def test_query_arg_first():
     ) == {"regionByName": None}
 
 
+def test_err_query_extra_arg():
+    region = Entity("region", fields=lambda: {"name": query(q.name)})
+    sch = schema(fields=lambda: {"region": query(query=q.region, type=region)})
+    with pytest.raises(GraphQLError) as info:
+        data = execute(
+            sch, "query { region { name } }", variables={"count": "12"}
+        )
+    assert info.value.message == 'Unexpected variables: "count"'
+
+
 def test_err_query_arg_type_mismatch():
     region = Entity("region", fields=lambda: {"name": query(q.name)})
     count = argument("count", NonNull(scalar.Int))

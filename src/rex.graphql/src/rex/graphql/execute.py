@@ -401,53 +401,72 @@ def get_param_values(
 
 
 def get_variable_values(schema: Schema, definition_nodes, inputs):
-    """Prepares an object map of variables of the correct type based on the
+    """ Extract variables values.
+
+    Prepares an object map of variables of the correct type based on the
     provided variable definitions and arbitrary input.
 
-    If the input cannot be parsed to match the variable definitions, a
-    error.GraphQLError will be thrown."""
+    If the input cannot be parsed to match the variable definitions or there are
+    unused inputs, a :class:`GraphQLError` will be thrown.
+    """
+
     if inputs is None:
         inputs = {}
+
+    inputs_seen = set()
 
     values = {}
     for def_node in definition_nodes:
         var_name = def_node.variable.name.value
         var_type = type_from_node(schema, def_node.type)
+
+        inputs_seen.add(var_name)
         value = inputs.get(var_name, undefined)
 
         if not model.is_input_type(var_type):
             var_type = language.printer.print_ast(def_node.type)
-            print(var_type, repr(var_type), var_type.__class__)
             raise error.GraphQLError(
-                f'Variable "${var_name}" expected value of type "{var_type}"'
-                f" which cannot be used as an input type.",
+                f'Variable "${var_name} : {var_type}"'
+                f" is invalid as {var_type} cannot be used as a variable type.",
                 nodes=[def_node],
             )
-        elif value is undefined or value is None:
+
+        if value is undefined or value is None:
             if def_node.default_value is not None:
                 var_value = coerce_input_node(
                     var_type,
                     def_node.default_value,
                     variables=None,
-                    message=f'Variable "${var_name} : {var_type}" has invalid default value',
+                    message=(
+                        f'Variable "${var_name} : {var_type}" has'
+                        f" invalid default value"
+                    ),
                 )
                 values[var_name] = VariableValue(
                     value=var_value, type=var_type, node=def_node
                 )
             elif isinstance(var_type, model.NonNullType):
                 raise error.GraphQLError(
-                    f'Variable "${var_name}" of required type "{var_type}" was'
+                    f'Variable "${var_name} : {var_type}" was'
                     f" not provided.",
                     nodes=[def_node],
                 )
         else:
-            message = f'Variable "${var_name} : {var_type}" got invalid value'
             var_value = coerce_input_value(
-                var_type, value, message=message, nodes=[def_node]
+                var_type,
+                value,
+                message=f'Variable "${var_name} : {var_type}" got invalid value',
+                nodes=[def_node],
             )
             values[var_name] = VariableValue(
                 value=var_value, type=var_type, node=def_node
             )
+
+    # Check for unexpected inputs.
+    inputs_all = set(inputs)
+    if inputs_all - inputs_seen:
+        names = ", ".join(f'"{name}"' for name in inputs_all)
+        raise error.GraphQLError(f"Unexpected variables: {names}")
 
     return values
 

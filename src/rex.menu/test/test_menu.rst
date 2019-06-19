@@ -94,7 +94,7 @@ the ``rex.action`` framework, which renders an action wizard::
     >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
-    <html lang="en">
+    <html class="rex-widget-app" lang="en">
     ...[\"@js-package::rex-action\", \"Page\", ...
     </html>
 
@@ -109,7 +109,7 @@ the ``rex.action`` framework, which renders an action wizard::
     >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
-    <html lang="en">
+    <html class="rex-widget-app" lang="en">
     ...[\"@js-package::rex-action\", \"Wizard\", ...
     </html>
 
@@ -119,7 +119,7 @@ the ``rex.action`` framework, which renders an action wizard::
     >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
-    <html lang="en">
+    <html class="rex-widget-app" lang="en">
     ...[\"@js-package::rex-widget\", \"IFrame\", ...
     </html>
 

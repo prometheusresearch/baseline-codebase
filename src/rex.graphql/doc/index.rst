@@ -9,6 +9,7 @@ Programming guide
 .. toctree::
 
    guide
+   guide-reflection
 
 
 API reference

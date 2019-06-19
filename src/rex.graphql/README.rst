@@ -303,106 +303,33 @@ result we are querying the first element is empty::
    >>> print(execute_q(query))
    null
 
-::
-
-   >>> rex.off()
-
-Database schema reflection
+Database Schema Reflection
 ==========================
 
-``rex.graphql`` provides database schema reflection mechanism which
-can be used to automatically configure GraphQL API endpoint for any given
-database.
+REX.GRAPHQL provides database schema reflection mechanism which can be used to
+automatically configure GraphQL API endpoint for any given database. This
+feature if useful to quickly scaffold an API for a given database schema.
 
-To use reflection API one must have Rex application active as the mechanism
-access the database to learn its schema::
+The simplest example of schema reflection is to reflect the database schema
+using :func:`rex.graphql.reflect.reflect` function::
 
-   >>> from rex.core import Rex
-   >>> rex = Rex('rex.graphql_demo')
-   >>> rex.on()
-
-Use ``rex.graphql.reflect.reflect`` function to learn the database schema::
-
-   >>> from rex.graphql import q, query, execute
    >>> from rex.graphql.reflect import reflect
 
    >>> reflection = reflect()
 
-We can add new fields to reflection before we produce a schema::
-
-   >>> reflection.add_field(
-   ...   name="region_count",
-   ...   field=query(q.region.count())
-   ... )
-
-Then we can obtain GraphQL schema from reflection::
+Then we can obtain the reflected GraphQL schema and execute queries against it::
 
    >>> sch = reflection.to_schema()
+   >>> execute(sch, "query { region { count } }").data["region"]["count"]
+   5
 
-Such schema can be used to query for data.
-
-For each database table reflection generates a connection API - a field which
-can be used to query a single record, all records, all records by page and count
-records in the table.
-
-To query a single record by id ``get`` subfield can be used::
-
-   >>> res = execute(sch, """
-   ...   query {
-   ...     region {
-   ...       africa: get(id: "AFRICA") {
-   ...         name
-   ...       }
-   ...     }
-   ...   }
-   ... """)
-   >>> res.data
-   OrderedDict([('region', OrderedDict([('africa', OrderedDict([('name', 'AFRICA')]))]))])
-
-To query all records ``all`` subfield can be used::
-
-   >>> res = execute(sch, """
-   ...   query {
-   ...     region {
-   ...       items: all {
-   ...         name
-   ...       }
-   ...     }
-   ...   }
-   ... """)
-   >>> res.data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-   OrderedDict([('region',
-                 OrderedDict([('items',
-                               [OrderedDict([('name', 'AFRICA')]), ...])]))])
-
-We can also query all records using ``paginated`` subfield which canbe passed
-``limit: Int`` and ``offset: Int`` arguments::
-
-   >>> res = execute(sch, """
-   ...   query {
-   ...     region {
-   ...       items: paginated(limit: 2, offset: 1) {
-   ...         name
-   ...       }
-   ...     }
-   ...   }
-   ... """)
-   >>> res.data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-   OrderedDict([('region',
-                 OrderedDict([('items',
-                               [OrderedDict([('name', 'AMERICA')]), ...])]))])
-   >>> len(res.data['region']['items'])
-   2
-
-::
-
-   >>> rex.off()
+See :ref:`guide-reflection` for the detailed documentation about this topic.
 
 Common Pitfalls & Problems
---------------------------
+==========================
 
 Not all GraphQL features are supported
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
 Strictly speaking ``rex.graphql`` is not a GraphQL server as it doesn't support
 all features outlined in the GraphQL specification. This might change in the
@@ -414,3 +341,7 @@ The following GraphQL features are not supported at the moment:
 - Interfaces
 - Directives
 - Subscriptions
+
+::
+
+   >>> rex.off()

@@ -5,6 +5,7 @@
 
 project = "rex.graphql"
 html_title = "REX.GRAPHQL Documentation"
+html_theme = 'sphinx_rtd_theme'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinxcontrib.autorex"

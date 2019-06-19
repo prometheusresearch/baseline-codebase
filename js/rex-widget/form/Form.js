@@ -342,7 +342,7 @@ export class Form extends React.Component<Props, State> {
       submitTo
         .execute(dataValue)
         .then(this.onSubmitComplete, this.onSubmitError);
-    } else if (submitTo instanceof Request) {
+    } else if (submitTo instanceof data.Request) {
       submitTo
         .produce(dataValue)
         .then(this.onSubmitComplete, this.onSubmitError);

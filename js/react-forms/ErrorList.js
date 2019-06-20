@@ -14,7 +14,7 @@ type Props = {
   /**
    * If component should render errors from all the subvalues.
    */
-  complete?: boolean, 
+  complete?: boolean,
   /**
    * Show errors.
    */
@@ -23,18 +23,32 @@ type Props = {
   /**
    * Restrict schema types
    */
-  schemaType?: {[name: string]: boolean},
+  schemaType?: { [name: string]: boolean },
 
   noLabel?: boolean,
 
   label?: string,
 
-  errorComponent?: React.Node,
+  errorComponent?: React.AbstractComponent<{|
+    noLabel?: boolean,
+    complete?: boolean,
+    error: types.error,
+  |}>,
 };
 
 function ErrorList(props: Props) {
-  let {noLabel, hideNonForced, complete, schemaType, formValue, errorComponent, ...rest} = props;
-  let errorList = Boolean(complete) ? formValue.completeErrorList : formValue.errorList;
+  let {
+    noLabel,
+    hideNonForced,
+    complete,
+    schemaType,
+    formValue,
+    errorComponent,
+    ...rest
+  } = props;
+  let errorList = Boolean(complete)
+    ? formValue.completeErrorList
+    : formValue.errorList;
   if (schemaType !== undefined) {
     errorList = errorList.filter(error =>
       error.schema ? schemaType[error.schema.type] : schemaType.none,
@@ -46,9 +60,9 @@ function ErrorList(props: Props) {
   if (errorList.length === 0) {
     return null;
   }
-  Error = errorComponent || Error;
+  let ErrorComponent = errorComponent != null ? errorComponent : Error;
   let items = errorList.map((error, index) => (
-    <Error
+    <ErrorComponent
       key={error.field + "__" + index}
       error={error}
       noLabel={noLabel}

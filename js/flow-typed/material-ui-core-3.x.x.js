@@ -35,7 +35,7 @@ declare module "@material-ui/core" {
       | "srOnly"
       | "inherit",
     title?: string,
-    style?: Object
+    style?: Object,
   |};
 
   declare export var Typography: AbstractComponent<TypographyProps>;
@@ -48,7 +48,7 @@ declare module "@material-ui/core" {
     style?: Object,
     className?: string,
     "aria-label"?: string,
-    tabIndex?: number
+    tabIndex?: number,
   |};
 
   declare export type ButtonBaseProps = {|
@@ -67,7 +67,7 @@ declare module "@material-ui/core" {
     focusVisibleClassName?: string,
     onFocusVisible?: Function,
     TouchRippleProps?: Object,
-    type?: "submit" | "reset" | "button"
+    type?: "submit" | "reset" | "button",
   |};
 
   declare export var ButtonBase: AbstractComponent<ButtonBaseProps>;
@@ -77,7 +77,7 @@ declare module "@material-ui/core" {
     color?: "default" | "inherit" | "primary" | "secondary",
     fullWidth?: boolean,
     size?: "small" | "medium" | "large",
-    variant?: "text" | "outlined" | "contained"
+    variant?: "text" | "outlined" | "contained",
   |};
 
   declare export var Button: AbstractComponent<ButtonProps>;
@@ -86,7 +86,7 @@ declare module "@material-ui/core" {
     ...ButtonBaseProps,
     color?: "default" | "inherit" | "primary" | "secondary",
     edge?: "start" | "end" | false,
-    size?: "small" | "medium"
+    size?: "small" | "medium",
   |};
 
   declare export var IconButton: AbstractComponent<IconButtonProps>;
@@ -117,7 +117,7 @@ declare module "@material-ui/core" {
     rows?: string | number,
     rowsMax?: string | number,
     startAdornment?: Node,
-    type?: string
+    type?: string,
   |};
   declare export var Input: AbstractComponent<InputProps>;
 
@@ -144,7 +144,7 @@ declare module "@material-ui/core" {
       | "top-start"
       | "top",
     popperOptions?: Object,
-    transition?: boolean
+    transition?: boolean,
   |};
   declare export var Popper: AbstractComponent<PopperProps>;
 
@@ -155,7 +155,7 @@ declare module "@material-ui/core" {
     action?: Function,
     anchorOrigin?: {
       horizontal: number | "left" | "center" | "right",
-      vertical: number | "top" | "center" | "bottom"
+      vertical: number | "top" | "center" | "bottom",
     },
     anchorPosition?: { left: number, top: number },
     anchorReference?: "anchorEl" | "anchorPosition" | "none",
@@ -175,13 +175,17 @@ declare module "@material-ui/core" {
     PaperProps?: Object,
     transformOrigin?: {
       horizontal: number | "left" | "center" | "right",
-      vertical: number | "top" | "center" | "bottom"
+      vertical: number | "top" | "center" | "bottom",
     },
     TransitionComponent?: ElementType,
     transitionDuration?: number | { enter?: number, exit?: number } | "auto",
-    TransitionProps?: Object
+    TransitionProps?: Object,
   |};
   declare export var Popover: AbstractComponent<PopoverProps>;
+
+  declare export function withTheme<P: {}>(): (
+    AbstractComponent<P>,
+  ) => AbstractComponent<P>;
 
   declare export var createMuiTheme: any;
   declare export var makeStyles: any;

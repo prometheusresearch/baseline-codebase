@@ -41,11 +41,11 @@ Menu integration
   Content-Type: text/html; charset=UTF-8
   ...
   <BLANKLINE>
-  <html lang="en">
+  <html class="rex-widget-app" lang="en">
   <head>
   ...
   </head>
-  <body>
+  <body class="rex-widget-app">
   ...
   </body>
   </html>

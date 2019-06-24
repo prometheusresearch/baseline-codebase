@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import deepEqual from "deep-is";
 import { CircularProgress } from "@material-ui/core";
 
@@ -9,7 +10,7 @@ export opaque type Endpoint = string;
 export type Result = {|
   data: ?Object,
   errors: { message: string }[],
-  loading: boolean
+  loading: boolean,
 |};
 
 type DataProps = {| data: any |};
@@ -19,7 +20,7 @@ type ErrorProps = {| query: string, errors: { message: string }[] |};
 type Lifecycle = {|
   onData?: DataProps => void,
   onLoading?: LoadingProps => void,
-  onError?: ErrorProps => void
+  onError?: ErrorProps => void,
 |};
 
 export function configure(url: string): Endpoint {
@@ -31,7 +32,7 @@ let initResult = { data: null, loading: true, errors: [] };
 export async function fetchGraphQL(
   endpoint: Endpoint,
   query: string,
-  variables: Object = {}
+  variables: Object = {},
 ) {
   if (endpoint == null) {
     throw new Error("Missing GraphQL endpoint configuration");
@@ -42,8 +43,8 @@ export async function fetchGraphQL(
     body: JSON.stringify({ query, variables }),
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json"
-    }
+      Accept: "application/json",
+    },
   });
   if (!resp.ok) {
     throw new Error(`Invalid response: ${resp.status}`);
@@ -52,74 +53,95 @@ export async function fetchGraphQL(
   }
 }
 
+let emptyTask = {
+  endpoint: null,
+  query: null,
+  variables: null,
+};
+
 export function useQuery(
   endpoint: Endpoint,
   query: string,
   variables: Object,
-  lifecycle: Lifecycle
+  lifecycle: Lifecycle,
 ): Result {
-  let [task, setTask] = React.useState({
-    endpoint: null,
-    query: null,
-    variables: null
-  });
   let [result, setResult] = React.useState(initResult);
 
-  // Track is mounted state so we don't re-render after the component is
-  // unmounted.
-  let isMounted = React.useRef(true);
-  React.useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+  let [task, setTask] = React.useState(emptyTask);
 
-  React.useEffect(() => {
-    if (
+  function isCurrentTask(task) {
+    return (
       endpoint === task.endpoint &&
       query === task.query &&
       deepEqual(variables, task.variables)
-    ) {
+    );
+  }
+
+  let isMounted = React.useRef(true);
+
+  React.useEffect(
+    () => () => {
+      isMounted.current = false;
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    // Check if this is the current task and skip if it is.
+    if (isCurrentTask(task)) {
       return;
     }
 
-    setTask({ endpoint, query, variables });
+    let thisTask = { endpoint, query, variables };
+    setTask(thisTask);
     setResult(initResult);
-    if (lifecycle.onLoading != null) {
-      lifecycle.onLoading(({}: any));
-    }
 
     fetchGraphQL(endpoint, query, variables).then(
       data => {
-        if (!isMounted) {
+        if (!isMounted.current) {
           return;
         }
-        let hasError = data.errors != null && data.errors.length > 0;
-        let errors = data.errors || [];
-        if (lifecycle.onError != null && hasError) {
-          lifecycle.onError({ query, errors });
-        }
-        if (lifecycle.onData != null && !hasError) {
-          lifecycle.onData({ data: data.data });
-        }
-        setResult({
-          data: data.data,
-          errors,
-          loading: false
+        ReactDOM.unstable_batchedUpdates(() => {
+          // this task is no longer current, skip so we don't deliver stale data
+          if (!isCurrentTask(thisTask)) {
+            return;
+          }
+          let hasError = data.errors != null && data.errors.length > 0;
+          let errors = data.errors || [];
+          if (lifecycle.onError != null && hasError) {
+            lifecycle.onError({ query, errors });
+          }
+          if (lifecycle.onData != null && !hasError) {
+            lifecycle.onData({ data: data.data });
+          }
+          setResult({
+            data: data.data,
+            errors,
+            loading: false,
+          });
         });
       },
       error => {
-        let errors = [error];
-        if (lifecycle.onError != null) {
-          lifecycle.onError({ query, errors });
+        if (!isMounted.current) {
+          return;
         }
-        setResult({
-          data: null,
-          errors,
-          loading: false
+        ReactDOM.unstable_batchedUpdates(() => {
+          let errors = [error];
+          if (lifecycle.onError != null) {
+            lifecycle.onError({ query, errors });
+          }
+          setResult({
+            data: null,
+            errors,
+            loading: false,
+          });
         });
-      }
+      },
     );
+
+    if (lifecycle.onLoading != null) {
+      lifecycle.onLoading(({}: any));
+    }
   });
 
   return result;
@@ -133,7 +155,7 @@ function renderLoadingDefault(_props) {
         justifyContent: "center",
         alignItems: "center",
         height: "100%",
-        flexGrow: 1
+        flexGrow: 1,
       }}
     >
       <div style={{ display: "flex" }}>
@@ -150,7 +172,7 @@ type Props = {|
   renderData: DataProps => React.Node,
   renderLoading?: LoadingProps => React.Node,
   renderError?: ErrorProps => React.Node,
-  ...Lifecycle
+  ...Lifecycle,
 |};
 
 export function Query({
@@ -162,12 +184,12 @@ export function Query({
   renderData,
   onData,
   onLoading,
-  onError
+  onError,
 }: Props) {
   let { loading, data, errors } = useQuery(endpoint, query, variables, {
     onData,
     onLoading,
-    onError
+    onError,
   });
 
   if (loading) {

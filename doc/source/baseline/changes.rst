@@ -6,6 +6,7 @@
 * rex.graphql: Added a new package to enable creation of GraphQL endpoints in
   RexDB applications.
 * Updated rexdb/build image to 2019.06.25.
+* In docker mode, route localhost:$HTTP_PORT to nginx:80 on the develop container.
 * Makefile refinements:
 
   * You can now create project-specific Makefiles named

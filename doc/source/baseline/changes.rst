@@ -5,6 +5,7 @@
 * rex-i18n: Fixed warnings resulting from React 16 upgrade.
 * rex.graphql: Added a new package to enable creation of GraphQL endpoints in
   RexDB applications.
+* Updated rexdb/build image to 2019.06.25.
 * Makefile refinements:
 
   * You can now create project-specific Makefiles named

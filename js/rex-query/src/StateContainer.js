@@ -23,14 +23,14 @@ export type Effect<S> = {
  * A function which takes a state and produces an updated state and optionally a
  * list of effects.
  */
-export type StateUpdater<S: Object> = (
+export type StateUpdater<S: {}> = (
   state: S
 ) => S | [S, Array<Effect<S>> | Effect<S>];
 
 /**
  * A function which produces a state updater for a given set of parameters.
  */
-export type ActionHandler<P: Object | void, S> = (params: P) => StateUpdater<S>;
+export type ActionHandler<P: {} | void, S> = (params: P) => StateUpdater<S>;
 
 /**
  * An interface to state container.
@@ -38,7 +38,7 @@ export type ActionHandler<P: Object | void, S> = (params: P) => StateUpdater<S>;
  * You can read state and modify it via actions.
  */
 export type StateContainer<
-  S: Object,
+  S: {},
   H: { [name: string]: ActionHandler<*, S> }
 > = {
   /**
@@ -74,12 +74,12 @@ const REDUX_DEVTOOLS_ENABLED =
  * Create a new state container given an initial state and a set of action
  * handlers.
  */
-export function create<S: Object, H: { [name: string]: ActionHandler<*, S> }>(
+export function create<S: {}, H: { [name: string]: ActionHandler<*, S> }>(
   initialState: S,
   actions: H,
-  onChange: (state: S, callback: (state: S) => *) => *
+  onChange: (state: S, callback: (state: S) => void) => void
 ): StateContainer<S, H> {
-  let state = initialState;
+  let state: S = initialState;
   let devtools = null;
   let devtoolsUnsubscribe = null;
 
@@ -101,9 +101,9 @@ export function create<S: Object, H: { [name: string]: ActionHandler<*, S> }>(
       if (Array.isArray(result)) {
         let [nextState, nextEffect] = result;
         effect = nextEffect;
-        state = nextState;
+        state = (nextState: S);
       } else {
-        state = result;
+        state = (result: S);
       }
       if (devtools != null) {
         devtools.send({ ...params, type: actionName }, state);
@@ -111,7 +111,7 @@ export function create<S: Object, H: { [name: string]: ActionHandler<*, S> }>(
 
       const effectList =
         effect != null ? (Array.isArray(effect) ? effect : [effect]) : [];
-      state = effectList.reduce(
+      state = effectList.reduce<S>(
         (state, effect) => effect.prepare(state),
         state
       );

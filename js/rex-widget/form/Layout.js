@@ -14,7 +14,7 @@ export let Context = React.createContext<layout>("horizontal");
 /**
  * Determine form layout by measuring form root element.
  */
-export function useComputeFormLayout() {
+export function useComputeFormLayout(): [layout, React.Ref<any>] {
   let [size, ref] = useDOMSize();
   let layout: layout = "horizontal";
   if (size != null && size.width < 600) {
@@ -28,7 +28,7 @@ type maxWidth = number | string;
 type Props = {|
   layout?: layout,
   children: React.Node,
-  Component?: React.ElementType,
+  Component?: React.AbstractComponent<any>,
   maxWidth?: maxWidth
 |};
 

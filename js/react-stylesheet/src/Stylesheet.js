@@ -75,6 +75,7 @@ export class Stylesheet extends StylesheetManager {
           delete style[k];
         }
       }
+      // $FlowFixMe: ...
       return new CSSClassRepresentation(className, style, 'CompiledCSSWithVariants');
     } else {
       return className;

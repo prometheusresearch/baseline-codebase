@@ -53,7 +53,8 @@ type Props = {|
    */
   options: Fetcher<Option[]>,
 
-  noOptionsText?: string
+  noOptionsText?: string,
+
 |};
 
 export function CheckboxGroupField({
@@ -64,7 +65,6 @@ export function CheckboxGroupField({
   select,
   options: data,
   noOptionsText = "No Items",
-  fetched,
   plain,
   ...props
 }: Props) {

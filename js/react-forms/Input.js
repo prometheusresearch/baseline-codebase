@@ -30,7 +30,10 @@ export default class Input extends React.Component<Props, State> {
   };
 
   _expectedValue: ?string;
-  _finalizeOnChangeDebounced: () => void;
+  _finalizeOnChangeDebounced: {
+    cancel?: () => void,
+    (): void;
+  };
 
   constructor(props: Props) {
     super(props);
@@ -56,6 +59,7 @@ export default class Input extends React.Component<Props, State> {
       value = "";
     }
     return (
+      // $FlowFixMe: ...
       <Component {...props} value={value} onChange={this.onChange} onBlur={this.onBlur} />
     );
   }

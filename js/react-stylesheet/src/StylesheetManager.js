@@ -51,6 +51,7 @@ export class StaticStylesheetManager extends StylesheetManager {
   toClassName(state: StyleState, name: string, value: string): string {
     const className = `rs-${name}-${value}-${state}`;
     if (Environment.isTest) {
+      // $FlowFixMe: this is only for tests.
       return new CSSClassRepresentation(className, {[name]: value}, 'PrecompiledCSS');
     } else {
       return className;

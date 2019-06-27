@@ -11,7 +11,7 @@
   "dependencies": {
     "@prometheusresearch/react-ui": "*",
     "react-stylesheet": "*",
-    "react-window": "^1.0.0",
+    "react-window": "^1.8.3",
     "react-virtualized-auto-sizer": "*",
     "lodash": "^4.15.0",
     "downloadjs": "^1.4.6",

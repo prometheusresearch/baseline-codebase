@@ -27,7 +27,7 @@
     "react-relative-portal": "^1.7.0",
     "react-select": "^1.0.0-rc.2",
     "react-stylesheet": "*",
-    "react-window": "^1.0.0",
+    "react-window": "^1.8.3",
     "recharts": "^1.4.2",
     "tether": "^1.4.0"
   }

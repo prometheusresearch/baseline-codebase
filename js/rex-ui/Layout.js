@@ -42,7 +42,7 @@ export function useLayoutMode(): LayoutMode {
  */
 export function useDOMSize(): [
   ?{ height: number, width: number },
-  (null | HTMLElement | React.Component<any>) => void
+  React.Ref<any>
 ] {
   let [size, setSize] = React.useState(null);
   let elementRef = React.useRef(null);
@@ -105,13 +105,18 @@ export function useDOMSize(): [
   return [size, onElement];
 }
 
-export function WithDOMSize<P>(
+export function WithDOMSize<
+  P: {
+    setElementForDOMSize: React.Ref<any>,
+    DOMSize: ?{ width: number, height: number }
+  }
+>(
   Component: React.AbstractComponent<P>
 ): React.AbstractComponent<
   $Diff<
     P,
     {
-      setElementForDOMSize: (null | HTMLElement | React.Component<any>) => void,
+      setElementForDOMSize: React.Ref<any>,
       DOMSize: ?{ width: number, height: number }
     }
   >

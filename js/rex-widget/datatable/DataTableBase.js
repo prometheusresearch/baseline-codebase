@@ -70,7 +70,7 @@ type Props = {|
    * Wrapper DOM size, will be determined automatically if not provided.
    */
   DOMSize?: { width: number, height: number },
-  setElementForDOMSize: (null | HTMLElement | React.Component<any>) => void,
+  setElementForDOMSize: React.Ref<any>,
 
   /**
    * Minimum value for column width.

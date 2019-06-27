@@ -30,7 +30,7 @@ export let ConfirmNavigation = React.forwardRef<Props, Instance>(
     let reason = useConfirmNavigation(message);
     React.useImperativeHandle(ref, () => ({
       allow: () => {
-        History.allowNavigation(reason);
+        History.allowNavigation(reason.current);
       }
     }));
     return null;
@@ -56,7 +56,7 @@ export let useConfirmNavigation = (message?: string = defaultMessage) => {
       }
     };
   }, [message]);
-  return reason.current;
+  return reason;
 };
 
 /**

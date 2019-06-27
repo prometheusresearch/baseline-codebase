@@ -29,11 +29,16 @@ export function configure(url: string): Endpoint {
 
 let initResult = { data: null, loading: true, errors: [] };
 
-export async function fetchGraphQL(
+type QueryResult<R> = {|
+  data: ?R,
+  errors?: { message: string }[]
+|};
+
+export async function fetchGraphQL<R>(
   endpoint: Endpoint,
   query: string,
   variables: Object = {},
-) {
+): Promise<QueryResult<R>> {
   if (endpoint == null) {
     throw new Error("Missing GraphQL endpoint configuration");
   }
@@ -44,7 +49,7 @@ export async function fetchGraphQL(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-    },
+    }
   });
   if (!resp.ok) {
     throw new Error(`Invalid response: ${resp.status}`);

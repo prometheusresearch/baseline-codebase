@@ -36,7 +36,7 @@ const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
-const vendoredJsRegex = /(\/vendor\/).+\.js$/;
+const vendoredJsRegex = /(\/vendor-no-process\/).+\.js$/;
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.

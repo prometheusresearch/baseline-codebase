@@ -158,5 +158,7 @@ class MartCache(LRUCache):
         super(MartCache, self).__init__(*args, **kwargs)
 
     def __missing__(self, key):
-        return get_mart_db(key, **self.mart_options)
+        value = get_mart_db(key, **self.mart_options)
+        self[key] = value
+        return value
 

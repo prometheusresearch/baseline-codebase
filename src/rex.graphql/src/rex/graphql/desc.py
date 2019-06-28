@@ -512,11 +512,11 @@ class FilterOfFunction(Filter):
 
     def apply(self, query, values):
         kwargs = {}
-        for name in self.params:
+        for name, param in self.params.items():
             # skip filter if some params are not defined
-            if not name in values:
+            if not param.name in values:
                 return query
-            kwargs[name] = values[name]
+            kwargs[name] = values[param.name]
         for clause in self.f(**kwargs):
             query = query.filter(clause)
         return query
@@ -649,9 +649,9 @@ def compute_from_function(
 
         def run(parent, info, values):
             kwargs = {}
-            for name in params:
-                if name in values:
-                    kwargs[name] = values[name]
+            for name, param in params.items():
+                if param.name in values:
+                    kwargs[name] = values[param.name]
             return f(**kwargs)
 
         return compute(
@@ -806,9 +806,8 @@ class Argument(Param):
         out_name=None,
         loc=autoloc,
     ):
+        super(Argument, self).__init__(name=name, type=type)
         self.loc = code_location.here() if loc is autoloc else loc
-        self.name = name
-        self.type = type
         self.default_value = default_value
         self.description = description
         self.out_name = out_name
@@ -837,8 +836,7 @@ class ComputedParam(Param):
     """ Param computed at runtime."""
 
     def __init__(self, name, type, f):
-        self.name = name
-        self.type = type
+        super(ComputedParam, self).__init__(name=name, type=type)
         self.compute = f
 
     def with_type(self, type):

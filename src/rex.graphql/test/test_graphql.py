@@ -149,12 +149,35 @@ def test_compute_from_function():
     assert data == {"add": 3}
 
 
+def test_compute_from_function_arg():
+    # We define a compute field with compute_from_function with arguments
+    # annotated with gql arguments. That way we can control the names of gql
+    # arguments and map them to names internal to functions.
+    @compute_from_function()
+    def add(
+        x: argument("a", scalar.Int), y: argument("b", scalar.Int)
+    ) -> scalar.Int:
+        return x + y
+
+    sch = schema(fields=lambda: {"add": add})
+
+    data = execute(
+        sch,
+        """
+        query {
+            add(a: 1, b: 2)
+        }
+        """,
+    )
+    assert data == {"add": 3}
+
+
 def test_compute_from_function_with_parent():
     Number = Object(name="Number", fields=lambda: {"add": add})
 
     @compute_from_function()
-    def add(parent: parent_param, x: scalar.Int) -> scalar.Int:
-        return parent + x
+    def add(forthytwo: parent_param, x: scalar.Int) -> scalar.Int:
+        return forthytwo + x
 
     @compute_from_function()
     def forthytwo() -> Number:
@@ -621,6 +644,32 @@ def test_query_filter_of_function():
         }
         """,
         variables={"africa_only": True},
+    )
+    assert data == {"region": [{"name": "AFRICA"}]}
+
+
+def test_query_filter_of_function_arg():
+    @filter_from_function()
+    def filter_region(enabled: argument("africa_only", scalar.Boolean)):
+        if enabled:
+            yield q.name == "AFRICA"
+
+    region = Entity("region", fields=lambda: {"name": query(q.name)})
+
+    sch = schema(
+        fields=lambda: {
+            "region": query(q.region, region, filters=[filter_region])
+        }
+    )
+    data = execute(
+        sch,
+        """
+        query {
+            region(africa_only: true) {
+                name
+            }
+        }
+        """,
     )
     assert data == {"region": [{"name": "AFRICA"}]}
 

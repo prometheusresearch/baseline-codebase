@@ -19,6 +19,11 @@ class Param(abc.ABC):
     A parameter's value can be supplied as a GraphQL argument or via some other
     means.
     """
+
+    def __init__(self, name, type):
+        self.name = name
+        self.type = type
+
     @abc.abstractmethod
     def with_type(self, type):
         pass

@@ -7,7 +7,7 @@ services:
       source: pgdata
       target: /var/lib/postgresql/data
   develop:
-    image: rexdb/build:2019.03.08
+    image: rexdb/build:2019.06.25
     command: [sleep, infinity]
     working_dir: /app
     ports:
@@ -31,6 +31,10 @@ services:
     - PATH=/app/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     - PGHOST=postgres
     - PGUSER=postgres
+    cap_add:
+    - NET_ADMIN
+    sysctls:
+      net.ipv4.conf.all.route_localnet: 1
   nginx:
     image: nginx:1.15
     command:

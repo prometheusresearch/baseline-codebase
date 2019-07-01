@@ -47,6 +47,7 @@ init-local:
 init-docker:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Docker container...${NORM}"
 	[ -e .devmode ] || ${MAKE} configure-docker
+	${MAKE} localhost-key.pem
 	${MAKE} init-cfg up init-remote
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
@@ -85,7 +86,7 @@ init-remote:
 	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
-	${MAKE} sync-once bin/sync
+	${MAKE} sync-cert sync-once bin/sync
 	${RSH} sh -ce "echo local > .devmode"
 	${RSH} make init-env
 	${MAKE} sync-bin
@@ -128,9 +129,11 @@ status-docker:
 	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
 	echo "The environment is active." || \
 	echo "The environment is ${BOLD}${RED}not active${NORM}. To activate, run: ${CYAN}. ./bin/activate${NORM}"
-	@PORT=$$(docker-compose port nginx 80 2>/dev/null | sed s/0.0.0.0://g) && [ -z "$$PORT" ] && \
+	@HTTP_PORT=$$(docker-compose port nginx 80 2>/dev/null | sed s/0.0.0.0://g) && \
+	HTTPS_PORT=$$(docker-compose port nginx 443 2>/dev/null | sed s/0.0.0.0://g) && \
+	[ -z "$$HTTP_PORT$$HTTPS_PORT" ] && \
 	echo "Application container ${BOLD}${RED}is down${NORM}. To restart, run: ${CYAN}make up${NORM}" || \
-	echo "The application is exposed at: ${CYAN}http://localhost:$$PORT${NORM}"
+	echo "The application is exposed at: ${CYAN}http://localhost:$$HTTP_PORT${NORM} and ${CYAN}https://localhost:$$HTTPS_PORT${NORM}"
 	@[ -e ${CURDIR}/.st/syncthing.pid ] && kill -0 `cat ${CURDIR}/.st/syncthing.pid` > /dev/null 2>&1 && \
 	echo "Source code is being synchronized with the application container." || \
 	echo "Source code is ${BOLD}${RED}not synchronized${NORM} with the application container. To synchronize, run: ${CYAN}make sync${NORM}"
@@ -168,7 +171,9 @@ up-local:
 
 up-docker:
 	docker-compose up -d
-	. ./.env && ${RSH} iptables -t nat -A OUTPUT -o lo -d 127.0.0.1 -p tcp --dport $$HTTP_PORT -j DNAT --to-destination `${NOTERM_RSH} dig +short nginx`:80
+	. ./.env && \
+	${RSH} iptables -t nat -A OUTPUT -o lo -d 127.0.0.1 -p tcp --dport $$HTTP_PORT -j DNAT --to-destination `${NOTERM_RSH} dig +short nginx`:80 && \
+	${RSH} iptables -t nat -A OUTPUT -o lo -d 127.0.0.1 -p tcp --dport $$HTTPS_PORT -j DNAT --to-destination `${NOTERM_RSH} dig +short nginx`:443 && \
 	${RSH} iptables -t nat -A POSTROUTING -j MASQUERADE
 .PHONY: up-docker
 
@@ -449,6 +454,30 @@ bin/sync: bin/syncthing
 	${RSYNC} ./.st/remote/ develop:/app/.st/; \
 	echo "$$SYNC_TEMPLATE" >./bin/sync; \
 	chmod a+x ./bin/sync
+
+
+# Generate development certificate.
+localhost-key.pem: bin/mkcert
+	./bin/mkcert localhost
+
+
+# Install the root development certificate.
+sync-cert:
+	set -e; \
+	if [ -e bin/mkcert ]; then \
+		${RSYNC} "`./bin/mkcert -CAROOT`/rootCA.pem" develop:/usr/local/share/ca-certificates/mkcert.crt; \
+		${RSH} update-ca-certificates; \
+	fi
+
+
+bin/mkcert:
+	set -e; \
+	mkdir -p bin; \
+	ver=v1.3.0; \
+	case "`uname -s`" in Linux) os=linux;; Darwin) os=macos;; *) os=undefined;; esac; \
+	case "`uname -m`" in x86_64) arch=amd64;; *) arch=undefined;; esac; \
+	curl -sL https://github.com/FiloSottile/mkcert/releases/download/$$ver/mkcert-$$ver-$$os-$$arch -o bin/mkcert; \
+	chmod a+x bin/mkcert
 
 
 # Configure the development environment.

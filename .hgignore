@@ -21,6 +21,7 @@ syntax: regexp
 ^[^/]+.yaml$
 ^Procfile$
 ^.env$
+^[^/]+.pem$
 ^bin/
 ^data/
 ^include/

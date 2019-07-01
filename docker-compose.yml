@@ -60,7 +60,10 @@ services:
 
       server {
           listen 80;
+          listen 443 ssl;
           server_name .localhost;
+          ssl_certificate /etc/nginx/localhost.pem;
+          ssl_certificate_key /etc/nginx/localhost-key.pem;
           location / {
               if ($$app_path = "") {
                   return 302 $$scheme://$$http_host$$uri/;
@@ -83,6 +86,7 @@ services:
       exec nginx -g 'daemon off;'
     ports:
     - ${HTTP_PORT}:80
+    - ${HTTPS_PORT}:443
     volumes:
     - type: volume
       source: apprun
@@ -91,6 +95,12 @@ services:
       source: appdocs
       target: /var/www/doc
       read_only: true
+    - type: bind
+      source: ./localhost.pem
+      target: /etc/nginx/localhost.pem
+    - type: bind
+      source: ./localhost-key.pem
+      target: /etc/nginx/localhost-key.pem
     links:
     - develop
 volumes:

@@ -2282,3 +2282,67 @@ def test_sort():
             {"name": "AFRICA"},
         ]
     }
+
+
+def test_query_transform_field():
+    def emphasis(value):
+        return value + "!!!"
+
+    region = Entity(
+        "region",
+        fields=lambda: {
+            "name": query(q.name, type=scalar.String, transform=emphasis)
+        },
+    )
+    sch = schema(fields=lambda: {"region": query(q.region, type=region)})
+
+    data = execute(
+        sch,
+        """
+        query {
+            region {
+                name
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region": [
+            {"name": "AFRICA!!!"},
+            {"name": "AMERICA!!!"},
+            {"name": "ASIA!!!"},
+            {"name": "EUROPE!!!"},
+            {"name": "MIDDLE EAST!!!"},
+        ]
+    }
+
+
+def test_query_transform_at_root():
+    def emphasis(value):
+        return [v + "!!!" for v in value]
+
+    sch = schema(
+        fields=lambda: {
+            "region_name": query(
+                q.region.name, type=scalar.String, transform=emphasis
+            )
+        }
+    )
+
+    data = execute(
+        sch,
+        """
+        query {
+            region_name
+        }
+        """,
+    )
+    assert data == {
+        "region_name": [
+            "AFRICA!!!",
+            "AMERICA!!!",
+            "ASIA!!!",
+            "EUROPE!!!",
+            "MIDDLE EAST!!!",
+        ]
+    }

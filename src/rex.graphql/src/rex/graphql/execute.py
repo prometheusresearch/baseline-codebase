@@ -600,7 +600,7 @@ def complete_data(
             field_def = return_type.fields.get(field_name)
             if isinstance(field_def, model.QueryField):
                 item = getattr(data, name)
-                result[name] = complete_value(
+                item_data = complete_value(
                     ctx=ctx,
                     return_type=field_def.type,
                     field_nodes=field_nodes,
@@ -608,6 +608,9 @@ def complete_data(
                     path=path + [name],
                     result=item,
                 )
+                if field_def.descriptor.transform:
+                    item_data = field_def.descriptor.transform(item_data)
+                result[name] = item_data
             elif isinstance(field_def, model.ComputedField):
                 computed_fields.append((name, field_nodes, field_def))
             else:
@@ -816,6 +819,8 @@ def resolve_field(
             )
     elif isinstance(field_def, model.QueryField):
         result = execute_query_field(ctx, parent, field_def, field_nodes)
+        if field_def.descriptor.transform:
+            result = field_def.descriptor.transform(result)
     else:
         assert False, f"unknown field type"
 

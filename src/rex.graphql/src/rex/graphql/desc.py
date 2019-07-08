@@ -264,6 +264,7 @@ class Query(Field):
         deprecation_reason=None,
         sort=None,
         paginate=False,
+        transform=None,
         loc=autoloc,
     ):
 
@@ -308,11 +309,19 @@ class Query(Field):
                 self.add_filter(filter)
 
         self.loc = code_location.here() if loc is autoloc else loc
+
+        if transform is not None and type is None:
+            with code_location.context(self.loc, desc=desc):
+                raise Error(
+                    "Missing type argument for a query field w/ transform"
+                )
+
         self.query = query
         self.type = type
         self.name = name
         self.description = description
         self.deprecation_reason = deprecation_reason
+        self.transform = transform
         self.paginate = paginate
         if sort is not None and not isinstance(sort, (tuple, list)):
             sort = [sort]
@@ -860,6 +869,7 @@ def query(
     deprecation_reason: t.Optional[str] = None,
     sort: t.Optional[QueryCombinator] = None,
     paginate: bool = False,
+    transform=None,
     loc=autoloc,
 ) -> Field:
     """
@@ -901,6 +911,10 @@ def query(
     :param name: Name
     :param description: Description
     :param deprecation_reason: Reason for deprecation
+    :param transform:
+        Specify how to transform result of the query, ``type`` param must be
+        supplied if ``transform`` is supplied.
+    :param sort: Specify sort order via query
     :param paginate: If automatic offset/limit arguments should be added
     """
     loc = code_location.here() if loc is autoloc else loc
@@ -913,6 +927,7 @@ def query(
         deprecation_reason=deprecation_reason,
         sort=sort,
         paginate=paginate,
+        transform=transform,
         loc=loc,
     )
 

@@ -458,13 +458,32 @@ def test_data_computed_field():
         "region",
         fields=lambda: {
             "name": query(q.name),
-            "title": compute(
-                scalar.String, lambda parent, info, params: "Hello!"
+            "message": compute(
+                scalar.String,
+                f=lambda parent, info, params: f"Hello from '{parent}'",
             ),
         },
     )
-    with pytest.raises(Error):
-        sch = schema(fields=lambda: {"region": query(q.region, region)})
+    sch = schema(fields=lambda: {"region": query(q.region, region)})
+    data = execute(
+        sch,
+        """
+        query {
+            region {
+                message
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region": [
+            {"message": "Hello from 'AFRICA'"},
+            {"message": "Hello from 'AMERICA'"},
+            {"message": "Hello from 'ASIA'"},
+            {"message": "Hello from 'EUROPE'"},
+            {"message": "Hello from ''MIDDLE EAST''"},
+        ]
+    }
 
 
 def test_computed_arg_simple():

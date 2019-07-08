@@ -140,6 +140,35 @@ datetime_type = model.ScalarType(
 )
 
 
+ISO_FORMAT_TIME = "%H:%M:%S"
+
+
+def serialize_time(v):
+    return v.strftime(ISO_FORMAT_DATETIME)
+
+
+def coerce_time_value(v):
+    try:
+        return datetime.datetime.strptime(v, ISO_FORMAT_TIME).time()
+    except ValueError:
+        return None
+
+
+def parse_time_literal(ast):
+    v = type.scalars.parse_string_literal(ast)
+    if v is None:
+        return None
+    return coerce_time_value(v)
+
+
+time_type = model.ScalarType(
+    name="Time",
+    serialize=serialize_time,
+    coerce_value=coerce_time_value,
+    parse_literal=parse_time_literal,
+    domain=domain.TimeDomain(),
+)
+
 def serialize_decimal(v):
     return str(v)
 

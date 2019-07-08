@@ -102,6 +102,7 @@ def schema(
         model_scalar.decimal_type,
         model_scalar.date_type,
         model_scalar.datetime_type,
+        model_scalar.time_type,
     ):
         types[scalar_type.name] = scalar_type
 

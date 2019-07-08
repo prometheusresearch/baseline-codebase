@@ -22,6 +22,8 @@ from htsql.core.tr.binding import (
     TableBinding,
     LocateBinding,
     ClipBinding,
+    WrappingBinding,
+    DecorateBinding,
 )
 from htsql.core.tr.lookup import unwrap
 from htsql.core import domain
@@ -366,6 +368,8 @@ def type_from_domain(ctx, dom: domain.Domain):
         return ctx.root.types["Date"]
     elif isinstance(dom, domain.DateTimeDomain):
         return ctx.root.types["Datetime"]
+    elif isinstance(dom, domain.TimeDomain):
+        return ctx.root.types["Time"]
     elif isinstance(dom, domain.DecimalDomain):
         return ctx.root.types["Decimal"]
     elif isinstance(dom, domain.EnumDomain):
@@ -415,10 +419,11 @@ class TypeSchemaContext(SchemaContext):
 
 
 class QuerySchemaContext(SchemaContext):
-    __slots__ = ("output", "table", "parent", "loc")
+    __slots__ = ("output", "descriptor", "table", "parent", "loc")
 
-    def __init__(self, output, table, parent, loc):
+    def __init__(self, output, descriptor, table, parent, loc):
         self.output = output
+        self.descriptor = descriptor
         self.table = table
         self.parent = parent
         self.loc = loc
@@ -516,10 +521,6 @@ def _(descriptor, ctx):
         for name, field in desc_fields:
             field_loc = field.loc
             field = construct(field, next_ctx, name)
-            if not isinstance(field, QueryField) and name != "__typename":
-                with err_ctx():
-                    msg = "Entity types can only contain queries but got:"
-                    raise Error(msg, field_loc)
             fields[name] = field
     else:
         with err_ctx():
@@ -798,7 +799,11 @@ def _(descriptor, ctx, name):
 
         # Finally produce binding
         with state.with_vars(vars):
-            output = state(descriptor.query.syn)
+            if descriptor.query.syn is not None:
+                output = state(descriptor.query.syn)
+            else:
+                query = q.define(__self__=q.here()).__self__
+                output = state(query.syn)
             # Try to bind filters (if they are specified via queries)
             state.push_scope(output.binding)
             for filter in descriptor.filters:
@@ -807,8 +812,8 @@ def _(descriptor, ctx, name):
             state.pop_scope()
             # Try to bind sorts
             state.push_scope(output.binding)
-            for q in descriptor.sort:
-                state(q.syn)
+            for qsort in descriptor.sort:
+                state(qsort.syn)
             state.pop_scope()
             # Check if paginate is ok
             if descriptor.paginate and not output.plural:
@@ -819,7 +824,7 @@ def _(descriptor, ctx, name):
         def base(binding):
             if isinstance(binding, (LocateBinding, ClipBinding)):
                 return base(binding.seed)
-            elif isinstance(binding, (DefineBinding,)):
+            elif isinstance(binding, (DecorateBinding, WrappingBinding)):
                 return base(binding.base)
             else:
                 return binding
@@ -840,7 +845,11 @@ def _(descriptor, ctx, name):
                 raise Error(msg, "query(..., type=TYPE)")
 
             ctx = QuerySchemaContext(
-                parent=ctx, output=output, table=None, loc=descriptor.loc
+                parent=ctx,
+                output=output,
+                descriptor=descriptor,
+                table=None,
+                loc=descriptor.loc,
             )
             type = construct(descriptor.type, ctx)
 
@@ -856,6 +865,7 @@ def _(descriptor, ctx, name):
             ctx = QuerySchemaContext(
                 parent=ctx,
                 output=output,
+                descriptor=descriptor,
                 table=table_binding.table,
                 loc=descriptor.loc,
             )
@@ -874,7 +884,11 @@ def _(descriptor, ctx, name):
             else:
                 type = descriptor.type
                 ctx = QuerySchemaContext(
-                    parent=ctx, output=output, table=None, loc=descriptor.loc
+                    parent=ctx,
+                    descriptor=descriptor,
+                    output=output,
+                    table=None,
+                    loc=descriptor.loc,
                 )
                 type = construct(type, ctx)
 

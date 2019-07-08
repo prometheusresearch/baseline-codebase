@@ -41,6 +41,7 @@ from .input_coercion import (
     are_types_compatible,
 )
 from . import model, desc, introspection
+from .query import q
 
 
 logger = get_logger("rex.graphql.execute")
@@ -591,13 +592,14 @@ def complete_data(
     if isinstance(return_type, model.RecordType):
         subfield_nodes = ctx.get_sub_fields(return_type, field_nodes)
         result = OrderedDict()
-        data_idx = 0
+        computed_fields = []
+        # Process query subfields first, collect computed for later processing.
         for name, field_nodes in subfield_nodes.items():
             field_node = field_nodes[0]
             field_name = field_node.name.value
             field_def = return_type.fields.get(field_name)
             if isinstance(field_def, model.QueryField):
-                item = data[data_idx]
+                item = getattr(data, name)
                 result[name] = complete_value(
                     ctx=ctx,
                     return_type=field_def.type,
@@ -606,18 +608,20 @@ def complete_data(
                     path=path + [name],
                     result=item,
                 )
-                data_idx = data_idx + 1
             elif isinstance(field_def, model.ComputedField):
-                result[name] = execute_field(
-                    ctx=ctx,
-                    parent_type=return_type,
-                    parent=None,
-                    field_nodes=field_nodes,
-                    path=path + [name],
-                    parent_info=info,
-                )
+                computed_fields.append((name, field_nodes, field_def))
             else:
                 assert False, f"unknown field: {field_def!r}"
+        # Now process computed subfields.
+        for (name, field_nodes, field_def) in computed_fields:
+            result[name] = execute_field(
+                ctx=ctx,
+                parent_type=return_type,
+                parent=data.__id__,  # TODO: pass only data from query here
+                field_nodes=field_nodes,
+                path=path + [name],
+                parent_info=info,
+            )
         return result
 
     assert isinstance(return_type, (model.ScalarType, model.EnumType))
@@ -827,14 +831,6 @@ def execute_query_field(ctx, parent, field: model.QueryField, field_nodes):
 
 
 def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
-    def finalize(b):
-        if field.plural:
-            syn = syntax.CollectSyntax(b.syntax)
-            b = binding.CollectBinding(
-                state.scope, b, domain.ListDomain(b.domain), syn
-            )
-        return b
-
     field_node = field_nodes[0]
     params = ctx.get_param_values(parent, field, field_node)
 
@@ -851,6 +847,8 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
 
     # Initial query
     query = field.descriptor.query
+    if query.syn is None:
+        query = q.define(__self__=q.here()).__self__
 
     # Apply pagination
     if field.descriptor.paginate:
@@ -872,12 +870,22 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
 
     # It's not an entity, so just return
     if not isinstance(entity_type, model.RecordType):
-        return finalize(output.binding)
+        b = Select.__invoke__(output.binding, state)
+        if field.plural:
+            return binding.CollectBinding(
+                state.scope,
+                b,
+                domain.ListDomain(b.domain),
+                syntax.CollectSyntax(b.syntax),
+            )
+        else:
+            return b
 
     # Descent to subfields
     subfield_nodes = ctx.get_sub_fields(entity_type, field_nodes)
     elements = []
     state.push_scope(output.binding)
+    has_computed_field = False
     for name, subfield_nodes in subfield_nodes.items():
         field_name = subfield_nodes[0].name.value
         subfield = entity_type.fields.get(field_name)
@@ -886,9 +894,7 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
                 f"Unknown field '{field_name}'", nodes=subfield_nodes
             )
         if not isinstance(subfield, model.QueryField):
-            # NOTE: We don't fail here as we non query fields are not allowed by
-            # config but we inject introspection computed fields which we want
-            # to process later.
+            has_computed_field = True
             continue
 
         element = bind_query_field(
@@ -896,19 +902,36 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
         )
         element = binding.AliasBinding(element, syntax.IdentifierSyntax(name))
         elements.append(element)
-    state.pop_scope()
+
+    # inject `__id__ := id()` which we pass to computed fields as parent
+    if has_computed_field:
+        id_element = state(q.id.syn).binding
+        id_element = binding.AliasBinding(
+            id_element, syntax.IdentifierSyntax("__id__")
+        )
+        elements.append(id_element)
 
     # Create a selection
-    fields = [decorate(element) for element in elements]
     b = binding.SelectionBinding(
         output.binding,
         elements,
-        domain.RecordDomain(fields),
-        output.binding.syntax,
+        domain.RecordDomain([decorate(element) for element in elements]),
+        syntax.SelectSyntax(
+            output.binding.syntax,
+            syntax.RecordSyntax([el.syntax for el in elements]),
+        ),
     )
+    state.pop_scope()
     b = Select.__invoke__(b, state)
-
-    return finalize(b)
+    if field.plural:
+        return binding.CollectBinding(
+            state.scope,
+            b,
+            domain.ListDomain(b.domain),
+            syntax.CollectSyntax(b.syntax),
+        )
+    else:
+        return b
 
 
 def execute_exn(schema, query: str, variables=None, context=None, db=None):

@@ -314,7 +314,7 @@ class Reflect:
                 )
 
             connectiontype = desc.connectiontype_uncached(
-                entitytype, filters=filters
+                entitytype=entitytype, entitytype_complete=None, filters=filters
             )
             self._types[connectiontype_name] = connectiontype
 

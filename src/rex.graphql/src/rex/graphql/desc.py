@@ -679,15 +679,19 @@ def connectiontype_name(entitytype):
     return f"{entitytype.name}_connection"
 
 
-def connectiontype_uncached(entitytype, filters=None):
-
+def connectiontype_uncached(
+    entitytype, entitytype_complete=None, fields=None, filters=None, sort=None
+):
+    if fields is None:
+        fields = lambda entitytype, entitytype_complete: {}
+    entitytype_complete = entitytype_complete or entitytype
     by_id = q.id == argument("id", NonNull(EntityId(entitytype.name)))
     return Record(
         name=connectiontype_name(entitytype),
         fields=lambda: {
             "get": query(
                 q.entity.filter(by_id).first(),
-                type=entitytype,
+                type=entitytype_complete,
                 description=f"Get {entitytype.name} by id",
                 loc=None,
             ),
@@ -695,6 +699,7 @@ def connectiontype_uncached(entitytype, filters=None):
                 q.entity,
                 type=entitytype,
                 filters=filters,
+                sort=sort,
                 description=f"Get all {entitytype.name} items",
                 loc=None,
             ),
@@ -703,6 +708,7 @@ def connectiontype_uncached(entitytype, filters=None):
                 type=entitytype,
                 filters=filters,
                 paginate=True,
+                sort=sort,
                 description=f"Get all {entitytype.name} items (paginated)",
                 loc=None,
             ),
@@ -711,6 +717,7 @@ def connectiontype_uncached(entitytype, filters=None):
                 description=f"Get the number of {entitytype.name} items",
                 loc=None,
             ),
+            **fields(entitytype, entitytype_complete),
         },
         loc=None,
     )
@@ -723,6 +730,10 @@ def connect(
     type: Entity,
     query: QueryCombinator = None,
     filters: t.List[Filter] = None,
+    sort=None,
+    type_complete: Entity = None,
+    fields=None,
+    description=None,
     loc=autoloc,
 ):
     """ Configure a :func:`query` field for querying tables or one-to-many
@@ -797,8 +808,13 @@ def connect(
         query = q.navigate(type.name)
     return Query(
         query=q.define(entity=query),
-        type=connectiontype(type),
-        description=f"Connection to {type.name}",
+        type=connectiontype(
+            entitytype=type,
+            entitytype_complete=type_complete,
+            fields=fields,
+            sort=sort,
+        ),
+        description=description or f"Connection to {type.name}",
         loc=loc,
     )
 

@@ -254,6 +254,11 @@ class Query:
     def __str__(self):
         return str(self.syn)
 
+    def __hash__(self):
+        # It's ok to hash only syntax as self.params is only for a fast
+        # access/merge.
+        return hash((self.syn,))
+
     def __call__(self, *others):
         def extract_navigate(syn):
             # navigate(name) -> name

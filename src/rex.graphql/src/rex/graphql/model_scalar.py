@@ -75,7 +75,7 @@ id_type = model.ScalarType(
 json_type = model.ScalarType(
     name="JSON",
     serialize=lambda v: v,
-    coerce_value=raise_error("unable to parse JSON value"),
+    coerce_value=lambda v: v,
     parse_literal=raise_error("unable to parse JSON value"),
     domain=None,  # TODO: domain_extra.JSONDomain()
 )

@@ -9,6 +9,8 @@ Programming guide
 .. toctree::
 
    guide
+   guide-db-queries
+   guide-query-combinators
    guide-reflection
 
 

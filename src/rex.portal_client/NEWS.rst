@@ -9,6 +9,7 @@
 ==================
 - add `Shard.ensure_study` method
 - remove `portal_client` setting (it's been non-functional anyway)
+- removed unnecessary dependencies ``pyOpenSSL`` and ``cryptography``
 
 0.6.0 (2018-07-02)
 ==================

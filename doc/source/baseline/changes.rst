@@ -1,6 +1,7 @@
 3.2.0 (TBD)
 ===========
 
+* rex.web: Moved from ``PyCrypto`` to ``cryptography``.
 * rex.deploy: Added the ability to generate identities using UUIDs.
 * rex-i18n: Fixed warnings resulting from React 16 upgrade.
 * rex.graphql: Added a new package to enable creation of GraphQL endpoints in

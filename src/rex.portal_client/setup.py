@@ -15,8 +15,6 @@ setup(
     install_requires=[
         'rex.core',
         'requests >=2.12, <3',
-        'pyOpenSSL >=18, <19',
-        'cryptography >=2.3, <2.4',
     ],
     rex_init='rex.portal_client',
 )

@@ -147,11 +147,12 @@ class PipeSession(Pipe):
     def __call__(self, req):
         # Do not mangle the original request object.
         req = req.copy()
+        application_url = req.application_url
         # Extract session data from the encrypted cookie.
         session = {}
         if self.SESSION_COOKIE in req.cookies:
             session_cookie = req.cookies[self.SESSION_COOKIE]
-            session_json = validate_and_decrypt(session_cookie)
+            session_json = validate_and_decrypt(session_cookie, application_url)
             if session_json is not None:
                 session = json.loads(session_json)
                 assert isinstance(session, dict)
@@ -160,9 +161,9 @@ class PipeSession(Pipe):
         mount = {}
         for name, segment in list(get_settings().mount.items()):
             if segment:
-                mount[name] = req.application_url+"/"+segment
+                mount[name] = application_url+"/"+segment
             else:
-                mount[name] = req.application_url
+                mount[name] = application_url
         req.environ['rex.mount'] = mount
         # Process the request.
         resp = self.handle(req)
@@ -174,7 +175,7 @@ class PipeSession(Pipe):
                                    path=req.script_name+'/')
             else:
                 session_json = json.dumps(new_session)
-                session_cookie = encrypt_and_sign(session_json)
+                session_cookie = encrypt_and_sign(session_json, application_url)
                 assert len(session_cookie) < 4096, \
                         "session data is too large"
                 resp.set_cookie(self.SESSION_COOKIE,

@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+4.0.0 (2019-08-05)
+==================
+
+* Ported from ``PyCrypto`` to ``cryptography``.
+
+
 3.11.1 (2017-10-03)
 ===================
 

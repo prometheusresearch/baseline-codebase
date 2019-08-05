@@ -69,7 +69,7 @@ Session is ``{"x":123}``::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 15
-    Set-Cookie: rex.session=...--; Path=/; HttpOnly
+    Set-Cookie: rex.session=...; Path=/; HttpOnly
     <BLANKLINE>
     x is set to 123
     >>> session_cookie = resp.headers['Set-Cookie'].split('=')[1].split(';')[0]
@@ -93,7 +93,7 @@ When session is updated, a new cookie is set::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 15
-    Set-Cookie: rex.session=...--; Path=/; HttpOnly
+    Set-Cookie: rex.session=...; Path=/; HttpOnly
     <BLANKLINE>
     x is set to 456
     >>> session_cookie = resp.headers['Set-Cookie'].split('=')[1].split(';')[0]
@@ -148,7 +148,7 @@ Invalid session cookies are ignored::
     x is not set
 
     >>> req = Request.blank('/get')
-    >>> req.cookies['rex.session'] = 'zUaECX_zxWTyQvcf.MHKCpDhPRRDGcyw26oq0g1P22o-' # b2a(sign(''))
+    >>> req.cookies['rex.session'] = 'FJhNKm_1DUWgFyvu_GKF94TKy8HQYEVFEvbTStiEsDE'  # b2a(sign(b'', 'http://localhost'))
     >>> print(req.get_response(main))   # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
@@ -157,8 +157,8 @@ Invalid session cookies are ignored::
     x is not set
 
     >>> req = Request.blank('/get')
-    >>> req.cookies['rex.session'] = 'zUaECX_zxWTyQvcf.MHKCpDhPRRDGcyw26oq0g1P22rm' \
-    ...                              '3XJdKjKKwg6sj5sXcAUYb.cxR8AlFhibORPc2GAK6w--' # b2a(sign('')+encrypt(''))
+    >>> req.cookies['rex.session'] = 'FJhNKm_1DUWgFyvu_GKF94TKy8HQYEVFEvbTStiEsDE' \
+    ...                              'rPe8ygvAz5bl_b1VZkps_QXa9--yY5v_1eUj_5YfHKg'  # b2a(sign(b'', 'http://localhost') + encrypt(b'', 'http://localhost'))
     >>> print(req.get_response(main))   # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
@@ -175,7 +175,7 @@ If a secret passphrase is not provided, random keys are generated::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 15
-    Set-Cookie: rex.session=...--; Path=/; HttpOnly
+    Set-Cookie: rex.session=...; Path=/; HttpOnly
     <BLANKLINE>
     x is set to 123
 

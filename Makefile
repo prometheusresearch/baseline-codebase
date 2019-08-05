@@ -168,8 +168,10 @@ up-local:
 
 up-docker:
 	docker-compose up -d
-	. ./.env && ${RSH} iptables -t nat -A OUTPUT -o lo -d 127.0.0.1 -p tcp --dport $$HTTP_PORT -j DNAT --to-destination `${NOTERM_RSH} dig +short nginx`:80
-	${RSH} iptables -t nat -A POSTROUTING -j MASQUERADE
+	. ./.env && \
+	HTTP_HOST=`${NOTERM_RSH} dig +short nginx` && \
+	${RSH} iptables -t nat -A OUTPUT -o lo -d 127.0.0.1 -p tcp --dport $$HTTP_PORT -j DNAT --to-destination $$HTTP_HOST:80 && \
+	${RSH} iptables -t nat -A POSTROUTING -p tcp -d $$HTTP_HOST --dport 80 -j MASQUERADE
 .PHONY: up-docker
 
 

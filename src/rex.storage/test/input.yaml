@@ -1,0 +1,39 @@
+#
+# Copyright (c) 2019-current, Prometheus Research, LLC
+#
+
+title: REX.STORAGE
+tests:
+
+# Setup coverage with rex.
+- rmdir: ./build/coverage
+- mkdir: ./build/coverage
+- coverage: setup.cfg
+  auto-data: true
+
+- py: |
+    # import rex.storage
+    import pkg_resources
+    pkg_resources.get_distribution('rex.storage')
+
+- pytest: ./test/
+
+- py: |
+    # python -m rex.storage
+    import sys
+    old_argv = sys.argv
+    sys.argv = ['__main__.py']
+    try:
+        import rex.storage
+    except SystemExit:
+        pass
+    sys.argv = old_argv
+    # Save coverage trace.
+    if '__coverage__' in __pbbt__:
+        __pbbt__['__coverage__'].stop()
+        __pbbt__['__coverage__'].save()
+
+
+- coverage-check: 85.0
+- coverage-report: ./build/coverage
+

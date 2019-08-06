@@ -6,6 +6,8 @@
 * rex-i18n: Fixed warnings resulting from React 16 upgrade.
 * rex.graphql: Added a new package to enable creation of GraphQL endpoints in
   RexDB applications.
+* rex.storage: Added a new package to abstract basic interactions with cloud
+  storage filesystems.
 * Updated rexdb/build image to 2019.06.25.
 * In docker mode, route localhost:$HTTP_PORT to nginx:80 on the develop container.
 * Makefile refinements:

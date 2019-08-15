@@ -1,0 +1,19 @@
+title: REX.NOTEBOOK
+tests:
+
+- coverage: setup.cfg
+
+# - sh: pip install -q -e ./demo
+#   ignore: true
+# - sh: rex dropdb -q rex.notebook_demo
+#   ignore: true
+# - sh: rex notebook-demo-populate rex.notebook_demo -q
+#   ignore: true
+
+- pytest: .
+
+# - sh: pip uninstall -q -y rex.notebook_demo
+#   ignore: true
+
+- coverage-check: 70.0
+- coverage-report: ./build/coverage

@@ -7,7 +7,7 @@
 
 """
 
-from rex.ctl import RexTask, option, argument
+from rex.ctl import RexTask, option, argument, log
 from rex.core import Error
 from rex.db import get_db
 
@@ -66,7 +66,7 @@ class Notebook(RexTask):
         unix_socket = option(
             None,
             str,
-            default="",
+            default=None,
             value_name="PATH",
             hint="bind to a socket at the specified path",
         )
@@ -77,6 +77,11 @@ class Notebook(RexTask):
             app = RexNotebookWebApplication(
                 port=self.port,
                 host=self.host,
+                unix_socket=self.unix_socket,
                 settings=dict(open_browser=False, token="", password=""),
             )
+            if self.unix_socket:
+                log('Rex Notebook is listening on `{}`', self.unix_socket)
+            else:
+                log('Rex Notebook is listening on `{}:{}`', self.host, self.port)
             app.start()

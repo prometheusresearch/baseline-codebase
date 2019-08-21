@@ -7,15 +7,17 @@ ioloop.install()
 
 from tornado import httpserver
 from tornado import routing
+from tornado.netutil import bind_unix_socket
 
 from notebook.notebookapp import NotebookApp, NotebookWebApplication
 from . import kernel
 
 
 class RexNotebookWebApplication(routing.Router):
-    def __init__(self, port, host, settings):
+    def __init__(self, port, host, unix_socket, settings):
         self.host = host
         self.port = port
+        self.unix_socket = unix_socket
         self.settings = settings
         self._app = None
         self._loop = ioloop.IOLoop.current()
@@ -52,7 +54,11 @@ class RexNotebookWebApplication(routing.Router):
 
     def start(self):
         server = httpserver.HTTPServer(self)
-        server.listen(self.port, self.host)
+        if self.unix_socket is not None:
+            sock = bind_unix_socket(self.unix_socket, mode=0o644)
+            server.add_socket(sock)
+        else:
+            server.listen(self.port, self.host)
         try:
             self._loop.start()
         finally:

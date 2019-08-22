@@ -23,10 +23,13 @@ class RexNotebookWebApplication(routing.Router):
         self._loop = ioloop.IOLoop.current()
 
     def find_handler(self, request, **kwargs):
-        base_url = request.headers.get("X-Rex-Prefix-Path", "")
+        base_url = request.headers.get("X-Script-Name", "")
+        if not base_url.endswith('/'):
+            base_url = base_url + '/'
         if self._app is None:
             settings = {
                 **self.settings,
+                "allow_remote_access": True,
                 "base_url": base_url,
                 "default_url": base_url + "tree",
                 "terminals_enabled": False,
@@ -55,7 +58,7 @@ class RexNotebookWebApplication(routing.Router):
     def start(self):
         server = httpserver.HTTPServer(self)
         if self.unix_socket is not None:
-            sock = bind_unix_socket(self.unix_socket, mode=0o644)
+            sock = bind_unix_socket(self.unix_socket, mode=0o666)
             server.add_socket(sock)
         else:
             server.listen(self.port, self.host)

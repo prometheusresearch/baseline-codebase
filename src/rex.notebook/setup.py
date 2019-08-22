@@ -18,7 +18,11 @@ setup(
     namespace_packages=["rex"],
     install_requires=[
         "rex.core",
-        "rex.db"
+        "rex.db",
+        # TODO: specify constraints
+        "notebook",
+        "ipykernel",
+        "jupyter_client",
     ],
     entry_points={
         'rex.ctl': [

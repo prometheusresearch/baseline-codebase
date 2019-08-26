@@ -164,6 +164,8 @@ class Storage:
             if blob.name == name:
                 yield (os.path.basename(name),
                        File(url=prefix + name, blob=blob))
+            elif not name:
+                yield (blob.name, File(url=prefix+blob.name, blob=blob))
             elif blob.name.startswith(name):
                 res = blob.name[len(name):]
                 if name.endswith('/'):

@@ -52,12 +52,24 @@ class TestRexDriver:
         assert 'subdir/baz' in objects
         assert len(objects) == 3
 
+        objects = dict(get_storage().list_objects('/rst'))
+        assert 'settings.yaml' in objects
+        assert 'stuff/foo' in objects
+        assert 'stuff/bar' in objects
+        assert 'stuff/subdir/baz' in objects
+        assert len(objects) == 4
+
     def test_ls(self):
         objects = dict(get_storage().ls('/rst/stuff'))
         assert objects['foo'] is not None
         assert objects['bar'] is not None
         assert objects['subdir/'] is None
         assert len(objects) == 3
+
+        objects = dict(get_storage().ls('/rst'))
+        assert objects['settings.yaml'] is not None
+        assert objects['stuff/'] is None
+        assert len(objects) == 2
 
 
     def test_driver_iter(self):

@@ -3,6 +3,7 @@ import os
 import shutil
 
 from datetime import datetime, timedelta, timezone
+from stat import S_ISDIR
 from typing import Iterable, Dict, List
 
 import xattr
@@ -204,6 +205,10 @@ class RexDriver(Driver):
         except FileNotFoundError:
             raise NotFoundError(messages.BLOB_NOT_FOUND % (object_name,
                                                            container.name))
+        else:
+            if S_ISDIR(stat.st_mode):
+                raise NotFoundError(messages.BLOB_NOT_FOUND % (object_name,
+                                                               container.name))
 
         meta_data = {}
         content_type = None

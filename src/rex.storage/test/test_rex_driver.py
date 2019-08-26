@@ -33,6 +33,14 @@ class TestRexDriver:
         assert get_storage().exists('/rst/stuff/foo') is True
         assert get_storage().exists('/rst/doesntexist') is False
 
+    def test_is_file(self):
+        assert get_storage().is_file('/rst/stuff/foo') is True
+        assert get_storage().is_file('/rst/stuff') is False
+
+    def test_is_dir(self):
+        assert get_storage().is_dir('/rst/stuff/foo') is False
+        assert get_storage().is_dir('/rst/stuff') is True
+
     def test_get_target(self):
         target = get_storage().get_target('/rst/stuff/foo')
         assert target == ('rex://rex.storage_test/', 'stuff/foo')

@@ -1,0 +1,4 @@
+storage_mount:
+  /p: local://container
+  /rst: rex://rex.storage_test
+

@@ -8,11 +8,9 @@ def setup_function():
     util.remove_storage()
     util.make_storage()
     util.makedirs('container')
-    app = Rex('rex.storage',
-              storage_credentials={'local': {'key': util.storage_path}},
-              storage_mount={
-                  '/p': 'local://container',
-              }
+    app = Rex(
+        'rex.storage_test',
+        storage_credentials={'local': {'key': util.storage_path}},
     )
     app.on()
 

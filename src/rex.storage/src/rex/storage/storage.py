@@ -24,9 +24,6 @@ class Storage:
             if len(self.mount[path]) == 1: # only 'url' is defined
                 (service, _c, _n) = parse_url(storage['url'])
                 credentials = settings.storage_credentials.get(service, {})
-                if len(credentials) == 0:
-                    raise StorageError("No credentials provided "
-                                       f"for the mount point: `{path}`")
                 for key, value in credentials.items():
                     self.mount[path][key] = value
         self.cfg = {}

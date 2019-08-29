@@ -48,7 +48,7 @@ class RexNotebookWebApplication(routing.Router):
         if self.remote_user is not None:
             remote_user = self.remote_user
         else:
-            remote_user = request.headers.get("X-Remote-Name", None)
+            remote_user = request.headers.get("X-Remote-User", None)
         if remote_user is None:
             return NoAuthorization(request.connection)
         if remote_user not in self.user_allowed:

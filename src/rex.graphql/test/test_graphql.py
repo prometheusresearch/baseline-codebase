@@ -1650,7 +1650,13 @@ def test_query_connect():
     nation = Entity(name="nation", fields=lambda: {"name": query(q.name)})
 
     sch = schema(
-        fields=lambda: {"region": connect(region), "nation": connect(nation)}
+        fields=lambda: {
+            "region": connect(
+                region,
+                filters=[q.name == argument("name", type=scalar.String)],
+            ),
+            "nation": connect(nation),
+        }
     )
 
     data = execute(
@@ -1687,6 +1693,25 @@ def test_query_connect():
                 {"name": "EUROPE", "nation": {"count": 5}},
                 {"name": "MIDDLE EAST", "nation": {"count": 5}},
             ],
+        }
+    }
+
+    # Let's test with a filter on all/paginated
+    data = execute(
+        sch,
+        """
+        query {
+            region {
+                paginated(name: "AFRICA", limit: 2) { name }
+                all(name: "AFRICA") { name }
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region": {
+            "paginated": [{"name": "AFRICA"}],
+            "all": [{"name": "AFRICA"}],
         }
     }
 

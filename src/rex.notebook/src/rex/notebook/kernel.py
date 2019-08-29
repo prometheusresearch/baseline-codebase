@@ -85,7 +85,7 @@ class Manager(jupyter_client.kernelspec.KernelSpecManager):
     def get_kernel_spec(self, kernel_name):
         kernel = self.specs.get(kernel_name)
         if kernel is None:
-            raise kernelspec.NoSuchKernel(kernel_name)
+            raise jupyter_client.kernelspec.NoSuchKernel(kernel_name)
         return kernel
 
     def find_kernel_specs(self):

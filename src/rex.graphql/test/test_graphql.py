@@ -1716,6 +1716,39 @@ def test_query_connect():
     }
 
 
+def test_query_connect_filters():
+    @filter_from_function()
+    def filter_by_name(name: scalar.String = None):
+        if name is not None:
+            yield q.name.matches(name)
+
+    region = Entity(name="region", fields=lambda: {"name": query(q.name)})
+
+    sch = schema(
+        fields=lambda: {"region": connect(region, filters=[filter_by_name])}
+    )
+
+    data = execute(
+        sch,
+        """
+        query {
+            region {
+                count(name: "ICA")
+                firstOne: paginated(limit: 1, name: "ICA") { name }
+                all(name: "ICA") { name }
+            }
+        }
+        """,
+    )
+    assert data == {
+        "region": {
+            "count": 2,
+            "firstOne": [{"name": "AFRICA"}],
+            "all": [{"name": "AFRICA"}, {"name": "AMERICA"}],
+        }
+    }
+
+
 def test_query_param():
     current_region = param(
         name="current_region",

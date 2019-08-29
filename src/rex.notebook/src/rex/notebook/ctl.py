@@ -7,14 +7,35 @@
 
 """
 
+import sys
+import os
+import getpass
+
 from rex.ctl import RexTask, option, argument, log
-from rex.core import Error
+from rex.core import Error, Setting, get_settings
+from rex.core import StrVal, IntVal, RecordVal
 from rex.db import get_db
 
 from .kernel import Kernel
 from .notebook import RexNotebookWebApplication
 
 __all__ = ()
+
+
+class RexNotebookSetting(Setting):
+    """ Settings for rex.notebook.
+    """
+
+    validate = RecordVal(
+        ("notebook_dir", StrVal(), None),
+        ("port", IntVal(), None),
+        ("host", StrVal(), None),
+        ("unix_socket", StrVal(), None),
+    )
+    name = "rex_notebook"
+    default = validate.record_type(
+        notebook_dir=None, port=None, host=None, unix_socket=None
+    )
 
 
 class NotebookKernel(RexTask):
@@ -27,11 +48,7 @@ class NotebookKernel(RexTask):
 
     class options:
         connection_file = option(
-            None,
-            str,
-            default="",
-            value_name="FILE",
-            hint="connection file",
+            None, str, default="", value_name="FILE", hint="connection file"
         )
 
     def __call__(self):
@@ -52,14 +69,14 @@ class Notebook(RexTask):
         port = option(
             "p",
             int,
-            default=8080,
+            default=None,
             value_name="PORT",
             hint="bind to the specified port",
         )
         host = option(
             None,
             int,
-            default="127.0.0.1",
+            default=None,
             value_name="HOST",
             hint="bind to the specified host",
         )
@@ -70,19 +87,46 @@ class Notebook(RexTask):
             value_name="PATH",
             hint="bind to a socket at the specified path",
         )
+        notebook_dir = option(
+            "D",
+            str,
+            default=None,
+            value_name="PATH",
+            hint="directory to store notebooks in",
+        )
 
     def __call__(self):
         rex = self.make(initialize=False)
         with rex:
-            app = RexNotebookWebApplication(
-                port=self.port,
-                host=self.host,
-                unix_socket=self.unix_socket,
-                settings=dict(open_browser=False, token="", password=""),
-            )
-            if self.unix_socket:
-                log('Rex Notebook is listening on `{}`', self.unix_socket)
-            else:
-                log('Rex Notebook is listening on `{}:{}`', self.host, self.port)
-            app.start()
+            settings = get_settings().rex_notebook
+            notebook_dir = self.notebook_dir or settings.notebook_dir
+            if notebook_dir is None:
+                # Check if we are inside virtualenv.
+                if sys.base_prefix != sys.prefix:
+                    notebook_dir = os.path.join(sys.prefix, "notebooks")
+                else:
+                    notebook_dir = os.path.join(os.getcwd(), "notebooks")
+            notebook_dir = os.path.join(notebook_dir, getpass.getuser())
+            if not os.path.exists(notebook_dir):
+                os.makedirs(notebook_dir)
 
+            port = self.port or settings.port or 8080
+            host = self.host or settings.host or "127.0.0.1"
+            unix_socket = self.unix_socket or settings.unix_socket
+
+            app = RexNotebookWebApplication(
+                port=port,
+                host=host,
+                unix_socket=unix_socket,
+                settings=dict(
+                    notebook_dir=notebook_dir,
+                    open_browser=False,
+                    token="",
+                    password="",
+                ),
+            )
+            if unix_socket:
+                log("Rex Notebook is listening on `{}`", unix_socket)
+            else:
+                log("Rex Notebook is listening on `{}:{}`", host, port)
+            app.start()

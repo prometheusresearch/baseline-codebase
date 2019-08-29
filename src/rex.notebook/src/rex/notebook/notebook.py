@@ -18,9 +18,12 @@ class NoAuthorization(httputil.HTTPMessageDelegate):
 
     def finish(self):
         message = b"No authorization"
+        message_len = str(len(message))
         self.connection.write_headers(
-            httputil.ResponseStartLine("HTTP/1.1", 200, "OK"),
-            httputil.HTTPHeaders({"Content-Length": str(len(message))}),
+            httputil.ResponseStartLine("HTTP/1.1", 401, "Unauthorized"),
+            httputil.HTTPHeaders(
+                {"Content-Length": message_len, "Content-Type": "text/html"}
+            ),
             message,
         )
         self.connection.finish()

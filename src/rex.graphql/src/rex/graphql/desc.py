@@ -813,6 +813,7 @@ def connect(
             entitytype_complete=type_complete,
             fields=fields,
             sort=sort,
+            filters=tuple(filters) if filters else None,
         ),
         description=description or f"Connection to {type.name}",
         loc=loc,

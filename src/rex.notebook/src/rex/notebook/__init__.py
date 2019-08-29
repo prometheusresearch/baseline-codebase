@@ -7,4 +7,5 @@
 
 """
 
-from .kernel import Kernel, RexKernel
+from .kernel import Kernel
+from .rex_kernel import RexKernel

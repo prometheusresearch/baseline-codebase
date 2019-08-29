@@ -1,10 +1,23 @@
-import json
-import ipykernel.embed
-from jupyter_client import kernelspec
+"""
 
-from rex.core import get_rex, Extension, Setting
-from rex.core import RecordVal, BoolVal
-from rex.db import get_db
+    rex.notebook.kernel
+    ===================
+
+    Define jupyter kernels for Rex Notebook.
+
+    :copyright: 2019-present Prometheus Research, LLC
+
+"""
+
+import json
+import jupyter_client.kernelspec
+
+from rex.core import get_rex, Extension
+
+__all__ = ("Kernel", "KernelSpec")
+
+
+KernelSpec = jupyter_client.kernelspec.KernelSpec
 
 
 class Kernel(Extension):
@@ -37,30 +50,14 @@ class Kernel(Extension):
         raise NotImplementedError("NotebookKernel.start()")
 
 
-class RexKernel(Kernel):
-    name = "rex"
-
-    @classmethod
-    def spec(self):
-        return kernelspec.KernelSpec(
-            display_name="Rex", version="1.0.0", language="python"
-        )
-
-    def start(self, connection_file):
-        ns = {}
-        ipykernel.embed.embed_kernel(
-            local_ns={"db": get_db()}, connection_file=connection_file
-        )
-
-
-class Manager(kernelspec.KernelSpecManager):
+class Manager(jupyter_client.kernelspec.KernelSpecManager):
     def __init__(self, *args, **kwargs):
         super(Manager, self).__init__(*args, **kwargs)
         rex = get_rex()
         self.specs = {}
         for k in Kernel.all():
             info = k.spec().to_dict()
-            spec = kernelspec.KernelSpec(
+            spec = jupyter_client.kernelspec.KernelSpec(
                 display_name=info["display_name"],
                 language=info["language"],
                 argv=[

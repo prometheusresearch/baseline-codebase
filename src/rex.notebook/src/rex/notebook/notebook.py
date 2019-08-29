@@ -5,27 +5,58 @@ from zmq.eventloop import ioloop
 
 ioloop.install()
 
-from tornado import httpserver
-from tornado import routing
+from tornado import httpserver, httputil, routing
 from tornado.netutil import bind_unix_socket
 
 from notebook.notebookapp import NotebookApp, NotebookWebApplication
 from . import kernel
 
 
+class NoAuthorization(httputil.HTTPMessageDelegate):
+    def __init__(self, connection):
+        self.connection = connection
+
+    def finish(self):
+        message = b"No authorization"
+        self.connection.write_headers(
+            httputil.ResponseStartLine("HTTP/1.1", 200, "OK"),
+            httputil.HTTPHeaders({"Content-Length": str(len(message))}),
+            message,
+        )
+        self.connection.finish()
+
+
 class RexNotebookWebApplication(routing.Router):
-    def __init__(self, port, host, unix_socket, settings):
+    def __init__(
+        self, port, host, unix_socket, settings, user_allowed, remote_user=None
+    ):
+        if not isinstance(user_allowed, (list, tuple, set)):
+            user_allowed = {user_allowed}
+        else:
+            user_allowed = set(user_allowed)
+
         self.host = host
         self.port = port
         self.unix_socket = unix_socket
         self.settings = settings
+        self.user_allowed = user_allowed
+        self.remote_user = remote_user
         self._app = None
         self._loop = ioloop.IOLoop.current()
 
     def find_handler(self, request, **kwargs):
+        if self.remote_user is not None:
+            remote_user = self.remote_user
+        else:
+            remote_user = request.headers.get("X-Remote-Name", None)
+        if remote_user is None:
+            return NoAuthorization(request.connection)
+        if remote_user not in self.user_allowed:
+            return NoAuthorization(request.connection)
+
         base_url = request.headers.get("X-Script-Name", "")
-        if not base_url.endswith('/'):
-            base_url = base_url + '/'
+        if not base_url.endswith("/"):
+            base_url = base_url + "/"
         if self._app is None:
             settings = {
                 **self.settings,

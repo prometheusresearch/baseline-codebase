@@ -65,6 +65,9 @@ class Notebook(RexTask):
 
     name = "notebook"
 
+    class arguments:
+        user = argument()
+
     class options:
         port = option(
             "p",
@@ -93,6 +96,13 @@ class Notebook(RexTask):
             default=None,
             value_name="PATH",
             hint="directory to store notebooks in",
+        )
+        remote_user = option(
+            None,
+            str,
+            default=None,
+            value_name="REMOTE_USER",
+            hint="Specify REMOTE_USER (only for testing)",
         )
 
     def __call__(self):
@@ -124,6 +134,8 @@ class Notebook(RexTask):
                     token="",
                     password="",
                 ),
+                user_allowed=self.user,
+                remote_user=self.remote_user,
             )
             if unix_socket:
                 log("Rex Notebook is listening on `{}`", unix_socket)

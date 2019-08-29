@@ -20,15 +20,11 @@ setup(
         "rex.core",
         "rex.db",
         # TODO: specify constraints
-        "notebook",
-        "ipykernel",
-        "jupyter_client",
+        "notebook == 6.0.0",
+        "ipykernel == 5.1.2",
+        "jupyter_client == 5.3.1",
     ],
-    entry_points={
-        'rex.ctl': [
-            'rex = rex.notebook',
-        ],
-    },
+    entry_points={"rex.ctl": ["rex = rex.notebook.ctl"]},
     dependency_links=["https://dist.rexdb.org/packages/"],
     rex_init="rex.notebook",
 )

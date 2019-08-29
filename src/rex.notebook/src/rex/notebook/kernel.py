@@ -2,19 +2,18 @@ import json
 import ipykernel.embed
 from jupyter_client import kernelspec
 
-from rex.core import get_rex, Extension
+from rex.core import get_rex, Extension, Setting
+from rex.core import RecordVal, BoolVal
 from rex.db import get_db
 
 
 class Kernel(Extension):
+    """ Define how to start a jupyter kernel.
+    """
+
     name = NotImplemented
 
-    @classmethod
-    def spec(self):
-        raise NotImplementedError("NotebookKernel.start()")
-
-    def start(self, connection_file):
-        raise NotImplementedError("NotebookKernel.start()")
+    # Extension protocol
 
     @classmethod
     def signature(cls):
@@ -23,6 +22,19 @@ class Kernel(Extension):
     @classmethod
     def enabled(cls):
         return cls.name is not NotImplemented
+
+    # Kernel protocol
+
+    @classmethod
+    def spec(self):
+        """ Return :class:`jupyter_client.kernelspec.KernelSpec` instance.
+        """
+        raise NotImplementedError("NotebookKernel.spec()")
+
+    def start(self, connection_file):
+        """ Start kernel given a `connection_file`.
+        """
+        raise NotImplementedError("NotebookKernel.start()")
 
 
 class RexKernel(Kernel):
@@ -35,6 +47,7 @@ class RexKernel(Kernel):
         )
 
     def start(self, connection_file):
+        ns = {}
         ipykernel.embed.embed_kernel(
             local_ns={"db": get_db()}, connection_file=connection_file
         )

@@ -264,6 +264,7 @@ class Query(Field):
         deprecation_reason=None,
         sort=None,
         paginate=False,
+        finalize_query=None,
         transform=None,
         loc=autoloc,
     ):
@@ -321,11 +322,15 @@ class Query(Field):
         self.name = name
         self.description = description
         self.deprecation_reason = deprecation_reason
+        self.finalize_query = finalize_query
         self.transform = transform
         self.paginate = paginate
-        if sort is not None and not isinstance(sort, (tuple, list)):
-            sort = [sort]
-        self.sort = sort or []
+
+        self.sort = None
+        if sort is not None:
+            if not isinstance(sort, (tuple, list)):
+                sort = [sort]
+            self.set_sort(*sort)
 
     def _add_param(self, param):
         assert isinstance(param, Param)
@@ -349,7 +354,15 @@ class Query(Field):
         """
         if len(sort) == 1 and sort[0] is None:
             self.sort = None
+        elif len(sort) == 1 and isinstance(sort[0], Sort):
+            sort = sort[0]
+            self.sort = sort
+            for param in sort.params.values():
+                self._add_param(param)
         else:
+            for s in sort:
+                if not isinstance(s, QueryCombinator):
+                    raise Error("Invalid sort, expected query but got:", s)
             self.sort = sort
 
     def add_filter(self, filter=None):
@@ -500,6 +513,36 @@ class NonNull(Type):
         self.type = type
 
 
+class Sort(abc.ABC):
+    @abc.abstractproperty
+    def params(self):
+        """ Arguments which filter accepts."""
+
+    @abc.abstractmethod
+    def apply(self, query, values):
+        """ Apply filter to query."""
+
+
+class SortOfFunction(Sort):
+    def __init__(self, params, f):
+        self._params = params
+        self.f = f
+
+    @property
+    def params(self):
+        return self._params
+
+    def apply(self, query, values):
+        kwargs = {}
+        for name, param in self.params.items():
+            # skip sort if some of the params are not defined
+            if not param.name in values:
+                return query
+            kwargs[name] = values[param.name]
+        query = query.sort(self.f(**kwargs))
+        return query
+
+
 class Filter(abc.ABC):
     @abc.abstractproperty
     def params(self):
@@ -522,7 +565,7 @@ class FilterOfFunction(Filter):
     def apply(self, query, values):
         kwargs = {}
         for name, param in self.params.items():
-            # skip filter if some params are not defined
+            # skip filter if some of the params are not defined
             if not param.name in values:
                 return query
             kwargs[name] = values[param.name]
@@ -614,6 +657,88 @@ def filter_from_function():
     def decorate(f):
         params, _ = extract_params(f)
         return FilterOfFunction(params=params, f=f)
+
+    return decorate
+
+
+def sort_from_function():
+    """ Decorator which allows to define a sort from a function.
+
+    The signature of a function is used to infer arguments and their types.
+
+    Example::
+
+        >>> sort_region_by = Enum(
+        ...     name='sort_region_by',
+        ...     values=[EnumValue('name'), EnumValue('comment')],
+        ... )
+
+        >>> @sort_from_function()
+        ... def sort_region(
+        ...         sort_by: sort_region_by = None,
+        ...         desc: scalar.Boolean = False
+        ... ):
+        ...     sort_q = None
+        ...     if sort_by == 'name':
+        ...         sort_q = q.name
+        ...     elif sort_by == 'comment':
+        ...         sort_q = q.comment
+        ...     if sort_q is not None and desc:
+        ...         sort_q = sort_q.desc()
+        ...     return sort_q
+
+    Now we can pass the sort to a :func:`query` field::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region, sort=sort_region)
+        ... })
+
+    Note how ``sort_by`` and ``desc`` arguments are configured for the
+    ``region`` field::
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region(sort_by: "name") { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region(sort_by: "name", desc: true) { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['MIDDLE EAST', 'EUROPE', 'ASIA', 'AMERICA', 'AFRICA']
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region(sort_by: "comment") { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['ASIA', 'AMERICA', 'AFRICA', 'EUROPE', 'MIDDLE EAST']
+
+        >>> data = execute(sch, '''
+        ... {
+        ...     region { name }
+        ... }
+        ... ''')
+        >>> [region['name'] for region in data.data['region']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+
+    .. note::
+        Sorts defined using :func:`sort_from_function` are not being
+        typechecked against database schema and therefore it is advised not to
+        use it unless absolutely neccessary. Prefer to use sorts-as-queries if
+        your sorts are not dynamic (do not depend on arguments).
+
+    """
+
+    def decorate(f):
+        params, _ = extract_params(f)
+        return SortOfFunction(params=params, f=f)
 
     return decorate
 
@@ -713,7 +838,9 @@ def connectiontype_uncached(
                 loc=None,
             ),
             "count": query(
-                q.entity.count(),
+                q.entity,
+                filters=filters,
+                finalize_query=lambda q: q.count(),
                 description=f"Get the number of {entitytype.name} items",
                 loc=None,
             ),
@@ -811,9 +938,9 @@ def connect(
         type=connectiontype(
             entitytype=type,
             entitytype_complete=type_complete,
+            filters=tuple(filters) if filters else None,
             fields=fields,
             sort=sort,
-            filters=tuple(filters) if filters else None,
         ),
         description=description or f"Connection to {type.name}",
         loc=loc,
@@ -886,6 +1013,7 @@ def query(
     deprecation_reason: t.Optional[str] = None,
     sort: t.Optional[QueryCombinator] = None,
     paginate: bool = False,
+    finalize_query = None,
     transform=None,
     loc=autoloc,
 ) -> Field:
@@ -944,6 +1072,7 @@ def query(
         deprecation_reason=deprecation_reason,
         sort=sort,
         paginate=paginate,
+        finalize_query=finalize_query,
         transform=transform,
         loc=loc,
     )

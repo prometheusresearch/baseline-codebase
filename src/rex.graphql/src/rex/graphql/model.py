@@ -155,7 +155,7 @@ class NonNullType(Type, InputType, QueryInputType):
         return f"{self.type}!"
 
 
-class EnumType(Type, InputType):
+class EnumType(Type, InputType, QueryInputType):
     def __init__(self, descriptor):
         self.descriptor = descriptor
         self._names = set(v.name for v in self.values)
@@ -164,6 +164,11 @@ class EnumType(Type, InputType):
     values = property(lambda self: self.descriptor.values)
     description = property(lambda self: self.descriptor.description)
     loc = property(lambda self: self.descriptor.loc)
+
+    domain = domain.TextDomain()
+
+    def bind_value(self, state, value):
+        return state.bind_cast(self.domain, [LiteralSyntax(value)])
 
     def __eq__(self, other):
         return self.name == other.name
@@ -743,7 +748,7 @@ def synthesize_id(d):
         elif isinstance(label, domain.BooleanDomain):
             parts.append("true")
         elif isinstance(label, domain.EnumDomain):
-            parts.append(domain.labels[0])
+            parts.append(label.labels[0])
         elif isinstance(label, domain.DateDomain):
             parts.append("'2012-12-12'")
         elif isinstance(label, domain.TimeDomain):
@@ -811,10 +816,17 @@ def _(descriptor, ctx, name):
                     state(filter.query.syn)
             state.pop_scope()
             # Try to bind sorts
-            state.push_scope(output.binding)
-            for qsort in descriptor.sort:
-                state(qsort.syn)
-            state.pop_scope()
+            if isinstance(descriptor.sort, desc.Sort):
+                # we cannot check dynamic sort, skipping
+                pass
+            elif descriptor.sort:
+                state.push_scope(output.binding)
+                for qsort in descriptor.sort:
+                    state(qsort.syn)
+                state.pop_scope()
+            # finalize query and bind it
+            if descriptor.finalize_query is not None:
+                output = state(descriptor.finalize_query(descriptor.query).syn)
             # Check if paginate is ok
             if descriptor.paginate and not output.plural:
                 raise Error(

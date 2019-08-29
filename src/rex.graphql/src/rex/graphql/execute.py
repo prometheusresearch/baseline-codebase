@@ -855,19 +855,24 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
     if query.syn is None:
         query = q.define(__self__=q.here()).__self__
 
-    # Apply pagination
-    if field.descriptor.paginate:
-        assert "limit" in params, "'limit' is not configured"
-        assert "offset" in params, "'offset' is not configured"
-        query = query.take(params["limit"], params["offset"])
-
     # Apply filters
     for filter in field.descriptor.filters:
         query = filter.apply(query, params)
 
     # Apply sort
-    if field.descriptor.sort:
+    if isinstance(field.descriptor.sort, desc.Sort):
+        query = field.descriptor.sort.apply(query, params)
+    elif field.descriptor.sort:
         query = query.sort(*field.descriptor.sort)
+
+    if field.descriptor.finalize_query:
+        query = field.descriptor.finalize_query(query)
+
+    # Apply pagination
+    if field.descriptor.paginate:
+        assert "limit" in params, "'limit' is not configured"
+        assert "offset" in params, "'offset' is not configured"
+        query = query.take(params["limit"], params["offset"])
 
     with state.with_vars(vars):
         output = state(query.syn)

@@ -11,6 +11,8 @@ tests:
 - coverage: setup.cfg
   auto-data: true
 
+- sh: pip install --quiet --editable ./test/pkg
+
 - py: |
     # import rex.storage
     import pkg_resources
@@ -32,7 +34,6 @@ tests:
     if '__coverage__' in __pbbt__:
         __pbbt__['__coverage__'].stop()
         __pbbt__['__coverage__'].save()
-
 
 - coverage-check: 85.0
 - coverage-report: ./build/coverage

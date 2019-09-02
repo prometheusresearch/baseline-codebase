@@ -4,6 +4,8 @@
 ---
 suite: rex.storage
 tests:
+- sh: pip install --quiet --editable ./test/pkg
+  stdout: ''
 - py: import-rex.storage
   stdout: ''
 - py: python-m-rex.storage

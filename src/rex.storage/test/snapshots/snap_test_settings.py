@@ -8,7 +8,7 @@ from snapshottest import Snapshot
 snapshots = Snapshot()
 
 snapshots['test_credentials 1'] = '''Expected one of:
-    s3, gcs, local
+    s3, gcs, local, rex
 Got:
     'azure'
 While validating mapping key:
@@ -22,7 +22,7 @@ With parameters:
 
 snapshots['test_mount_errors 1'] = '''Path cannot be root
 Path `../some/path` should start with "/"
-No driver for `azure://some/path/`. Use one of: s3, gcs, local
+No driver for `azure://some/path/`. Use one of: s3, gcs, local, rex
 URL `some-junk-here/` does not match the regexp: `^(?P<service>.+?)://(?P<container>[^/]+)/(?P<path>.*)$`
 Mount point `/good` is already defined. Check treainling slash.
 While validating setting:

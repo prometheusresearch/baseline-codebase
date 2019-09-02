@@ -638,6 +638,7 @@ def _(descriptor, ctx):
     type = ctx.root.types.get(descriptor.name)
     if type is None:
         type = EnumType(descriptor=descriptor)
+        ctx.root.types[descriptor.name] = type
     else:
         if not isinstance(type, EnumType):
             raise Error(f"Type {descriptor.name} is not an enum type")

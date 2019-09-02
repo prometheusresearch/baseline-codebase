@@ -35,6 +35,7 @@ __all__ = (
     "query",
     "connect",
     "filter_from_function",
+    "sort_from_function",
     "q",
     # Parameters
     "argument",
@@ -74,6 +75,7 @@ from .desc import (
     filter_from_function,
     compute_from_function,
     mutation_from_function,
+    sort_from_function,
 )
 from .execute import execute, execute_exn, Result
 from .schema import schema, Schema

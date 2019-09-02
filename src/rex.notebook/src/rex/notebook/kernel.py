@@ -42,12 +42,12 @@ class Kernel(Extension):
     def spec(self):
         """ Return :class:`jupyter_client.kernelspec.KernelSpec` instance.
         """
-        raise NotImplementedError("NotebookKernel.spec()")
+        raise NotImplementedError("Kernel.spec()")
 
     def start(self, connection_file):
         """ Start kernel given a `connection_file`.
         """
-        raise NotImplementedError("NotebookKernel.start()")
+        raise NotImplementedError("Kernel.start()")
 
 
 class Manager(jupyter_client.kernelspec.KernelSpecManager):

@@ -12,6 +12,7 @@
 import random
 import string
 import ipykernel.embed
+import pandas as pd
 
 from rex.db import get_db, RexHTSQL
 from rex.deploy import get_cluster
@@ -38,13 +39,43 @@ class RexKernel(Kernel):
         super(RexKernel, self).__init__()
         self._databases_created = []
 
-    def get_temp_db(self):
-        """ Create an empty temporary database.
+    def cleanup(self):
+        cluster = get_cluster()
+        for name in self._databases_created:
+            cluster.drop(name)
 
-        The database will be dropped during kernel shutdown.
-        """
-        # TODO(andreypopp): allow different cluster for temp db, right now we
-        # are reusing the cluster on which the main db resides.
+    def get_temp_db(self):
+        db = create_db()
+        self._databases_created.append(db.htsql.db.database)
+        return db
+
+    def start(self, connection_file):
+        ns = {
+            "db": get_db(),
+            "get_temp_db": self.get_temp_db,
+            "produce": produce,
+        }
+        try:
+            ipykernel.embed.embed_kernel(
+                local_ns=ns, connection_file=connection_file
+            )
+        finally:
+            self.cleanup()
+
+
+def produce(db, query, **parameters):
+    """ Produce DataFrame out of HTSQL query."""
+    # TODO(andreypopp): what to do with nested records?
+    product = db.produce(query, **parameters)
+    columns = [f.header for f in product.meta.domain.item_domain.fields]
+    return pd.DataFrame(data=product.data, columns=columns)
+
+
+def create_db(name=None):
+    """ Create database."""
+    # TODO(andreypopp): allow different cluster for temp db, right now we
+    # are reusing the cluster on which the main db resides.
+    if name is None:
         # Generate random db name
         randgen = random.SystemRandom()
         suffix = "".join(
@@ -52,27 +83,12 @@ class RexKernel(Kernel):
             for _ in range(6)
         )
         name = f"temp-db-{suffix}"
-        # Create db
-        cluster = get_cluster()
-        cluster.create(name)
-        self._databases_created.append(name)
-        # Instantiate connection
-        main_db = get_db()
-        uri = main_db.htsql.db.clone(database=name)
-        ext = {}
-        ext.update({"rex_deploy": {}, "tweak.meta": {}})
-        return RexHTSQL(uri, ext)
-
-    def cleanup(self):
-        cluster = get_cluster()
-        for name in self._databases_created:
-            cluster.drop(name)
-
-    def start(self, connection_file):
-        ns = {"db": get_db(), "get_temp_db": self.get_temp_db}
-        try:
-            ipykernel.embed.embed_kernel(
-                local_ns=ns, connection_file=connection_file
-            )
-        finally:
-            self.cleanup()
+    # Create db
+    cluster = get_cluster()
+    cluster.create(name)
+    # Instantiate connection
+    main_db = get_db()
+    uri = main_db.htsql.db.clone(database=name)
+    ext = {}
+    ext.update({"rex_deploy": {}, "tweak.meta": {}})
+    return RexHTSQL(uri, ext)

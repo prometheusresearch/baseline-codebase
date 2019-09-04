@@ -262,11 +262,6 @@ we add::
         [...]
     )
 
-The ``rex`` utility is developed using Cogs_ toolkit; see Cogs_ documentation
-for more information.
-
-.. _Cogs: https://pypi.python.org/pypi/Cogs
-
 
 Optional parameters
 ===================
@@ -411,8 +406,6 @@ The :class:`rex.ctl.option` descriptor accepts the following arguments:
 ``hint``
     A one-line description of the option; used by ``rex help``.
 
-For more information on using arguments and options, see Cogs_ documentation.
-
 
 Working with RexDB projects
 ===========================
@@ -523,8 +516,8 @@ arguments or options::
 To generate an application instance, we call method
 :meth:`rex.ctl.RexTask.make()`.  We activate the instance using ``with`` clause
 and invoke internal application API to get a list of users.  The utility
-function :func:`rex.ctl.log()` provided by Cogs_ is used to display output and
-to add some highlighting.
+function :func:`rex.ctl.log()` is used to display output and to add some
+highlighting.
 
 Next, let's review ``rex demo-init`` task::
 

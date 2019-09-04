@@ -3,8 +3,7 @@
 #
 
 
-from cogs import env
-from cogs.log import debug, fail
+from .core import env, debug, fail
 from rex.setup import watch
 from rex.core import Rex, LatentRex, get_packages, PythonPackage, Error
 import sys

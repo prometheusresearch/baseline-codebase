@@ -130,13 +130,13 @@ To get a list of parameters of the application use ``rex settings``::
 
 Packages may include static directories and Python modules::
 
-    >>> ctl("packages ./test/data/shared/ --verbose")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> ctl("packages ./test/data/shared/ -v")          # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     [shared]
     Resources:
       /.../test/data/shared
     ...
 
-    >>> ctl("packages distutils --verbose")             # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> ctl("packages distutils -v")                    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     [distutils]
     Location:
       /.../distutils/__init__.py
@@ -250,9 +250,9 @@ a list of documentation entries, write::
 
     >>> for entry in entries:
     ...     print(entry.index)
+    help
     packages
     pyshell
     settings
-
 
 

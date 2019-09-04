@@ -113,7 +113,7 @@ class Notebook(RexTask):
             notebook_dir = self.notebook_dir or settings.notebook_dir
             cwd = os.getcwd()
             if notebook_dir is None:
-                notebook_dir = os.path.join(cwd, "notebooks")
+                notebook_dir = cwd
             if not os.path.exists(notebook_dir):
                 os.makedirs(notebook_dir)
 

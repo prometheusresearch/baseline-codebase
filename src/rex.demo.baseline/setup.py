@@ -21,6 +21,8 @@ setup(
     include_package_data=True,
     install_requires=[
         'rex.baseline',
+        'rex.notebook',
+        'rex.storage',
     ],
     rex_static='static',
 )

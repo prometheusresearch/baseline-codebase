@@ -21,6 +21,7 @@ setup(
         "rex.db",
         "notebook == 6.0.0",
         "pandas == 0.25.1",
+        "matplotlib == 3.1.1",
         "ipykernel == 5.1.2",
         "jupyter_client == 5.3.1",
     ],

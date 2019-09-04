@@ -65,7 +65,8 @@ class RexNotebookWebApplication(routing.Router):
                 **self.settings,
                 "allow_remote_access": True,
                 "base_url": base_url,
-                "default_url": base_url + "tree",
+                "default_url": base_url
+                + self.settings.get("default_url", "tree"),
                 "terminals_enabled": False,
                 "kernel_spec_manager_class": kernel.Manager,
             }

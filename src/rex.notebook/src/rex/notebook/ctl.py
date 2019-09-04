@@ -9,7 +9,6 @@
 
 import sys
 import os
-import getpass
 
 from rex.ctl import RexTask, option, argument, log
 from rex.core import Error, Setting, get_settings
@@ -109,16 +108,22 @@ class Notebook(RexTask):
         rex = self.make(initialize=False)
         with rex:
             settings = get_settings().rex_notebook
+
+            # notebook_dir
             notebook_dir = self.notebook_dir or settings.notebook_dir
+            cwd = os.getcwd()
             if notebook_dir is None:
-                # Check if we are inside virtualenv.
-                if sys.base_prefix != sys.prefix:
-                    notebook_dir = os.path.join(sys.prefix, "notebooks")
-                else:
-                    notebook_dir = os.path.join(os.getcwd(), "notebooks")
-            notebook_dir = os.path.join(notebook_dir, getpass.getuser())
+                notebook_dir = os.path.join(cwd, "notebooks")
+            else:
+                notebook_dir = os.path.abspath(notebook_dir)
+                if not notebook_dir.startswith(cwd + os.sep):
+                    raise Error(
+                        "notebook_dir path sould be specified with the cwd"
+                    )
             if not os.path.exists(notebook_dir):
                 os.makedirs(notebook_dir)
+
+            default_url = os.path.relpath(notebook_dir, cwd)
 
             port = self.port or settings.port or 8080
             host = self.host or settings.host or "127.0.0.1"
@@ -129,7 +134,8 @@ class Notebook(RexTask):
                 host=host,
                 unix_socket=unix_socket,
                 settings=dict(
-                    notebook_dir=notebook_dir,
+                    notebook_dir=cwd,
+                    default_url="tree/" + default_url,
                     open_browser=False,
                     token="",
                     password="",

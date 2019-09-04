@@ -114,16 +114,8 @@ class Notebook(RexTask):
             cwd = os.getcwd()
             if notebook_dir is None:
                 notebook_dir = os.path.join(cwd, "notebooks")
-            else:
-                notebook_dir = os.path.abspath(notebook_dir)
-                if not notebook_dir.startswith(cwd + os.sep):
-                    raise Error(
-                        "notebook_dir path sould be specified with the cwd"
-                    )
             if not os.path.exists(notebook_dir):
                 os.makedirs(notebook_dir)
-
-            default_url = os.path.relpath(notebook_dir, cwd)
 
             port = self.port or settings.port or 8080
             host = self.host or settings.host or "127.0.0.1"
@@ -134,8 +126,7 @@ class Notebook(RexTask):
                 host=host,
                 unix_socket=unix_socket,
                 settings=dict(
-                    notebook_dir=cwd,
-                    default_url="tree/" + default_url,
+                    notebook_dir=notebook_dir,
                     open_browser=False,
                     token="",
                     password="",

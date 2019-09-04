@@ -13,7 +13,10 @@ import random
 import string
 import ipykernel.embed
 import pandas as pd
+import numpy as np
 
+
+from htsql.core import domain
 from rex.db import get_db, RexHTSQL
 from rex.deploy import get_cluster
 
@@ -63,12 +66,28 @@ class RexKernel(Kernel):
             self.cleanup()
 
 
+def product_to_df(data, meta):
+    dom = meta.domain
+    columns = []
+    dtypes = {}
+    assert isinstance(dom, domain.ListDomain), "Expected plural data"
+    for field in dom.item_domain.fields:
+        columns.append(field.header)
+        if isinstance(field.domain, domain.DateDomain):
+            dtypes[field.header] = 'datetime64[ns]'
+        elif isinstance(field.domain, domain.DateTimeDomain):
+            dtypes[field.header] = 'datetime64[ns]'
+        elif isinstance(field.domain, domain.BooleanDomain):
+            dtypes[field.header] = np.bool
+    df = pd.DataFrame(data=data, columns=columns)
+    df = df.astype(dtypes)
+    return df
+
+
 def produce(db, query, **parameters):
     """ Produce DataFrame out of HTSQL query."""
-    # TODO(andreypopp): what to do with nested records?
     product = db.produce(query, **parameters)
-    columns = [f.header for f in product.meta.domain.item_domain.fields]
-    return pd.DataFrame(data=product.data, columns=columns)
+    return product_to_df(product.data, product.meta)
 
 
 def create_db(name=None):

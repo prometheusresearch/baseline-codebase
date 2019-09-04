@@ -19,8 +19,8 @@ setup(
     install_requires=[
         "rex.core",
         "rex.db",
-        # TODO: specify constraints
         "notebook == 6.0.0",
+        "pandas == 0.25.1",
         "ipykernel == 5.1.2",
         "jupyter_client == 5.3.1",
     ],

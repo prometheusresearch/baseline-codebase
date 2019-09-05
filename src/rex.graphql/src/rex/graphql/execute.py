@@ -41,7 +41,7 @@ from .input_coercion import (
     are_types_compatible,
 )
 from . import model, desc, introspection
-from .query import q
+from rex.query.builder import q
 
 
 logger = get_logger("rex.graphql.execute")

@@ -17,8 +17,7 @@ import typing as t
 from rex.core import Error, cached
 
 from . import code_location
-from .param import Param
-from .query import lift, Query as QueryCombinator, q
+from rex.query.builder import lift, Param, Query as QueryCombinator, q
 
 
 autoloc = code_location.autoloc

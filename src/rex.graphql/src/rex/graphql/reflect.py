@@ -51,7 +51,7 @@ from htsql.core.model import (
 from htsql.core.classify import classify, localize, relabel
 
 from . import desc, introspection, model, model_scalar, schema, Schema
-from .query import query as q
+from rex.query.builder import q
 
 __all__ = ("reflect", "Reflect")
 

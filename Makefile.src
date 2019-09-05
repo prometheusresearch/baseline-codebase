@@ -41,6 +41,7 @@ SRC_PY = \
 	src/rex.assessment_import \
 	src/rex.tabular_import \
 	src/rex.about \
+	src/rex.notebook \
 	src/rex.baseline \
 	src/rex.demo.baseline
 

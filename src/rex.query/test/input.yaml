@@ -8,12 +8,14 @@ tests:
 - coverage: setup.cfg
 
 - sh: pip install -q -e ./demo
+  ignore: true
 
 - sh: rex dropdb -q rex.query_demo
 - sh: rex query-demo-populate rex.query_demo -q
 
 - doctest: README.rst
 - doctest: test/test_*.rst
+- pytest: test/test_*.py
 
 - sh: pip uninstall -q -y rex.query_demo
 

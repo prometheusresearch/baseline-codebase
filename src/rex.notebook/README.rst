@@ -14,6 +14,10 @@ Overview
 ``rex.notebook`` package provides Jupyter Notebook interface to Rex
 applications.
 
+**WARNING:** Rex Notebook is only for internal usage, it shouldn't be deployed
+outside of Prometheus VPN as it is insecure by design (Jupyter notebook allows
+to execute arbitrary code in server context).
+
 Usage
 =====
 

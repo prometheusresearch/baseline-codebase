@@ -79,6 +79,13 @@ def product_to_df(data, meta):
             dtypes[field.header] = 'datetime64[ns]'
         elif isinstance(field.domain, domain.BooleanDomain):
             dtypes[field.header] = np.bool
+        elif isinstance(field.domain, domain.IntegerDomain):
+            # this can handle None values
+            dtypes[field.header] = pd.Int64Dtype()
+        elif isinstance(field.domain, domain.FloatDomain):
+            dtypes[field.header] = np.float
+        elif isinstance(field.domain, domain.EnumDomain):
+            dtypes[field.header] = 'category'
     df = pd.DataFrame(data=data, columns=columns)
     df = df.astype(dtypes)
     return df

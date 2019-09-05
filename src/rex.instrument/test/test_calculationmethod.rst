@@ -22,7 +22,7 @@ create a simple dictionary containing the Assessment's values so that they can
 be easily delivered to the calculation method internals::
 
     >>> method = CalculationMethod()
-    >>> pprint(method.flatten_assessment_data(assessment))
+    >>> pprint(method.flatten_assessment_data(assessment.data, assessment.instrument_version.definition))
     {'q_boolean': None,
      'q_date': datetime.date(2014, 5, 22),
      'q_enumeration': 'myenum',
@@ -42,7 +42,7 @@ The HTSQL implementation extends this method by removing ``recordList`` fields
 cell::
 
     >>> method = HtsqlCalculationMethod()
-    >>> pprint(method.flatten_assessment_data(assessment))
+    >>> pprint(method.flatten_assessment_data(assessment.data, assessment.instrument_version.definition))
     {'q_boolean': None,
      'q_date': datetime.date(2014, 5, 22),
      'q_enumeration': 'myenum',

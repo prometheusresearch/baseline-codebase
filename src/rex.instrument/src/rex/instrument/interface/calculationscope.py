@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from rex.core import Extension
 
 from ..util import global_scope
+from .calculationmethod import CalculationMethod
 
 
 __all__ = (
@@ -66,6 +67,24 @@ class CalculationScopeAddon(Extension):
             if method in addon.allowed_methods:
                 scope[addon.name] = addon.get_scope_value(assessment)
         return scope
+
+    @classmethod
+    def get_all_addon_scopes(cls, assessment):
+        """
+        Returns a dictionary containing the custom values to add to the scope
+        of a calculation, organized by the calculation method they're
+        applicable to.
+
+        :param assessment:
+            the Assessment that the calculation is being executed on
+        :type assessment: Assessment
+        :rtype: dict of dicts
+        """
+
+        scopes = {}
+        for method in CalculationMethod.mapped():
+            scopes[method] = cls.get_addon_scope(method, assessment)
+        return scopes
 
     @classmethod
     def get_scope_value(cls, assessment):

@@ -21,6 +21,7 @@ from ..util import memoized_property, get_implementation, to_unicode
 
 __all__ = (
     'CalculationSet',
+    'execute_calculations',
 )
 
 
@@ -102,6 +103,50 @@ def coerce_instrument_type(result, instrument_type):
             result_type,
         )
     )
+
+
+def execute_calculations(
+        instrument_definition,
+        calculation_set_definition,
+        assessment_data,
+        scope_additions=None):
+    """
+    Performs the calculations described in the Calculation Set Definition upon
+    the specified Assessment Data and returns the resulting values.
+
+    :param instrument_definition:
+        the Instrument Definition that the Calculation Set and Assessment are
+        associated with
+    :type instrument_definition: dict
+    :param calculation_set_definition:
+        the Calculation Set Definition that describes the calculations to
+        perform
+    :type calculation_set_definition: dict
+    :param assessment_data: the Assessment data to perform the calculations on
+    :type assessment_data: dict
+    :rtype: dict
+    """
+
+    scope_additions = scope_additions or {}
+    results = {}
+
+    for calculation in calculation_set_definition['calculations']:
+        with guard('While executing calculation:', calculation['id']):
+            method = CalculationMethod.mapped()[calculation['method']]()
+            result = method(
+                calculation['options'],
+                assessment_data,
+                instrument_definition,
+                results,
+                scope_additions=scope_additions.get(
+                    calculation['method'],
+                    {},
+                ),
+            )
+            result = coerce_instrument_type(result, calculation['type'])
+            results[calculation['id']] = result
+
+    return results
 
 
 class CalculationSet(
@@ -413,23 +458,14 @@ class CalculationSet(
                 'Assessments must be complete in order to execute calculations'
             )
 
-        results = {}
-        for calculation in self.definition['calculations']:
-            with guard('While executing calculation:', calculation['id']):
-                method = CalculationMethod.mapped()[calculation['method']]()
-                scope_additions = CalculationScopeAddon.get_addon_scope(
-                    method=method.name,
-                    assessment=assessment,
-                )
-                result = method(
-                    calculation['options'],
-                    assessment,
-                    results,
-                    scope_additions,
-                )
-                result = coerce_instrument_type(result, calculation['type'])
-                results[calculation['id']] = result
-        return results
+        scopes = CalculationScopeAddon.get_all_addon_scopes(assessment)
+
+        return execute_calculations(
+            assessment.instrument_version.definition,
+            self.definition,
+            assessment.data,
+            scope_additions=scopes,
+        )
 
     def get_display_name(self):
         """

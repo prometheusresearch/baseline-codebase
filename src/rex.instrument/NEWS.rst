@@ -5,6 +5,14 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+1.9.0
+=====
+
+* Added an ``execute_calculations`` function to the package to provide
+  applications that do not use the full ``rex.instrument`` suite of APIs a
+  means to execute RIOS calculations on an Assessment.
+
+
 1.8.0 (2017-06-20)
 ==================
 

@@ -49,7 +49,8 @@ class CalculationMethod(Extension):
     def __call__(
             self,
             options,
-            assessment,
+            assessment_data,
+            instrument_definition,
             previous_results=None,
             scope_additions=None):
         """
@@ -60,8 +61,11 @@ class CalculationMethod(Extension):
         :param options:
             the ``options`` from the Calculation Set Definition calculation
         :type options: dict
-        :param assessment: the Assessment to execute the calculation on
-        :type assessment: Assessment
+        :param assessment: the Assessment data to execute the calculation on
+        :type assessment: dict
+        :param instrument_definition:
+            the Instrument Definition the Assessment is in response to
+        :type instrument_definition: dict
         :param previous_results:
             the results of previous calculations executed on this Assessment
         :type previous_results: dict
@@ -73,27 +77,29 @@ class CalculationMethod(Extension):
 
         raise NotImplementedError()
 
-    def flatten_assessment_data(self, assessment):
+    def flatten_assessment_data(self, assessment_data, instrument_definition):
         """
         Returns a dictionary that contains the Assessment's values, without any
         of the Assessment metadata or extraneous structures.
 
-        :param assessment: the Assessment containing the data the flatten
-        :type assessment: Assessment
+        :param assessment_data: the Assessment containing the data the flatten
+        :type assessment_data: dict
+        :param instrument_definition:
+            the Instrument Definition the Assessment is in response to
+        :type instrument_definition: dict
         :rtype: dict
         """
 
         data = {}
-        definition = assessment.instrument_version.definition
 
-        for field in definition['record']:
+        for field in instrument_definition['record']:
             field_id = field['id']
             field_type = field['type']
-            field_value = assessment.data['values'][field_id]['value']
+            field_value = assessment_data['values'][field_id]['value']
             data[field_id] = self.get_value(
                 field_value,
                 field_type,
-                definition,
+                instrument_definition,
             )
 
         return data
@@ -172,21 +178,25 @@ class PythonCalculationMethod(CalculationMethod):
     def __call__(
             self,
             options,
-            assessment,
+            assessment_data,
+            instrument_definition,
             previous_results=None,
             scope_additions=None):
         previous_results = previous_results or {}
         scope_additions = scope_additions or {}
         result = None
 
-        assessment_data = self.flatten_assessment_data(assessment)
+        flattened_data = self.flatten_assessment_data(
+            assessment_data,
+            instrument_definition,
+        )
         callable_opt = options.get('callable')
         expression_opt = options.get('expression')
 
         if callable_opt:
             result = self.execute_callable(
                 callable_opt,
-                assessment_data,
+                flattened_data,
                 previous_results,
                 scope_additions,
             )
@@ -194,7 +204,7 @@ class PythonCalculationMethod(CalculationMethod):
         elif expression_opt:
             result = self.execute_expression(
                 expression_opt,
-                assessment_data,
+                flattened_data,
                 previous_results,
                 scope_additions,
             )
@@ -326,15 +336,17 @@ class HtsqlCalculationMethod(CalculationMethod):
     #:
     name = 'htsql'
 
-    def flatten_assessment_data(self, assessment):
+    def flatten_assessment_data(self, assessment_data, instrument_definition):
         flat = super(HtsqlCalculationMethod, self).flatten_assessment_data(
-            assessment,
+            assessment_data,
+            instrument_definition
         )
 
-        definition = assessment.instrument_version.definition
-
-        for field in definition['record']:
-            type_def = get_full_type_definition(definition, field['type'])
+        for field in instrument_definition['record']:
+            type_def = get_full_type_definition(
+                instrument_definition,
+                field['type'],
+            )
 
             if type_def['base'] == 'recordList':
                 del flat[field['id']]
@@ -353,7 +365,8 @@ class HtsqlCalculationMethod(CalculationMethod):
     def __call__(
             self,
             options,
-            assessment,
+            assessment_data,
+            instrument_definition,
             previous_results=None,
             scope_additions=None):
         previous_results = previous_results or {}
@@ -361,7 +374,10 @@ class HtsqlCalculationMethod(CalculationMethod):
 
         parameters = {}
         parameters.update(scope_additions)
-        parameters.update(self.flatten_assessment_data(assessment))
+        parameters.update(self.flatten_assessment_data(
+            assessment_data,
+            instrument_definition,
+        ))
         parameters.update(previous_results)
 
         calc_db = get_calculation_db()

@@ -37,5 +37,6 @@ __all__ = (
     'CalculationScopeAddon',
     'CalculationMethod',
     'DraftCalculationSet',
+    'execute_calculations',
 )
 

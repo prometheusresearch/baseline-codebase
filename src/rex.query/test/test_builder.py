@@ -1,7 +1,7 @@
 import pytest
 from rex.query.builder import Q, q, to_htsql_syntax
 from rex.core import Rex
-from rex.db import get_db
+from rex.db import RexHTSQL, HTSQLVal, get_db
 
 
 @pytest.fixture(scope="module")
@@ -10,6 +10,13 @@ def rex():
     db = "pgsql:query_demo"
     rex = Rex("rex.query_demo", db=db)
     return rex
+
+
+@pytest.fixture(scope="module")
+def db(rex):
+    # Wrap each test case with `with rex: ...`
+    with rex:
+        return get_db()
 
 
 @pytest.fixture(autouse=True)
@@ -110,8 +117,10 @@ def test_to_df():
     assert q.region.name.to_df()[0][0] == "AFRICA"
 
 
-def test_to_copy_stream():
+def test_to_copy_stream(db):
     stream = q.region.to_copy_stream()
+
+    # Look at the data
     stream.seek(0)
     assert stream.read() == "\n".join(
         [
@@ -120,6 +129,20 @@ def test_to_copy_stream():
             "3\tASIA\tges. thinly even pinto beans ca",
             "4\tEUROPE\tly final courts cajole furiously final excuse",
             "5\tMIDDLE EAST\tuickly special accounts cajole carefully blithely close requests. carefully final asymptotes haggle furiousl",
-            ""
+            "",
         ]
     )
+
+    # Try actually copy data back to db
+    with db, db.transaction() as tx:
+        try:
+            cur = tx.connection.cursor()
+            cur.execute(
+                "CREATE TABLE region_copy AS TABLE region WITH NO DATA;"
+            )
+            stream.seek(0)
+            cur.copy_expert(f"COPY region_copy FROM STDIN", stream)
+            cur.execute("select * from region_copy")
+            assert len(cur.fetchall()) == 5
+        finally:
+            tx.rollback()

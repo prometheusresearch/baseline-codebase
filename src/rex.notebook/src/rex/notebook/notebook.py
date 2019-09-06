@@ -5,6 +5,8 @@ from zmq.eventloop import ioloop
 
 ioloop.install()
 
+from rex.core import Error
+
 from tornado import httpserver, httputil, routing
 from tornado.netutil import bind_unix_socket
 
@@ -104,7 +106,26 @@ class RexNotebookWebApplication(routing.Router):
                 self._app.cleanup_kernels()
 
 
+def pre_save_hook(model, **kwargs):
+    # Cleanup cell outputs and execution_count
+    if model["type"] != "notebook":
+        return
+    if model["content"]["nbformat"] != 4:
+        raise Error(
+            "Unexpected notebook format:", model["content"]["nbformat"]
+        )
+    for cell in model["content"]["cells"]:
+        if cell["cell_type"] != "code":
+            continue
+        cell["outputs"] = []
+        cell["execution_count"] = None
+
+
 class RexNotebookApp(NotebookApp):
+    def __init__(self, *args, **kwargs):
+        super(RexNotebookApp, self).__init__(*args, **kwargs)
+        self.config.FileContentsManager.pre_save_hook = pre_save_hook
+
     def init_webapp(self):
         # skip this step as we don't want to init httpserver here
         pass

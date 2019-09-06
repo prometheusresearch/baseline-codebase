@@ -25,6 +25,8 @@
 """
 
 import abc
+import io
+import tempfile
 from collections import Iterable
 from datetime import date
 from decimal import Decimal
@@ -32,11 +34,12 @@ from typing import Optional
 
 from htsql.core import domain
 from htsql.core.tr.translate import translate
+from htsql.tweak.etl.cmd.insert import BuildExtractNode, BuildExtractTable
 
 from rex.query.query import Syntax, LiteralSyntax, ApplySyntax
 from rex.query.bind import RexBindingState
 from rex.core import Error
-from rex.db import get_db
+from rex.db import RexHTSQL, HTSQLVal, get_db
 
 
 __all__ = ("q", "Q")
@@ -316,6 +319,68 @@ class Q:
         """
         db = db or self.db
         return produce(query=self, variables=variables, db=db)
+
+    def to_copy_stream(self, variables=None, db=None, stream=None):
+        """ Produce a stream with data in a format suitable for COPY."""
+        db = db or self.db or get_db()
+        # reconnect w/o rex_deploy extension which omits id, fk columns
+        db = RexHTSQL(None, HTSQLVal.merge(db.htsql.db))
+
+        with db:
+            binding = bind(self, variables=variables)
+            pipe = translate(binding, batch=True)
+            product = pipe()(None)
+
+            extract_node = BuildExtractNode.__invoke__(product.meta)
+            extract_table = BuildExtractTable.__invoke__(
+                extract_node.node, extract_node.arcs, with_cache=True
+            )
+
+        if extract_node.is_list:
+            records = product.data
+            record_domain = product.meta.domain.item_domain
+        else:
+            records = [product.data]
+            record_domain = product.meta.domain
+
+        if stream is None:
+            stream = io.StringIO()
+
+        def collect_copy(row):
+            stream.write(
+                "\t".join(
+                    [
+                        str(item)
+                        .replace("\\", "\\\\")
+                        .replace("\n", "\\n")
+                        .replace("\r", "\\r")
+                        .replace("\t", "\\t")
+                        if item is not None
+                        else "\\N"
+                        for item in row
+                    ]
+                )
+                + "\n"
+            )
+
+        for idx, record in enumerate(records):
+            if record is None:
+                continue
+            try:
+                collect_copy(extract_table(extract_node(record)))
+            except Error as exc:
+                if extract_node.is_list:
+                    message = "While copying record #%s" % (idx + 1)
+                else:
+                    message = "While copying a record"
+                quote = record_domain.dump(record)
+                exc.wrap(message, quote)
+                raise
+
+        extract_node = None
+        extract_table = None
+
+        return stream
 
     def to_data(self, variables=None, db=None):
         """ Execute query and return data.

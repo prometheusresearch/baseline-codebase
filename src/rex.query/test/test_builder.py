@@ -108,3 +108,18 @@ def test_to_df():
     assert q.region.count().to_df()[0][0] == 5
     assert q.region.to_df().name[0] == "AFRICA"
     assert q.region.name.to_df()[0][0] == "AFRICA"
+
+
+def test_to_copy_stream():
+    stream = q.region.to_copy_stream()
+    stream.seek(0)
+    assert stream.read() == "\n".join(
+        [
+            "1\tAFRICA\tlar deposits. blithely final packages cajole. regular waters are final requests. regular accounts are according to ",
+            "2\tAMERICA\ths use ironic, even requests. s",
+            "3\tASIA\tges. thinly even pinto beans ca",
+            "4\tEUROPE\tly final courts cajole furiously final excuse",
+            "5\tMIDDLE EAST\tuickly special accounts cajole carefully blithely close requests. carefully final asymptotes haggle furiousl",
+            ""
+        ]
+    )

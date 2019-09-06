@@ -50,7 +50,7 @@ __all__ = (
 )
 
 from graphql import GraphQLError
-from .query import query as q, execute as execute_q
+from rex.query.builder import q, produce as execute_q
 from .desc import (
     Field,
     Type,

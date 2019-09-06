@@ -17,8 +17,7 @@ import typing as t
 from rex.core import Error, cached
 
 from . import code_location
-from .param import Param
-from .query import lift, Query as QueryCombinator, q
+from rex.query.builder import lift, Param, Q, q
 
 
 autoloc = code_location.autoloc
@@ -361,7 +360,7 @@ class Query(Field):
                 self._add_param(param)
         else:
             for s in sort:
-                if not isinstance(s, QueryCombinator):
+                if not isinstance(s, Q):
                     raise Error("Invalid sort, expected query but got:", s)
             self.sort = sort
 
@@ -387,7 +386,7 @@ class Query(Field):
 
         def register(filter):
             if not isinstance(filter, Filter):
-                if isinstance(filter, QueryCombinator):
+                if isinstance(filter, Q):
                     filter = FilterOfQuery(query=filter)
                 elif callable(filter):
                     filter = filter_from_function(filter)
@@ -855,7 +854,7 @@ connectiontype = cached(connectiontype_uncached)
 
 def connect(
     type: Entity,
-    query: QueryCombinator = None,
+    query: Q = None,
     filters: t.List[Filter] = None,
     sort=None,
     type_complete: Entity = None,
@@ -1005,13 +1004,13 @@ class ComputedParam(Param):
 
 
 def query(
-    query: QueryCombinator,
+    query: Q,
     type: Type = None,
-    filters: t.List[t.Union[QueryCombinator, Filter]] = None,
+    filters: t.List[t.Union[Q, Filter]] = None,
     name: t.Optional[str] = None,
     description: t.Optional[str] = None,
     deprecation_reason: t.Optional[str] = None,
-    sort: t.Optional[QueryCombinator] = None,
+    sort: t.Optional[Q] = None,
     paginate: bool = False,
     finalize_query = None,
     transform=None,

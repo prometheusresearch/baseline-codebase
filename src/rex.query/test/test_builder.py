@@ -1,6 +1,7 @@
 import pytest
-from rex.query.builder import q, produce, to_htsql_syntax
+from rex.query.builder import Q, q, to_htsql_syntax
 from rex.core import Rex
+from rex.db import get_db
 
 
 @pytest.fixture(scope="module")
@@ -21,25 +22,25 @@ def with_rex(rex):
 def test_navigate():
     query = q.region
     assert str(to_htsql_syntax(query)) == "/region"
-    produce(query)
+    query.produce()
 
 
 def test_filter():
     query = q.region.filter(True)
     assert str(to_htsql_syntax(query)) == "/region.filter(true)"
-    produce(query)
+    query.produce()
 
 
 def test_select():
     query = q.region.select(region_name=q.name)
     assert str(to_htsql_syntax(query)) == "/region{name}"
-    produce(query)
+    query.produce()
 
 
 def test_group():
     query = q.nation.group(region=q.region.name)
     assert str(to_htsql_syntax(query)) == "/(nation^{region:=region.name})"
-    produce(query)
+    query.produce()
 
 
 def test_eq_many():
@@ -53,36 +54,57 @@ def test_eq_many():
 def test_function():
     query = q.count(q.nation)
     assert str(to_htsql_syntax(query)) == "count(nation)"
-    produce(query)
+    query.produce()
 
 
 def test_function_postfix():
     query = q.nation.count()
     assert str(to_htsql_syntax(query)) == "count(nation)"
-    produce(query)
+    query.produce()
 
 
 def test_id():
     query = q.nation.id
     assert str(to_htsql_syntax(query)) == "/nation.id()"
-    produce(query)
+    query.produce()
 
 
 def test_matches():
     query = q.nation.name.matches("something")
     assert str(to_htsql_syntax(query)) == "/nation.name~'something'"
-    produce(query)
+    query.produce()
 
 
 def test_sort():
     query = q.region.sort(q.name)
     assert str(to_htsql_syntax(query)) == "/region.sort(name)"
-    produce(query)
+    query.produce()
 
     query = q.region.sort(q.name.desc())
     assert str(to_htsql_syntax(query)) == "/region.sort(name-)"
-    produce(query)
+    query.produce()
 
     query = q.region.sort(q.name.desc(), q.comment)
     assert str(to_htsql_syntax(query)) == "/region.sort(name-,comment)"
-    produce(query)
+    query.produce()
+
+
+def test_with_db():
+    """ We can use ``Q(db)`` to associate query with db at creation time."""
+    db = get_db()
+    query_demo = Q(db)
+    query = query_demo.region.count()
+    assert str(to_htsql_syntax(query)) == "count(region)"
+    assert query.produce().data == 5
+
+
+def test_to_data():
+    """ We can use ``.to_data()`` method to produce data."""
+    assert q.region.count().to_data() == 5
+
+
+def test_to_df():
+    """ We can use ``.to_df()`` method to a dataframe."""
+    assert q.region.count().to_df()[0][0] == 5
+    assert q.region.to_df().name[0] == "AFRICA"
+    assert q.region.name.to_df()[0][0] == "AFRICA"

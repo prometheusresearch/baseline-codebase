@@ -28,3 +28,4 @@ from .app import RenderApp
 from .extension import Chart, ExportFormatter
 from .chart import PieChart, LineChart, BarChart, AreaChart, ScatterChart
 from .export import CSVExportFormatter, HTMLExportFormatter
+from .builder import Q, q

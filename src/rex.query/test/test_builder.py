@@ -1,5 +1,6 @@
 import pytest
-from rex.query.builder import Q, q, to_htsql_syntax
+from rex.query import Q, q
+from rex.query.builder import to_htsql_syntax
 from rex.core import Rex
 from rex.db import RexHTSQL, HTSQLVal, get_db
 

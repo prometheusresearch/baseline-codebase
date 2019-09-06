@@ -4,7 +4,7 @@
 
 
 from rex.core import Error
-from .bridge import run, Failure, fail, env
+from .core import run, Failure, fail, env
 import sys
 import os
 import shutil

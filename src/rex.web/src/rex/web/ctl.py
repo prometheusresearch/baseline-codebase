@@ -8,7 +8,7 @@ from rex.core import (
         get_packages, get_settings, Error, PythonPackage, StrVal, PIntVal,
         BoolVal, MaybeVal, MapVal, Validate)
 from rex.ctl import (
-        env, RexTask, Global, Topic, argument, option, log, fail, exe)
+        env, RexTask, Global, Topic, argument, option, log, fail, exe, COLORS)
 import sys
 import os
 import time
@@ -490,8 +490,8 @@ class DaemonAttributes:
         self.name = app.requirements[0]
         # Project handle from the name and `--config` value.
         self.handle = self.name
-        if env.config_file is not None:
-            suffix = os.path.splitext(os.path.basename(env.config_file))[0]
+        if env.config is not None:
+            suffix = os.path.splitext(os.path.basename(env.config))[0]
             self.handle = "%s-%s" % (self.handle, suffix)
         # The directory to store `*.pid` and other files.
         self.run_dir = '/run/rex'
@@ -775,7 +775,6 @@ class ReplayHandler:
         benchmark = (self.finished - self.started).total_seconds()
         benchmark = int(1 + math.log(benchmark))
         benchmark = min(max(benchmark, 0), 5)
-        from cogs.log import COLORS
         COLORS.styles['benchmark'] = []
         if benchmark > 0:
             COLORS.styles['benchmark'] = [48, 5, 17 + 36*benchmark]

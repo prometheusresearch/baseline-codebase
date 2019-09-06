@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.0.0 (2019-XX-XX)
+==================
+
+* Removed dependency on Cogs.
+
+
 2.3.0 (2017-04-05)
 ==================
 

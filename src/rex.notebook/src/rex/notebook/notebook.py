@@ -11,6 +11,8 @@ from tornado import httpserver, httputil, routing
 from tornado.netutil import bind_unix_socket
 
 from notebook.notebookapp import NotebookApp, NotebookWebApplication
+from nbstripout import strip_output
+from nbformat import from_dict
 from . import kernel
 
 
@@ -110,15 +112,10 @@ def pre_save_hook(model, **kwargs):
     # Cleanup cell outputs and execution_count
     if model["type"] != "notebook":
         return
-    if model["content"]["nbformat"] != 4:
-        raise Error(
-            "Unexpected notebook format:", model["content"]["nbformat"]
-        )
-    for cell in model["content"]["cells"]:
-        if cell["cell_type"] != "code":
-            continue
-        cell["outputs"] = []
-        cell["execution_count"] = None
+    node = from_dict(model["content"])
+    # Signature: strip_output(notebook, keep_output, keep_count)
+    strip_output(node, False, False)
+    model["content"] = node
 
 
 class RexNotebookApp(NotebookApp):

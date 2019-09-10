@@ -25,7 +25,7 @@ from .validate import (
     FloatVal, SeqVal, OneOrSeqVal, MapVal, OMapVal, RecordVal, OpenRecordVal,
     SwitchVal, UnionVal, IncludeKeyVal, OnMatch, OnScalar, OnSeq, OnMap,
     OnField, Record, RecordField, Location, set_location, locate, DateVal,
-    TimeVal, DateTimeVal)
+    TimeVal, DateTimeVal, StrFormatVal, PathVal)
 from .wsgi import WSGI, get_wsgi
 
 

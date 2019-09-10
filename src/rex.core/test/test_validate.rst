@@ -286,6 +286,63 @@ The whole input must match the pattern::
     Got:
         '123-12-1234 John Doe'
 
+``StrFormatVal``
+================
+
+``StrFormatVal`` can format strings using a predefined set of values::
+
+    >>> from rex.core import StrFormatVal
+    >>> str_format_val = StrFormatVal({'name': 'World'})
+
+    >>> str_format_val('Hello, {name}!')
+    'Hello, World!'
+
+    >>> str_format_val('Hello, {unknown}!') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    rex.core.Error: While formatting string:
+        Hello, {unknown}!
+    Found unknown key while formatting string:
+        unknown
+
+Otherwise it behaves similar to ``StrVal``::
+
+    >>> str_format_val('string')
+    'string'
+    >>> str_format_val(42) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    rex.core.Error: Expected a string
+    Got:
+        42
+
+``PathVal``
+===========
+
+``PathVal`` accepts paths and validate (syntactically) that they are absolute
+paths::
+
+    >>> from rex.core import PathVal
+    >>> path_val = PathVal()
+
+    >>> path_val('/abs/path')
+    '/abs/path'
+
+It fails on relative paths::
+
+    >>> path_val('./rel/path') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    rex.core.Error: Expected an absolute path but found:
+        ./rel/path
+
+Allows to use ``{sys.prefix}`` to refer to the Python environment prefix::
+
+    >>> import sys, os.path
+
+    >>> relpath = path_val('{sys_prefix}/rel/path')
+    >>> relpath == sys.prefix + '/rel/path'
+    True
 
 ``ChoiceVal``
 =============

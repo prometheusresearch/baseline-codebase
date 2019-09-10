@@ -7,6 +7,7 @@ from .error import Error, guard, guard_repr
 import re
 import os
 import os.path
+import sys
 import collections
 import threading
 import functools
@@ -609,6 +610,45 @@ class StrVal(Validate):
 class UStrVal(StrVal):
     pass
 
+
+class StrFormatVal(StrVal):
+    """
+    Like :class:`StrVal` but allows to format a resulting string by substituting
+    values.
+    """
+
+    def __init__(self, format_kwargs, pattern=None):
+        self.format_kwargs = format_kwargs
+        super(StrFormatVal, self).__init__(pattern=pattern)
+
+    def __call__(self, value):
+        value = super(StrFormatVal, self).__call__(value)
+        try:
+            value = value.format(**self.format_kwargs)
+        except KeyError as err:
+            key = err.args[0]
+            error = Error("While formatting string:", value)
+            error.wrap("Found unknown key while formatting string:", key)
+            raise error
+        return value
+
+
+class PathVal(Validate):
+    """
+    Accepts strings and treats them as absolute paths.
+
+    This validator doesn't attemp to validate path existence or perform any
+    filesystem access. It only validates that path is an absolute path
+    syntactically.
+    """
+
+    validate = StrFormatVal({'sys_prefix': sys.prefix})
+
+    def __call__(self, value):
+        value = self.validate(value)
+        if not os.path.isabs(value):
+            raise Error("Expected an absolute path but found:", value)
+        return value
 
 class ChoiceVal(Validate):
     """

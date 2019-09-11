@@ -650,7 +650,7 @@ class AttachGCSKeySetting(Setting):
         attach_gcs_key: /path/to/keyfile.json
     """
     name = 'attach_gcs_key'
-    validate = MaybeVal(StrVal())
+    validate = MaybeVal(PathVal())
     default = None
 
 

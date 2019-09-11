@@ -87,7 +87,7 @@ where <username> is user given as function parameter or 'unknown'.
 ::
 
   >>> app = Rex('rex.assessment_import_demo',
-  ...           assessment_import_dir='./build/sandbox')
+  ...           assessment_import_dir='{sys_prefix}/src/rex.assessment_import/build/sandbox')
   >>> app.on()
 
   >>> input = ImportPackage.from_directory(path='./test/data/errors/eeg-upload0',

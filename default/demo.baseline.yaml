@@ -1,7 +1,7 @@
 project: rex.demo.baseline
 parameters:
   db: pgsql:demo.baseline
-  attach_dir: ./data/attach
+  attach_dir: "{sys_prefix}/data/attach"
   sendmail: "-"
 uwsgi:
   socket: ./run/socket

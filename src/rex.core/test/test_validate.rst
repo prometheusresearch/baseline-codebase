@@ -335,6 +335,8 @@ It fails on relative paths::
     ...
     rex.core.Error: Expected an absolute path but found:
         ./rel/path
+    <BLANKLINE>
+        (Hint: make it "{sys_prefix}/rel/path" to be relative to python env)
 
 Allows to use ``{sys.prefix}`` to refer to the Python environment prefix::
 

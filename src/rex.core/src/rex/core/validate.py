@@ -647,7 +647,11 @@ class PathVal(Validate):
     def __call__(self, value):
         value = self.validate(value)
         if not os.path.isabs(value):
-            raise Error("Expected an absolute path but found:", value)
+            value_fix = value[2:] if value.startswith("./") else value
+            value_fix = "{sys_prefix}/" + value_fix
+            hint = f'make it "{value_fix}" to be relative to python env'
+            info = f"{value}\n\n(Hint: {hint})"
+            raise Error("Expected an absolute path but found:", info)
         return value
 
 class ChoiceVal(Validate):

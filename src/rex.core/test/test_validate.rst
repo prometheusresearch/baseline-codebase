@@ -300,10 +300,8 @@ The whole input must match the pattern::
     >>> str_format_val('Hello, {unknown}!') # doctest: +ELLIPSIS
     Traceback (most recent call last):
     ...
-    rex.core.Error: While formatting string:
+    rex.core.Error: Found unknown key "unknown" while formatting string:
         Hello, {unknown}!
-    Found unknown key while formatting string:
-        unknown
 
 Otherwise it behaves similar to ``StrVal``::
 

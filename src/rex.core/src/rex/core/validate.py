@@ -627,9 +627,10 @@ class StrFormatVal(StrVal):
             value = value.format(**self.format_kwargs)
         except KeyError as err:
             key = err.args[0]
-            error = Error("While formatting string:", value)
-            error.wrap("Found unknown key while formatting string:", key)
-            raise error
+            raise Error(
+                f'Found unknown key "{key}" while formatting string:',
+                value
+            )
         return value
 
 

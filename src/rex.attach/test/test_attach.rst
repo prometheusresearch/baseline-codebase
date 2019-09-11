@@ -4,7 +4,9 @@
 
 .. contents:: Table of Contents
 
-    >>> import os.path
+::
+
+    >>> import os, os.path
     >>> here = lambda path: os.path.join(os.getcwd(), path)
 
 ``sanitize_filename()``

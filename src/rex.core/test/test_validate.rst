@@ -334,14 +334,22 @@ It fails on relative paths::
     rex.core.Error: Expected an absolute path but found:
         ./rel/path
     <BLANKLINE>
-        (Hint: make it "{sys_prefix}/rel/path" to be relative to python env)
+        (Hint: make it "{cwd}/rel/path" to be relative to the working dir)
 
-Allows to use ``{sys.prefix}`` to refer to the Python environment prefix::
+Allows to use ``{sys_prefix}`` to refer to the Python environment prefix::
 
     >>> import sys, os.path
 
     >>> relpath = path_val('{sys_prefix}/rel/path')
     >>> relpath == sys.prefix + '/rel/path'
+    True
+
+Allows to use ``{sys_prefix}`` to refer to the current working dir::
+
+    >>> import os
+
+    >>> relpath = path_val('{cwd}/rel/path')
+    >>> relpath == os.getcwd() + '/rel/path'
     True
 
 ``ChoiceVal``

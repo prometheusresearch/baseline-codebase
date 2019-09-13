@@ -70,11 +70,17 @@ class NotebookConvert(RexTask):
     name = "notebook-nbconvert"
 
     class arguments:
-        notebook = argument()
+        notebook = argument(plural=True)
 
     class options:
         to = option(
             None, StrVal(), default="html", hint="The export format to be used"
+        )
+        output = option(
+            None, StrVal(), default=None, hint="Base name of the output file"
+        )
+        output_dir = option(
+            None, StrVal(), default=None, hint="Directory to write output files"
         )
         execute = option(
             None, BoolVal(), hint="Execute the notebook prior to export."
@@ -91,10 +97,10 @@ class NotebookConvert(RexTask):
             argv = [
                 self.no_input and "--no-input",
                 self.execute and "--execute",
-                "--to",
-                self.to,
-                self.notebook,
-            ]
+                self.output and f"--output='{self.output}'",
+                self.output_dir and f"--output-dir='{self.output_dir}'",
+                f"--to={self.to}",
+            ] + list(self.notebook)
             argv = [x for x in argv if x]
             sys.exit(RexNbConvertApp.launch_instance(argv=argv))
 

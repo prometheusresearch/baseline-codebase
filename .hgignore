@@ -13,7 +13,9 @@ js/coverage
 __pycache__
 .pytest_cache
 pip-wheel-metadata
-notebooks/.ipynb_checkpoints
+notebooks/**/.ipynb_checkpoints
+notebooks/**/*.html
+notebooks/**/*.pdf
 
 syntax: regexp
 ^.devmode$

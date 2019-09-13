@@ -11,6 +11,7 @@ from tornado import httpserver, httputil, routing
 from tornado.netutil import bind_unix_socket
 
 from notebook.notebookapp import NotebookApp, NotebookWebApplication
+from nbconvert import nbconvertapp
 from nbstripout import strip_output
 from nbformat import from_dict
 from . import kernel
@@ -80,7 +81,7 @@ class RexNotebookWebApplication(routing.Router):
                 "default_url": base_url
                 + self.settings.get("default_url", "tree"),
                 "terminals_enabled": False,
-                "kernel_spec_manager_class": kernel.Manager,
+                "kernel_spec_manager_class": kernel.KernelSpecManager,
             }
             app = RexNotebookApp(**settings)
             app.initialize(argv=[])
@@ -134,3 +135,11 @@ class RexNotebookApp(NotebookApp):
     def init_webapp(self):
         # skip this step as we don't want to init httpserver here
         pass
+
+
+class RexNbConvertApp(nbconvertapp.NbConvertApp):
+    def __init__(self, **settings):
+        super(RexNbConvertApp, self).__init__(**settings)
+        self.config["ExecutePreprocessor"].update(
+            {"kernel_manager_class": kernel.KernelManager}
+        )

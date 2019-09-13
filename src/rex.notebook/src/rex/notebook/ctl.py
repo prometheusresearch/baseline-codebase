@@ -12,11 +12,11 @@ import os
 
 from rex.ctl import RexTask, option, argument, log
 from rex.core import Error, Setting, get_settings
-from rex.core import PathVal, StrVal, IntVal, RecordVal
+from rex.core import BoolVal, PathVal, StrVal, IntVal, RecordVal
 from rex.db import get_db
 
 from .kernel import Kernel
-from .notebook import RexNotebookWebApplication
+from .notebook import RexNotebookWebApplication, RexNbConvertApp
 
 __all__ = ()
 
@@ -62,6 +62,41 @@ class NotebookKernel(RexTask):
                 raise Error("Unknown jupyter kernel:", self.name)
             kernel = kernel_cls()
             kernel.start(self.connection_file)
+
+
+class NotebookConvert(RexTask):
+    """ Convert Jupyter notebook (wraps nbconvert)."""
+
+    name = "notebook-nbconvert"
+
+    class arguments:
+        notebook = argument()
+
+    class options:
+        to = option(
+            None, StrVal(), default="html", hint="The export format to be used"
+        )
+        execute = option(
+            None, BoolVal(), hint="Execute the notebook prior to export."
+        )
+        no_input = option(
+            None,
+            BoolVal(),
+            hint="Exclude input cells and output prompts from converted document. This mode is ideal for generating code-free reports.",
+        )
+
+    def __call__(self):
+        rex = self.make(initialize=False)
+        with rex:
+            argv = [
+                self.no_input and "--no-input",
+                self.execute and "--execute",
+                "--to",
+                self.to,
+                self.notebook,
+            ]
+            argv = [x for x in argv if x]
+            sys.exit(RexNbConvertApp.launch_instance(argv=argv))
 
 
 class Notebook(RexTask):

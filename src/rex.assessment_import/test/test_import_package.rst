@@ -164,7 +164,7 @@ exception to import.log file, copied failed input data to the path
 
   >>> app.off()
   >>> app = Rex('rex.assessment_import_demo',
-  ...           assessment_import_dir='{sys_prefix}/src/rex.assessment_import/build/sandbox')
+  ...           assessment_import_dir='{cwd}/build/sandbox')
   >>> app.on()
   >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest0.xls')
   Traceback (most recent call last):

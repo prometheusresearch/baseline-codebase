@@ -42,7 +42,7 @@ Use parameter ``attach_dir`` to specify the directory::
 
     >>> demo = Rex(
     ...     'rex.attach_demo',
-    ...     attach_dir=os.path.join(os.getcwd(), 'sandbox/attachments')
+    ...      attach_dir='{cwd}/sandbox/attachments'
     ... )
 
 Now you can use function ``get_storage()`` to get an attachment storage

@@ -12,6 +12,7 @@ tests:
     auto-data: true
 
   - sh: pip install --quiet --editable ./demo
+    ignore: true
 
   - sh: rex dropdb --quiet rex.tabular_import_demo
   - sh: rex deploy --quiet rex.tabular_import_demo

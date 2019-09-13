@@ -1,6 +1,6 @@
 db: pgsql:tabular_import_demo
 asynctask_transport: pgsql:tabular_import_demo
-attach_dir: ./build/sandbox
+attach_dir: "{cwd}/build/sandbox"
 htsql_extensions:
   rex_deploy:
   tweak.etl:

@@ -8,7 +8,7 @@ used within the ``urlmap.yaml`` or ``menu.yaml``::
   >>> from rex.dbgui import DBGUI
   >>> from webob import Request
   >>> from rex.core import Rex
-  >>> app = Rex('rex.dbgui_demo', db='pgsql:dbgui_demo', attach_dir='./build')
+  >>> app = Rex('rex.dbgui_demo', db='pgsql:dbgui_demo', attach_dir='{cwd}/build')
   >>> def render(widget, url):
   ...     with app:
   ...         req = Request.blank(url, accept='application/json')

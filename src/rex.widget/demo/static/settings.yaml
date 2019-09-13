@@ -1,4 +1,4 @@
 db: pgsql:widget_demo
-attach_dir: ./demo/static/attachments/
+attach_dir: "{cwd}/demo/static/attachments/"
 htsql_extensions:
     rex_deploy:

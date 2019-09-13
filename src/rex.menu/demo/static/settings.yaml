@@ -10,7 +10,7 @@ access_queries:
   user_access: user[$USER].user_access
   phi_access: user[$USER].phi_access
 
-attach_dir: .
+attach_dir: "{cwd}"
 
 rex_widget:
   chrome: rex.widget_chrome.MenuChrome

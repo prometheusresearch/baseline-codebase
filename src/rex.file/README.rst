@@ -34,7 +34,7 @@ and be writable.
 ::
 
     >>> from rex.core import Rex
-    >>> demo = Rex('rex.file_demo', attach_dir='./build/attach_dir')
+    >>> demo = Rex('rex.file_demo', attach_dir='{cwd}/build/attach_dir')
     >>> demo.on()
 
 :mod:`rex.file` creates a table called ``file`` which contains metadata for the

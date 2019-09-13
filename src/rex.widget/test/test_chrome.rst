@@ -11,7 +11,7 @@ configured chrome widget::
   >>> from rex.widget.chrome import get_chrome
 
   >>> with Rex('rex.widget', db='pgsql:widget_demo',
-  ...                        attach_dir='./demo/static/attachments/'):
+  ...                        attach_dir='{cwd}/demo/static/attachments/'):
   ...   get_chrome()
   rex.widget.chrome.Chrome
 

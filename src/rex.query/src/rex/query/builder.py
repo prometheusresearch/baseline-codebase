@@ -79,6 +79,10 @@ class Param(abc.ABC):
 
 
 class Q:
+    """ Query Builder API
+
+    This class is designed to be subclassed but only adding methods is allowed.
+    """
 
     __slots__ = ("db", "syn", "params")
 
@@ -93,187 +97,187 @@ class Q:
     def navigate(self, name):
         if self.syn is None:
             syn = ApplySyntax("navigate", [LiteralSyntax(name)])
-            return Q(db=self.db, syn=syn, params=self.params)
+            return self.__class__(db=self.db, syn=syn, params=self.params)
         else:
             syn = ApplySyntax(
                 ".", [self.syn, ApplySyntax("navigate", [LiteralSyntax(name)])]
             )
-            return Q(db=self.db, syn=syn, params=self.params)
+            return self.__class__(db=self.db, syn=syn, params=self.params)
 
     def filter(self, q):
-        q = lift(q)
+        q = lift(q, q_cls=self.__class__)
         syn = ApplySyntax("filter", [self.syn, q.syn])
         params = Param.merge(self.params, q.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def group(self, **by):
         syns = [self.syn]
         params = self.params
         for k, v in by.items():
-            v = lift(v)
+            v = lift(v, q_cls=self.__class__)
             params = Param.merge(params, v.params)
             syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
         syn = ApplySyntax("group", syns)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def define(self, **what):
         base = self.syn if self.syn is not None else ApplySyntax("here", [])
         syns = [base]
         params = self.params
         for k, v in what.items():
-            v = lift(v)
+            v = lift(v, q_cls=self.__class__)
             params = Param.merge(params, v.params)
             syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
         syn = ApplySyntax("define", syns)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def let(self, name, value):
         base = self.syn if self.syn is not None else ApplySyntax("here", [])
-        value = lift(value)
+        value = lift(value, q_cls=self.__class__)
         params = Param.merge(self.params, v.params)
         syn = ApplySyntax("let", [LiteralSyntax(name), value.syn])
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def select(self, **what):
         syns = [self.syn]
         params = self.params
         for k, v in what.items():
-            v = lift(v)
+            v = lift(v, q_cls=self.__class__)
             params = Param.merge(params, v.params)
             syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
         syn = ApplySyntax("select", syns)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def matches(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("~", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __add__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("+", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __radd__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("+", [other.syn, self.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __sub__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("-", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __rsub__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("-", [other.syn, self.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __mul__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("*", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __rmul__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("*", [other.syn, self.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __truediv__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("/", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __rtruediv__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("/", [other.syn, self.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __gt__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax(">", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __ge__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax(">=", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __lt__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("<", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __le__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("<=", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __eq__(self, other):
         syns = [self.syn]
         if not isinstance(other, str) and isinstance(other, Iterable):
             params = self.params
             for o in other:
-                o = lift(o)
+                o = lift(o, q_cls=self.__class__)
                 syns.append(o.syn)
                 params = Param.merge(params, o.params)
         else:
-            other = lift(other)
+            other = lift(other, q_cls=self.__class__)
             syns.append(other.syn)
             params = Param.merge(self.params, other.params)
         syn = ApplySyntax("=", syns)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __ne__(self, other):
         syns = [self.syn]
         if not isinstance(other, str) and isinstance(other, Iterable):
             params = self.params
             for o in other:
-                o = lift(o)
+                o = lift(o, q_cls=self.__class__)
                 syns.append(o.syn)
                 params = Param.merge(params.params, o.params)
         else:
-            other = lift(other)
+            other = lift(other, q_cls=self.__class__)
             syns.append(other.syn)
             params = Param.merge(self.params, other.params)
         syn = ApplySyntax("!=", syns)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __and__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("&", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __or__(self, other):
-        other = lift(other)
+        other = lift(other, q_cls=self.__class__)
         syn = ApplySyntax("|", [self.syn, other.syn])
         params = Param.merge(self.params, other.params)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def __invert__(self):
         syn = ApplySyntax("!", [self.syn])
-        return Q(db=self.db, syn=syn, params=self.params)
+        return self.__class__(db=self.db, syn=syn, params=self.params)
 
     def take(self, limit, offset=None):
         syns = [self.syn, LiteralSyntax(limit)]
         if offset is not None:
             syns.append(LiteralSyntax(offset))
         syn = ApplySyntax("take", syns)
-        return Q(db=self.db, syn=syn, params=self.params)
+        return self.__class__(db=self.db, syn=syn, params=self.params)
 
     def __str__(self):
         return str(self.syn)
@@ -296,13 +300,16 @@ class Q:
             # SYNTAX: q.func(...)
             if self.syn.op == "navigate":
                 name = extract_navigate(self.syn)
-                others = [lift(q) for q in others]
+                others = [lift(q, q_cls=self.__class__) for q in others]
             # SYNTAX: q.table.func(...)
             elif self.syn.op == ".":
                 name = extract_navigate(self.syn.args[1])
-                others = [lift(q) for q in others]
+                others = [lift(q, q_cls=self.__class__) for q in others]
                 others.insert(
-                    0, Q(db=self.db, syn=self.syn.args[0], params={})
+                    0,
+                    self.__class__(
+                        db=self.db, syn=self.syn.args[0], params={}
+                    ),
                 )
             else:
                 raise Error("not a function")
@@ -312,7 +319,7 @@ class Q:
             syns.append(o.syn)
             params = Param.merge(params, o.params)
         syn = ApplySyntax(name, syns)
-        return Q(db=self.db, syn=syn, params=params)
+        return self.__class__(db=self.db, syn=syn, params=params)
 
     def produce(self, variables=None, db=None):
         """ Execute query and return product.
@@ -387,63 +394,19 @@ class Q:
         """
         return self.produce(variables=variables, db=db).data
 
-    def to_df(self, variables=None, db=None):
-        """ Execute query and produce :class:`pandas.DataFrame`.
-        """
-        try:
-            import pandas as pd
-            import numpy as np  # pandas depends on numpy
-        except ImportError:
-            raise Error("Q.to_df() requires `pandas` package to be installed")
-        product = self.produce(variables=variables, db=db)
 
-        data = product.data
-        dom = product.meta.domain
-        if not isinstance(dom, domain.ListDomain):
-            dom = domain.ListDomain(dom)
-            data = [data]
-
-        def domain_to_dtype(dom):
-            if isinstance(dom, domain.DateDomain):
-                return "datetime64[ns]"
-            elif isinstance(dom, domain.DateTimeDomain):
-                return "datetime64[ns]"
-            elif isinstance(dom, domain.BooleanDomain):
-                return np.bool
-            elif isinstance(dom, domain.IntegerDomain):
-                return pd.Int64Dtype()  # this can handle None values
-            elif isinstance(dom, domain.FloatDomain):
-                return np.float
-            elif isinstance(dom, domain.EnumDomain):
-                return "category"
-            else:
-                return "object"
-
-        if isinstance(dom.item_domain, domain.RecordDomain):
-            columns = []
-            dtypes = {}
-            for field in dom.item_domain.fields:
-                columns.append(field.tag)
-                dtypes[field.tag] = domain_to_dtype(field.domain)
-            df = pd.DataFrame(data=data, columns=columns)
-            df = df.astype(dtypes)
-            return df
-        else:
-            df = pd.DataFrame(data=data)
-            df = df.astype(domain_to_dtype(dom.item_domain))
-            return df
-
-
-def lift(v):
-    if isinstance(v, Q):
+def lift(v, q_cls=Q):
+    if isinstance(v, q_cls):
         return v
+    if isinstance(v, Q):
+        return q_cls(db=v.db, syn=v.syn, params=v.params)
     elif isinstance(v, Param):
         syn = ApplySyntax("var", [LiteralSyntax(v.name)])
-        return Q(syn=syn, params={v.name: v})
+        return q_cls(syn=syn, params={v.name: v})
     elif v is None:
-        return Q(syn=LiteralSyntax(v))
+        return q_cls(syn=LiteralSyntax(v))
     elif isinstance(v, (bool, int, str, float, Decimal, date)):
-        return Q(syn=LiteralSyntax(v))
+        return q_cls(syn=LiteralSyntax(v))
     else:
         raise Error("Unable to create a query of value:", repr(v))
 

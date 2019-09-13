@@ -26,7 +26,7 @@ While validating setting:
 While initializing RexDB application:
     rex.storage
 With parameters:
-    storage_credentials: {'local': {'key': '{sys_prefix}/src/rex.storage/test-storage'}}
+    storage_credentials: {'local': {'key': '{cwd}/test-storage'}}
     storage_mount: {'/': 'local://x/1', '../some/path': 'local://x/2', '/bad-url': 'azure://some/path', '/bad-url-2': 'some-junk-here', '/good/': 'local://x/1', '/good': 'local://x/2'}'''
 
 snapshots['test_mount_ok 1'] = {

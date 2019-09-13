@@ -4,11 +4,6 @@
 
 .. contents:: Table of Contents
 
-::
-
-    >>> import os, os.path
-    >>> here = lambda path: os.path.join(os.getcwd(), path)
-
 ``sanitize_filename()``
 =======================
 
@@ -51,14 +46,14 @@ should be writable::
         attach_dir, attach_gcs_bucket, attach_s3_bucket
     ...
 
-    >>> Rex('rex.attach_demo', attach_dir=here("./sandbox/missing"))      # doctest: +ELLIPSIS
+    >>> Rex('rex.attach_demo', attach_dir="{cwd}/sandbox/missing")      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     rex.core.Error: Attachment storage must be an existing directory:
         /.../sandbox/missing
     ...
 
-    >>> demo = Rex('rex.attach_demo', attach_dir=here("./sandbox/attachments"))
+    >>> demo = Rex('rex.attach_demo', attach_dir="{cwd}/sandbox/attachments")
 
 To manage attachment, obtain a storage object::
 
@@ -151,7 +146,7 @@ directly.  By default, it is disabled::
 To enable the service, you should set the permission for the ``rex.attach``
 package using ``access`` setting::
 
-    >>> download_demo = Rex('rex.attach_demo', attach_dir=here("./sandbox/attachments"),
+    >>> download_demo = Rex('rex.attach_demo', attach_dir="{cwd}/sandbox/attachments",
     ...                     access={'rex.attach': 'authenticated'})
 
 Requests must have the required permission::

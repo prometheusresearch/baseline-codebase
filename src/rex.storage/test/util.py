@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 
-storage_path = '{sys_prefix}/src/rex.storage/test-storage'
+storage_path = '{cwd}/test-storage'
 STORAGE_PATH = Path('./test-storage').resolve(strict=False)
 test_input_path = f"./test-storage/test-input"
 TEST_INPUT_PATH = Path(test_input_path).resolve(strict=False)

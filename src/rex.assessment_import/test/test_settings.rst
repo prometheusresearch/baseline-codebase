@@ -32,7 +32,7 @@ application start fails::
 Application successfully started, when directory exists and accessable::
 
   >>> app = Rex('rex.assessment_import_demo',
-  ...           assessment_import_dir='{sys_prefix}/src/rex.assessment_import/build/sandbox')
+  ...           assessment_import_dir='{cwd}/build/sandbox')
 
 Application successfully started, when setting assessment_import_dir has
 no value (failed imports won't be saved)::

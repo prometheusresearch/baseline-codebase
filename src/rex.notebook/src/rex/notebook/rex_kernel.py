@@ -13,6 +13,7 @@ import ipykernel.embed
 import pandas as pd
 import numpy as np
 
+from traitlets.config.loader import Config
 from htsql.core import domain
 
 from .kernel import Kernel, KernelSpec
@@ -49,9 +50,10 @@ class RexKernel(Kernel):
             "get_mart_by_definition": v1.get_mart_db,
             "produce": produce,
         }
+        config = Config(InteractiveShellApp=Config(matplotlib="inline"))
         try:
             ipykernel.embed.embed_kernel(
-                local_ns=ns, connection_file=connection_file
+                local_ns=ns, connection_file=connection_file, config=config
             )
         finally:
             self.cleanup()

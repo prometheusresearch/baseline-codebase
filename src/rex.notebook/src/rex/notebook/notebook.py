@@ -34,6 +34,14 @@ class NoAuthorization(httputil.HTTPMessageDelegate):
 
 
 class RexNotebookWebApplication(routing.Router):
+    @classmethod
+    def make_with_unix_socket(cls, unix_socket, **kwargs):
+        return cls(port=None, host=None, unix_socket=unix_socket, **kwargs)
+
+    @classmethod
+    def make_with_host_port(cls, host, port, **kwargs):
+        return cls(port=port, host=host, unix_socket=None, **kwargs)
+
     def __init__(
         self, port, host, unix_socket, settings, user_allowed, remote_user=None
     ):

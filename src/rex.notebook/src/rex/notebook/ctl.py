@@ -12,7 +12,7 @@ import os
 
 from rex.ctl import RexTask, option, argument, log
 from rex.core import Error, Setting, get_settings
-from rex.core import StrVal, IntVal, RecordVal
+from rex.core import PathVal, StrVal, IntVal, RecordVal
 from rex.db import get_db
 
 from .kernel import Kernel
@@ -20,20 +20,25 @@ from .notebook import RexNotebookWebApplication
 
 __all__ = ()
 
+default_notebook_dir = PathVal()("{sys_prefix}/notebooks")
+
 
 class RexNotebookSetting(Setting):
     """ Settings for rex.notebook.
     """
 
     validate = RecordVal(
-        ("notebook_dir", StrVal(), None),
+        ("notebook_dir", PathVal(), default_notebook_dir),
         ("port", IntVal(), None),
         ("host", StrVal(), None),
-        ("unix_socket", StrVal(), None),
+        ("unix_socket", PathVal(), None),
     )
     name = "rex_notebook"
     default = validate.record_type(
-        notebook_dir=None, port=None, host=None, unix_socket=None
+        notebook_dir=default_notebook_dir,
+        port=None,
+        host=None,
+        unix_socket=None,
     )
 
 
@@ -121,10 +126,7 @@ class Notebook(RexTask):
             host = self.host or settings.host or "127.0.0.1"
             unix_socket = self.unix_socket or settings.unix_socket
 
-            app = RexNotebookWebApplication(
-                port=port,
-                host=host,
-                unix_socket=unix_socket,
+            kwargs = dict(
                 settings=dict(
                     notebook_dir=notebook_dir,
                     open_browser=False,
@@ -134,8 +136,20 @@ class Notebook(RexTask):
                 user_allowed=self.user,
                 remote_user=self.remote_user,
             )
-            if unix_socket:
+
+            # Make sure we can override unix socket via command line options
+            use_unix_socket = unix_socket and not self.port or self.host
+
+            if use_unix_socket:
+                app = RexNotebookWebApplication.make_with_unix_socket(
+                    unix_socket=unix_socket, **kwargs
+                )
                 log("Rex Notebook is listening on `{}`", unix_socket)
             else:
+                app = RexNotebookWebApplication.make_with_host_port(
+                    host=host, port=port, **kwargs
+                )
                 log("Rex Notebook is listening on `{}:{}`", host, port)
+
+            log("             has notebooks dir set to `{}`", notebook_dir)
             app.start()

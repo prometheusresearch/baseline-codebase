@@ -2,6 +2,7 @@
 import pytest
 import util
 from rex.core import Rex, get_settings, Error
+from rex.storage.settings import StorageCredentials
 
 
 def setup_module():
@@ -14,7 +15,7 @@ def teardown_module():
 def test_empty():
     with Rex('rex.storage'):
         settings = get_settings()
-        assert settings.storage_credentials == {}
+        assert settings.storage_credentials == StorageCredentials.default
         assert settings.storage_mount == {}
 
 

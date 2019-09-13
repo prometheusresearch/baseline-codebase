@@ -3,8 +3,8 @@ import shutil
 from pathlib import Path
 
 
-storage_path = './test-storage'
-STORAGE_PATH = Path(storage_path).resolve(strict=False)
+storage_path = '{cwd}/test-storage'
+STORAGE_PATH = Path('./test-storage').resolve(strict=False)
 test_input_path = f"./test-storage/test-input"
 TEST_INPUT_PATH = Path(test_input_path).resolve(strict=False)
 

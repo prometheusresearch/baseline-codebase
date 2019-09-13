@@ -40,7 +40,10 @@ Use parameter ``attach_dir`` to specify the directory::
 
     >>> from rex.core import Rex
 
-    >>> demo = Rex('rex.attach_demo', attach_dir='./sandbox/attachments')
+    >>> demo = Rex(
+    ...     'rex.attach_demo',
+    ...      attach_dir='{cwd}/sandbox/attachments'
+    ... )
 
 Now you can use function ``get_storage()`` to get an attachment storage
 object::
@@ -50,8 +53,8 @@ object::
     >>> with demo:
     ...     storage = get_storage()
 
-    >>> storage
-    LocalStorage('./sandbox/attachments')
+    >>> storage # doctest: +ELLIPSIS
+    LocalStorage('/.../sandbox/attachments')
 
 You can use the storage object to add, access and remove attachments::
 

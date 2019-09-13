@@ -1,26 +1,28 @@
 
-from rex.core import Error, MapVal, AnyVal, ChoiceVal, Setting, StrVal
+from rex.core import (
+    Error, RecordVal, MapVal, AnyVal, ChoiceVal, Setting, StrVal,
+    PathVal, MaybeVal)
 
-from .driver import DRIVERS
-from .util import normalize_mount_point, normalize_storage
+from .util import (
+    normalize_mount_point,
+    StorageVal,
+    ServiceConfigVal,
+)
 from .errors import StorageError
-
-ServiceVal = ChoiceVal(*DRIVERS.keys())
 
 class StorageCredentials(Setting):
     """
     The default credentials for storage drivers.
-    Mapping, following keys are possible:
-    - s3: Amazon S3
-    - gcs: Google Cloud Service
-    - local: local file system
-    The values for each key are specific to a service.
-    All the keys can be present at the same time.
     """
 
     name = 'storage_credentials'
-    validate = MapVal(ServiceVal, MapVal(StrVal(), AnyVal()))
-    default = {}
+    validate = RecordVal(
+            ('s3', MaybeVal(MapVal(StrVal(), AnyVal())), None),
+            ('gcs', MaybeVal(MapVal(StrVal(), AnyVal())), None),
+            ('rex', MaybeVal(ServiceConfigVal()), None),
+            ('local', MaybeVal(ServiceConfigVal()), None),
+    )
+    default = validate.record_type(s3=None, gcs=None, local=None, rex=None)
 
 
 class StorageMount(Setting):
@@ -51,7 +53,7 @@ class StorageMount(Setting):
         for (path, storage) in value.items():
             try:
                 mount_point = normalize_mount_point(path)
-                storage = normalize_storage(storage)
+                storage = StorageVal()(storage)
             except StorageError as e:
                 errors.append(e.message)
                 continue

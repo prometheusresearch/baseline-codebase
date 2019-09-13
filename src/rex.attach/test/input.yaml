@@ -8,6 +8,7 @@ tests:
 - coverage: setup.cfg
 
 - sh: pip install -q -e ./demo
+  ignore: true
 - mkdir: ./sandbox
 - sh: rex deploy -q rex.attach_demo
 
@@ -15,6 +16,7 @@ tests:
 - doctest: test/test_attach.rst
 
 - sh: pip uninstall -q -y rex.attach_demo
+  ignore: true
 - rmdir: ./sandbox
 
 - coverage-check: 55.0

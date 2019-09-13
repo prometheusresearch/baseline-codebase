@@ -10,7 +10,7 @@ examples of the simple schema which includes trunk, branch, cross and facets::
   >>> from rex.core import Rex
   >>> from rex.dbgui import root_wizard, table_wizard
   >>> import yaml
-  >>> app = Rex('rex.dbgui_demo', db='pgsql:dbgui_demo', attach_dir='./build')
+  >>> app = Rex('rex.dbgui_demo', db='pgsql:dbgui_demo', attach_dir='{cwd}/build')
   >>> def print_wizard(table):
   ...     with app:
   ...         wizard = table_wizard(table)

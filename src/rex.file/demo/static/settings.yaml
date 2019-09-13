@@ -1,4 +1,4 @@
 db: pgsql:file_demo
-attach_dir: ./build/attach_dir
+attach_dir: "{cwd}/build/attach_dir"
 htsql_extensions:
   rex_deploy: {}

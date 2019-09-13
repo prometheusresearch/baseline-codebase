@@ -19,20 +19,20 @@ application start fails::
   >>> from rex.assessment_import.template import Template
 
 
-  >>> app = Rex('rex.assessment_import_demo', assessment_import_dir='errors')
+  >>> app = Rex('rex.assessment_import_demo', assessment_import_dir='/x-errors')
   Traceback (most recent call last):
   ...
   rex.core.Error: Asessment import storage (assessment_import_dir) does not exist:
-      errors
+      /x-errors
   While initializing RexDB application:
       rex.assessment_import_demo
   With parameters:
-      assessment_import_dir: 'errors'
+      assessment_import_dir: '/x-errors'
 
 Application successfully started, when directory exists and accessable::
 
   >>> app = Rex('rex.assessment_import_demo',
-  ...           assessment_import_dir='./build/sandbox')
+  ...           assessment_import_dir='{cwd}/build/sandbox')
 
 Application successfully started, when setting assessment_import_dir has
 no value (failed imports won't be saved)::

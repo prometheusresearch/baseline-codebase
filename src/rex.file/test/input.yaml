@@ -8,6 +8,7 @@ tests:
 - coverage: setup.cfg
 
 - sh: pip install -q -e ./demo
+  ignore: true
 - sh: rex dropdb -q rex.file_demo
 - sh: rex deploy -q rex.file_demo
 - mkdir: ./build/attach_dir

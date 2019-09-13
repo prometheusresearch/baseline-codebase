@@ -1,5 +1,9 @@
 import re
 
+from rex.core import (
+    Validate, Error,
+    RecordVal, UnionVal, PathVal, MapVal, OnScalar, OnMap, StrVal, AnyVal
+)
 from .errors import StorageError
 from .driver import DRIVERS
 
@@ -16,23 +20,50 @@ def parse_url(url):
         raise StorageError(f'No driver for `{url}`. Use one of: {drivers}')
     return (service, match.group('container'), match.group('path'))
 
-def normalize_url(url):
-    url = url.strip()
-    parse_url(url)
-    return url
 
-def normalize_storage(storage):
-    if isinstance(storage, str):
-        storage = {'url': storage}
-    if not isinstance(storage, dict):
-        raise StorageError(f'Expected string or dict, got: `{storage}`')
-    if 'url' not in storage:
-        raise StorageError(f'Expected `"url"` key: `{storage}`')
-    if not storage['url'].endswith('/'):
-        storage['url'] += '/'
-    storage['url'] = normalize_url(storage['url'])
-    return storage
+novalue = object()
 
+class ServiceConfigVal(Validate):
+
+    _validate = RecordVal(
+        ('key', PathVal(), novalue),
+        ('secret', StrVal(), novalue),
+        ('salt', StrVal(), novalue),
+    )
+
+    def __call__(self, value):
+        value = self._validate(value)
+        value = value._asdict()
+        for k, v in list(value.items()):
+            if v is novalue:
+                del value[k]
+        return value
+
+
+class StorageVal(Validate):
+
+    storage_val_pre = UnionVal(
+        (OnMap, MapVal(StrVal(), AnyVal())),
+        (OnScalar, StrVal()),
+    )
+
+    def __call__(self, storage):
+        storage = self.storage_val_pre(storage)
+        if isinstance(storage, str):
+            url = storage
+            config = {}
+        else:
+            if 'url' not in storage:
+                raise Error(f'Expected `"url"` key:', storage)
+            url = storage.pop('url')
+            config = storage
+        if not url.endswith('/'):
+            url += '/'
+        url = url.strip()
+        service, _container, _path = parse_url(url)
+        if service in ('local', 'rex'):
+            config = ServiceConfigVal()(config)
+        return {**config, 'url': url}
 
 def normalize_path(path):
     path = path.strip()

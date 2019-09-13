@@ -14,7 +14,9 @@ tests:
     auto-data: true
 
   - sh: pip install --quiet --editable ../rex.instrument/demo
+    ignore: true
   - sh: pip install --quiet --editable ./demo
+    ignore: true
 
   - sh: rex dropdb --quiet rex.assessment_import_demo
   - sh: rex deploy --quiet rex.assessment_import_demo

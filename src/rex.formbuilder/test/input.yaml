@@ -7,8 +7,11 @@ tests:
   - coverage: setup.cfg
 
   - sh: pip install --quiet --editable ../rex.instrument/demo
+    ignore: true
   - sh: pip install --quiet --editable ../rex.forms/demo
+    ignore: true
   - sh: pip install --quiet --editable ./demo
+    ignore: true
 
   - sh: rex dropdb --quiet rex.formbuilder_demo
   - sh: rex deploy --quiet rex.formbuilder_demo

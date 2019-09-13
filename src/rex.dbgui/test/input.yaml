@@ -11,6 +11,7 @@ tests:
   auto-data: true
 
 - sh: pip install -q -e ./demo
+  ignore: true
 - sh: rex dropdb rex.dbgui_demo --set=db=pgsql:dbgui_demo
   ignore: true
 - sh: rex deploy rex.dbgui_demo --set=db=pgsql:dbgui_demo

@@ -9,7 +9,7 @@ This package provides a storage for uploaded files.
 
 
 from rex.core import (get_settings, Setting, Initialize, Validate, StrVal,
-        MaybeVal, Error, cached)
+        PathVal, MaybeVal, Error, cached)
 from rex.web import HandleLocation, authorize
 from webob import Response
 from webob.static import FileIter, BLOCK_SIZE
@@ -568,7 +568,7 @@ class AttachDirSetting(Setting):
     """
 
     name = 'attach_dir'
-    validate = StrVal()
+    validate = PathVal()
     default = None
 
 
@@ -650,7 +650,7 @@ class AttachGCSKeySetting(Setting):
         attach_gcs_key: /path/to/keyfile.json
     """
     name = 'attach_gcs_key'
-    validate = MaybeVal(StrVal())
+    validate = MaybeVal(PathVal())
     default = None
 
 

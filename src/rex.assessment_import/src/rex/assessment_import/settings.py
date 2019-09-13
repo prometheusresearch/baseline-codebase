@@ -1,5 +1,7 @@
 from collections import OrderedDict
-from rex.core import Setting, OMapVal, StrVal, BoolVal, RecordVal, SeqVal
+from rex.core import (
+    Setting, OMapVal, StrVal, PathVal, BoolVal, RecordVal, SeqVal
+)
 
 
 class AssessmentImportDir(Setting):
@@ -13,7 +15,7 @@ class AssessmentImportDir(Setting):
     """
 
     name = 'assessment_import_dir'
-    validate = StrVal()
+    validate = PathVal()
     default = None
 
 

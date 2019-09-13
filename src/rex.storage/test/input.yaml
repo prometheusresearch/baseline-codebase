@@ -12,6 +12,7 @@ tests:
   auto-data: true
 
 - sh: pip install --quiet --editable ./test/pkg
+  ignore: true
 
 - py: |
     # import rex.storage

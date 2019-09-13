@@ -52,6 +52,9 @@ class RexDriver(Driver):
     hash_type = 'md5'
     url = ''
 
+    def __init__(self):
+        super(RexDriver, self).__init__(key=None)
+
     def __iter__(self) -> Iterable[Container]:
         for package in _get_all_packages():
             yield self._make_container(package)

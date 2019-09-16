@@ -97,6 +97,19 @@ def test_sort():
     query.produce()
 
 
+def test_keep():
+    query = (
+        q.nation
+        .filter(q.id.text() == 'JAPAN')
+        .keep(this_nation=q.here())
+        .region
+        .nation
+        .filter(q.id == q.this_nation.id)
+        .name
+    )
+    assert query.to_data() == ['JAPAN']
+
+
 def test_with_db():
     """ We can use ``Q(db)`` to associate query with db at creation time."""
     db = get_db()

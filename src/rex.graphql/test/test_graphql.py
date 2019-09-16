@@ -2404,3 +2404,44 @@ def test_query_transform_at_root():
             "MIDDLE EAST!!!",
         ]
     }
+
+
+def test_query_keep():
+    nation = Entity("nation", fields=lambda: {"name": query(q.name)})
+    nation_name = argument("nation_name", type=scalar.String)
+    sch = schema(
+        fields=lambda: {
+            "nation": query(
+                q.nation.filter(q.name == nation_name)
+                .keep(this_nation=q.here())
+                .region.this_nation.first(),
+                type=nation,
+            ),
+            "nation_name": query(
+                q.nation.filter(q.name == nation_name)
+                .keep(this_nation=q.here())
+                .region.nation.filter(q.name == q.this_nation.name)
+                .name
+            ),
+            "nation_name_dup": query(
+                q.nation.filter(q.name == nation_name)
+                .keep(this_nation=q.here())
+                .region.nation.this_nation.name
+            ),
+        }
+    )
+    data = execute(
+        sch,
+        """
+        query {
+            nation(nation_name: "JAPAN") { name }
+            nation_name(nation_name: "JAPAN")
+            nation_name_dup(nation_name: "JAPAN")
+        }
+        """,
+    )
+    assert data == {
+        "nation": {"name": "JAPAN"},
+        "nation_name": ["JAPAN"],
+        "nation_name_dup": ["JAPAN"],
+    }

@@ -90,6 +90,23 @@ For complex expressions, we could define aliases with ``define``::
     ...         ["navigate", "name"], ["navigate", "country"]])     # doctest: +ELLIPSIS
     <Product ({'Supplier#000000001', 'PERU'}, {'Supplier#000000002', 'ETHIOPIA'}, ...)>
 
+To preserve the value of an expression for use with subsequent computations, we
+can use ``keep``::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["filter",
+    ...             [".",
+    ...                 ["keep",
+    ...                     ["here"],
+    ...                     ["=>", "max_customer_count", ["max", [".", ["navigate", "nation"],
+    ...                                                                ["count", ["navigate", "customer"]]]]]],
+    ...                 ["navigate", "nation"]],
+    ...             ["=", ["count", ["navigate", "customer"]], ["navigate", "max_customer_count"]]],
+    ...         ["navigate", "name"],
+    ...         ["=>", "customer_count", ["count", ["navigate", "customer"]]]])
+    <Product ({'BRAZIL', 63},)>
+
 Constants::
 
     >>> db.produce(["select", ["here"], None, True, 64, 3.14, "htsql"])

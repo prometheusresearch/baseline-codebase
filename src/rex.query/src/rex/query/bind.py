@@ -21,15 +21,16 @@ from htsql.core.syn.syntax import (
 from htsql.core.cmd.embed import Embed
 from htsql.core.tr.binding import (
         RootBinding, LiteralBinding, TableBinding, ChainBinding,
-        CollectBinding, SieveBinding, DefineBinding, IdentityBinding,
-        SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
-        TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
-        ImplicitCastBinding, WrappingBinding, RerouteBinding, LocateBinding,
-        FreeTableRecipe, AttachedTableRecipe, ColumnRecipe, KernelRecipe,
-        ComplementRecipe, ClosedRecipe)
+        CollectBinding, SieveBinding, DefineBinding, DefineReferenceBinding,
+        IdentityBinding, SortBinding, QuotientBinding, ComplementBinding,
+        ClipBinding, TitleBinding, DirectionBinding, FormulaBinding,
+        CastBinding, ImplicitCastBinding, WrappingBinding, RerouteBinding,
+        LocateBinding, FreeTableRecipe, AttachedTableRecipe, ColumnRecipe,
+        KernelRecipe, ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
 from htsql.core.tr.lookup import (
-        lookup_attribute, unwrap, guess_tag, identify, expand, direct)
+        lookup_reference, lookup_attribute, unwrap, guess_tag, identify,
+        expand, direct)
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
 from htsql.core.tr.signature import (
@@ -116,7 +117,8 @@ class RexBindingState(BindingState):
             method = getattr(self, 'bind_%s_op' % op, None)
             if method is None:
                 if not syntax.args and \
-                        lookup_attribute(self.scope, op) is not None:
+                        (lookup_reference(self.scope, op) is not None or
+                         lookup_attribute(self.scope, op) is not None):
                     return self.bind_navigate_op([LiteralSyntax(op)])
                 raise Error("Got undefined operation:", syntax.op)
             with guard("While processing:", syntax.op):
@@ -189,7 +191,9 @@ class RexBindingState(BindingState):
         name = args[0].val
         if name == 'id':
             return self.bind_id_op([])
-        recipe = lookup_attribute(self.scope, name)
+        recipe = lookup_reference(self.scope, name)
+        if recipe is None:
+            recipe = lookup_attribute(self.scope, name)
         if recipe is None:
             raise Error("Got unknown identifier:", name)
         syntax = IdentifierSyntax(to_name(name))
@@ -325,6 +329,29 @@ class RexBindingState(BindingState):
             syntax = base.binding.syntax
             binding = DefineBinding(
                     binding, tag, None, recipe, syntax)
+        return Output(binding, optional=base.optional, plural=base.plural)
+
+    def bind_keep_op(self, args):
+        if not (len(args) >= 1):
+            raise Error("Expected at least one argument,"
+                        " got:", ", ".join(map(str, args)))
+        base = self(args[0])
+        binding = base.binding
+        for arg in args[1:]:
+            self.push_scope(binding)
+            definition = self(arg)
+            self.pop_scope()
+            tag = guess_tag(definition.binding)
+            if tag is None:
+                raise Error("Expected a definition:",
+                            " got:", ", ".join(map(str, args)))
+            recipe = BindingRecipe(
+                    definition.binding,
+                    optional=definition.optional,
+                    plural=definition.plural)
+            syntax = base.binding.syntax
+            binding = DefineReferenceBinding(
+                    binding, tag, recipe, syntax)
         return Output(binding, optional=base.optional, plural=base.plural)
 
     def bind_sort_op(self, args):

@@ -116,6 +116,20 @@ class Q:
         syn = ApplySyntax("group", syns)
         return Q(db=self.db, syn=syn, params=params)
 
+    def here(self):
+        return Q(db=self.db, syn=ApplySyntax("here", []), params=self.params)
+
+    def keep(self, **what):
+        base = self.syn if self.syn is not None else ApplySyntax("here", [])
+        syns = [base]
+        params = self.params
+        for k, v in what.items():
+            v = lift(v)
+            params = Param.merge(params, v.params)
+            syns.append(ApplySyntax("=>", [LiteralSyntax(k), v.syn]))
+        syn = ApplySyntax("keep", syns)
+        return Q(db=self.db, syn=syn, params=params)
+
     def define(self, **what):
         base = self.syn if self.syn is not None else ApplySyntax("here", [])
         syns = [base]

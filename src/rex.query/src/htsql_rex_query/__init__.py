@@ -6,9 +6,12 @@
 from htsql.core.addon import Addon
 from htsql.core.adapter import adapt
 from htsql.core.tr.binding import (
-        Recipe, BindingRecipe, RerouteBinding, SelectionBinding)
+        Recipe, BindingRecipe, RootBinding, RerouteBinding, SelectionBinding)
 from htsql.core.tr.bind import BindByRecipe
-from htsql.core.tr.lookup import Lookup, ExpansionProbe
+from htsql.core.tr.lookup import (
+    Lookup, LookupReferenceInScoping,
+    ExpansionProbe, ReferenceProbe,
+    lookup, lookup_attribute)
 
 
 class SelectionBinding(SelectionBinding):
@@ -87,9 +90,35 @@ class ExpandSelection(Lookup):
             yield (element.syntax, recipe)
 
 
+class RexQueryReferenceProbe(ReferenceProbe):
+    # rex.query specific probe (adapters can specialise on that).
+    pass
+
+
+class RexQueryLookupReferenceInRoot(Lookup):
+
+    adapt(RootBinding, RexQueryReferenceProbe)
+
+    def __call__(self):
+        # Use bare HTSQL lookup ignoring extensions (htsql_rex is the one we are
+        # skipping specifically).
+        return LookupReferenceInScoping.__call__(self)
+
+
+def lookup_name(binding, name):
+    # Lookup for refence first.
+    probe = RexQueryReferenceProbe(name)
+    found = lookup(binding, probe)
+    # Fallback to attribute lookup.
+    if found is None:
+        found = lookup_attribute(binding, name)
+    return found
+
+
 class RexQueryAddon(Addon):
 
     name = 'rex_query'
     hint = """HTSQL rex.query extensions"""
+
 
 

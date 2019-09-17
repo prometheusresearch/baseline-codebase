@@ -29,7 +29,7 @@ from htsql.core.tr.binding import (
         KernelRecipe, ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
 from htsql.core.tr.lookup import (
-        lookup_reference, lookup_attribute, unwrap, guess_tag, identify,
+        unwrap, guess_tag, identify,
         expand, direct)
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
@@ -42,6 +42,7 @@ from htsql.core.tr.fn.signature import (
         AvgSig, ExtractYearSig, ExtractMonthSig, ExtractDaySig, ExtractHourSig,
         ExtractMinuteSig, ExtractSecondSig)
 from htsql_rex_query import (
+        lookup_name,
         SelectionBinding, BindingRecipe, DefinitionRecipe, SelectSyntaxRecipe)
 import decimal
 
@@ -116,9 +117,7 @@ class RexBindingState(BindingState):
             op = self.symbol_ops.get(syntax.op, syntax.op)
             method = getattr(self, 'bind_%s_op' % op, None)
             if method is None:
-                if not syntax.args and \
-                        (lookup_reference(self.scope, op) is not None or
-                         lookup_attribute(self.scope, op) is not None):
+                if not syntax.args and lookup_name(self.scope, op) is not None:
                     return self.bind_navigate_op([LiteralSyntax(op)])
                 raise Error("Got undefined operation:", syntax.op)
             with guard("While processing:", syntax.op):
@@ -191,9 +190,7 @@ class RexBindingState(BindingState):
         name = args[0].val
         if name == 'id':
             return self.bind_id_op([])
-        recipe = lookup_reference(self.scope, name)
-        if recipe is None:
-            recipe = lookup_attribute(self.scope, name)
+        recipe = lookup_name(self.scope, name)
         if recipe is None:
             raise Error("Got unknown identifier:", name)
         syntax = IdentifierSyntax(to_name(name))

@@ -1,7 +1,7 @@
 import pytest
 from rex.query import Q, q
-from rex.query.builder import to_htsql_syntax
-from rex.core import Rex
+from rex.query.builder import to_htsql_syntax, Param
+from rex.core import Rex, Error
 from rex.db import RexHTSQL, HTSQLVal, get_db
 
 
@@ -99,15 +99,37 @@ def test_sort():
 
 def test_keep():
     query = (
-        q.nation
-        .filter(q.id.text() == 'JAPAN')
+        q.nation.filter(q.id.text() == "JAPAN")
         .keep(this_nation=q.here())
-        .region
-        .nation
-        .filter(q.id == q.this_nation.id)
+        .region.nation.filter(q.id == q.this_nation.id)
         .name
     )
-    assert query.to_data() == ['JAPAN']
+    assert query.to_data() == ["JAPAN"]
+
+
+def test_variables():
+    class Arg(Param):
+        def __init__(self, name):
+            self.name = name
+
+        def __eq__(self, o):
+            return self.name == o.name
+
+        def with_type(self, _type):
+            return self
+
+    name = Arg("name")
+    query = q.region.filter(q.name == name).first().name
+    assert "name" in query.params
+    assert query.to_data(variables={"name": "ASIA"}) == "ASIA"
+    assert query.to_data(variables={"name": "AFRICA"}) == "AFRICA"
+    with pytest.raises(Error):
+        assert query.to_data()
+
+
+def test_user():
+    query = q.user.filter(q.name == "Jason").first().name
+    assert query.to_data() == "Jason"
 
 
 def test_with_db():

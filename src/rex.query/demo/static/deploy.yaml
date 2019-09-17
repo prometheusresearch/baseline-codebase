@@ -1,3 +1,11 @@
+- table: user
+  with:
+  - column: name
+    type: text
+  - identity: [name]
+  - data:
+    - name: Andrey
+    - name: Jason
 
 - table: region
   with:

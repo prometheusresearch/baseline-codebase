@@ -10,11 +10,11 @@
 """
 
 import json
-import jupyter_client.kernelspec
+import jupyter_client, jupyter_client.kernelspec
 
 from rex.core import get_rex, Extension
 
-__all__ = ("Kernel", "KernelSpec")
+__all__ = ("KernelManager", "KernelSpecManager", "KernelSpec")
 
 
 KernelSpec = jupyter_client.kernelspec.KernelSpec
@@ -50,9 +50,14 @@ class Kernel(Extension):
         raise NotImplementedError("Kernel.start()")
 
 
-class Manager(jupyter_client.kernelspec.KernelSpecManager):
+class KernelManager(jupyter_client.KernelManager):
+    def _kernel_spec_manager_default(self):
+        return KernelSpecManager(data_dir=self.data_dir)
+
+
+class KernelSpecManager(jupyter_client.kernelspec.KernelSpecManager):
     def __init__(self, *args, **kwargs):
-        super(Manager, self).__init__(*args, **kwargs)
+        super(KernelSpecManager, self).__init__(*args, **kwargs)
         rex = get_rex()
         self.specs = {}
         for k in Kernel.all():

@@ -163,6 +163,32 @@ class RexHTSQL(HTSQL):
         """
         return transaction(is_lazy=is_lazy)
 
+    @classmethod
+    def configure(cls, name=None):
+        # Build configuration from settings `db`, `htsql_extensions` and
+        # `htsql_base_extensions`.  Also include `rex` HTSQL addon.
+        settings = get_settings()
+        configuration = []
+        if name is None:
+            gateways = dict((key, cls.configure(key))
+                            for key in sorted(settings.gateways)
+                            if settings.gateways[key])
+            properties = settings.htsql_environment
+            timeout = settings.query_timeout
+            configuration = HTSQLVal.merge(
+                    {'rex': {
+                        'gateways': gateways,
+                        'properties': properties,
+                        'timeout': timeout }},
+                    settings.htsql_extensions,
+                    settings.db)
+        else:
+            gateway = settings.gateways.get(name)
+            if not gateway:
+                raise KeyError(name)
+            configuration = HTSQLVal.merge({'rex': {}}, gateway)
+        return cls(None, configuration)
+
 
 class PipeTransaction(Pipe):
     # Wraps HTTP request in a transaction.
@@ -207,28 +233,4 @@ def get_db(name=None):
         database.  Otherwise, returns the named gateway.  If the gateway
         is not configured, raises :exc:`KeyError`.
     """
-    # Build configuration from settings `db`, `htsql_extensions` and
-    # `htsql_base_extensions`.  Also include `rex` HTSQL addon.
-    settings = get_settings()
-    configuration = []
-    if name is None:
-        gateways = dict((key, get_db(key))
-                        for key in sorted(settings.gateways)
-                        if settings.gateways[key])
-        properties = settings.htsql_environment
-        timeout = settings.query_timeout
-        configuration = HTSQLVal.merge(
-                {'rex': {
-                    'gateways': gateways,
-                    'properties': properties,
-                    'timeout': timeout }},
-                settings.htsql_extensions,
-                settings.db)
-    else:
-        gateway = settings.gateways.get(name)
-        if not gateway:
-            raise KeyError(name)
-        configuration = HTSQLVal.merge({'rex': {}}, gateway)
-    return RexHTSQL(None, configuration)
-
-
+    return RexHTSQL.configure(name=name)

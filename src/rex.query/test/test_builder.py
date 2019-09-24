@@ -146,13 +146,6 @@ def test_to_data():
     assert q.region.count().to_data() == 5
 
 
-def test_to_df():
-    """ We can use ``.to_df()`` method to a dataframe."""
-    assert q.region.count().to_df()[0][0] == 5
-    assert q.region.to_df().name[0] == "AFRICA"
-    assert q.region.name.to_df()[0][0] == "AFRICA"
-
-
 def test_to_copy_stream(db):
     stream = q.region.to_copy_stream()
 

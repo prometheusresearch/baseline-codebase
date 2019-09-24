@@ -21,6 +21,7 @@ setup(
         "rex.db",
         "notebook == 6.0.0",
         "nbformat == 4.4.0",
+        "nbconvert == 5.6.0",
         "nbstripout == 0.3.6",
         "pandas == 0.25.1",
         "matplotlib == 3.1.1",

@@ -126,6 +126,7 @@ def get_mart_db(definition):
         .filter(q.status == "complete")
         .sort(q.date_creation_started.desc())
         .first()
+        .to_data()
     )
     if not data:
         raise rex.core.Error("No mart found for definition:", definition)

@@ -27,8 +27,14 @@ def with_rex(rex):
         yield
 
 
-def test_navigate():
+def test_navigate_getattr():
     query = q.region
+    assert str(to_htsql_syntax(query)) == "/region"
+    query.produce()
+
+
+def test_navigate_getitem():
+    query = q['region']
     assert str(to_htsql_syntax(query)) == "/region"
     query.produce()
 

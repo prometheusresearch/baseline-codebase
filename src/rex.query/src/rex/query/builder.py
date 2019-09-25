@@ -91,6 +91,9 @@ class Q:
         self.syn = syn
         self.params = params or {}
 
+    def __getitem__(self, name):
+        return self.navigate(name)
+
     def __getattr__(self, name):
         return self.navigate(name)
 

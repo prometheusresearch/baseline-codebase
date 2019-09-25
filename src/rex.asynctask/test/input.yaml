@@ -84,6 +84,6 @@ tests:
   - doctest: test/amqp/test_*.rst
     if: HAS_RABBIT
 
-  - coverage-check: 90.0
+  - coverage-check: 75.0
   - coverage-report: ./build/coverage
 

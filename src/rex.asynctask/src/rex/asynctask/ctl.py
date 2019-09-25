@@ -54,6 +54,13 @@ class AsyncTaskWorkerTask(RexTask):
             hint='if specified, no logging output will be produced',
         )
 
+        halt_when_empty = option(
+            None,
+            bool,
+            hint='if specified, workers will automatically stop running when'
+            ' they detect no more tasks are found in their queue.',
+        )
+
     def __init__(self, *args, **kwargs):
         super(AsyncTaskWorkerTask, self).__init__(*args, **kwargs)
         self._workers = {}
@@ -96,18 +103,25 @@ class AsyncTaskWorkerTask(RexTask):
                 try:
                     for queue_name, process in list(self._workers.items()):
                         if not process.is_alive():
-                            self.logger.error(
-                                'Worker for queue %s died; restarting...',
-                                queue_name,
-                            )
-                            self.build_worker(
-                                queue_name,
-                                worker_config[queue_name].worker,
-                            )
+                            if process.exitcode == 0 and self.halt_when_empty:
+                                self._workers.pop(queue_name)
+                            else:
+                                self.logger.error(
+                                    'Worker for queue %s died; restarting...',
+                                    queue_name,
+                                )
+                                self.build_worker(
+                                    queue_name,
+                                    worker_config[queue_name].worker,
+                                )
 
                     time.sleep(check_interval)
                 except KeyboardInterrupt:  # pragma: no cover
                     pass
+
+                if not self._workers:
+                    self.logger.info('All workers halted; closing down...')
+                    break
 
         self.logger.info('Complete')
 
@@ -128,7 +142,13 @@ class AsyncTaskWorkerTask(RexTask):
         parent_conn, child_conn = Pipe()
         self._connections[queue_name] = parent_conn
 
-        process = Process(target=worker, args=(child_conn, queue_name))
+        process = Process(
+            target=worker,
+            args=(child_conn, queue_name),
+            kwargs={
+                'halt_when_empty': self.halt_when_empty,
+            },
+        )
         self._workers[queue_name] = process
 
         self.logger.info(

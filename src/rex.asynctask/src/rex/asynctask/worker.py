@@ -54,7 +54,7 @@ class AsyncTaskWorker(Extension):
         self._transport = None
         self._queue_name = None
 
-    def __call__(self, conn, queue_name):
+    def __call__(self, conn, queue_name, halt_when_empty=False):
         self.logger.info('Starting; queue=%s', queue_name)
         self._transport = get_transport()
         self._queue_name = queue_name
@@ -76,6 +76,10 @@ class AsyncTaskWorker(Extension):
                     )
                 else:
                     self.logger.debug('Processing complete')
+
+            elif halt_when_empty:
+                self.logger.info('No tasks found in queue')
+                break
 
             else:
                 # No task to process, let's sleep a bit.

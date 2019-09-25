@@ -571,7 +571,7 @@ def prompt(msg):
     """Prompt the user for input."""
     value = ""
     while not value:
-        value = raw_input(msg+" ").strip()
+        value = input(msg+" ").strip()
     return value
 
 

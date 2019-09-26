@@ -18,7 +18,7 @@ import rex.db
 import rex.query
 import rex.core
 
-__all__ = ("get_db", "get_mart_db", "q")
+__all__ = ("get_db", "q")
 
 
 def domain_to_dtype(dom):
@@ -92,32 +92,48 @@ class RexNotebookHTSQL(rex.db.RexHTSQL):
 
 
 @rex.core.cached
-def get_db(name=None):
+def get_db(spec=None):
     """
     Builds and returns an HTSQL instance.
 
-    `name`
-        If ``name`` is not provided, returns the primary application
-        database.  Otherwise, returns the named gateway.  If the gateway
-        is not configured, raises :exc:`KeyError`.
+    ``spec``
+        If ``spec`` is not provided then the primary application database is
+        returned.
+
+        If ``spec`` is provided and in the fprm of database URI then it is
+        used to connect to the database.
+
+        If ``spec`` is provided and in the form of ``mart:DEFINITION`` then the
+        connection to a corresponding mart definition is created.
+
+        Otherwise, returns the named gateway.  If the gateway is not configured,
+        raises :exc:`KeyError`.
     """
-    return RexNotebookHTSQL.configure(name=name)
+    if spec is None:
+        return RexNotebookHTSQL.configure(name=spec)
+    if spec.startswith("mart:"):
+        definition = spec[5:] # stripping 'mart:' prefix here
+        return get_mart_db(definition)
+    else:
+        validate = rex.db.setting.HTSQLVal()
+        try:
+            uri = validate(spec)
+        except rex.core.Error:
+            uri = None
+        if uri is None:
+            return RexNotebookHTSQL.configure(name=spec)
+        else:
+            ext = {"rex_deploy": {}, "tweak.meta": {}}
+            uri = uri['htsql']['db']
+            return RexNotebookHTSQL(uri, ext)
 
 
 def get_mart_db(definition):
-    """
-    Builds and returns an HTSQL instance for the most recently generated mart.
-    If rex.mart package is not included with the app or no mart found for the
-    definition - this function will fail.
-
-    `definition`
-        Mart definition name.
-    """
     try:
-        from rex.mart import get_mart_db
+        import rex.mart
     except ImportError:
         raise rex.core.Error(
-            "RexMart package is not included with the application"
+            "rex.mart package is not included with the application"
         )
 
     db = get_db()

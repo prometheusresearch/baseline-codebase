@@ -1,19 +1,22 @@
-import json
-
 # Do it before importing tornado.
 from zmq.eventloop import ioloop
 
 ioloop.install()
 
-from rex.core import Error
+import contextlib
 
 from tornado import httpserver, httputil, routing
 from tornado.netutil import bind_unix_socket
 
 from notebook.notebookapp import NotebookApp, NotebookWebApplication
 from nbconvert import nbconvertapp
-from nbstripout import strip_output
-from nbformat import from_dict
+from nbconvert.preprocessors.execute import ExecutePreprocessor
+from nbconvert import exporters as nbconvert_exporters
+import nbstripout
+import nbformat
+import papermill
+
+from rex.core import Error
 from . import kernel
 
 
@@ -121,9 +124,9 @@ def pre_save_hook(model, **kwargs):
     # Cleanup cell outputs and execution_count
     if model["type"] != "notebook":
         return
-    node = from_dict(model["content"])
+    node = nbformat.from_dict(model["content"])
     # Signature: strip_output(notebook, keep_output, keep_count)
-    strip_output(node, False, False)
+    nbstripout.strip_output(node, False, False)
     model["content"] = node
 
 
@@ -143,3 +146,82 @@ class RexNbConvertApp(nbconvertapp.NbConvertApp):
         self.config["ExecutePreprocessor"].update(
             {"kernel_manager_class": kernel.KernelManager}
         )
+
+
+def execute_notebook(
+    input_file,
+    output_file,
+    format=None,
+    exclude_input_prompt=False,
+    exclude_output_prompt=False,
+    exclude_input=False,
+    parameters=None,
+):
+    """ Execute Jupyter notebook.
+
+    Read Jupyter notebook from `input_file`, execute it, write output into
+    `output_file` file-like object.
+
+    If `format` is passed and is not `None` then the output will be formatted
+    accordingly and written on disk in that form. Otherwise the output will be
+    Jupyter notebook.
+    """
+
+    # Read input
+    with openfile(input_file, "r") as ifp:
+        nb = nbformat.read(ifp, 4)
+
+    # Parametrize
+    if parameters is not None:
+        # Fixup nb for papermill
+        nb.metadata["papermill"] = {}
+        for cell in nb.cells:
+            if not "tags" in cell.metadata:
+                cell.metadata["tags"] = []
+        nb = papermill.parameterize.parameterize_notebook(
+            nb, parameters=parameters
+        )
+
+    # Execute
+    preprocessor = ExecutePreprocessor(
+        kernel_manager_class=kernel.KernelManager
+    )
+    preprocessor.preprocess(nb)
+
+    # Write output
+    if format is None:
+        with openfile(output_file, 'w') as ofp:
+            nbformat.write(nb, ofp)
+    else:
+        # Use custom formatter
+        formats = nbconvert_exporters.get_export_names()
+        if format not in formats:
+            raise Error(
+                f"Unknown format '{format}' specified, should be one of:",
+                formats.join(", "),
+            )
+        exporter = nbconvert_exporters.get_exporter(format)
+        out, _resources = nbconvert_exporters.export(
+            exporter,
+            nb,
+            exclude_input_prompt=exclude_input_prompt,
+            exclude_output_prompt=exclude_output_prompt,
+            exclude_input=exclude_input,
+        )
+        with openfile(output_file, 'w') as ofp:
+            ofp.write(out)
+
+
+# Let papermill know how to inject parameters into rex notebooks.
+papermill.translators.papermill_translators.register(
+    "rex", papermill.translators.PythonTranslator
+)
+
+
+@contextlib.contextmanager
+def openfile(file, mode):
+    if isinstance(file, str):
+        with open(file, mode) as fp:
+            yield fp
+    else:
+        yield file

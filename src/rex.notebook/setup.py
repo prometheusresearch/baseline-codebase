@@ -27,6 +27,7 @@ setup(
         "matplotlib == 3.1.1",
         "ipykernel == 5.1.2",
         "jupyter_client == 5.3.1",
+        "papermill == 1.2.0",
     ],
     entry_points={"rex.ctl": ["rex = rex.notebook.ctl"]},
     dependency_links=["https://dist.rexdb.org/packages/"],

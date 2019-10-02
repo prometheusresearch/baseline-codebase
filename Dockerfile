@@ -13,7 +13,10 @@ RUN make dist-local && \
     rm -f Makefile* pip.conf && \
     rm -rf src js
 
+
 FROM rexdb/runtime:$REXDB_TAG
+
+ARG APPLICATION_VERSION=development
 
 WORKDIR /app
 
@@ -21,5 +24,9 @@ CMD ["/app/bin/rex"]
 
 COPY --from=build app /app/
 
+RUN echo "${APPLICATION_VERSION}" > /app/APPLICATION_VERSION
+
 ENV PATH "/app/bin:${PATH}"
+ENV APPLICATION_VERSION "${APPLICATION_VERSION}"
+LABEL org.opencontainers.image.version=${APPLICATION_VERSION}
 

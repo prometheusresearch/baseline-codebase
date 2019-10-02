@@ -13,7 +13,7 @@ REGISTRY ?=
 
 # Project name and version (codebase name / tag or revision id).
 PRJ_NAME ?= ${shell hg identify -b | cut -d / -f 1}
-PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg identify -i | tr + -}}
+PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg identify -i | tr -d +}}
 
 
 # Display available targets.
@@ -378,7 +378,11 @@ test: ./bin/activate	#: test all source packages (specify PKG=<SRC> to test a si
 
 # Build the application docker image for distribution.
 dist:	#: build the application image
-	docker build --force-rm -t rexdb/${PRJ_NAME}:${PRJ_VER} .
+	docker build \
+		--force-rm \
+		--tag rexdb/${PRJ_NAME}:${PRJ_VER} \
+		--build-arg APPLICATION_VERSION=${PRJ_VER} \
+		.
 .PHONY: dist
 
 

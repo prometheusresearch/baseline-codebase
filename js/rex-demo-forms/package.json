@@ -1,5 +1,5 @@
 {
-  "name": "rex-forms-demo",
+  "name": "rex-demo-forms",
   "version": "2.5.0",
   "private": true,
   "main": "./src/index.js",

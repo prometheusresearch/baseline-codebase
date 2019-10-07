@@ -1,4 +1,4 @@
-{% extends "rex.forms_demo:/templates/base.html" %}
+{% extends "rex.demo.forms:/templates/base.html" %}
 
 {% block body %}
 <script type="text/javascript">
@@ -6,7 +6,7 @@
         {
             demos: {{ demos|json }},
             recons: {{ recons|json }},
-            mountPoint: {{ MOUNT['rex.forms_demo']|json }}
+            mountPoint: {{ MOUNT['rex.demo.forms']|json }}
         },
         document.getElementById('main')
     );

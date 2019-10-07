@@ -1,4 +1,4 @@
-{% extends "rex.forms_demo:/templates/base.html" %}
+{% extends "rex.demo.forms:/templates/base.html" %}
 
 {% block body %}
 <script type="text/javascript">
@@ -7,11 +7,11 @@
             demo: {{ demo|json }},
             demos: {{ demos|json }},
             recons: {{ recons|json }},
-            mountPoint: {{ MOUNT['rex.forms_demo']|json }},
+            mountPoint: {{ MOUNT['rex.demo.forms']|json }},
             apiUrls: {
                 resourcePrefix: '{{ SETTINGS.forms_local_resource_prefix|url }}',
                 lookup: '{{ MOUNT['rex.forms'] }}/lookup',
-                calculation: '{{ MOUNT['rex.forms_demo'] }}/demo/{{ demo.id }}/calculate'
+                calculation: '{{ MOUNT['rex.demo.forms'] }}/demo/{{ demo.id }}/calculate'
             },
             i18nUrl: {{ MOUNT['rex.i18n']|json }},
             initialLocale: '{{ CURRENT_LOCALE }}',

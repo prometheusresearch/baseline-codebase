@@ -160,7 +160,7 @@ class MenuCommand(BaseCommand):
 
     def render(self, request):
         return render_to_response(
-            'rex.forms_demo:/templates/menu.html',
+            'rex.demo.forms:/templates/menu.html',
             request,
             demos=get_demos(self.package().abspath('examples/forms')),
             recons=get_recons(
@@ -184,7 +184,7 @@ class DemoCommand(BaseCommand):
             raise HTTPNotFound()
 
         return render_to_response(
-            'rex.forms_demo:/templates/demo.html',
+            'rex.demo.forms:/templates/demo.html',
             request,
             demos=get_demos(self.package().abspath('examples/forms')),
             recons=get_recons(
@@ -278,7 +278,7 @@ class ReconCommand(BaseCommand):
             raise HTTPNotFound()
 
         return render_to_response(
-            'rex.forms_demo:/templates/recon.html',
+            'rex.demo.forms:/templates/recon.html',
             request,
             demos=get_demos(self.package().abspath('examples/forms')),
             recons=get_recons(

@@ -43,6 +43,8 @@ SRC_PY = \
 	src/rex.about \
 	src/rex.notebook \
 	src/rex.baseline \
+	src/rex.demo.instrument \
+	src/rex.demo.forms \
 	src/rex.demo.baseline
 
 
@@ -122,5 +124,6 @@ TEST_MAKE =
 # 	<source directory>:<target location>
 SRC_DATA = \
 	src/rex.demo.baseline/doc/build/html:share/rex/rex.demo.baseline/www/docs \
-	js/rex-action-application/build:share/rex/rex.demo.baseline/www/bundle
+	js/rex-action-application/build:share/rex/rex.demo.baseline/www/bundle \
+	js/rex-forms-demo/build:share/rex/rex.demo.forms/www/bundle
 

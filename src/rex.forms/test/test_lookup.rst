@@ -199,7 +199,7 @@ Web API
 
 This package exposes a simple JSON API for invoking the lookup queries::
 
-    >>> rex = Rex('rex.forms_demo')
+    >>> rex = Rex('rex.demo.forms')
     >>> rex.on()
 
     >>> req = Request.blank('/lookup?lookup=%s' % (lookup_id,), remote_user='user1')

@@ -16,8 +16,8 @@ setup(
     install_requires=[
         'rex.deploy',
         'rex.mart',
-        'rex.instrument_demo',
-        'rex.forms_demo',
+        'rex.demo.instrument',
+        'rex.demo.forms',
         'rex.mobile_demo',
     ],
     rex_init='rex.mart_demo',

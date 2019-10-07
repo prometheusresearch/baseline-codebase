@@ -8,7 +8,7 @@ Set up the environment::
     >>> from rex.core import Rex
     >>> from datetime import datetime
     >>> from pytz import utc
-    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex = Rex('__main__', 'rex.demo.instrument')
     >>> rex.on()
 
 

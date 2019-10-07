@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='rex.instrument_demo',
+    name='rex.demo.instrument',
     version='1.9.0',
     description='Demo package for testing rex.instrument',
     package_dir={'': 'src'},
@@ -20,7 +20,7 @@ setup(
         'rex.deploy',
         'rex.instrument',
     ],
-    rex_init='rex.instrument_demo',
+    rex_init='rex.demo.instrument',
     rex_static='static',
 )
 

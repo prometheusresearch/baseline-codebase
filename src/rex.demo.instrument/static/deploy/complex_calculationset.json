@@ -9,7 +9,7 @@
             "type": "text",
             "method": "python",
             "options": {
-                "callable": "rex.instrument_demo.complex_object_calc"
+                "callable": "rex.demo.instrument.complex_object_calc"
             }
         },
         {
@@ -17,7 +17,7 @@
             "type": "text",
             "method": "python",
             "options": {
-                "callable": "rex.instrument_demo.complex_function_calc"
+                "callable": "rex.demo.instrument.complex_function_calc"
             }
         },
         {

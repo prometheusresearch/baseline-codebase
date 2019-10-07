@@ -1,0 +1,17 @@
+instrument_implementation:
+  user: rex.demo.instrument.DemoUser
+  subject: rex.demo.instrument.DemoSubject
+  instrument: rex.demo.instrument.DemoInstrument
+  instrumentversion: rex.demo.instrument.DemoInstrumentVersion
+  assessment: rex.demo.instrument.DemoAssessment
+  draftinstrumentversion: rex.demo.instrument.DemoDraftInstrumentVersion
+  channel: rex.demo.instrument.DemoChannel
+  task: rex.demo.instrument.DemoTask
+  entry: rex.demo.instrument.DemoEntry
+
+db: pgsql:demo.instrument
+
+htsql_extensions:
+  tweak.etl:
+  rex_deploy:
+

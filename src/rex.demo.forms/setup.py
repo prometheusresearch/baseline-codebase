@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='rex.forms_demo',
+    name='rex.demo.forms',
     version='2.5.0',
     description='Demo package for testing rex.forms',
     package_dir={'': 'src'},
@@ -22,9 +22,9 @@ setup(
         'rex.forms',
         'rex.i18n',
         'rex.instrument',
-        'rex.instrument_demo'
+        'rex.demo.instrument'
     ],
-    rex_init='rex.forms_demo',
+    rex_init='rex.demo.forms',
     rex_static='static',
 )
 

@@ -9,7 +9,7 @@ Set up the environment::
     >>> from datetime import datetime
     >>> from copy import deepcopy
     >>> from rex.core import Rex
-    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex = Rex('__main__', 'rex.demo.instrument')
     >>> rex.on()
 
 The semi-abstract base Task class only implements a simple constructor
@@ -494,7 +494,7 @@ and solved::
 When all updates are complete, close out the Task (and associated Assessment)
 by using the ``reconcile()`` method::
 
-    >>> from rex.instrument_demo import DemoTask
+    >>> from rex.demo.instrument import DemoTask
     >>> task = DemoTask.get_by_uid('task4')
     >>> task.reconcile(user)
     ### SAVED ENTRY fake_entry_1

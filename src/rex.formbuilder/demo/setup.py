@@ -13,7 +13,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.formbuilder',
-        'rex.forms_demo',
+        'rex.demo.forms',
     ],
     rex_init='rex.formbuilder_demo',
     rex_static='static', )

@@ -1,6 +1,6 @@
 forms_implementation:
-  form: rex.forms_demo.interface.DemoForm
-  draftform: rex.forms_demo.interface.DemoDraftForm
+  form: rex.demo.forms.interface.DemoForm
+  draftform: rex.demo.forms.interface.DemoDraftForm
 
 forms_presentation_adaptors:
   chan135:
@@ -10,9 +10,9 @@ forms_presentation_adaptors:
   demoapp:
     - lookup
 
-forms_local_resource_prefix: rex.forms_demo:/media
+forms_local_resource_prefix: rex.demo.forms:/media
 
-db: pgsql:forms_demo
+db: pgsql:demo.forms
 
 htsql_extensions:
   tweak.etl:

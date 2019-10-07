@@ -8,7 +8,7 @@ Set up the environment::
     >>> from rex.instrument.interface.calculationscope import *
     >>> from rex.instrument.util import get_implementation
     >>> from rex.core import Rex
-    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex = Rex('__main__', 'rex.demo.instrument')
     >>> rex.on()
 
 
@@ -23,7 +23,7 @@ of calculations by implementing the CalculationScopeAddon extension::
     ...         return assessment.uid
 
     >>> CalculationScopeAddon.all()
-    [rex.instrument_demo.DemoSubjectSatusScopeAddon, __main__.TestCalculationScope]
+    [rex.demo.instrument.DemoSubjectSatusScopeAddon, __main__.TestCalculationScope]
 
 
 The ``get_addon_scope()`` method accepts a calculation method and an assessment

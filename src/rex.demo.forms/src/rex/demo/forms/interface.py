@@ -6,7 +6,7 @@
 from rex.db import get_db
 from rex.forms.interface import Form, DraftForm, PresentationAdaptor
 
-from rex.instrument_demo import DemoChannel, DemoInstrumentVersion, \
+from rex.demo.instrument import DemoChannel, DemoInstrumentVersion, \
     DemoDraftInstrumentVersion
 
 

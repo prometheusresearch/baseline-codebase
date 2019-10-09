@@ -17,7 +17,12 @@ import Paper from "@material-ui/core/Paper";
 import MaskedInput from "../MaskedInput";
 import InputText from "./InputText";
 
-import { RexUIPickerWrapper, InputWrapper, Toggler } from "./styled.components";
+import {
+  RexUIPickerWrapper,
+  InputWrapper,
+  Toggler,
+  TogglerIconStyle
+} from "./styled.components";
 
 const RexUIDateTimePickerComponent = props => {
   const [viewDate, setViewDate] = React.useState(Moment());
@@ -29,18 +34,11 @@ const RexUIDateTimePickerComponent = props => {
     ? Moment(props.value, "YYYY-MM-DDTHH:mm:ss")
     : Moment();
 
-  // Styles
-  const ToggleIconStyle = { width: 34, height: 34 };
-  const TogglerStyle = {
-    top: 0,
-    right: 0
-  };
-
   // Handlers
   const onModalClose = () => setShowModal(false);
 
-  const onSelectedDate = moment => {
-    const momentFormatted = moment.format("YYYY-MM-DDTHH:mm:ss");
+  const onSelectedDate = momentObj => {
+    const momentFormatted = momentObj.format("YYYY-MM-DDTHH:mm:ss");
     onChange(momentFormatted);
   };
 
@@ -73,8 +71,8 @@ const RexUIDateTimePickerComponent = props => {
           onChange={onChange}
           onBlur={onBlur}
         />
-        <Toggler style={TogglerStyle} onClick={onShowModal}>
-          <DateRange style={ToggleIconStyle} />
+        <Toggler onClick={onShowModal}>
+          <DateRange style={TogglerIconStyle} />
         </Toggler>
       </InputWrapper>
 

@@ -40,8 +40,18 @@ export const Toggler = style(
       // So far it's the height value from ReactUI.Input
       width: 34,
       height: 34,
+      padding: 6,
       position: "absolute",
-      cursor: "pointer"
+      cursor: "pointer",
+      opacity: 0.5,
+      top: 0,
+      right: 0,
+      transition: "opacity 0.3s",
+      hover: {
+        opacity: 1
+      }
     }
   }
 );
+
+export const TogglerIconStyle = { width: "100%", height: "100%" };

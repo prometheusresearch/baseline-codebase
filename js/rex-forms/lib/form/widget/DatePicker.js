@@ -17,7 +17,12 @@ import { Modal } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import { Button } from "rex-ui";
 
-import { RexUIPickerWrapper, InputWrapper, Toggler } from "./styled.components";
+import {
+  RexUIPickerWrapper,
+  InputWrapper,
+  Toggler,
+  TogglerIconStyle
+} from "./styled.components";
 
 const RexUIDatePickerComponent = props => {
   const [viewDate, setViewDate] = React.useState(Moment());
@@ -28,31 +33,24 @@ const RexUIDatePickerComponent = props => {
     ? Moment(props.value, "YYYY-MM-DD")
     : Moment();
 
-  // Styles
-  const ToggleIconStyle = { width: 34, height: 34 };
-  const TogglerStyle = {
-    top: 0,
-    right: 0
-  };
-
   // Handlers
   const onToggleModal = () => setShowModal(!showModal);
 
   const onModalClose = () => setShowModal(false);
 
-  const onSelectedDate = moment => {
+  const onSelectedDate = momentObj => {
     // Hide modal
     setShowModal(false);
     // And make actual data update
-    props.onChange(moment.format("YYYY-MM-DD"));
+    props.onChange(momentObj.format("YYYY-MM-DD"));
   };
 
   return (
     <div>
       <InputWrapper>
         <ReactUI.Input {...props} Component={MaskedInput} />
-        <Toggler onClick={onToggleModal} style={TogglerStyle}>
-          <DateRange style={ToggleIconStyle} />
+        <Toggler onClick={onToggleModal}>
+          <DateRange style={TogglerIconStyle} />
         </Toggler>
       </InputWrapper>
       <Modal open={showModal} onClose={onModalClose}>

@@ -39,6 +39,9 @@ export let DateTimePicker = (props: Props) => {
     onBlur
   } = props;
 
+  // TODO: That comparasion looks strange.
+  // DatePicker and TimePicker depend on each other's mode,
+  // But in the end they use their own picker modes as props
   let shouldShowTimePicker = datePickerMode === "days";
   let shouldShowDatePicker = timePickerMode === "time";
 

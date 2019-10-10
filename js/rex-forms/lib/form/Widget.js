@@ -3,20 +3,20 @@
  * @flow
  */
 
-import invariant from 'invariant';
+import invariant from "invariant";
 import * as React from "react";
-import PropTypes from 'prop-types';
-import type {Value as FormValue} from 'react-forms';
+import PropTypes from "prop-types";
+import type { Value as FormValue } from "react-forms";
 import * as ReactForms from "react-forms/reactive";
 import throttle from "lodash/throttle";
 import some from "lodash/some";
 import { Block } from "@prometheusresearch/react-ui-0.21";
 import { style, css } from "@prometheusresearch/react-ui-0.21/stylesheet";
 
-import * as types from '../types';
+import * as types from "../types";
 import Error from "./Error";
 import ErrorList from "./ErrorList";
-import type {WidgetProps, WidgetInputProps} from './WidgetConfig.js';
+import type { WidgetProps, WidgetInputProps } from "./WidgetConfig.js";
 
 let WidgetRoot = style(Block, {
   border: css.border(1, "transparent"),
@@ -42,7 +42,7 @@ type Props = {|
    * TODO(andreypopp): get rid of children prop eventually as it's hard to type
    */
   renderInput?: WidgetInputProps => React.Node,
-  children?: React.Node,
+  children?: React.Node
 |};
 
 const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
@@ -55,7 +55,7 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
 
     static defaultProps = {
       question: {}
-    }
+    };
 
     isUnmounted: boolean;
 
@@ -67,7 +67,10 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
 
     render() {
       let {
-        formValue, children, disabled, question,
+        formValue,
+        children,
+        disabled,
+        question,
         renderInput,
         instrument: _instrument,
         coerce: _coerce,
@@ -89,7 +92,7 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
           onChange: this.onChange,
           variant: { error: hasError && showErrorList },
           onBlur: () => this.onToggleShowErrorList(true)
-        })
+        });
       } else if (children != null) {
         children = React.Children.only(children);
         children = React.cloneElement(children, {
@@ -100,7 +103,10 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
           onBlur: () => this.onToggleShowErrorList(true)
         });
       } else {
-        invariant(false, 'Widget: missing either renderInput or children props');
+        invariant(
+          false,
+          "Widget: missing either renderInput or children props"
+        );
       }
       return (
         <WidgetRoot {...props}>

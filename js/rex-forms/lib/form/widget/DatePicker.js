@@ -33,23 +33,38 @@ const InputDate = (props: WidgetInputProps) => {
   const [mode, setMode] = React.useState("days");
   const [showModal, setShowModal] = React.useState(false);
 
-  const selectedDate =
+  let selectedDate =
     props.value != null ? Moment(props.value, DATE_FORMAT) : Moment();
+
+  if (!selectedDate.isValid()) {
+    selectedDate = Moment();
+  }
 
   const onToggleModal = () => setShowModal(!showModal);
 
   const onModalClose = () => setShowModal(false);
 
-  const onSelectedDate = date => {
+  const onSelectedDate = (date: ?moment$Moment) => {
     setShowModal(false);
     const dateString = date != null ? date.format(DATE_FORMAT) : null;
     props.onChange(dateString);
   };
 
+  const onChange = value => {
+    let viewDate = value != null ? Moment(value, DATE_FORMAT) : Moment();
+
+    if (!viewDate.isValid()) {
+      viewDate = Moment();
+    }
+
+    setViewDate(viewDate);
+    props.onChange(value);
+  };
+
   return (
     <div>
       <InputWrapper>
-        <ReactUI.Input {...props} Component={MaskedInput} />
+        <ReactUI.Input {...props} onChange={onChange} Component={MaskedInput} />
         <Toggler onClick={onToggleModal}>
           <DateRange style={TogglerIconStyle} />
         </Toggler>

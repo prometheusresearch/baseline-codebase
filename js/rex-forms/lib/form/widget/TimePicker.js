@@ -35,24 +35,35 @@ const InputTime = (props: WidgetInputProps) => {
   const [showModal, setShowModal] = React.useState(false);
   const [timePickerMode, setTimePickerMode] = React.useState("time");
 
-  const selectedDate = props.value
+  let selectedDate = props.value
     ? Moment(props.value, `${DATE_FORMAT_BASE}:ss`)
     : Moment();
 
-  const onModalClose = () => setShowModal(false);
+  if (!selectedDate.isValid()) {
+    selectedDate = Moment();
+  }
 
-  const onSelectedDate = date => {
-    if (date) {
-      const momentFormatted = date.format(`${DATE_FORMAT_BASE}:00`);
-      onChange(momentFormatted);
-    }
-  };
+  const onModalClose = () => setShowModal(false);
 
   const onChange = value => {
     if (value && value.endsWith(":__")) {
       value = value.substring(0, value.length - 3);
     }
+
+    let viewDate = value != null ? Moment(value, DATE_FORMAT_BASE) : Moment();
+
+    if (!viewDate.isValid()) {
+      viewDate = Moment();
+    }
+
+    setViewDate(viewDate);
     props.onChange(value);
+  };
+
+  const onSelectedDate = date => {
+    const dateString =
+      date != null ? date.format(`${DATE_FORMAT_BASE}:00`) : null;
+    onChange(dateString);
   };
 
   const onBlur = () => {

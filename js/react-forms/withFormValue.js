@@ -7,7 +7,7 @@ import * as React from "react";
 import FormComponent from "./Component";
 import type { select, value } from "./types";
 
-type Props = {
+export type Props = {
   select?: select,
   formValue?: value
 };
@@ -22,7 +22,7 @@ function getComponentDisplayName<T>(ComponentType: React.AbstractComponent<T>) {
   return displayName;
 }
 
-export default function withFormValue<T: Props>(
+export function withFormValue<T: Props>(
   Component: React.AbstractComponent<T>
 ): React.AbstractComponent<$Diff<T, { formValue?: value }>> {
   let displayName = getComponentDisplayName(Component);
@@ -45,3 +45,5 @@ export default function withFormValue<T: Props>(
     }
   };
 }
+
+export default withFormValue;

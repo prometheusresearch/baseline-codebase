@@ -3,7 +3,8 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
+import type {Value as FormValue} from 'react-forms';
 import invariant from 'invariant';
 
 import * as types from '../types';
@@ -24,8 +25,33 @@ import ViewValue from './widget/ViewValue';
 import ViewBooleanValue from './widget/ViewBooleanValue';
 import ViewEnumerationValue from './widget/ViewEnumerationValue';
 
+/** Props accepted by widet component. */
+export type WidgetProps = {|
+  /** Form value. */
+  formValue: FormValue,
+
+  /** RIOS form/instrument for the current question. */
+  instrument: types.RIOSInstrument,
+  form: types.RIOSForm,
+  question: types.RIOSQuestion,
+
+  /** Various modes for the widget. */
+  editable: boolean,
+  readOnly: boolean,
+  disabled: boolean,
+
+  /* Callbacks used in reconciliation mode to either commit or cancel current
+   * edit. */
+  onCommitEdit: () => void,
+  onCancelEdit: () => void,
+
+  /** Widget-specific options (passed through form configuration). */
+  options: Object,
+|}
+
+/** A registry of widget components. */
 export type WidgetConfig = {
-  [widgetType: string]: React.Component<*, *, *>
+  [widgetType: string]: React.AbstractComponent<WidgetProps>
 };
 
 export const defaultWidgetComponentConfig: WidgetConfig = {

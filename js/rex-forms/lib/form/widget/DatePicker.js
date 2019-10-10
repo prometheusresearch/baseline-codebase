@@ -1,5 +1,6 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
 import * as React from "react";
@@ -11,6 +12,7 @@ import DateRange from "@material-ui/icons/DateRange";
 import { DatePicker as DatePickerBase } from "rex-ui/datepicker";
 import { style } from "react-stylesheet";
 
+import type { WidgetProps } from "../WidgetConfig.js";
 import MaskedInput from "../MaskedInput";
 import InputText from "./InputText";
 import { Modal } from "@material-ui/core";
@@ -73,7 +75,7 @@ const InputDate = props => {
   );
 };
 
-function DatePicker(props) {
+function DatePicker(props: WidgetProps) {
   const updatedProps = {
     ...props,
     options: props.options

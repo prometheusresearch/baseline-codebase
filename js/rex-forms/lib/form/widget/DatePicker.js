@@ -12,7 +12,7 @@ import DateRange from "@material-ui/icons/DateRange";
 import { DatePicker as DatePickerBase } from "rex-ui/datepicker";
 import { style } from "react-stylesheet";
 
-import type { WidgetProps } from "../WidgetConfig.js";
+import type { WidgetProps, WidgetInputProps } from "../WidgetConfig.js";
 import MaskedInput from "../MaskedInput";
 import InputText from "./InputText";
 import { Modal } from "@material-ui/core";
@@ -28,7 +28,7 @@ import {
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
-const InputDate = props => {
+const InputDate = (props: WidgetInputProps) => {
   const [viewDate, setViewDate] = React.useState(Moment());
   const [mode, setMode] = React.useState("days");
   const [showModal, setShowModal] = React.useState(false);
@@ -88,7 +88,7 @@ function DatePicker(props: WidgetProps) {
         }
   };
 
-  let renderInput = props => (
+  let renderInput = (props: WidgetInputProps) => (
     <ReactForms.Input {...props} Component={InputDate} mask="9999-99-99" />
   );
 

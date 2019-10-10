@@ -1,11 +1,12 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
 import * as React from "react";
 import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
-import * as Moment from "moment";
+import Moment from "moment";
 
 import { TimePicker as RexUITimePicker } from "rex-ui/datepicker";
 import DateRange from "@material-ui/icons/DateRange";
@@ -15,6 +16,7 @@ import { style } from "react-stylesheet";
 import { Modal } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 
+import type { WidgetProps, WidgetInputProps } from "../WidgetConfig.js";
 import MaskedInput from "../MaskedInput";
 import InputText from "./InputText";
 
@@ -25,19 +27,25 @@ import {
   TogglerIconStyle
 } from "./styled.components";
 
-const RexUITimePickerComponent = props => {
+const DATE_REGEX_NO_SECONDS = /^\d\d:\d\d$/;
+const DATE_FORMAT_BASE = "HH:mm";
+
+const InputTime = (props: WidgetInputProps) => {
   const [viewDate, setViewDate] = React.useState(Moment());
   const [showModal, setShowModal] = React.useState(false);
   const [timePickerMode, setTimePickerMode] = React.useState("time");
 
-  const selectedDate = props.value ? Moment(props.value, "HH:mm:ss") : Moment();
+  const selectedDate = props.value
+    ? Moment(props.value, `${DATE_FORMAT_BASE}:ss`)
+    : Moment();
 
-  // Handlers
   const onModalClose = () => setShowModal(false);
 
-  const onSelectedDate = momentObj => {
-    const momentFormatted = momentObj.format("HH:mm:00");
-    onChange(momentFormatted);
+  const onSelectedDate = date => {
+    if (date) {
+      const momentFormatted = date.format(`${DATE_FORMAT_BASE}:00`);
+      onChange(momentFormatted);
+    }
   };
 
   const onChange = value => {
@@ -49,7 +57,7 @@ const RexUITimePickerComponent = props => {
 
   const onBlur = () => {
     let { value } = props;
-    if (value && value.match(/^\d\d:\d\d$/)) {
+    if (value && value.match(DATE_REGEX_NO_SECONDS)) {
       props.onChange(value + ":00");
     }
     props.onBlur();
@@ -95,7 +103,7 @@ const RexUITimePickerComponent = props => {
   );
 };
 
-function TimePicker(props) {
+function TimePicker(props: WidgetProps) {
   const updatedProps = {
     ...props,
     options: props.options
@@ -108,11 +116,11 @@ function TimePicker(props) {
         }
   };
 
-  return (
-    <InputText {...updatedProps}>
-      <ReactForms.Input Component={RexUITimePickerComponent} />
-    </InputText>
+  let renderInput = (props: WidgetInputProps) => (
+    <ReactForms.Input {...props} Component={InputTime} />
   );
+
+  return <InputText {...updatedProps} renderInput={renderInput} />;
 }
 
-export default React.memo(TimePicker);
+export default TimePicker;

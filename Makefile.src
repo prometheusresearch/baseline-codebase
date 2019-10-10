@@ -3,6 +3,7 @@
 # This variable contains a list of directories in this repository that will be
 # installed with pip during the "develop" and "install" targets.
 SRC_PY = \
+	src/codebase \
 	src/htsql \
 	src/rex.setup \
 	src/rex.core \

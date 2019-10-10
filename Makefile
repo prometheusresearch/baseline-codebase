@@ -290,6 +290,7 @@ build-docs: ./bin/activate
 
 # Compile source packages in development mode.
 develop: ./bin/activate	#: recompile source packages
+	@echo "DEVELOPMENT" > ./APPLICATION_VERSION
 	${MAKE} build-js
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \

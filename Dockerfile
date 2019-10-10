@@ -16,7 +16,7 @@ RUN make dist-local && \
 
 FROM rexdb/runtime:$REXDB_TAG
 
-ARG APPLICATION_VERSION=development
+ARG APPLICATION_VERSION=DEVELOPMENT
 
 WORKDIR /app
 
@@ -27,6 +27,6 @@ COPY --from=build app /app/
 RUN echo "${APPLICATION_VERSION}" > /app/APPLICATION_VERSION
 
 ENV PATH "/app/bin:${PATH}"
-ENV APPLICATION_VERSION "${APPLICATION_VERSION}"
+
 LABEL org.opencontainers.image.version=${APPLICATION_VERSION}
 

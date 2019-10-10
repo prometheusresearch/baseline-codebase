@@ -1,5 +1,6 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
 import * as React from 'react';
@@ -8,6 +9,7 @@ import * as ReactUI from '@prometheusresearch/react-ui-0.21';
 import * as HotKey from './HotKey';
 
 import Widget from '../Widget';
+import type {WidgetProps, WidgetInputProps} from '../WidgetConfig.js';
 
 const WIDTH = {
   small: '25%',
@@ -15,24 +17,35 @@ const WIDTH = {
   large: '100%',
 };
 
+type Props = {|
+  ...WidgetProps,
+  renderInput?: WidgetInputProps => React.Node,
+  children?: React.Node,
+|}
+
 export default function InputText({
   editable, onCommitEdit, onCancelEdit,
-  options: {width = 'medium'},
+  options,
+  renderInput,
   children,
   ...props
-}) {
-  if (!children) {
-    children = <ReactForms.Input Component={ReactUI.Input} />;
+}: Props) {
+  if (renderInput == null && children == null) {
+    renderInput = props => <ReactForms.Input {...props} Component={ReactUI.Input} />;
   }
+  let {width = 'medium'} = options;
   return (
     <ReactUI.Block width={WIDTH[width]}>
       <HotKey.EditHotKeyHandler
         editable={editable}
         onCommitEdit={onCommitEdit}
         onCancelEdit={onCancelEdit}>
-        <Widget {...props}>
-          {children}
-        </Widget>
+        <Widget
+          {...props}
+          editable={editable}
+          renderInput={renderInput}
+          children={children}
+          />
       </HotKey.EditHotKeyHandler>
     </ReactUI.Block>
   );

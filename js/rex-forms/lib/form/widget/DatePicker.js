@@ -88,11 +88,11 @@ function DatePicker(props: WidgetProps) {
         }
   };
 
-  return (
-    <InputText {...updatedProps}>
-      <ReactForms.Input Component={InputDate} mask="9999-99-99" />
-    </InputText>
+  let renderInput = props => (
+    <ReactForms.Input {...props} Component={InputDate} mask="9999-99-99" />
   );
+
+  return <InputText {...updatedProps} renderInput={renderInput} />;
 }
 
 export default DatePicker;

@@ -49,6 +49,14 @@ export type WidgetProps = {|
   options: Object,
 |}
 
+export type WidgetInputProps = {|
+  disabled: boolean,
+  value: any,
+  onChange: any => void,
+  variant: {| error: boolean |},
+  onBlur: () => void,
+|}
+
 /** A registry of widget components. */
 export type WidgetConfig = {
   [widgetType: string]: React.AbstractComponent<WidgetProps>

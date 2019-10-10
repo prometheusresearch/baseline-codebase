@@ -5,10 +5,10 @@
 import * as React from "react";
 import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
-import * as Moment from "moment";
+import Moment from "moment";
 import DateRange from "@material-ui/icons/DateRange";
 
-import { DatePicker as RexUIDatePicker } from "rex-ui/datepicker";
+import { DatePicker as DatePickerBase } from "rex-ui/datepicker";
 import { style } from "react-stylesheet";
 
 import MaskedInput from "../MaskedInput";
@@ -24,25 +24,24 @@ import {
   TogglerIconStyle
 } from "./styled.components";
 
-const RexUIDatePickerComponent = props => {
+const DATE_FORMAT = "YYYY-MM-DD";
+
+const InputDate = props => {
   const [viewDate, setViewDate] = React.useState(Moment());
   const [mode, setMode] = React.useState("days");
   const [showModal, setShowModal] = React.useState(false);
 
-  const selectedDate = props.value
-    ? Moment(props.value, "YYYY-MM-DD")
-    : Moment();
+  const selectedDate =
+    props.value != null ? Moment(props.value, DATE_FORMAT) : Moment();
 
-  // Handlers
   const onToggleModal = () => setShowModal(!showModal);
 
   const onModalClose = () => setShowModal(false);
 
-  const onSelectedDate = momentObj => {
-    // Hide modal
+  const onSelectedDate = date => {
     setShowModal(false);
-    // And make actual data update
-    props.onChange(momentObj.format("YYYY-MM-DD"));
+    const dateString = date != null ? date.format(DATE_FORMAT) : null;
+    props.onChange(dateString);
   };
 
   return (
@@ -56,7 +55,7 @@ const RexUIDatePickerComponent = props => {
       <Modal open={showModal} onClose={onModalClose}>
         <RexUIPickerWrapper>
           <Paper style={{ padding: 16 }}>
-            <RexUIDatePicker
+            <DatePickerBase
               mode={mode}
               onMode={setMode}
               viewDate={viewDate}
@@ -89,12 +88,9 @@ function DatePicker(props) {
 
   return (
     <InputText {...updatedProps}>
-      <ReactForms.Input
-        Component={RexUIDatePickerComponent}
-        mask="9999-99-99"
-      />
+      <ReactForms.Input Component={InputDate} mask="9999-99-99" />
     </InputText>
   );
 }
 
-export default React.memo(DatePicker);
+export default DatePicker;

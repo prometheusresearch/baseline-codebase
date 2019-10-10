@@ -37,8 +37,10 @@ export default class Workspace extends React.Component {
         locale={this.props.options.locale}
         baseUrl={this.props.i18nUrl}>
         <Component
+          // eslint-disable-next-line
           Form={Reconciler}
           instrument={this.props.recon.instrument}
+          // eslint-disable-next-line
           form={this.props.recon.form}
           parameters={this.props.recon.parameters}
           discrepancies={this.props.recon.discrepancies}

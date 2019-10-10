@@ -96,9 +96,11 @@ export default class Workspace extends React.Component {
         <WorkspaceContainer>
           <FormContainer>
             <Component
+              // eslint-disable-next-line
               Form={this.props.options.component === 'EDITOR' ? FormEditor : FormEntry}
               mode={this.props.options.mode}
               instrument={this.props.demo.instrument}
+              // eslint-disable-next-line
               form={this.props.demo.form}
               assessment={this.props.demo.assessment}
               parameters={this.props.demo.parameters}

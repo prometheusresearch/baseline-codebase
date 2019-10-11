@@ -51,7 +51,12 @@ export let DateTimePicker = (props: Props) => {
   let shouldShowDatePicker = timePickerMode === "time";
 
   return (
-    <div tabIndex={0} onFocus={onFocus} onBlur={onBlur}>
+    <div
+      tabIndex={0}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      style={{ outline: "none" }}
+    >
       {shouldShowDatePicker ? (
         <DatePicker
           mode={datePickerMode}

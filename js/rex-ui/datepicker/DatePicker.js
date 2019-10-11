@@ -59,7 +59,12 @@ export let DatePicker = (props: DatePickerProps) => {
   };
 
   return (
-    <div tabIndex="0" onFocus={onFocus} onBlur={onBlur}>
+    <div
+      tabIndex="0"
+      onFocus={onFocus}
+      onBlur={onBlur}
+      style={{ outline: "none" }}
+    >
       {mode === "days" && (
         <DayView
           selectedDate={selectedDate}

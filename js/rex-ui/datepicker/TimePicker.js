@@ -66,7 +66,7 @@ export let TimePicker = (props: Props) => {
   };
 
   return (
-    <div>
+    <div style={{ outline: "none" }}>
       {mode === "time" && (
         <div>
           <table>

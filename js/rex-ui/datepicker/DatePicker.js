@@ -24,7 +24,9 @@ type DatePickerProps = {|
   renderDay?: RenderDay,
   renderMonth?: RenderMonth,
   onFocus?: UIEvent => void,
-  onBlur?: UIEvent => void
+  onBlur?: UIEvent => void,
+  minDate?: Moment,
+  maxDate?: Moment
 |};
 
 export let DatePicker = (props: DatePickerProps) => {
@@ -39,7 +41,9 @@ export let DatePicker = (props: DatePickerProps) => {
     renderMonth,
     showToday,
     onFocus,
-    onBlur
+    onBlur,
+    minDate,
+    maxDate
   } = props;
 
   let showMonths = () => {
@@ -65,6 +69,8 @@ export let DatePicker = (props: DatePickerProps) => {
           renderDay={renderDay}
           showToday={showToday}
           showMonths={showMonths}
+          minDate={minDate}
+          maxDate={maxDate}
         />
       )}
       {mode === "months" && (

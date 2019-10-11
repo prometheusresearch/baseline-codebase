@@ -22,7 +22,10 @@ type Props = {|
   onSelectedDate: (?Moment) => void,
 
   onFocus?: UIEvent => void,
-  onBlur?: UIEvent => void
+  onBlur?: UIEvent => void,
+
+  minDate?: Moment,
+  maxDate?: Moment
 |};
 
 export let DateTimePicker = (props: Props) => {
@@ -36,7 +39,9 @@ export let DateTimePicker = (props: Props) => {
     selectedDate,
     onSelectedDate,
     onFocus,
-    onBlur
+    onBlur,
+    minDate,
+    maxDate
   } = props;
 
   // TODO: That comparasion looks strange.
@@ -55,6 +60,8 @@ export let DateTimePicker = (props: Props) => {
           onViewDate={onViewDate}
           selectedDate={selectedDate}
           onSelectedDate={onSelectedDate}
+          minDate={minDate}
+          maxDate={maxDate}
         />
       ) : null}
       {shouldShowTimePicker ? (

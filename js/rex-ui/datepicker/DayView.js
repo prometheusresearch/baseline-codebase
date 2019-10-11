@@ -17,7 +17,11 @@ type DayProps = {|
   outOfRange?: boolean,
   showToday?: boolean,
   today: boolean,
-  onClick?: Moment => void
+  onClick?: Moment => void,
+  minDate?: Moment,
+  maxDate?: Moment,
+  isBeforeMin?: boolean,
+  isAfterMax?: boolean
 |};
 
 export type RenderDay = ({|
@@ -25,11 +29,27 @@ export type RenderDay = ({|
   key?: string | number
 |}) => React.Node;
 
-export let Day = (props: DayProps) => {
-  let { date, active, outOfRange, showToday, today, onClick } = props;
+export let Day = (
+  props: DayProps & {
+    isBeforeMin?: boolean,
+    isAfterMax?: boolean
+  }
+) => {
+  let {
+    date,
+    active,
+    outOfRange,
+    showToday,
+    today,
+    onClick,
+    minDate,
+    maxDate,
+    isBeforeMin,
+    isAfterMax
+  } = props;
 
   let handleClick = React.useCallback(() => {
-    if (onClick != null) {
+    if (onClick != null && !isBeforeMin && !isAfterMax) {
       onClick(date);
     }
   }, [onClick]);
@@ -39,7 +59,8 @@ export let Day = (props: DayProps) => {
   let style = React.useMemo(
     () => ({
       ...Common.buttonStyle,
-      backgroundColor: active ? activeStyle.backgroundColor : null
+      backgroundColor: active ? activeStyle.backgroundColor : null,
+      opacity: isBeforeMin || isAfterMax ? 0.5 : 1
     }),
     [active]
   );
@@ -61,17 +82,23 @@ export let Day = (props: DayProps) => {
 };
 
 let renderDayDefault: RenderDay = props => {
-  return <Day {...props} />;
+  const { minDate, maxDate, date } = props;
+  const isBeforeMin = minDate ? date.isBefore(minDate, "day") : false;
+  const isAfterMax = maxDate ? date.isAfter(maxDate, "day") : false;
+
+  return <Day {...props} isBeforeMin={isBeforeMin} isAfterMax={isAfterMax} />;
 };
 
 type DayViewProps = {|
   viewDate: Moment,
   onViewDate: Moment => void,
   selectedDate: ?Moment,
-  onSelectedDate: ?Moment => void,
+  onSelectedDate: (?Moment) => void,
   showToday?: boolean,
   showMonths: () => void,
-  renderDay?: RenderDay
+  renderDay?: RenderDay,
+  minDate?: Moment,
+  maxDate?: Moment
 |};
 
 export let DayView = (props: DayViewProps) => {
@@ -82,7 +109,9 @@ export let DayView = (props: DayViewProps) => {
     onViewDate,
     selectedDate,
     onSelectedDate,
-    showMonths
+    showMonths,
+    minDate,
+    maxDate
   } = props;
 
   let onNextMonth = () => {
@@ -115,7 +144,9 @@ export let DayView = (props: DayViewProps) => {
           date: date,
           active: isActive,
           today: isToday,
-          showToday: showToday
+          showToday: showToday,
+          minDate,
+          maxDate
         })
       );
 

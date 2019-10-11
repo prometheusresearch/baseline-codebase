@@ -15,9 +15,14 @@ import { Button } from "rex-ui";
 import { Modal } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 
-import type { WidgetProps, WidgetInputProps } from "../WidgetConfig.js";
+import type {
+  WidgetProps,
+  WidgetInputProps,
+  InstrumentDateTime
+} from "../WidgetConfig.js";
 import MaskedInput from "../MaskedInput";
 import InputText from "./InputText";
+import type { RIOSField, RIOSExtendedType } from "../../types.js";
 
 import {
   RexUIPickerWrapper,
@@ -25,11 +30,16 @@ import {
   Toggler,
   TogglerIconStyle
 } from "./styled.components";
+import { getDatesFromRange } from "../WidgetConfig";
 
 const DATE_REGEX_NO_SECONDS = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d$/;
 const DATE_FORMAT_BASE = "YYYY-MM-DDTHH:mm";
 
-const InputDateTime = (props: WidgetInputProps) => {
+const InputDateTime = (
+  props: WidgetInputProps & { instrument: InstrumentDateTime }
+) => {
+  const { instrument } = props;
+
   const [viewDate, setViewDate] = React.useState(Moment());
   const [showModal, setShowModal] = React.useState(false);
   const [datePickerMode, setDatePickerMode] = React.useState("days");
@@ -42,6 +52,11 @@ const InputDateTime = (props: WidgetInputProps) => {
   if (!selectedDate.isValid()) {
     selectedDate = Moment();
   }
+
+  const { minDate, maxDate } = getDatesFromRange(
+    instrument.type && instrument.type.range,
+    `${DATE_FORMAT_BASE}:ss`
+  );
 
   const onModalClose = () => setShowModal(false);
 
@@ -105,6 +120,8 @@ const InputDateTime = (props: WidgetInputProps) => {
               onViewDate={setViewDate}
               selectedDate={selectedDate}
               onSelectedDate={onSelectedDate}
+              minDate={minDate}
+              maxDate={maxDate}
             />
             <div style={{ textAlign: "right" }}>
               <Button onClick={onModalClose}>Close</Button>

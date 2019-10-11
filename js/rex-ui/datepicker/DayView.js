@@ -10,18 +10,20 @@ import * as icons from "@material-ui/icons";
 import * as React from "react";
 import * as Common from "./Common";
 
-type DayProps = {|
+type DayPropsBase = {|
   date: Moment,
   value: Moment,
   active?: boolean,
   outOfRange?: boolean,
   showToday?: boolean,
   today: boolean,
-  onClick?: Moment => void,
+  onClick?: Moment => void
+|};
+
+type DayProps = {|
+  ...DayPropsBase,
   minDate?: Moment,
-  maxDate?: Moment,
-  isBeforeMin?: boolean,
-  isAfterMax?: boolean
+  maxDate?: Moment
 |};
 
 export type RenderDay = ({|
@@ -29,12 +31,7 @@ export type RenderDay = ({|
   key?: string | number
 |}) => React.Node;
 
-export let Day = (
-  props: DayProps & {
-    isBeforeMin?: boolean,
-    isAfterMax?: boolean
-  }
-) => {
+export let Day = (props: {| ...DayPropsBase, isDisabled?: boolean |}) => {
   let {
     date,
     active,
@@ -42,17 +39,14 @@ export let Day = (
     showToday,
     today,
     onClick,
-    minDate,
-    maxDate,
-    isBeforeMin,
-    isAfterMax
+    isDisabled
   } = props;
 
   let handleClick = React.useCallback(() => {
-    if (onClick != null && !isBeforeMin && !isAfterMax) {
+    if (onClick != null && !isDisabled) {
       onClick(date);
     }
-  }, [onClick]);
+  }, [onClick, isDisabled]);
 
   let activeStyle = Common.useActiveColors();
 
@@ -60,7 +54,7 @@ export let Day = (
     () => ({
       ...Common.buttonStyle,
       backgroundColor: active ? activeStyle.backgroundColor : null,
-      opacity: isBeforeMin || isAfterMax ? 0.5 : 1
+      opacity: isDisabled ? 0.5 : 1
     }),
     [active]
   );
@@ -72,6 +66,7 @@ export let Day = (
     }),
     [active, outOfRange, showToday, today]
   );
+
   return (
     <mui.IconButton tabIndex={-1} onClick={handleClick} style={style}>
       <mui.Typography variant="body1" style={textStyle}>
@@ -82,11 +77,12 @@ export let Day = (
 };
 
 let renderDayDefault: RenderDay = props => {
-  const { minDate, maxDate, date } = props;
+  const { minDate, maxDate, date, ...rest } = props;
   const isBeforeMin = minDate ? date.isBefore(minDate, "day") : false;
   const isAfterMax = maxDate ? date.isAfter(maxDate, "day") : false;
+  const isDisabled = isBeforeMin || isAfterMax;
 
-  return <Day {...props} isBeforeMin={isBeforeMin} isAfterMax={isAfterMax} />;
+  return <Day {...rest} date={date} isDisabled={isDisabled} />;
 };
 
 type DayViewProps = {|

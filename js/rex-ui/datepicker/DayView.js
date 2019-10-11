@@ -28,25 +28,18 @@ type DayProps = {|
 
 export type RenderDay = ({|
   ...DayProps,
-  key?: string | number
+  key?: string | number,
+  disabled?: boolean
 |}) => React.Node;
 
-export let Day = (props: {| ...DayPropsBase, isDisabled?: boolean |}) => {
-  let {
-    date,
-    active,
-    outOfRange,
-    showToday,
-    today,
-    onClick,
-    isDisabled
-  } = props;
+export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
+  let { date, active, outOfRange, showToday, today, onClick, disabled } = props;
 
   let handleClick = React.useCallback(() => {
-    if (onClick != null && !isDisabled) {
+    if (onClick != null && !disabled) {
       onClick(date);
     }
-  }, [onClick, isDisabled]);
+  }, [onClick, disabled]);
 
   let activeStyle = Common.useActiveColors();
 
@@ -54,7 +47,7 @@ export let Day = (props: {| ...DayPropsBase, isDisabled?: boolean |}) => {
     () => ({
       ...Common.buttonStyle,
       backgroundColor: active ? activeStyle.backgroundColor : null,
-      opacity: isDisabled ? 0.5 : 1
+      opacity: disabled ? 0.5 : 1
     }),
     [active]
   );
@@ -78,11 +71,8 @@ export let Day = (props: {| ...DayPropsBase, isDisabled?: boolean |}) => {
 
 let renderDayDefault: RenderDay = props => {
   const { minDate, maxDate, date, ...rest } = props;
-  const isBeforeMin = minDate ? date.isBefore(minDate, "day") : false;
-  const isAfterMax = maxDate ? date.isAfter(maxDate, "day") : false;
-  const isDisabled = isBeforeMin || isAfterMax;
 
-  return <Day {...rest} date={date} isDisabled={isDisabled} />;
+  return <Day {...rest} date={date} />;
 };
 
 type DayViewProps = {|
@@ -130,6 +120,10 @@ export let DayView = (props: DayViewProps) => {
       let isActive = selectedDate != null && date.isSame(selectedDate, "day");
       let isToday = date.isSame(today, "day");
       let key = date.month() + "-" + date.date();
+      const isBeforeMin = minDate ? date.isBefore(minDate, "day") : false;
+      const isAfterMax = maxDate ? date.isAfter(maxDate, "day") : false;
+      const disabled = isBeforeMin || isAfterMax;
+
       cells.push(
         renderDay({
           key,
@@ -141,8 +135,7 @@ export let DayView = (props: DayViewProps) => {
           active: isActive,
           today: isToday,
           showToday: showToday,
-          minDate,
-          maxDate
+          disabled
         })
       );
 

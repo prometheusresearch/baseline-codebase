@@ -76,6 +76,9 @@ const InputDate = (
     props.onChange(value);
   };
 
+  const onToday = () => onSelectedDate(Moment());
+  const onClear = () => props.onChange(null);
+
   return (
     <div>
       <InputWrapper>
@@ -98,6 +101,12 @@ const InputDate = (
               maxDate={maxDate}
             />
             <div style={{ textAlign: "right" }}>
+              <Button onClick={onToday} style={{ float: "left" }}>
+                Today
+              </Button>
+              <Button onClick={onClear} style={{ float: "left" }}>
+                Clear
+              </Button>
               <Button onClick={onModalClose}>Close</Button>
             </div>
           </Paper>

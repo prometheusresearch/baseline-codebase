@@ -24,14 +24,17 @@ import TimePicker from "./widget/TimePicker";
 import ViewValue from "./widget/ViewValue";
 import ViewBooleanValue from "./widget/ViewBooleanValue";
 import ViewEnumerationValue from "./widget/ViewEnumerationValue";
+import Moment from "moment";
 
 /** Props accepted by widet component. */
 export type WidgetProps = {|
   /** Form value. */
   formValue: FormValue,
 
-  /** RIOS form/instrument for the current question. */
-  instrument: types.RIOSInstrument,
+  /** RIOS form/instrument for the current question.
+   * TODO: Properly type `instrument` in lib/instrument/schema.js
+   */
+  instrument: any,
   form: types.RIOSForm,
   question: types.RIOSQuestion,
 
@@ -54,7 +57,14 @@ export type WidgetInputProps = {|
   value: any,
   onChange: any => void,
   variant: {| error: boolean |},
-  onBlur: () => void
+  onBlur: () => void,
+  instrument: any
+|};
+
+export type InstrumentDateTime = {|
+  context: string,
+  field: types.RIOSField,
+  type: types.RIOSExtendedType
 |};
 
 /** A registry of widget components. */
@@ -152,4 +162,23 @@ export function resolveWidget(
 
 function baseFieldType(type: types.RIOSType): string {
   return typeof type === "string" ? type : baseFieldType(type.base);
+}
+
+export function getDatesFromRange(
+  range: types.RIOSRange,
+  momentPattern: string
+): { minDate?: Moment, maxDate?: Moment } {
+  if (!range) {
+    return {};
+  }
+
+  const { min, max } = range;
+
+  let minDate = min ? Moment(String(min), momentPattern) : undefined;
+  minDate = minDate && minDate.isValid() ? minDate : undefined;
+
+  let maxDate = max ? Moment(String(max), momentPattern) : undefined;
+  maxDate = maxDate && maxDate.isValid() ? maxDate : undefined;
+
+  return { minDate, maxDate };
 }

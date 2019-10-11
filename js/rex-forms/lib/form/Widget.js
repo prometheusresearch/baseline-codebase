@@ -28,7 +28,7 @@ let WidgetRoot = style(Block, {
 
 type Props = {|
   formValue: FormValue,
-  instrument: types.RIOSInstrument,
+  instrument: any,
   editable: boolean,
   readOnly: boolean,
   disabled: boolean,
@@ -72,7 +72,7 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
         disabled,
         question,
         renderInput,
-        instrument: _instrument,
+        instrument,
         coerce: _coerce,
         editable: _editable,
         onCommitEdit: _onCommitEdit,
@@ -91,7 +91,8 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
           value: formValue.value,
           onChange: this.onChange,
           variant: { error: hasError && showErrorList },
-          onBlur: () => this.onToggleShowErrorList(true)
+          onBlur: () => this.onToggleShowErrorList(true),
+          instrument
         });
       } else if (children != null) {
         children = React.Children.only(children);

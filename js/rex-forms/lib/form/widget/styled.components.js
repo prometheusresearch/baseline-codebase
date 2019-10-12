@@ -55,3 +55,7 @@ export const Toggler = style(
 );
 
 export const TogglerIconStyle = { width: "100%", height: "100%" };
+
+export const ButtonsWrapper = style(props => <div {...props} />, {
+  base: { textAlign: "right", paddingTop: 24 }
+});

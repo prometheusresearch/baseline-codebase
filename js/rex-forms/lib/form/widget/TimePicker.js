@@ -24,7 +24,8 @@ import {
   RexUIPickerWrapper,
   InputWrapper,
   Toggler,
-  TogglerIconStyle
+  TogglerIconStyle,
+  ButtonsWrapper
 } from "./styled.components";
 
 const DATE_REGEX_NO_SECONDS = /^\d\d:\d\d$/;
@@ -104,9 +105,9 @@ const InputTime = (props: WidgetInputProps) => {
               selectedDate={selectedDate}
               onSelectedDate={onSelectedDate}
             />
-            <div style={{ textAlign: "right" }}>
+            <ButtonsWrapper>
               <Button onClick={onModalClose}>Close</Button>
-            </div>
+            </ButtonsWrapper>
           </Paper>
         </RexUIPickerWrapper>
       </Modal>

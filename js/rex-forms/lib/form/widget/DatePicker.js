@@ -29,7 +29,8 @@ import {
   RexUIPickerWrapper,
   InputWrapper,
   Toggler,
-  TogglerIconStyle
+  TogglerIconStyle,
+  ButtonsWrapper
 } from "./styled.components";
 
 const DATE_FORMAT = "YYYY-MM-DD";
@@ -100,7 +101,7 @@ const InputDate = (
               minDate={minDate}
               maxDate={maxDate}
             />
-            <div style={{ textAlign: "right" }}>
+            <ButtonsWrapper>
               <Button onClick={onToday} style={{ float: "left" }}>
                 Today
               </Button>
@@ -108,7 +109,7 @@ const InputDate = (
                 Clear
               </Button>
               <Button onClick={onModalClose}>Close</Button>
-            </div>
+            </ButtonsWrapper>
           </Paper>
         </RexUIPickerWrapper>
       </Modal>

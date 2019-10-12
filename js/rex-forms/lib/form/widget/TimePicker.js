@@ -79,6 +79,9 @@ const InputTime = (props: WidgetInputProps) => {
     setShowModal(true);
   };
 
+  const onToday = () => onSelectedDate(Moment());
+  const onClear = () => props.onChange(null);
+
   return (
     <div>
       <InputWrapper>
@@ -106,6 +109,12 @@ const InputTime = (props: WidgetInputProps) => {
               onSelectedDate={onSelectedDate}
             />
             <ButtonsWrapper>
+              <Button onClick={onToday} style={{ float: "left" }}>
+                Now
+              </Button>
+              <Button onClick={onClear} style={{ float: "left" }}>
+                Clear
+              </Button>
               <Button onClick={onModalClose}>Close</Button>
             </ButtonsWrapper>
           </Paper>

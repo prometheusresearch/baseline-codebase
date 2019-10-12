@@ -47,7 +47,8 @@ export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
     () => ({
       ...Common.buttonStyle,
       backgroundColor: active ? activeStyle.backgroundColor : null,
-      opacity: disabled ? 0.5 : 1
+      opacity: disabled ? 0.5 : 1,
+      cursor: disabled ? "not-allowed" : "pointer"
     }),
     [active]
   );

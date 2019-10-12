@@ -86,6 +86,8 @@ export let DatePicker = (props: DatePickerProps) => {
           renderMonth={renderMonth}
           showYears={showYears}
           onClose={showDays}
+          minDate={minDate}
+          maxDate={maxDate}
         />
       )}
       {mode === "years" && (
@@ -94,6 +96,8 @@ export let DatePicker = (props: DatePickerProps) => {
           viewDate={viewDate}
           onViewDate={onViewDate}
           onClose={showMonths}
+          minDate={minDate}
+          maxDate={maxDate}
         />
       )}
     </div>

@@ -1,6 +1,10 @@
 {
   "private": true,
   "workspaces": ["*"],
+  "scripts": {
+    "prettier:rex:forms": "prettier --write ./rex-forms/**/*.js",
+    "prettier-check:rex:forms": "prettier --check ./rex-forms/**/*.js"
+  },
   "devDependencies": {
     "jest": "^24.0.0",
     "jest-cli": "^24.0.0",

@@ -61,9 +61,9 @@ const InputTime = (props: WidgetInputProps) => {
     props.onChange(value);
   };
 
-  const onSelectedDate = date => {
+  const onSelectedDate = (date: ?moment$Moment) => {
     const dateString =
-      date != null ? date.format(`${DATE_FORMAT_BASE}:00`) : null;
+      date != null ? date.format(`${DATE_FORMAT_BASE}:00`) : "";
     onChange(dateString);
   };
 

@@ -62,7 +62,7 @@ const InputDate = (
 
   const onSelectedDate = (date: ?moment$Moment) => {
     setShowModal(false);
-    const dateString = date != null ? date.format(DATE_FORMAT) : null;
+    const dateString = date != null ? date.format(DATE_FORMAT) : "";
     props.onChange(dateString);
   };
 

@@ -92,7 +92,8 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
           onChange: this.onChange,
           variant: { error: hasError && showErrorList },
           onBlur: () => this.onToggleShowErrorList(true),
-          instrument
+          instrument,
+          formValue
         });
       } else if (children != null) {
         children = React.Children.only(children);

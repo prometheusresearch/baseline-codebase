@@ -58,7 +58,8 @@ export type WidgetInputProps = {|
   onChange: any => void,
   variant: {| error: boolean |},
   onBlur: () => void,
-  instrument: any
+  instrument: any,
+  formValue: FormValue
 |};
 
 export type InstrumentDateTime = {|
@@ -165,7 +166,7 @@ function baseFieldType(type: types.RIOSType): string {
 }
 
 export function getDatesFromRange(
-  range: types.RIOSRange,
+  range?: types.RIOSRange,
   momentPattern: string
 ): { minDate?: Moment, maxDate?: Moment } {
   if (!range) {

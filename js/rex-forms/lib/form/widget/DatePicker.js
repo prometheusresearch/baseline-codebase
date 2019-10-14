@@ -32,17 +32,16 @@ import {
   TogglerIconStyle,
   ButtonsWrapper
 } from "./styled.components";
+import ErrorList from "../ErrorList";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
-const InputDate = (
-  props: WidgetInputProps & { instrument: InstrumentDateTime }
-) => {
+const InputDate = (props: WidgetInputProps) => {
   const [viewDate, setViewDate] = React.useState(Moment());
   const [mode, setMode] = React.useState("days");
   const [showModal, setShowModal] = React.useState(false);
 
-  const { instrument } = props;
+  const { instrument, formValue, ...rest } = props;
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
@@ -53,7 +52,7 @@ const InputDate = (
     props.value != null ? Moment(props.value, DATE_FORMAT) : Moment();
 
   if (!selectedDate.isValid()) {
-    selectedDate = Moment();
+    selectedDate = null;
   }
 
   const onToggleModal = () => setShowModal(!showModal);
@@ -77,13 +76,22 @@ const InputDate = (
     props.onChange(value);
   };
 
-  const onToday = () => onSelectedDate(Moment());
-  const onClear = () => props.onChange(null);
+  const onToday = () => {
+    const current = Moment();
+
+    onSelectedDate(current);
+    setViewDate(current);
+  };
+
+  const onClear = () => {
+    onSelectedDate(null);
+    props.onChange("");
+  };
 
   return (
     <div>
       <InputWrapper>
-        <ReactUI.Input {...props} onChange={onChange} Component={MaskedInput} />
+        <ReactUI.Input {...rest} onChange={onChange} Component={MaskedInput} />
         <Toggler onClick={onToggleModal}>
           <DateRange style={TogglerIconStyle} />
         </Toggler>
@@ -110,6 +118,8 @@ const InputDate = (
               </Button>
               <Button onClick={onModalClose}>Close</Button>
             </ButtonsWrapper>
+
+            <ErrorList formValue={formValue} />
           </Paper>
         </RexUIPickerWrapper>
       </Modal>

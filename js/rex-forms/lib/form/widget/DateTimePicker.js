@@ -32,6 +32,7 @@ import {
   ButtonsWrapper
 } from "./styled.components";
 import { getDatesFromRange } from "../WidgetConfig";
+import ErrorList from "../ErrorList";
 
 const DATE_REGEX_NO_SECONDS = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d$/;
 const DATE_FORMAT_BASE = "YYYY-MM-DDTHH:mm";
@@ -39,19 +40,20 @@ const DATE_FORMAT_BASE = "YYYY-MM-DDTHH:mm";
 const InputDateTime = (
   props: WidgetInputProps & { instrument: InstrumentDateTime }
 ) => {
-  const { instrument } = props;
+  const { instrument, formValue, ...rest } = props;
 
   const [viewDate, setViewDate] = React.useState(Moment());
   const [showModal, setShowModal] = React.useState(false);
   const [datePickerMode, setDatePickerMode] = React.useState("days");
   const [timePickerMode, setTimePickerMode] = React.useState("time");
 
-  let selectedDate = props.value
-    ? Moment(props.value, `${DATE_FORMAT_BASE}:ss`)
-    : Moment();
+  let selectedDate =
+    props.value != null
+      ? Moment(props.value, `${DATE_FORMAT_BASE}:ss`)
+      : Moment();
 
   if (!selectedDate.isValid()) {
-    selectedDate = Moment();
+    selectedDate = null;
   }
 
   const { minDate, maxDate } = getDatesFromRange(
@@ -94,14 +96,20 @@ const InputDateTime = (
     setShowModal(true);
   };
 
-  const onToday = () => onSelectedDate(Moment());
-  const onClear = () => props.onChange(null);
+  const onToday = () => {
+    const current = Moment();
+
+    onSelectedDate(current);
+    setViewDate(current);
+  };
+
+  const onClear = () => props.onChange("");
 
   return (
     <div>
       <InputWrapper>
         <ReactUI.Input
-          {...props}
+          {...rest}
           mask="9999-99-99T99:99:99"
           Component={MaskedInput}
           onChange={onChange}
@@ -136,6 +144,8 @@ const InputDateTime = (
               </Button>
               <Button onClick={onModalClose}>Close</Button>
             </ButtonsWrapper>
+
+            <ErrorList formValue={formValue} />
           </Paper>
         </RexUIPickerWrapper>
       </Modal>

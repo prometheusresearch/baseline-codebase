@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rex UI Rapid Demo</title>
+    {% if bundle.css %}
+    <link
+      id="__stylesheet__"
+      media="not-applicable"
+      rel="stylesheet"
+      href="{{ bundle.css|url }}">
+    {% endif %}
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      {% if bundle.root %}
+      var __PUBLIC_PATH__ = "{{ bundle.root|url }}/";
+      {% endif %}
+    </script>
+    {% if bundle.js %}
+    <script src="{{ bundle.js|url }}"></script>
+    {% endif %}
+  </body>
+</html>

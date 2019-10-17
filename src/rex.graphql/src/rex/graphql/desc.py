@@ -311,7 +311,7 @@ class Query(Field):
         self.loc = code_location.here() if loc is autoloc else loc
 
         if transform is not None and type is None:
-            with code_location.context(self.loc, desc=desc):
+            with code_location.context(self.loc):
                 raise Error(
                     "Missing type argument for a query field w/ transform"
                 )

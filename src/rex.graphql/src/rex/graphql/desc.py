@@ -1019,7 +1019,7 @@ def query(
     deprecation_reason: t.Optional[str] = None,
     sort: t.Optional[Q] = None,
     paginate: bool = False,
-    finalize_query = None,
+    finalize_query=None,
     transform=None,
     loc=autoloc,
 ) -> Field:

@@ -2445,3 +2445,275 @@ def test_query_keep():
         "nation_name": ["JAPAN"],
         "nation_name_dup": ["JAPAN"],
     }
+
+
+def test_directive_skip_field():
+    sch = get_simple_schema()
+
+    data = execute(
+        sch,
+        """
+        query($skip: Boolean!) {
+            africa {
+                name
+                nation_count @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"skip": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
+
+    data = execute(
+        sch,
+        """
+        query($skip: Boolean!) {
+            africa {
+                name
+                nation_count @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"skip": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+
+def test_directive_skip_fragment():
+    sch = get_simple_schema()
+
+    data = execute(
+        sch,
+        """
+        fragment Stats on region {
+            nation_count
+        }
+        query($skip: Boolean!) {
+            africa {
+                name
+                ...Stats @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"skip": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
+
+    data = execute(
+        sch,
+        """
+        fragment Stats on region {
+            nation_count
+        }
+        query($skip: Boolean!) {
+            africa {
+                name
+                ...Stats @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"skip": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+
+def test_directive_skip_inline_fragment():
+    sch = get_simple_schema()
+
+    data = execute(
+        sch,
+        """
+        query($skip: Boolean!) {
+            africa {
+                name
+                ... on region @skip(if: $skip) {
+                    nation_count
+                }
+            }
+        }
+        """,
+        variables={"skip": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
+
+    data = execute(
+        sch,
+        """
+        query($skip: Boolean!) {
+            africa {
+                name
+                ... on region @skip(if: $skip) {
+                    nation_count
+                }
+            }
+        }
+        """,
+        variables={"skip": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+
+def test_directive_include_field():
+    sch = get_simple_schema()
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!) {
+            africa {
+                name
+                nation_count @include(if: $include)
+            }
+        }
+        """,
+        variables={"include": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!) {
+            africa {
+                name
+                nation_count @include(if: $include)
+            }
+        }
+        """,
+        variables={"include": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
+
+
+def test_directive_include_fragment():
+    sch = get_simple_schema()
+
+    data = execute(
+        sch,
+        """
+        fragment Stats on region {
+            nation_count
+        }
+        query($include: Boolean!) {
+            africa {
+                name
+                ...Stats @include(if: $include)
+            }
+        }
+        """,
+        variables={"include": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+    data = execute(
+        sch,
+        """
+        fragment Stats on region {
+            nation_count
+        }
+        query($include: Boolean!) {
+            africa {
+                name
+                ...Stats @include(if: $include)
+            }
+        }
+        """,
+        variables={"include": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
+
+
+def test_directive_include_inline_fragment():
+    sch = get_simple_schema()
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!) {
+            africa {
+                name
+                ... on region @include(if: $include) {
+                    nation_count
+                }
+            }
+        }
+        """,
+        variables={"include": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!) {
+            africa {
+                name
+                ... on region @include(if: $include) {
+                    nation_count
+                }
+            }
+        }
+        """,
+        variables={"include": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
+
+
+def test_directive_skip_over_include():
+    sch = get_simple_schema()
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!, $skip: Boolean!) {
+            africa {
+                name
+                nation_count @include(if: $include) @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"include": True, "skip": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!, $skip: Boolean!) {
+            africa {
+                name
+                nation_count @include(if: $include) @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"include": False, "skip": True},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!, $skip: Boolean!) {
+            africa {
+                name
+                nation_count @include(if: $include) @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"include": True, "skip": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
+
+    data = execute(
+        sch,
+        """
+        query($include: Boolean!, $skip: Boolean!) {
+            africa {
+                name
+                nation_count @include(if: $include) @skip(if: $skip)
+            }
+        }
+        """,
+        variables={"include": False, "skip": False},
+    )
+    assert data == {"africa": [{"name": "AFRICA"}]}

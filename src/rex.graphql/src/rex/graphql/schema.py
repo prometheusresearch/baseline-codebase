@@ -18,11 +18,14 @@ from . import introspection, model, model_scalar, desc, code_location
 class Schema:
     """ GraphQL schema."""
 
-    def __init__(self, query_type, mutation_type, types, loc):
+    def __init__(self, query_type, mutation_type, directives, types, loc):
         self.query_type = query_type
         self.mutation_type = mutation_type
         self.types = types
+        self.directives = directives
         self.loc = loc
+        self.skip_directive = self.directives['skip']
+        self.include_directive = self.directives['include']
 
     def __getitem__(self, name):
         return self.types[name]
@@ -34,6 +37,7 @@ class Schema:
 def schema(
     fields: desc.FieldsType,
     mutations=None,
+    directives=None,
     db: t.Optional[t.Union[RexHTSQL, str]] = None,
     loc=desc.autoloc,
 ) -> Schema:
@@ -109,13 +113,30 @@ def schema(
     ctx = model.RootSchemaContext(types=types, loc=loc)
     with db:
         with code_location.context(loc, desc="While configuring schema:"):
+            # Queries.
             query_type = model.construct(query_type, ctx)
+            # Mutations.
             if mutation_type:
                 mutation_type = model.construct(mutation_type, ctx)
+            # Directives.
+            if not directives:
+                directives = {}
+            # Mandated by GraphQL spec.
+            directives.update(
+                {
+                    "skip": desc.skip_directive,
+                    "include": desc.include_directive,
+                }
+            )
+            directives = {
+                name: model.construct(directive, ctx)
+                for name, directive in directives.items()
+            }
 
     return Schema(
         query_type=query_type,
         mutation_type=mutation_type,
+        directives=directives,
         types=ctx.types,
         loc=loc,
     )

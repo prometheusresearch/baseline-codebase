@@ -1010,6 +1010,37 @@ class ComputedParam(Param):
         )
 
 
+class Directive:
+    def __init__(self, name, params, description=None):
+        self.name = name
+        self.params = params
+        self.description = description
+
+
+include_directive = Directive(
+    name="include",
+    params={
+        "if": Argument(
+            name="if",
+            type=NonNull(scalar.Boolean),
+            description="Included when true.",
+        )
+    },
+    description="Include this field only when 'if' argument is true.",
+)
+skip_directive = Directive(
+    name="skip",
+    params={
+        "if": Argument(
+            name="if",
+            type=NonNull(scalar.Boolean),
+            description="Skipped when true.",
+        )
+    },
+    description="Skip this field when 'if' argument is true.",
+)
+
+
 def query(
     query: Q,
     type: Type = None,

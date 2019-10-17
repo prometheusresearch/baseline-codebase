@@ -18,12 +18,15 @@ import functools
 from htsql_rex_deploy import domain as domain_extra
 from htsql.core.tr.binding import (
     DefineBinding,
+    AliasBinding,
     SelectionBinding,
+    SortBinding,
     TableBinding,
     LocateBinding,
     ClipBinding,
     WrappingBinding,
     DecorateBinding,
+    ComplementBinding,
 )
 from htsql.core.tr.lookup import unwrap
 from htsql.core import domain
@@ -215,7 +218,7 @@ class ScalarType(Type, InputType, QueryInputType):
         return state.bind_cast(self.domain, [LiteralSyntax(value)])
 
     def __eq__(self, other):
-        return self.name == other.name
+        return isinstance(other, self.__class__) and self.name == other.name
 
     def __repr__(self):
         return f"ScalarType({self.name!r})"
@@ -835,9 +838,14 @@ def _(descriptor, ctx, name):
                 )
 
         def base(binding):
-            if isinstance(binding, (LocateBinding, ClipBinding)):
+            if isinstance(
+                binding, (LocateBinding, ClipBinding, ComplementBinding)
+            ):
                 return base(binding.seed)
-            elif isinstance(binding, (DecorateBinding, WrappingBinding)):
+            elif isinstance(
+                binding,
+                (DecorateBinding, WrappingBinding, SortBinding, AliasBinding),
+            ):
                 return base(binding.base)
             else:
                 return binding
@@ -964,4 +972,16 @@ def _(descriptor, ctx):
         out_name=descriptor.out_name,
         default_value=descriptor.default_value,
         loc=descriptor.loc,
+    )
+
+
+@construct.register(desc.Directive)
+def _(descriptor, ctx):
+    params = {}
+    for param_name, param in descriptor.params.items():
+        if param.type is None:
+            raise Error("Cannot use param without a type:", param.name)
+        params[param_name] = construct(param, ctx)
+    return desc.Directive(
+        name=descriptor.name, params=params, description=descriptor.description
     )

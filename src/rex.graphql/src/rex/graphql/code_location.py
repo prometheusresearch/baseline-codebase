@@ -11,6 +11,7 @@
 """
 
 import inspect
+import linecache
 import os
 import contextlib
 
@@ -29,30 +30,29 @@ autoloc = autoloc()
 
 class CodeLocation:
 
-    __slots__ = ("filename", "lineno", "code_context")
+    __slots__ = ("filename", "lineno")
 
-    def __init__(self, filename, lineno, code_context):
+    def __init__(self, filename, lineno):
         self.filename = filename
         self.lineno = lineno
-        self.code_context = code_context
 
     def __str__(self):
         # TODO: Cache os.getcwd() here? We probably can assume it doesn't change
         # during configuration phase.
+        code_context = linecache.getline(self.filename, self.lineno)[:60].strip()
         filename = os.path.relpath(self.filename, os.getcwd())
-        code_context = self.code_context[0][:60].strip()
         lines = [filename, "...", f"{self.lineno} | {code_context} ...", "..."]
         return "\n".join(lines)
 
 
 def here():
     """ Create code location object at the current code location."""
-    frame = inspect.currentframe()
-    info = inspect.getouterframes(frame, context=1)[2]
+    frame = inspect.currentframe().f_back.f_back
+    filename = inspect.getsourcefile(frame) or inspect.getfile(frame)
+    lineno = frame.f_lineno
     return CodeLocation(
-        filename=info.filename,
-        lineno=info.lineno,
-        code_context=info.code_context,
+        filename=filename,
+        lineno=lineno,
     )
 
 

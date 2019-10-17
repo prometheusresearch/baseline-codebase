@@ -799,19 +799,24 @@ def compute_from_function(
     return decorate
 
 
-def connectiontype_name(entitytype):
-    return f"{entitytype.name}_connection"
+def connectiontype_name(entitytype, name="connection"):
+    return f"{entitytype.name}_{name}"
 
 
 def connectiontype_uncached(
-    entitytype, entitytype_complete=None, fields=None, filters=None, sort=None
+    entitytype,
+    entitytype_complete=None,
+    fields=None,
+    filters=None,
+    sort=None,
+    name="connection",
 ):
     if fields is None:
         fields = lambda entitytype, entitytype_complete: {}
     entitytype_complete = entitytype_complete or entitytype
     by_id = q.id == argument("id", NonNull(EntityId(entitytype.name)))
     return Record(
-        name=connectiontype_name(entitytype),
+        name=connectiontype_name(entitytype=entitytype, name=name),
         fields=lambda: {
             "get": query(
                 q.entity.filter(by_id).first(),
@@ -861,6 +866,7 @@ def connect(
     fields=None,
     description=None,
     loc=autoloc,
+    name="connection",
 ):
     """ Configure a :func:`query` field for querying tables or one-to-many
     links between tables.
@@ -940,6 +946,7 @@ def connect(
             filters=tuple(filters) if filters else None,
             fields=fields,
             sort=sort,
+            name=name,
         ),
         description=description or f"Connection to {type.name}",
         loc=loc,

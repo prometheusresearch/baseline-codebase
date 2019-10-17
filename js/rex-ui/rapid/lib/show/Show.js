@@ -2,111 +2,78 @@
  * @flow
  */
 
-/**
- * TODO: react-match-mq
- */
 import * as React from "react";
-import { string } from "prop-types";
-import { toJS } from "../../helpers/await-to-js";
+import type { StatelessFunctionalComponent } from "react";
 
-import { useQuery } from "../../../../rex-graphql";
-import type { Endpoint } from "../../../../rex-graphql";
+import { useQuery } from "rex-graphql";
+import { type Resource } from "rex-graphql/Resource";
+import type { Endpoint, Result } from "rex-graphql";
+import {
+  defineQuery,
+  unstable_useResource as useResource
+} from "rex-graphql/Resource";
 
-type TShowProps = {|
-  endpoint: Endpoint,
-  fetch: string,
-  fields?: Array<string>,
-  renderer?: TRendererProps => React.Node,
-  onPick?: () => void
-|};
+import { WithResource } from "../../hoc/WithResource";
 
-type TGQLData = { [key: string]: any };
+import { ComponentLoading } from "../../components/ComponentLoading";
 
-type TRendererProps = {|
-  gqlData: TGQLData
-|};
+import { SCHEMA_QUERY } from "../../queries/schema";
 
-type TSchemaMeta = {| ...Object |};
+import { toJS } from "../../helpers/awaitToJS";
+import { defaultCatcher } from "../../helpers/defaultCatcher";
+import { withResourceErrorCatcher } from "../../helpers/withResourceErrorCatcher";
+import { constructQueryFromInterspection } from "../../helpers/constructors/constructQueryFromInterspection";
+import { constructVariablesFromInterspection } from "../../helpers/constructors/constructVariablesFromInterspection";
 
-const renderer = rendererProps => {
-  return <div>Some rendered things</div>;
-};
+import { ViewRenderer } from "./ViewRenderer";
+import type { TRendererProps, TShowProps, TShowPropsBase } from "./types";
 
-const COMMON_FIELDS = ["id", "name", "title", "display_name", "username"];
+const ShowSuspended = (props: TShowProps) => {
+  const { endpoint, fetch, fields, resource, Renderer } = props;
 
-const getScalarsFromMeta = (gqlMeta: ?string) => {
-  return ``;
-};
-
-const getRendererProps = ({ gqlData }: TRendererProps) => {};
-
-const fetchGqlMeta = (endpoint: Endpoint) => Promise.resolve(``);
-
-const constructFields = (gqlMeta: ?string) => {
-  return ``;
-};
-
-const constructFieldsPath = (gqlMeta: ?string) => (fieldsStr: string) => {
-  return `
-    users {
-        paginated(limit: $limit, offset: $offset) {
-            ${fieldsStr}
-        }
-    }
-`;
-};
-
-const constructQueryFromMeta = (gqlMeta: ?string, fields?: Array<string>) => {
-  const fieldsStr = constructFields(gqlMeta);
-
-  return `query($limit: Int!, $offset: Int!) {
-        ${constructFieldsPath(gqlMeta)(fieldsStr)}
-    }`;
-};
-
-const Show = React.memo((props: TShowProps) => {
-  const { endpoint, fetch } = props;
+  // GQL Schema
   const [meta, setMeta] = React.useState<string | null>(null);
-  const [query, setQuery] = React.useState<string>("");
-  const [variables, setVariables] = React.useState<Object>({});
 
-  const lifecycle = () => {};
+  const constructedQuery = constructQueryFromInterspection({
+    meta,
+    path: fetch,
+    fields
+  });
 
-  const gqlData = useQuery(endpoint, query, variables, {});
+  const constructedVariables = constructVariablesFromInterspection({
+    meta,
+    path: fetch,
+    fields
+  });
 
-  /**
-   * Get Introspection meta
-   */
-  React.useEffect(() => {
-    (async () => {
-      const [errSchemaMeta, schemaMeta] = await toJS<TSchemaMeta>(
-        fetchGqlMeta(endpoint)
-      );
+  const resourceData = withResourceErrorCatcher({
+    getResource: () => useResource(resource, constructedVariables),
+    catcher: defaultCatcher
+  });
 
-      if (schemaMeta != null) {
-        setMeta(schemaMeta);
-      }
-    })();
-  }, [endpoint, fetch]);
+  return (
+    <React.Suspense fallback={ComponentLoading}>
+      <WithResource
+        endpoint={endpoint}
+        query={constructedQuery}
+        Renderer={ViewRenderer}
+        passProps={{ Renderer }}
+      />
+    </React.Suspense>
+  );
+};
 
-  /**
-   * Get Query
-   */
-  React.useEffect(() => {
-    (async () => {
-      const query = constructQueryFromMeta(meta);
-      setQuery(query);
-    })();
-  }, [meta]);
+export const Show = (props: TShowPropsBase) => {
+  const { endpoint } = props;
 
-  /**
-   * Get data from Query
-   */
-  React.useEffect(() => {
-    (async () => {})();
-  }, [query]);
-
-  const rendererProps = getRendererProps({ gqlData });
-
-  return renderer(rendererProps);
-});
+  return (
+    <React.Suspense fallback={ComponentLoading}>
+      <WithResource
+        endpoint={endpoint}
+        Renderer={ShowSuspended}
+        query={SCHEMA_QUERY}
+        passProps={props}
+      />
+    </React.Suspense>
+  );
+};

@@ -8,38 +8,19 @@ import {
   defineQuery,
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
+import { Show } from "rex-ui/rapid/lib/show/Show";
 
-function WithResource({ endpoint, render: Render }) {
-  let resource = React.useMemo(
-    () =>
-      defineQuery<void, any>({
-        endpoint,
-        query: `
-        query {
-          __schema {
-            types { name }
-          }
-        }
-      `
-      }),
-    [endpoint]
+const endpoint = RexGraphQL.configure("/_api/graphql");
+
+function App() {
+  return (
+    <div>
+      <Show endpoint={`/_api/graphql`} fetch={"users.paginated"} />
+    </div>
   );
-  return <Render resource={resource} />;
-}
-
-function App({ resource }) {
-  let data = useResource(resource);
-  return <div>{JSON.stringify(data, null, 2)}</div>;
 }
 
 let root = document.getElementById("root");
 invariant(root != null, "DOM is not avaialble: missing #root");
 
-let endpoint = RexGraphQL.configure("/_api/graphql");
-
-ReactDOM.render(
-  <React.Suspense fallback={<div>Loading...</div>}>
-    <WithResource endpoint={endpoint} render={App} />
-  </React.Suspense>,
-  root
-);
+ReactDOM.render(<App />, root);

@@ -814,7 +814,7 @@ def connectiontype_uncached(
     if fields is None:
         fields = lambda entitytype, entitytype_complete: {}
     entitytype_complete = entitytype_complete or entitytype
-    by_id = q.id == argument("id", NonNull(EntityId(entitytype.name)))
+    by_id = q.id == argument("id", EntityId(entitytype.name))
     return Record(
         name=connectiontype_name(entitytype=entitytype, name=name),
         fields=lambda: {

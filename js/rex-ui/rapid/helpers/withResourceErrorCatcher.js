@@ -8,10 +8,10 @@ export const withResourceErrorCatcher = ({
   getResource,
   catcher
 }: {
-  getResource: () => Resource<void, any>,
+  getResource: () => Resource<any, any>,
   catcher?: (err: Error) => void
 }) => {
-  let data: Resource<void, any>;
+  let data: Resource<any, any>;
 
   try {
     data = getResource();

@@ -4,6 +4,21 @@
 
 import * as React from "react";
 import type { StatelessFunctionalComponent } from "react";
+import {
+  introspectionFromSchema,
+  buildClientSchema,
+  buildASTSchema,
+  printIntrospectionSchema,
+  astFromValue,
+  getIntrospectionQuery,
+  type IntrospectionType,
+  type GraphQLFieldConfig,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLList,
+  type IntrospectionQuery,
+  type IntrospectionSchema
+} from "graphql";
 
 import { useQuery } from "rex-graphql";
 import { type Resource } from "rex-graphql/Resource";
@@ -22,34 +37,54 @@ import { SCHEMA_QUERY } from "../../queries/schema";
 import { toJS } from "../../helpers/awaitToJS";
 import { defaultCatcher } from "../../helpers/defaultCatcher";
 import { withResourceErrorCatcher } from "../../helpers/withResourceErrorCatcher";
-import { constructQueryFromInterspection } from "../../helpers/constructors/constructQueryFromInterspection";
-import { constructVariablesFromInterspection } from "../../helpers/constructors/constructVariablesFromInterspection";
+import { constructQuery } from "../../constructors/constructQuery";
+import { constructVariablesFromInterspection } from "../../constructors/constructVariablesFromInterspection";
 
 import { ViewRenderer } from "./ViewRenderer";
-import type { TRendererProps, TShowProps, TShowPropsBase } from "./types";
+import { TRendererProps, TShowProps, TShowPropsBase } from "./types";
 
-const ShowSuspended = (props: TShowProps) => {
+import { GraphQLSchema } from "graphql/type/schema";
+import type {
+  ASTNode,
+  FieldNode,
+  SelectionSetNode
+} from "graphql/language/ast";
+import { parse as gqlParse } from "graphql/language/parser";
+import { print as gqlPrint } from "graphql/language/printer";
+import { complexQuery } from "./data.examples";
+import { constructQueryAST } from "../../constructors/constructQueryAST";
+
+const ShowSuspended = (props: TShowProps<{}, IntrospectionQuery>) => {
   const { endpoint, fetch, fields, resource, Renderer } = props;
 
+  const [error, setError] = React.useState<Error | null>(null);
   // GQL Schema
   const [meta, setMeta] = React.useState<string | null>(null);
 
-  const constructedQuery = constructQueryFromInterspection({
-    meta,
-    path: fetch,
-    fields
-  });
-
-  const constructedVariables = constructVariablesFromInterspection({
-    meta,
-    path: fetch,
-    fields
-  });
-
   const resourceData = withResourceErrorCatcher({
-    getResource: () => useResource(resource, constructedVariables),
+    getResource: () => useResource(resource),
     catcher: defaultCatcher
   });
+
+  if (resourceData instanceof Object === false) {
+    return null;
+  }
+
+  // TODO: Fix resourceData typing
+  const clientSchema = buildClientSchema((resourceData: any));
+  const introspectionQueryFromSchema: IntrospectionQuery = introspectionFromSchema(
+    clientSchema
+  );
+
+  const path = String(fetch).split(".");
+
+  const schema = introspectionQueryFromSchema.__schema;
+
+  const constructedQueryAST = constructQueryAST({
+    schema,
+    path: ["user", "all"]
+  });
+  const constructedQuery = constructQuery(constructedQueryAST);
 
   return (
     <React.Suspense fallback={ComponentLoading}>

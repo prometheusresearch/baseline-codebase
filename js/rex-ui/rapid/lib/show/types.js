@@ -9,9 +9,9 @@ export type TShowPropsBase = {|
   onPick?: () => void
 |};
 
-export type TShowProps = {|
+export type TShowProps<P, V> = {|
   ...TShowPropsBase,
-  resource: Resource<Object, any>
+  resource: Resource<P, V>
 |};
 
 export type TSchemaMeta = {| ...Object |};

@@ -12,6 +12,7 @@
     "history": "4.9.0",
     "moment": "^2.8.2",
     "react": "*",
-    "react-dom": "*"
+    "react-dom": "*",
+    "graphql": "14.4.2"
   }
 }

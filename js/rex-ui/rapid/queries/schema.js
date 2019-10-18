@@ -2,20 +2,6 @@
  * @flow
  */
 
-export const SCHEMA_QUERY = `
- {
-     __schema {
-         types {
-             name
-             fields {
-                 name
-                 description
-                 type {
-                     name
-                     kind
-                 }
-             }
-         }
-     }
- }
- `;
+import { getIntrospectionQuery } from "graphql";
+
+export const SCHEMA_QUERY = getIntrospectionQuery();

@@ -10,7 +10,7 @@ import cloudstorage
 from rex.core import get_settings, cached
 
 from .util import parse_url, join
-from .driver import get_driver, is_url
+from .driver import get_driver
 from .errors import StorageError
 
 
@@ -36,7 +36,9 @@ class Mount:
         except cloudstorage.exceptions.NotFoundError:
             raise StorageError(f'"{container_name}" not found')
         except cloudstorage.exceptions.CredentialsError as exc:
-            raise StorageError(f'Could not verify connection to storage: {exc}')
+            raise StorageError(
+                f'Could not verify connection to storage: {exc}'
+            )
 
     def path(self, *name):
         return Path(self, '').join(*name)
@@ -137,12 +139,12 @@ class Storage:
         self.mounts = {}
 
         # Translate the configuration into Mounts
-        for path, config in get_settings().storage_mount.items():
+        for path, config in get_settings().storage_mount.items():  # noqa: no-member
             config = dict(config)
             if len(config) == 1:  # only 'url' is defined
                 service, _, _ = parse_url(config['url'])
                 config.update(
-                    get_settings().storage_credentials[service] or {}
+                    get_settings().storage_credentials[service] or {}  # noqa: no-member
                 )
             self.mounts[path] = Mount(path, **config)
 
@@ -201,7 +203,7 @@ class Storage:
             f'A mount point for "{storage_path}" is not configured'
         )
 
-    def join(self, *parts):
+    def join(self, *parts):  # noqa: no-self-use
         return join(*parts)
 
     def put(self, storage_path, content, encoding=None):
@@ -225,7 +227,7 @@ class Storage:
             )
 
         try:
-            blob = path.mount.container.upload_blob(
+            path.mount.container.upload_blob(
                 content,
                 blob_name=path.container_location,
             )
@@ -238,16 +240,16 @@ class Storage:
         path = self.parse_path(storage_path)
 
         if isinstance(file_or_path, str):
-            fp = open(file_or_path, 'wb')
+            file = open(file_or_path, 'wb')
         else:
-            fp = file_or_path
+            file = file_or_path
 
         try:
             blob = path.mount.container.get_blob(path.container_location)
         except cloudstorage.exceptions.NotFoundError as exc:
             raise StorageError(str(exc))
 
-        blob.download(fp)
+        blob.download(file)
 
     def get(self, storage_path, encoding=None):
         tmp = tempfile.TemporaryFile()

@@ -1,7 +1,13 @@
 
 from rex.core import (
-    Error, RecordVal, MapVal, AnyVal, ChoiceVal, Setting, StrVal,
-    PathVal, MaybeVal)
+    Error,
+    RecordVal,
+    MapVal,
+    AnyVal,
+    Setting,
+    StrVal,
+    MaybeVal,
+)
 
 from .util import (
     normalize_mount_point,
@@ -10,6 +16,7 @@ from .util import (
 )
 from .errors import StorageError
 
+
 class StorageCredentials(Setting):
     """
     The default credentials for storage drivers.
@@ -17,10 +24,10 @@ class StorageCredentials(Setting):
 
     name = 'storage_credentials'
     validate = RecordVal(
-            ('s3', MaybeVal(MapVal(StrVal(), AnyVal())), None),
-            ('gcs', MaybeVal(MapVal(StrVal(), AnyVal())), None),
-            ('rex', MaybeVal(ServiceConfigVal()), None),
-            ('local', MaybeVal(ServiceConfigVal()), None),
+        ('s3', MaybeVal(MapVal(StrVal(), AnyVal())), None),
+        ('gcs', MaybeVal(MapVal(StrVal(), AnyVal())), None),
+        ('rex', MaybeVal(ServiceConfigVal()), None),
+        ('local', MaybeVal(ServiceConfigVal()), None),
     )
     default = validate.record_type(s3=None, gcs=None, local=None, rex=None)
 
@@ -29,7 +36,8 @@ class StorageMount(Setting):
     """
     Mount table for the virtual file system. Mapping, where:
         - keys denote the path starting with '/'
-        - values are either just cloud URLs or cloud URLs with required credentials
+        - values are either just cloud URLs or cloud URLs with required
+          credentials
         - if specific credentials are not provided, then the respective driver
           credentials from the ``storage_credentials`` are used to connect.
 
@@ -54,16 +62,22 @@ class StorageMount(Setting):
             try:
                 mount_point = normalize_mount_point(path)
                 storage = StorageVal()(storage)
-            except StorageError as e:
-                errors.append(e.message)
+            except StorageError as exc:
+                errors.append(str(exc))
                 continue
+
             if mount_point in mount:
-                errors.append(f'Mount point `{path}` is already defined. '
-                               'Check trailing slash.')
+                errors.append(
+                    f'Mount point `{path}` is already defined. Check trailing'
+                    ' slash.'
+                )
                 continue
+
             mount[mount_point] = storage
+
         if errors:
             raise Error("\n".join(errors))
+
         return mount
 
     def merge(self, old_value, new_value):

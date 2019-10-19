@@ -5,7 +5,7 @@ from rex.core import (
     RecordVal, UnionVal, PathVal, MapVal, OnScalar, OnMap, StrVal, AnyVal
 )
 from .errors import StorageError
-from .driver import DRIVERS
+from .driver import DRIVERS, is_url
 
 RE_URL = r'^(?P<service>.+?)://(?P<container>[^/]+)/(?P<path>.*)$'
 re_url = re.compile(RE_URL)
@@ -79,4 +79,24 @@ def normalize_mount_point(path):
     return path if path.endswith("/") else path + "/"
 
 
+def join(*args):
+    res = []
+    for arg in args:
+        arg = arg.strip()
+        if arg.startswith('/') or is_url(arg):
+            res = [] # abs path remove all previous parts
+        parts = (arg[:-1] if arg.endswith('/') else arg).split('/')
+        for part in parts:
+            if part == '.':
+                continue
+            elif part == '..':
+                if len(res) and res[-1]:
+                    res.pop(-1)
+                else:
+                    raise StorageError(
+                        'Cannot use relative paths to access files outside the container'
+                    )
+            else:
+                res.append(part)
+    return '/'.join(res)
 

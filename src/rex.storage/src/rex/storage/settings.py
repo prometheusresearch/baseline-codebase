@@ -59,9 +59,17 @@ class StorageMount(Setting):
                 continue
             if mount_point in mount:
                 errors.append(f'Mount point `{path}` is already defined. '
-                               'Check treainling slash.')
+                               'Check trailing slash.')
                 continue
             mount[mount_point] = storage
         if errors:
             raise Error("\n".join(errors))
         return mount
+
+    def merge(self, old_value, new_value):
+        map_val = MapVal()
+        value = {}
+        value.update(map_val(old_value))
+        value.update(map_val(new_value))
+        return value
+

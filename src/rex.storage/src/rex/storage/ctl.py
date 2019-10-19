@@ -5,12 +5,13 @@ from rex.ctl import RexTask, argument, log, fail
 from rex.core import StrVal
 from .storage import get_storage
 
+
 class Upload(RexTask):
     """
     Uploads local files to the external storage.
     """
 
-    name = "upload"
+    name = "storage-upload"
 
     class arguments:
         src = argument(check=StrVal(), plural=True)
@@ -20,9 +21,7 @@ class Upload(RexTask):
         with self.make(ensure=False, initialize=False):
             paths = self.validate_src()
             storage = get_storage()
-            if len(paths) == 1 \
-            and not self.dst.endswith('/') \
-            and (storage.is_file(self.dst) or not storage.exists(self.dst)):
+            if len(paths) == 1 and not self.dst.endswith('/'):
                 self.upload_file(list(paths)[0][0], self.dst)
             else:
                 for path, target in sorted(paths):
@@ -49,6 +48,5 @@ class Upload(RexTask):
         log(f'Uploading `{path}` to `{dst}`')
         storage = get_storage()
         with open(str(path), 'rb') as f:
-            storage.add(dst, f)
-
+            storage.put(dst, f)
 

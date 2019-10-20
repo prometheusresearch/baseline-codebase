@@ -80,11 +80,27 @@ const ShowSuspended = (props: TShowProps<{}, IntrospectionQuery>) => {
 
   const schema = introspectionQueryFromSchema.__schema;
 
+  // const parsedQueryToAST = gqlParse(`
+  //   query ($id: user_id!) {
+  //     user {
+  //       get(id: $id) {
+  //         id
+  //       }
+  //     }
+  //   }
+  // `);
+
+  const examplePath = ["user", "paginated"];
+
   const constructedQueryAST = constructQueryAST({
     schema,
-    path: ["user", "all"]
+    path: examplePath
   });
+
   const constructedQuery = constructQuery(constructedQueryAST);
+
+  console.log("Construction path: ", examplePath);
+  console.log("Constructed query: ", constructedQuery);
 
   return (
     <React.Suspense fallback={ComponentLoading}>

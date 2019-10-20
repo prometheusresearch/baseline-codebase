@@ -51,6 +51,7 @@ Components
    REX.SENDMAIL <rex.sendmail/index>
    REX.SETUP <rex.setup/index>
    REX.SMS <rex.sms/index>
+   REX.STORAGE <rex.storage/index>
    REX.TABULAR_IMPORT <rex.tabular_import/index>
    REX.URLMAP <rex.urlmap/index>
    REX.WEB <rex.web/index>

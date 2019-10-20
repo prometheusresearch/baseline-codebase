@@ -2,5 +2,7 @@ from rex.core import Error
 
 
 class StorageError(Error):
-    pass
+    """
+    The base exception raised for rex.storage errors.
+    """
 

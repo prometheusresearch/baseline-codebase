@@ -102,12 +102,10 @@ const traverseFromBase = (
     );
     const { kind, name } = currIntrospectionType;
 
-    switch (kind) {
+    switch (currIntrospectionType.kind) {
       case "OBJECT": {
-        const castedCurrIntrospectionType: IntrospectionObjectType = (currIntrospectionType: any);
-
         // Search for IntrospectionField in IntrospectionObjectType.fields
-        currIntrospectionField = castedCurrIntrospectionType.fields.find(
+        currIntrospectionField = currIntrospectionType.fields.find(
           f => f.name === fieldStr
         );
 
@@ -287,6 +285,7 @@ const getSelectionAndUpdatePaths = (
   };
 };
 
+// TODO(andreypopp): inline inside getSelectionSetRecursively
 const getSelectionArray = (
   data: TSchemaDataObject,
   currPath: Array<string>,
@@ -398,6 +397,7 @@ const getVariableDefinitionNodeFromInputValue = (
   };
 };
 
+// TODO(andreypopp): inline inside constructQueryAST
 const getOperationDefinition = (
   data: TSchemaDataObjectBase,
   path: Array<string>
@@ -432,22 +432,25 @@ export const constructQueryAST = ({
 }): ASTNode => {
   const introspectionTypes: $ReadOnlyArray<IntrospectionType> = schema.types;
 
+  // TODO(andreypopp): use schema.queryType.name here
+  // TODO(andreypopp): use typesMap to lookup Root type
   const rootType:
     | IntrospectionType
     | typeof undefined = introspectionTypes.find(t => {
     return t.kind === "OBJECT" && t.name === "Root";
   });
 
+  // TODO(andreypopp): use rootType name
   const castedRootType: IntrospectionObjectType = (rootType: any);
 
   invariant(castedRootType != null, "castedRootType is null | undefined");
 
-  const typesMap = introspectionTypes.reduce((acc, t: IntrospectionType) => {
-    return ({
-      ...acc,
-      [t.name]: t
-    }: TIntrospectionTypesMap);
-  }, ({}: TIntrospectionTypesMap));
+  // TODO(andreypopp): use Map
+  // TODO(andreypopp): use for ... of ...
+  let typesMap = new Map();
+  for (let t of introspectionTypes) {
+    typesMap.set(t.name, t);
+  }
 
   const data: TSchemaDataObjectBase = {
     schema,
@@ -460,3 +463,26 @@ export const constructQueryAST = ({
     definitions: [getOperationDefinition(data, [...path])]
   };
 };
+
+// TODO(andreypopp): decide on consistent naming: should be construct/build/make
+// not construct or get
+//
+// TODO(andreypopp): use the following recursion schema:
+//
+// function buildQuery(
+//   path: string[],
+//   parentTypeName: string,
+//   typesMap: Map<string, any>
+// ) {
+//   let [fieldName, ...restPath] = path;
+//   let parentType = typesMap.get(parentTypeName);
+//   let field = parentType.fields[fieldName];
+//
+//   return {
+//     kind: "Field",
+//     selectionSet:
+//       restPath.length === 0
+//         ? buildSelectionSet(someArgsHere)
+//         : buildQuery(restPath, field.type.name, typesMap)
+//   };
+// }

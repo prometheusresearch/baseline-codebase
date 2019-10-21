@@ -24,7 +24,6 @@ import {
   type NameNode,
   type TypeNode
 } from "graphql/language/ast";
-import { string } from "prop-types";
 
 type TIntrospectionFieldType = {|
   kind: string,

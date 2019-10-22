@@ -7,7 +7,7 @@ import { type Endpoint } from "rex-graphql";
 import { defineQuery, type Resource } from "rex-graphql/Resource";
 import { getIntrospectionQuery } from "graphql";
 
-export function WithResource<R: any>({
+export function WithResource<R>({
   endpoint,
   query = getIntrospectionQuery(),
   Renderer,

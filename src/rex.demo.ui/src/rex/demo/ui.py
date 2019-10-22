@@ -7,7 +7,7 @@ from rex.web import (
     render_to_response,
     find_assets_bundle,
 )
-from rex.graphql import schema, Entity, connect, query, q
+from rex.graphql import schema, Entity, connect, query, q, scalar, argument
 from rex.graphql.serve import serve
 
 
@@ -26,7 +26,11 @@ class API(HandleLocation):
                 "system_admin": query(q.system_admin),
             },
         )
-        return schema(fields=lambda: {"user": connect(query=q.user, type=user)})
+        return schema(fields=lambda: {
+            "user": connect(query=q.user, type=user, filters=[
+                q.system_admin == argument('system_admin', type=scalar.Boolean)
+            ])
+        })
 
     def __call__(self, req):
         if not authorize(req, self):

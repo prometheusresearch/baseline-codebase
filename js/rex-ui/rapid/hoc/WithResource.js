@@ -5,12 +5,11 @@
 import * as React from "react";
 import { type Endpoint } from "rex-graphql";
 import { defineQuery, type Resource } from "rex-graphql/Resource";
-
-import { SCHEMA_QUERY } from "../queries/schema";
+import { getIntrospectionQuery } from "graphql";
 
 export function WithResource<R: any>({
   endpoint,
-  query = SCHEMA_QUERY,
+  query = getIntrospectionQuery(),
   Renderer,
   passProps,
   children

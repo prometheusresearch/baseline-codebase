@@ -8,16 +8,12 @@ import {
   defineQuery,
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
-import { Show } from "rex-ui/rapid/lib/show/Show";
+import { Pick } from "rex-ui/rapid/lib/pick/Pick";
 
 const endpoint = RexGraphQL.configure("/_api/graphql");
 
 function App() {
-  return (
-    <div>
-      <Show endpoint={`/_api/graphql`} fetch={"users.paginated"} />
-    </div>
-  );
+  return <Pick endpoint={`/_api/graphql`} fetch={"user.paginated"} />;
 }
 
 let root = document.getElementById("root");

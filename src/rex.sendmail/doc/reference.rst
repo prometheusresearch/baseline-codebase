@@ -26,5 +26,7 @@ Settings
 ========
 
 .. autoclass:: SendmailSetting
+.. autoclass:: SendmailUsernameSetting
+.. autoclass:: SendmailPasswordSetting
 
 

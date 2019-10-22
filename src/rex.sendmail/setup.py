@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.sendmail',
-    version = "1.0.4",
+    version = "1.1.0",
     description="Sending emails",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

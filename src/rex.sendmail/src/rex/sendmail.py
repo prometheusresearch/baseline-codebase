@@ -121,17 +121,24 @@ class SMTPMailer(Mailer):
     `forward`
         If set, the list of recipients is ignored and instead
         all mail is forwarded to the specified address.
+    `username`, `password`
+        Information for authenticating with the SMTP server.
     """
 
-    def __init__(self, host='127.0.0.1', port=25, forward=None):
+    def __init__(self, host='127.0.0.1', port=25, forward=None, username=None, password=None):
         self.host = host
         self.port = port
         self.forward = forward
+        self.username = username
+        self.password = password
 
     def initialize(self):
         smtp = smtplib.SMTP()
         try:
             smtp.connect(self.host, self.port)
+            if self.username and self.password:
+                smtp.login(self.username, self.password)
+            smtp.quit()
         except Exception as exc:
             raise Error("Failed to connect to SMTP server at %s:%s:"
                         % (self.host, self.port), exc)
@@ -141,6 +148,8 @@ class SMTPMailer(Mailer):
             recipients = [self.forward]
         smtp = smtplib.SMTP()
         smtp.connect(self.host, self.port)
+        if self.username and self.password:
+            smtp.login(self.username, self.password)
         smtp.sendmail(sender, recipients, text)
         smtp.quit()
 
@@ -159,6 +168,8 @@ class SMTPMailer(Mailer):
             args.append(repr(self.port))
         if self.forward is not None:
             args.append("forward=%r" % self.forward)
+        if self.username is not None:
+            args.append("username=%r" % self.username)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
@@ -285,6 +296,26 @@ class SendmailSetting(Setting):
     default = "smtp:127.0.0.1"
 
 
+class SendmailUsernameSetting(Setting):
+    """
+    User name for authenticating with the SMTP server.
+    """
+
+    name = 'sendmail_username'
+    validate = MaybeVal(StrVal)
+    default = None
+
+
+class SendmailPasswordSetting(Setting):
+    """
+    Password for authenticating with the SMTP server.
+    """
+
+    name = 'sendmail_password'
+    validate = MaybeVal(StrVal)
+    default = None
+
+
 @cached
 def get_mailer():
     """
@@ -300,7 +331,9 @@ def get_mailer():
     elif match.group('smtp_host'):
         return SMTPMailer(match.group('smtp_host'),
                           int(match.group('smtp_port') or '25'),
-                          match.group('smtp_email'))
+                          match.group('smtp_email'),
+                          settings.sendmail_username,
+                          settings.sendmail_password)
     elif match.group('email'):
         return SMTPMailer("127.0.0.1", 25, match.group('email'))
     elif match.group('stdout'):

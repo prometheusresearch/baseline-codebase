@@ -1,1 +1,3 @@
-export { Show } from "./lib/show";
+// @flow
+
+export { Pick } from "./lib/pick";

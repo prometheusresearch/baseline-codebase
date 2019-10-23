@@ -12,7 +12,7 @@ tests:
   stdout: |
     You are using pip version 18.1, however version 19.2.3 is available.
     You should consider upgrading via the 'pip install --upgrade pip' command.
-- sh: pip install --quiet --editable ../rex.instrument/demo
+- sh: pip install --quiet --editable ../rex.demo.instrument
   stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''

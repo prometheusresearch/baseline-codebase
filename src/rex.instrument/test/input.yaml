@@ -9,10 +9,13 @@ tests:
   - coverage: setup.cfg
     auto-data: true
 
-  - sh: pip install --quiet --editable ./demo
+  - sh: pip install --quiet --editable ../rex.demo.instrument
+    ignore: true
 
-  - sh: rex dropdb --quiet rex.instrument_demo
-  - sh: rex deploy --quiet rex.instrument_demo
+  - sh: rex dropdb --quiet rex.demo.instrument
+    ignore: true
+  - sh: rex deploy --quiet rex.demo.instrument
+    ignore: true
 
   - doctest: README.rst
   - doctest: test/test_*.rst

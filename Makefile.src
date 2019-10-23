@@ -43,6 +43,8 @@ SRC_PY = \
 	src/rex.about \
 	src/rex.notebook \
 	src/rex.baseline \
+	src/rex.demo.instrument \
+	src/rex.demo.forms \
 	src/rex.demo.baseline
 
 
@@ -80,7 +82,8 @@ WORKSPACE_JS = \
 # installed and built with yarn during the "develop" and "install" targets
 # (using "yarn run build").
 SRC_JS = \
-	js/rex-action-application
+	js/rex-action-application \
+	js/rex-demo-forms
 
 
 ### JavaScript Project Tests
@@ -122,5 +125,6 @@ TEST_MAKE =
 # 	<source directory>:<target location>
 SRC_DATA = \
 	src/rex.demo.baseline/doc/build/html:share/rex/rex.demo.baseline/www/docs \
-	js/rex-action-application/build:share/rex/rex.demo.baseline/www/bundle
+	js/rex-action-application/build:share/rex/rex.demo.baseline/www/bundle \
+	js/rex-demo-forms/build:share/rex/rex.demo.forms/www/bundle
 

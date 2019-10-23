@@ -32,7 +32,7 @@ string-rendering methods::
 Users have methods that allow you to retrieve other interface objects, but
 filtered by what that User has access to see::
 
-    >>> rex = Rex('rex.instrument_demo', db='pgsql:instrument_demo')
+    >>> rex = Rex('rex.demo.instrument', db='pgsql:demo.instrument')
     >>> rex.on()
 
     >>> user = get_implementation('user').get_by_uid('user1')

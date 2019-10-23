@@ -1,0 +1,15 @@
+{% extends "rex.demo.forms:/templates/base.html" %}
+
+{% block body %}
+<script type="text/javascript">
+    RexFormsDemo.renderMenu(
+        {
+            demos: {{ demos|json }},
+            recons: {{ recons|json }},
+            mountPoint: {{ MOUNT['rex.demo.forms']|json }}
+        },
+        document.getElementById('main')
+    );
+</script>
+{% endblock %}
+

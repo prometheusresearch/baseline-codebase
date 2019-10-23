@@ -20,7 +20,9 @@ type Props = {
   viewDate: Moment,
   onViewDate: Moment => void,
   selectedDate: ?Moment,
-  onSelectedDate: ?Moment => void
+  onSelectedDate: (?Moment) => void,
+  minDate?: Moment,
+  maxDate?: Moment
 };
 
 export let TimePicker = (props: Props) => {
@@ -64,7 +66,7 @@ export let TimePicker = (props: Props) => {
   };
 
   return (
-    <div>
+    <div style={{ outline: "none" }}>
       {mode === "time" && (
         <div>
           <table>

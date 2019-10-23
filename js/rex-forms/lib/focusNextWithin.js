@@ -2,12 +2,13 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import getFocusableElementList from './getFocusableElementList';
+import getFocusableElementList from "./getFocusableElementList";
 
 export default function focusNextWithin(root, after = document.activeElement) {
   let elements = getFocusableElementList(root);
   let nodes = elements.map(item => item.node);
-  while (true) { // eslint-disable-line no-constant-condition
+  while (true) {
+    // eslint-disable-line no-constant-condition
     let idx = nodes.indexOf(after);
     if (idx === -1) {
       if (!after.parentNode) {
@@ -26,4 +27,3 @@ export default function focusNextWithin(root, after = document.activeElement) {
     }
   }
 }
-

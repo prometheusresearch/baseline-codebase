@@ -11,9 +11,9 @@ import * as mui from "@material-ui/core";
 import * as Common from "./Common";
 
 let Year = props => {
-  let { year, outOfRange, active, onClick } = props;
+  let { year, outOfRange, active, onClick, disabled } = props;
   let handleClick = () => {
-    onClick(props.year);
+    disabled ? null : onClick(props.year);
   };
 
   // dimmed={outOfRange}
@@ -24,7 +24,9 @@ let Year = props => {
     borderRadius: Common.buttonSize / 2,
     display: "flex",
     flexGrow: 1,
-    backgroundColor: active ? activeStyle.backgroundColor : null
+    backgroundColor: active ? activeStyle.backgroundColor : null,
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.5 : 1
   };
 
   let textStyle = {
@@ -45,11 +47,13 @@ type YearViewProps = {|
   viewDate: Moment,
   onViewDate: Moment => void,
   selectedDate: ?Moment,
-  onClose?: () => void
+  onClose?: () => void,
+  minDate?: Moment,
+  maxDate?: Moment
 |};
 
 export let YearView = (props: YearViewProps) => {
-  let { viewDate, selectedDate, onViewDate, onClose } = props;
+  let { viewDate, selectedDate, onViewDate, onClose, minDate, maxDate } = props;
   let year = parseInt(viewDate.year() / 10, 10) * 10;
   let selectedYear = selectedDate != null ? selectedDate.year() : null;
 
@@ -68,15 +72,22 @@ export let YearView = (props: YearViewProps) => {
     }
   };
 
-  let cells = decadeYearRange(viewDate).map(item => (
-    <Year
-      key={item.year}
-      year={item.year}
-      active={item.year === selectedYear}
-      outOfRange={item.outOfRange}
-      onClick={onYearClick}
-    />
-  ));
+  let cells = decadeYearRange(viewDate).map(item => {
+    const isBeforeMin = minDate ? item.year < minDate.year() : false;
+    const isAfterMax = maxDate ? item.year > maxDate.year() : false;
+    const disabled = isBeforeMin || isAfterMax;
+
+    return (
+      <Year
+        key={item.year}
+        year={item.year}
+        active={item.year === selectedYear}
+        outOfRange={item.outOfRange}
+        onClick={onYearClick}
+        disabled={disabled}
+      />
+    );
+  });
   let rows = chunk(cells, 3).map((row, idx) => (
     <div style={{ display: "flex", flexDirection: "row" }} key={idx}>
       {row}

@@ -3,7 +3,7 @@
  */
 
 export function translate(string, ...values) {
-  let result = '';
+  let result = "";
   for (let i = 0; i < string.length; i++) {
     result += string[i];
     if (i < string.length - 1) {

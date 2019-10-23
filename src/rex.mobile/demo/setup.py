@@ -20,7 +20,7 @@ setup(
         'rex.deploy',
         'rex.mobile',
         'rex.instrument',
-        'rex.instrument_demo',
+        'rex.demo.instrument',
         'rex.forms',
     ],
     rex_init='rex.mobile_demo',

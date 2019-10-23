@@ -6,7 +6,7 @@
 from rex.db import get_db
 from rex.mobile.interface import *
 
-from rex.instrument_demo import *
+from rex.demo.instrument import *
 
 
 __all__ = (

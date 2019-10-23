@@ -1,0 +1,31 @@
+forms_implementation:
+  form: rex.demo.forms.interface.DemoForm
+  draftform: rex.demo.forms.interface.DemoDraftForm
+
+forms_presentation_adaptors:
+  chan135:
+    - demo
+  lookupchannel:
+    - lookup
+  demoapp:
+    - lookup
+
+forms_local_resource_prefix: rex.demo.forms:/media
+
+db: pgsql:demo.forms
+
+htsql_extensions:
+  tweak.etl:
+  rex_deploy:
+
+mount:
+  rex.forms: /
+
+access:
+  rex.forms: anybody
+
+i18n_supported_locales:
+  - en
+  - es
+  - ar
+

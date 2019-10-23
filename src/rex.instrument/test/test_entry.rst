@@ -6,7 +6,7 @@ Entry
 Set up the environment::
 
     >>> from rex.core import Rex
-    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex = Rex('__main__', 'rex.demo.instrument')
     >>> rex.on()
 
 

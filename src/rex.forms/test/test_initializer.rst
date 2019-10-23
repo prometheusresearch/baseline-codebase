@@ -12,13 +12,13 @@ Set up the environment::
 
 It won't do anything if there's no implementation of the interface::
 
-    >>> rex = Rex('__main__', 'rex.forms', db='pgsql:forms_demo')
+    >>> rex = Rex('__main__', 'rex.forms', db='pgsql:demo.forms')
 
 
 If there is an implementation, it will iterate through all Form
 instances in the system and ensure that they contain valid configurations::
 
-    >>> rex = Rex('__main__', 'rex.forms_demo')
+    >>> rex = Rex('__main__', 'rex.demo.forms')
 
     >>> prod = db.produce("/merge(instrument:={'broken' :as uid, 'broken' :as code, 'Broken' :as title, 'active' :as status})")
     >>> prod = db.produce("""/merge(instrumentversion:={'broken1' :as uid, 'broken' :as instrument, 1 :as version, 'someone' :as published_by, '2014-05-22' :as date_published, '{"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}' :as definition})""")
@@ -30,7 +30,7 @@ instances in the system and ensure that they contain valid configurations::
     <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
-        rex.forms_demo
+        rex.demo.forms
 
     >>> prod = db.produce("""/merge(form:={'broken1entry' :as uid, 'entry' :as channel, 'broken1' :as instrumentversion, '{hello' :as configuration})""")
     >>> rex.reset()  # doctest: +ELLIPSIS
@@ -41,12 +41,12 @@ instances in the system and ensure that they contain valid configurations::
     While validating system Forms.
     While initializing RexDB application:
         __main__
-        rex.forms_demo
+        rex.demo.forms
 
 
 If the setting is disabled, the automatic validation won't occur::
 
-    >>> rex = Rex('__main__', 'rex.forms_demo', forms_validate_on_startup=False)
+    >>> rex = Rex('__main__', 'rex.demo.forms', forms_validate_on_startup=False)
 
 
 Clean up after ourselves::

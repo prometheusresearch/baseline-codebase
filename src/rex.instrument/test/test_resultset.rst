@@ -9,7 +9,7 @@ Set up the environment::
     >>> from copy import deepcopy
     >>> from rex.core import Rex
     >>> from datetime import datetime
-    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex = Rex('__main__', 'rex.demo.instrument')
     >>> rex.on()
 
 

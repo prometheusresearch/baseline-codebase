@@ -14,7 +14,10 @@ import {
 import {
   type ASTNode,
   type SelectionSetNode,
-  type ArgumentNode
+  type ArgumentNode,
+  type SelectionNode,
+  type DocumentNode,
+  type FieldNode
 } from "graphql/language/ast";
 import { buildVariableDefinition } from "./buildVariableDefinition";
 import { buildArgumentNode } from "./buildArgumentNode";
@@ -62,16 +65,32 @@ const buildSelectionSet = (
     fieldArguments,
     currType,
     path,
-    collectInputValues
+    collectInputValues,
+    collectColumns
   }: {
     fieldName: string,
     fieldArguments: ArgumentNode[],
     currType: IntrospectionObjectType,
     path: string[],
-    collectInputValues: (inputValue: IntrospectionInputValue) => void
+    collectInputValues: (inputValue: IntrospectionInputValue) => void,
+    collectColumns: (selections: FieldNode[]) => void
   }
 ): SelectionSetNode => {
+  // Break the recursion
   if (path.length === 0) {
+    const selections: FieldNode[] = currType.fields.map(f => {
+      return {
+        arguments: f.args.map(arg =>
+          buildArgumentNode(arg, collectInputValues)
+        ),
+        directives: [],
+        kind: "Field",
+        name: { kind: "Name", value: f.name }
+      };
+    });
+
+    collectColumns(selections);
+
     return {
       kind: "SelectionSet",
       selections: [
@@ -83,16 +102,7 @@ const buildSelectionSet = (
 
           selectionSet: {
             kind: "SelectionSet",
-            selections: currType.fields.map(f => {
-              return {
-                arguments: f.args.map(arg =>
-                  buildArgumentNode(arg, collectInputValues)
-                ),
-                directives: [],
-                kind: "Field",
-                name: { kind: "Name", value: f.name }
-              };
-            })
+            selections
           }
         }
       ]
@@ -157,7 +167,8 @@ const buildSelectionSet = (
           ),
           currType: typeForNextField,
           path: restPath,
-          collectInputValues
+          collectInputValues,
+          collectColumns
         })
       }
     ]
@@ -167,7 +178,7 @@ const buildSelectionSet = (
 export const buildQueryAST = (props: {
   schema: IntrospectionSchema,
   path: Array<string>
-}): ASTNode => {
+}): { ast: DocumentNode, columns: FieldNode[] } => {
   invariant(props != null, "props is null");
 
   const { schema, path } = props;
@@ -197,11 +208,17 @@ export const buildQueryAST = (props: {
     rootType,
     fieldName
   ): any);
+
   invariant(baseType != null, "baseType is null");
 
   const inputValues: IntrospectionInputValue[] = [];
   const collectInputValues = (inputValue: IntrospectionInputValue) => {
     inputValues.push(inputValue);
+  };
+
+  let columns: FieldNode[] = [];
+  const collectColumns = (selections: FieldNode[]) => {
+    columns = selections;
   };
 
   const operationDefinition = {
@@ -214,13 +231,17 @@ export const buildQueryAST = (props: {
       fieldArguments: [],
       currType: baseType,
       path: restPath,
-      collectInputValues
+      collectInputValues,
+      collectColumns
     }),
     variableDefinitions: inputValues.map(buildVariableDefinition)
   };
 
   return {
-    kind: "Document",
-    definitions: [operationDefinition]
+    ast: {
+      kind: "Document",
+      definitions: [operationDefinition]
+    },
+    columns
   };
 };

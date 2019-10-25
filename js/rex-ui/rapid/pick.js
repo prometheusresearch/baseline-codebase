@@ -89,14 +89,14 @@ const PickBase = (props: TypePickProps<void, IntrospectionQuery>) => {
 
   const schema = introspectionQueryFromSchema.__schema;
 
-  const query = withCatcher(
+  const { query, ast, columns } = withCatcher(
     () =>
       buildQuery({
         schema,
         path
       }),
     catcher,
-    ""
+    {}
   );
 
   return (
@@ -104,7 +104,7 @@ const PickBase = (props: TypePickProps<void, IntrospectionQuery>) => {
       endpoint={endpoint}
       query={query}
       Renderer={PickRenderer}
-      passProps={{ Renderer, catcher, fetch }}
+      passProps={{ Renderer, catcher, fetch, ast, columns }}
     />
   );
 };

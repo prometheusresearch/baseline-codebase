@@ -4,7 +4,11 @@
 
 import { type IntrospectionSchema } from "graphql/utilities/introspectionQuery";
 import { print as gqlPrint } from "graphql/language/printer";
-import { type ASTNode } from "graphql/language/ast";
+import {
+  type DocumentNode,
+  type SelectionNode,
+  type FieldNode
+} from "graphql/language/ast";
 import { buildQueryAST } from "./buildQueryAST";
 
 export const buildQuery = ({
@@ -13,7 +17,11 @@ export const buildQuery = ({
 }: {
   schema: IntrospectionSchema,
   path: Array<string>
-}) => {
-  const ast = buildQueryAST({ schema, path });
-  return gqlPrint(ast);
+}): {| query: string, ast: DocumentNode, columns: FieldNode[] |} => {
+  const { ast, columns } = buildQueryAST({ schema, path });
+  return {
+    query: gqlPrint(ast),
+    ast,
+    columns
+  };
 };

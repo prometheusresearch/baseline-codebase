@@ -8,6 +8,9 @@ import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import Moment from "moment";
 
+import { createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/styles";
+
 import { DateTimePicker as RexUIDateTimePicker } from "rex-ui/datepicker";
 import DateRange from "@material-ui/icons/DateRange";
 import { Button } from "rex-ui";
@@ -36,6 +39,8 @@ import ErrorList from "../ErrorList";
 
 const DATE_REGEX_NO_SECONDS = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d$/;
 const DATE_FORMAT_BASE = "YYYY-MM-DDTHH:mm";
+
+const theme = createMuiTheme();
 
 const InputDateTime = (
   props: WidgetInputProps & { instrument: InstrumentDateTime }
@@ -106,50 +111,52 @@ const InputDateTime = (
   const onClear = () => props.onChange("");
 
   return (
-    <div>
-      <InputWrapper>
-        <ReactUI.Input
-          {...rest}
-          mask="9999-99-99T99:99:99"
-          Component={MaskedInput}
-          onChange={onChange}
-          onBlur={onBlur}
-        />
-        <Toggler onClick={onShowModal}>
-          <DateRange style={TogglerIconStyle} />
-        </Toggler>
-      </InputWrapper>
+    <ThemeProvider theme={theme}>
+      <div>
+        <InputWrapper>
+          <ReactUI.Input
+            {...rest}
+            mask="9999-99-99T99:99:99"
+            Component={MaskedInput}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
+          <Toggler onClick={onShowModal}>
+            <DateRange style={TogglerIconStyle} />
+          </Toggler>
+        </InputWrapper>
 
-      <Modal open={showModal} onClose={onModalClose}>
-        <RexUIPickerWrapper>
-          <Paper style={{ padding: 16 }}>
-            <RexUIDateTimePicker
-              datePickerMode={datePickerMode}
-              onDatePickerMode={setDatePickerMode}
-              timePickerMode={timePickerMode}
-              onTimePickerMode={setTimePickerMode}
-              viewDate={viewDate}
-              onViewDate={setViewDate}
-              selectedDate={selectedDate}
-              onSelectedDate={onSelectedDate}
-              minDate={minDate}
-              maxDate={maxDate}
-            />
-            <ButtonsWrapper>
-              <Button onClick={onToday} style={{ float: "left" }}>
-                Now
-              </Button>
-              <Button onClick={onClear} style={{ float: "left" }}>
-                Clear
-              </Button>
-              <Button onClick={onModalClose}>Close</Button>
-            </ButtonsWrapper>
+        <Modal open={showModal} onClose={onModalClose}>
+          <RexUIPickerWrapper>
+            <Paper style={{ padding: 16 }}>
+              <RexUIDateTimePicker
+                datePickerMode={datePickerMode}
+                onDatePickerMode={setDatePickerMode}
+                timePickerMode={timePickerMode}
+                onTimePickerMode={setTimePickerMode}
+                viewDate={viewDate}
+                onViewDate={setViewDate}
+                selectedDate={selectedDate}
+                onSelectedDate={onSelectedDate}
+                minDate={minDate}
+                maxDate={maxDate}
+              />
+              <ButtonsWrapper>
+                <Button onClick={onToday} style={{ float: "left" }}>
+                  Now
+                </Button>
+                <Button onClick={onClear} style={{ float: "left" }}>
+                  Clear
+                </Button>
+                <Button onClick={onModalClose}>Close</Button>
+              </ButtonsWrapper>
 
-            <ErrorList formValue={formValue} />
-          </Paper>
-        </RexUIPickerWrapper>
-      </Modal>
-    </div>
+              <ErrorList formValue={formValue} />
+            </Paper>
+          </RexUIPickerWrapper>
+        </Modal>
+      </div>
+    </ThemeProvider>
   );
 };
 

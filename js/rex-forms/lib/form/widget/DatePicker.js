@@ -9,6 +9,9 @@ import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import Moment from "moment";
 import DateRange from "@material-ui/icons/DateRange";
 
+import { createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/styles";
+
 import { DatePicker as DatePickerBase } from "rex-ui/datepicker";
 import { style } from "react-stylesheet";
 
@@ -35,6 +38,8 @@ import {
 import ErrorList from "../ErrorList";
 
 const DATE_FORMAT = "YYYY-MM-DD";
+
+const theme = createMuiTheme();
 
 const InputDate = (props: WidgetInputProps) => {
   const [viewDate, setViewDate] = React.useState(Moment());
@@ -89,41 +94,47 @@ const InputDate = (props: WidgetInputProps) => {
   };
 
   return (
-    <div>
-      <InputWrapper>
-        <ReactUI.Input {...rest} onChange={onChange} Component={MaskedInput} />
-        <Toggler onClick={onToggleModal}>
-          <DateRange style={TogglerIconStyle} />
-        </Toggler>
-      </InputWrapper>
-      <Modal open={showModal} onClose={onModalClose}>
-        <RexUIPickerWrapper>
-          <Paper style={{ padding: 16 }}>
-            <DatePickerBase
-              mode={mode}
-              onMode={setMode}
-              viewDate={viewDate}
-              onViewDate={setViewDate}
-              selectedDate={selectedDate}
-              onSelectedDate={onSelectedDate}
-              minDate={minDate}
-              maxDate={maxDate}
-            />
-            <ButtonsWrapper>
-              <Button onClick={onToday} style={{ float: "left" }}>
-                Today
-              </Button>
-              <Button onClick={onClear} style={{ float: "left" }}>
-                Clear
-              </Button>
-              <Button onClick={onModalClose}>Close</Button>
-            </ButtonsWrapper>
+    <ThemeProvider theme={theme}>
+      <div>
+        <InputWrapper>
+          <ReactUI.Input
+            {...rest}
+            onChange={onChange}
+            Component={MaskedInput}
+          />
+          <Toggler onClick={onToggleModal}>
+            <DateRange style={TogglerIconStyle} />
+          </Toggler>
+        </InputWrapper>
+        <Modal open={showModal} onClose={onModalClose}>
+          <RexUIPickerWrapper>
+            <Paper style={{ padding: 16 }}>
+              <DatePickerBase
+                mode={mode}
+                onMode={setMode}
+                viewDate={viewDate}
+                onViewDate={setViewDate}
+                selectedDate={selectedDate}
+                onSelectedDate={onSelectedDate}
+                minDate={minDate}
+                maxDate={maxDate}
+              />
+              <ButtonsWrapper>
+                <Button onClick={onToday} style={{ float: "left" }}>
+                  Today
+                </Button>
+                <Button onClick={onClear} style={{ float: "left" }}>
+                  Clear
+                </Button>
+                <Button onClick={onModalClose}>Close</Button>
+              </ButtonsWrapper>
 
-            <ErrorList formValue={formValue} />
-          </Paper>
-        </RexUIPickerWrapper>
-      </Modal>
-    </div>
+              <ErrorList formValue={formValue} />
+            </Paper>
+          </RexUIPickerWrapper>
+        </Modal>
+      </div>
+    </ThemeProvider>
   );
 };
 

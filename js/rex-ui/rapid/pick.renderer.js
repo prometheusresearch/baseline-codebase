@@ -12,6 +12,8 @@ import {
 } from "graphql/language/ast";
 
 import { makeStyles, useTheme } from "@material-ui/styles";
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
+
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
@@ -21,7 +23,6 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 
-import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FormGroup from "@material-ui/core/FormGroup";
 import IconButton from "@material-ui/core/IconButton";
@@ -42,11 +43,10 @@ import {
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
 
-import { withResourceErrorCatcher } from "./helpers";
+import { withResourceErrorCatcher, calculateItemsLimit } from "./helpers";
 
 import { ComponentLoading } from "./component.loading";
-
-// import type { TypePropsRenderer } from "./Pick";
+import { ShowRenderer, ShowCard } from "./show.renderer";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
@@ -56,7 +56,24 @@ export type TypePropsRenderer = {|
   fetch: string,
   ast: DocumentNode,
   columns: FieldNode[],
-  catcher: (err: Error) => void
+  RendererColumnCell?: (props: {
+    column: FieldNode,
+    index: number
+  }) => React.Node,
+  RendererRowCell?: (props: {
+    column: FieldNode,
+    row: any,
+    index: number
+  }) => React.Node,
+  RendererRow?: (props: {
+    columns: FieldNode[],
+    row: any,
+    index: number
+  }) => React.Node,
+  ref?: any,
+  catcher: (err: Error) => void,
+  isRowClickable?: boolean,
+  onRowClick?: (row: any) => void
 |};
 
 const useStyles = makeStyles({
@@ -66,14 +83,13 @@ const useStyles = makeStyles({
     overflowX: "auto"
   },
   table: {
-    minWidth: 420,
-    marginBottom: "24px"
+    minWidth: 720
   },
   tableControl: {
-    padding: "24px"
+    padding: "16px"
   },
   itemsCount: {
-    padding: " 0 24px"
+    padding: "0 16px"
   },
   formControl: {
     minWidth: 120
@@ -99,19 +115,16 @@ const TableFilters = ({
     <Grid
       container
       direction="row"
-      justify="space-between"
+      justify="flex-end"
       alignItems="center"
       spacing={8}
       className={classes.tableControl}
     >
-      <Grid item xs={12}>
-        <Typography variant={"h6"}>Filters</Typography>
-      </Grid>
-
       <Grid item>
         <FormGroup row>
           {variableDefinitions
             .filter(varDef => {
+              // Get only Boolean vars
               // $FlowFixMe
               const value = varDef.type.name
                 ? varDef.type.name.value
@@ -122,23 +135,31 @@ const TableFilters = ({
               const booleanFilterName = varDef.variable.name.value;
 
               return (
-                <FormControlLabel
-                  key={booleanFilterName}
-                  control={
-                    <Switch
-                      checked={filterState[booleanFilterName] || false}
-                      onChange={() =>
-                        setFilterState(
-                          booleanFilterName,
-                          !filterState[booleanFilterName]
-                        )
-                      }
-                      value={filterState[booleanFilterName] || false}
-                      color="primary"
-                    />
-                  }
-                  label={`${booleanFilterName}`}
-                />
+                <FormControl
+                  key={`boolean-filter-${booleanFilterName}`}
+                  className={classes.formControl}
+                >
+                  <InputLabel htmlFor={`boolean-filter-${booleanFilterName}`}>
+                    {booleanFilterName}
+                  </InputLabel>
+                  <Select
+                    value={
+                      filterState[booleanFilterName] === undefined
+                        ? "undefined"
+                        : filterState[booleanFilterName]
+                    }
+                    onChange={ev => {
+                      setFilterState(booleanFilterName, ev.target.value);
+                    }}
+                    inputProps={{
+                      name: `boolean-filter-${booleanFilterName}`
+                    }}
+                  >
+                    <MenuItem value={"undefined"}>Not applied</MenuItem>
+                    <MenuItem value={false}>No</MenuItem>
+                    <MenuItem value={true}>Yes</MenuItem>
+                  </Select>
+                </FormControl>
               );
             })}
         </FormGroup>
@@ -150,7 +171,6 @@ const TableFilters = ({
 const TablePagination = ({
   data,
   limit,
-  setLimit,
   offset,
   decrementPage,
   incrementPage
@@ -158,7 +178,6 @@ const TablePagination = ({
   data: any,
   limit: number,
   offset: number,
-  setLimit: (pageSize: number) => void,
   decrementPage: () => void,
   incrementPage: () => void
 |}) => {
@@ -168,28 +187,11 @@ const TablePagination = ({
     <Grid
       container
       direction="row"
-      justify="space-between"
+      justify="flex-end"
       alignItems="center"
       spacing={8}
       className={classes.tableControl}
     >
-      <Grid item xs={4}>
-        <FormControl className={classes.formControl}>
-          <InputLabel htmlFor="page-size">Page size</InputLabel>
-          <Select
-            value={limit}
-            onChange={ev => setLimit(ev.target.value)}
-            inputProps={{
-              name: "page-size"
-            }}
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={15}>15</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
       <Grid item>
         <IconButton
           aria-label="previous"
@@ -213,21 +215,32 @@ const TablePagination = ({
   );
 };
 
+const containerRef = React.createRef();
+
 export const PickRenderer = ({
   resource,
   Renderer,
   catcher,
   columns,
   fetch,
-  ast
+  ast,
+  RendererColumnCell,
+  RendererRowCell,
+  RendererRow,
+  isRowClickable,
+  onRowClick
 }: TypePropsRenderer) => {
   const [offset, _setOffset] = React.useState<number>(0);
-  const [limit, _setLimit] = React.useState<number>(5);
+  const [limit, _setLimit] = React.useState<number>(0);
   const [filterState, _setFilterState] = React.useState({});
 
+  const isTabletWidth = useMediaQuery("(min-width: 720px)");
+
   const setFilterState = (varDefName: string, value: boolean) => {
-    _setOffset(0);
-    _setFilterState({ ...filterState, [varDefName]: value });
+    setTimeout(() => {
+      _setOffset(0);
+      _setFilterState({ ...filterState, [varDefName]: value });
+    }, 128);
   };
 
   const setLimit = (limit: number) => {
@@ -253,6 +266,7 @@ export const PickRenderer = ({
 
   invariant(queryDefinition != null, "queryDefinition is null");
 
+  // Initializing boolean filters on new queryDefinition
   React.useEffect(() => {
     const { variableDefinitions } = queryDefinition;
     if (variableDefinitions == null) {
@@ -266,18 +280,46 @@ export const PickRenderer = ({
         // $FlowFixMe
         variableDefinition.type.name && variableDefinition.type.name.value;
       if (typeNameValue === "Boolean") {
-        newFilterState[varName] = false;
+        newFilterState[varName] = "undefined";
       }
     }
     _setFilterState(newFilterState);
-
-    variableDefinitions;
   }, [queryDefinition]);
+
+  // Calculating needed items limit
+  React.useEffect(() => {
+    // Return on mobile view
+    if (!isTabletWidth) {
+      _setLimit(1);
+      return;
+    }
+
+    if (containerRef && containerRef.current) {
+      const coords = containerRef.current.getBoundingClientRect();
+
+      const newLimit = calculateItemsLimit({
+        coords,
+        cellStaticHeightValue: 48
+      });
+
+      _setLimit(newLimit);
+    }
+  }, [containerRef, isTabletWidth]);
 
   const classes = useStyles();
 
+  // Replacing "undefined" -> undefined
+  // SelectInput warns if value is undefined, so "undefined" is put there as a string
+  const preparedFilterState = Object.keys(filterState).reduce((acc, key) => {
+    return {
+      ...acc,
+      [key]: filterState[key] === "undefined" ? undefined : filterState[key]
+    };
+  }, {});
+
   const resourceData = withResourceErrorCatcher({
-    getResource: () => useResource(resource, { ...filterState, offset, limit }),
+    getResource: () =>
+      useResource(resource, { ...preparedFilterState, offset, limit }),
     catcher
   });
 
@@ -287,70 +329,93 @@ export const PickRenderer = ({
 
   const data = _get(resourceData, fetch);
 
+  const TableHeadRows = columns.map((column, index) => {
+    return RendererColumnCell ? (
+      <RendererColumnCell column={column} index={index} key={index} />
+    ) : (
+      <TableCell align="left" key={column.name.value}>
+        {column.name.value}
+      </TableCell>
+    );
+  });
+
+  const TableBodyRows = data.map((row, index) => {
+    return RendererRow ? (
+      <RendererRow row={row} columns={columns} index={index} key={index} />
+    ) : (
+      <TableRow
+        key={row.id}
+        hover={isRowClickable}
+        style={{ cursor: isRowClickable ? "pointer" : "default" }}
+        onClick={ev => (onRowClick && isRowClickable ? onRowClick(row) : null)}
+      >
+        {columns.map((column, index) => {
+          return RendererRowCell ? (
+            <RendererRowCell
+              row={row}
+              column={column}
+              index={index}
+              key={index}
+            />
+          ) : (
+            <TableCell key={column.name.value} align="left">
+              <span>{String(row[column.name.value])}</span>
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  });
+
   const whatToRender = Renderer ? (
     <Renderer resource={resourceData} columns={columns} />
   ) : (
-    <Grid container>
-      <Grid item xs={12}>
-        <Paper className={classes.root}>
-          <TableFilters
-            filterState={filterState}
-            setFilterState={setFilterState}
-            variableDefinitions={
-              queryDefinition.variableDefinitions
-                ? [...queryDefinition.variableDefinitions]
-                : queryDefinition.variableDefinitions
-            }
-          />
+    <div ref={containerRef}>
+      <Grid container>
+        <Grid item xs={12}>
+          <Paper className={classes.root}>
+            <TableFilters
+              filterState={filterState}
+              setFilterState={setFilterState}
+              variableDefinitions={
+                queryDefinition.variableDefinitions
+                  ? [...queryDefinition.variableDefinitions]
+                  : queryDefinition.variableDefinitions
+              }
+            />
 
-          <Table className={classes.table} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                {columns.map((column, index) => {
-                  return (
-                    <TableCell align="left" key={column.name.value}>
-                      {column.name.value}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map(row => {
+            {isTabletWidth ? (
+              <Table
+                className={classes.table}
+                aria-label="simple table"
+                padding={"dense"}
+              >
+                <TableHead>
+                  <TableRow>{TableHeadRows}</TableRow>
+                </TableHead>
+                <TableBody>{TableBodyRows}</TableBody>
+              </Table>
+            ) : (
+              data.map((row, index) => {
                 return (
-                  <TableRow key={row.id}>
-                    {columns.map((column, index) => {
-                      return (
-                        <TableCell key={column.name.value} align="left">
-                          <span>{String(row[column.name.value])}</span>
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
+                  <div key={index} style={{ padding: 16 }}>
+                    <ShowCard data={row} />
+                  </div>
                 );
-              })}
-            </TableBody>
-          </Table>
+              })
+            )}
 
-          {data.length > 0 ? (
-            <div className={classes.itemsCount}>
-              <Typography variant={"caption"}>
-                {`Items ${offset || 1} - ${offset + data.length}`}
-              </Typography>
-            </div>
-          ) : null}
-
-          <TablePagination
-            data={data}
-            limit={limit}
-            offset={offset}
-            setLimit={setLimit}
-            decrementPage={decrementPage}
-            incrementPage={incrementPage}
-          />
-        </Paper>
+            <TablePagination
+              data={data}
+              limit={limit}
+              offset={offset}
+              decrementPage={decrementPage}
+              incrementPage={incrementPage}
+            />
+          </Paper>
+        </Grid>
       </Grid>
-    </Grid>
+    </div>
   );
 
   return whatToRender;

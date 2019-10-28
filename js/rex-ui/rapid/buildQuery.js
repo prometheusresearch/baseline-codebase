@@ -19,8 +19,12 @@ export const buildQuery = ({
   path: Array<string>
 }): {| query: string, ast: DocumentNode, columns: FieldNode[] |} => {
   const { ast, columns } = buildQueryAST({ schema, path });
+  const query = gqlPrint(ast);
+
+  console.log("query: ", query);
+
   return {
-    query: gqlPrint(ast),
+    query,
     ast,
     columns
   };

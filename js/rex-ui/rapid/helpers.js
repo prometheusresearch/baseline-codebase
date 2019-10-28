@@ -66,3 +66,23 @@ export const withResourceErrorCatcher = ({
 
   return data;
 };
+
+export const calculateItemsLimit = ({
+  coords,
+  cellStaticHeightValue
+}: {
+  coords: ClientRect,
+  cellStaticHeightValue: number
+}) => {
+  const height = window.innerHeight;
+
+  let limit: number = 3;
+  const delta = window.innerHeight - coords.height;
+  const rate = delta / cellStaticHeightValue;
+
+  if (rate > 3) {
+    return Math.floor(rate) - 1;
+  }
+
+  return limit;
+};

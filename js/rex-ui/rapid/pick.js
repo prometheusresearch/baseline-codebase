@@ -40,23 +40,50 @@ import {
   getPathFromFetch
 } from "./helpers";
 
-export type TypePickPropsBase = {|
+export type PickPropsBase = {|
   endpoint: Endpoint,
   fetch: string,
   fields?: Array<string>,
   Renderer?: React.ComponentType<any>,
-  onPick?: () => void
+  RendererColumnCell?: (props: {
+    column: FieldNode,
+    index: number
+  }) => React.Node,
+  RendererRow?: (props: {
+    columns: FieldNode[],
+    row: any,
+    index: number
+  }) => React.Node,
+  RendererRowCell?: (props: {
+    column: FieldNode,
+    row: any,
+    index: number
+  }) => React.Node,
+  onPick?: () => void,
+  isRowClickable?: boolean,
+  onRowClick?: (row: any) => void
 |};
 
-export type TypePickProps<P, V> = {|
-  ...TypePickPropsBase,
+export type PickProps<P, V> = {|
+  ...PickPropsBase,
   resource?: Resource<P, V>
 |};
 
 export type TypeSchemaMeta = {| ...Object |};
 
-const PickBase = (props: TypePickProps<void, IntrospectionQuery>) => {
-  const { endpoint, fetch, fields, resource, Renderer } = props;
+const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
+  const {
+    endpoint,
+    fetch,
+    fields,
+    resource,
+    Renderer,
+    RendererColumnCell,
+    RendererRowCell,
+    RendererRow,
+    isRowClickable,
+    onRowClick
+  } = props;
 
   const [error, setError] = React.useState<Error | null>(null);
   // GQL Schema
@@ -104,12 +131,23 @@ const PickBase = (props: TypePickProps<void, IntrospectionQuery>) => {
       endpoint={endpoint}
       query={query}
       Renderer={PickRenderer}
-      passProps={{ Renderer, catcher, fetch, ast, columns }}
+      passProps={{
+        Renderer,
+        catcher,
+        fetch,
+        ast,
+        columns,
+        RendererColumnCell,
+        RendererRowCell,
+        RendererRow,
+        isRowClickable,
+        onRowClick
+      }}
     />
   );
 };
 
-export const Pick = (props: TypePickPropsBase) => {
+export const Pick = (props: PickPropsBase) => {
   const { endpoint } = props;
 
   return (

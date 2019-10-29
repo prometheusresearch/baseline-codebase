@@ -68,7 +68,7 @@ whose ``is_applicable()`` method returns ``True``::
     >>> user = User('userid', 'userlogin')
 
     >>> from rex.core import Rex
-    >>> rex = Rex('__main__', 'rex.instrument', db='pgsql:instrument_demo')
+    >>> rex = Rex('__main__', 'rex.instrument', db='pgsql:demo.instrument')
     >>> rex.on()
     >>> TaskCompletionProcessor.execute_processors(task, user)
     MyOtherProcessor touched bar999

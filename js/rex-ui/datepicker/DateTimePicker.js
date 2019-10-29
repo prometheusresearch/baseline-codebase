@@ -22,7 +22,10 @@ type Props = {|
   onSelectedDate: (?Moment) => void,
 
   onFocus?: UIEvent => void,
-  onBlur?: UIEvent => void
+  onBlur?: UIEvent => void,
+
+  minDate?: Moment,
+  maxDate?: Moment
 |};
 
 export let DateTimePicker = (props: Props) => {
@@ -36,14 +39,24 @@ export let DateTimePicker = (props: Props) => {
     selectedDate,
     onSelectedDate,
     onFocus,
-    onBlur
+    onBlur,
+    minDate,
+    maxDate
   } = props;
 
+  // TODO: That comparasion looks strange.
+  // DatePicker and TimePicker depend on each other's mode,
+  // But in the end they use their own picker modes as props
   let shouldShowTimePicker = datePickerMode === "days";
   let shouldShowDatePicker = timePickerMode === "time";
 
   return (
-    <div tabIndex={0} onFocus={onFocus} onBlur={onBlur}>
+    <div
+      tabIndex={0}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      style={{ outline: "none" }}
+    >
       {shouldShowDatePicker ? (
         <DatePicker
           mode={datePickerMode}
@@ -52,6 +65,8 @@ export let DateTimePicker = (props: Props) => {
           onViewDate={onViewDate}
           selectedDate={selectedDate}
           onSelectedDate={onSelectedDate}
+          minDate={minDate}
+          maxDate={maxDate}
         />
       ) : null}
       {shouldShowTimePicker ? (

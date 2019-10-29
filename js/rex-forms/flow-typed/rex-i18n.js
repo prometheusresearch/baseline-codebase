@@ -1,6 +1,5 @@
-declare module 'rex-i18n' {
-
+declare module "rex-i18n" {
   declare type I18N = {
-    gettext(template: string, context?: Object): string;
+    gettext(template: string, context?: Object): string
   };
 }

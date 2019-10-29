@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 import PlayIcon from "react-icons/lib/fa/play";
 import PauseIcon from "react-icons/lib/fa/pause";

@@ -4,7 +4,7 @@
 ---
 suite: rex.mobile
 tests:
-- sh: pip install --quiet --editable ../rex.instrument/demo
+- sh: pip install --quiet --editable ../rex.demo.instrument
   stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''

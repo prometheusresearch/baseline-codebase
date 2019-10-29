@@ -11,13 +11,13 @@ Set up the environment::
 
 It won't do anything if there's no implementation of the interface::
 
-    >>> rex = Rex('__main__', 'rex.instrument', db='pgsql:instrument_demo')
+    >>> rex = Rex('__main__', 'rex.instrument', db='pgsql:demo.instrument')
 
 
 If there is an implementation, it will iterate through all InstrumentVersion
 instances in the system and ensure that they contain valid definitions::
 
-    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex = Rex('__main__', 'rex.demo.instrument')
     >>> rex.on()
     >>> db = get_db()
 
@@ -30,7 +30,7 @@ instances in the system and ensure that they contain valid definitions::
     <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
-        rex.instrument_demo
+        rex.demo.instrument
 
     >>> prod = db.produce("""/merge(instrumentversion:={'broken1' :as uid, '{hello' :as definition})""")
     >>> rex.reset()  # doctest: +ELLIPSIS
@@ -41,7 +41,7 @@ instances in the system and ensure that they contain valid definitions::
     While validating system InstrumentVersions.
     While initializing RexDB application:
         __main__
-        rex.instrument_demo
+        rex.demo.instrument
 
     >>> prod = db.produce("""/merge(instrumentversion:={'broken1' :as uid, '{"id": "urn:foo", "version": "1.0", "title": "Foo!", "record": [{"id": "bar", "type": "text"}]}' :as definition})""")
     >>> prod = db.produce("""/merge(instrumentversion:={'broken1' :as uid, '{"foo": "bar"}' :as calculation_json})""")
@@ -52,12 +52,12 @@ instances in the system and ensure that they contain valid definitions::
     <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
-        rex.instrument_demo
+        rex.demo.instrument
 
 
 If the setting is disabled, the automatic validation won't occur::
 
-    >>> rex = Rex('__main__', 'rex.instrument_demo', instrument_validate_on_startup=False)
+    >>> rex = Rex('__main__', 'rex.demo.instrument', instrument_validate_on_startup=False)
 
 
 Clean up after ourselves::

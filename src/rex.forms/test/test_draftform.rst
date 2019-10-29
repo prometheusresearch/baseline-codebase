@@ -7,7 +7,7 @@ Set up the environment::
 
     >>> from rex.core import Rex
     >>> from datetime import datetime
-    >>> rex = Rex('__main__', 'rex.forms_demo')
+    >>> rex = Rex('__main__', 'rex.demo.forms')
     >>> rex.on()
 
 

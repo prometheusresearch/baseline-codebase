@@ -10,7 +10,7 @@ import * as icons from "@material-ui/icons";
 import * as React from "react";
 import * as Common from "./Common";
 
-type DayProps = {|
+type DayPropsBase = {|
   date: Moment,
   value: Moment,
   active?: boolean,
@@ -20,26 +20,35 @@ type DayProps = {|
   onClick?: Moment => void
 |};
 
+type DayProps = {|
+  ...DayPropsBase,
+  minDate?: Moment,
+  maxDate?: Moment
+|};
+
 export type RenderDay = ({|
   ...DayProps,
-  key?: string | number
+  key?: string | number,
+  disabled?: boolean
 |}) => React.Node;
 
-export let Day = (props: DayProps) => {
-  let { date, active, outOfRange, showToday, today, onClick } = props;
+export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
+  let { date, active, outOfRange, showToday, today, onClick, disabled } = props;
 
   let handleClick = React.useCallback(() => {
-    if (onClick != null) {
+    if (onClick != null && !disabled) {
       onClick(date);
     }
-  }, [onClick]);
+  }, [onClick, disabled]);
 
   let activeStyle = Common.useActiveColors();
 
   let style = React.useMemo(
     () => ({
       ...Common.buttonStyle,
-      backgroundColor: active ? activeStyle.backgroundColor : null
+      backgroundColor: active ? activeStyle.backgroundColor : null,
+      opacity: disabled ? 0.5 : 1,
+      cursor: disabled ? "not-allowed" : "pointer"
     }),
     [active]
   );
@@ -51,6 +60,7 @@ export let Day = (props: DayProps) => {
     }),
     [active, outOfRange, showToday, today]
   );
+
   return (
     <mui.IconButton tabIndex={-1} onClick={handleClick} style={style}>
       <mui.Typography variant="body1" style={textStyle}>
@@ -61,17 +71,21 @@ export let Day = (props: DayProps) => {
 };
 
 let renderDayDefault: RenderDay = props => {
-  return <Day {...props} />;
+  const { minDate, maxDate, date, ...rest } = props;
+
+  return <Day {...rest} date={date} />;
 };
 
 type DayViewProps = {|
   viewDate: Moment,
   onViewDate: Moment => void,
   selectedDate: ?Moment,
-  onSelectedDate: ?Moment => void,
+  onSelectedDate: (?Moment) => void,
   showToday?: boolean,
   showMonths: () => void,
-  renderDay?: RenderDay
+  renderDay?: RenderDay,
+  minDate?: Moment,
+  maxDate?: Moment
 |};
 
 export let DayView = (props: DayViewProps) => {
@@ -82,7 +96,9 @@ export let DayView = (props: DayViewProps) => {
     onViewDate,
     selectedDate,
     onSelectedDate,
-    showMonths
+    showMonths,
+    minDate,
+    maxDate
   } = props;
 
   let onNextMonth = () => {
@@ -105,6 +121,10 @@ export let DayView = (props: DayViewProps) => {
       let isActive = selectedDate != null && date.isSame(selectedDate, "day");
       let isToday = date.isSame(today, "day");
       let key = date.month() + "-" + date.date();
+      const isBeforeMin = minDate ? date.isBefore(minDate, "day") : false;
+      const isAfterMax = maxDate ? date.isAfter(maxDate, "day") : false;
+      const disabled = isBeforeMin || isAfterMax;
+
       cells.push(
         renderDay({
           key,
@@ -115,7 +135,8 @@ export let DayView = (props: DayViewProps) => {
           date: date,
           active: isActive,
           today: isToday,
-          showToday: showToday
+          showToday: showToday,
+          disabled
         })
       );
 

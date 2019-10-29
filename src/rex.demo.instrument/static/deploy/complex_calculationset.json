@@ -1,0 +1,57 @@
+ {
+     "instrument": {
+        "id": "urn:calculation-complex",
+        "version": "1.1"
+     },
+     "calculations": [
+        {
+            "id": "calc1",
+            "type": "text",
+            "method": "python",
+            "options": {
+                "callable": "rex.demo.instrument.complex_object_calc"
+            }
+        },
+        {
+            "id": "calc2",
+            "type": "text",
+            "method": "python",
+            "options": {
+                "callable": "rex.demo.instrument.complex_function_calc"
+            }
+        },
+        {
+            "id": "calc3",
+            "type": "float",
+            "method": "python",
+            "options": {
+                "expression": "assessment['q_float'] + math.trunc(assessment['q_float'])"
+            }
+        },
+        {
+            "id": "calc4",
+            "type": "boolean",
+            "method": "python",
+            "options": {
+                "expression": "calculations['calc1']==calculations['calc2']"
+            }
+        },
+        {
+            "id": "calc5",
+            "type": "boolean",
+            "method": "htsql",
+            "options": {
+                "expression": "$calc1==$calc2"
+            }
+        },
+        {
+            "id": "calc6",
+            "type": "text",
+            "method": "htsql",
+            "options": {
+                "expression": "string($q_matrix_row1_column1) + ', ' + if('red'=$q_enumerationset, 'Red', 'Not Red') + ', ' + if('white'=$q_enumerationset, 'White', 'Not White') + ', '+ string($subject_status) + ', ' + string($q_enumeration)"
+            }
+        }
+    ]
+}
+

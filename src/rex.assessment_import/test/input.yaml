@@ -13,7 +13,7 @@ tests:
   - coverage: setup.cfg
     auto-data: true
 
-  - sh: pip install --quiet --editable ../rex.instrument/demo
+  - sh: pip install --quiet --editable ../rex.demo.instrument
     ignore: true
   - sh: pip install --quiet --editable ./demo
     ignore: true

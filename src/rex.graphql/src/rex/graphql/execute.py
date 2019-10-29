@@ -13,13 +13,12 @@
 """
 
 import sys
-import json
 import typing
 import traceback
 import typing as t
-from collections import Iterable, OrderedDict, Mapping
+from collections import Iterable, OrderedDict
 
-from htsql.core.tr.bind import BindingState, Select
+from htsql.core.tr.bind import Select
 from htsql.core.tr.translate import translate
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr import binding
@@ -30,7 +29,6 @@ from graphql import language, error
 
 from rex.logging import get_logger
 from rex.core import get_sentry
-from rex.query.query import ApplySyntax, LiteralSyntax
 from rex.db import get_db
 from rex.query.bind import RexBindingState
 from .schema import Schema
@@ -40,7 +38,7 @@ from .input_coercion import (
     undefined,
     are_types_compatible,
 )
-from . import model, desc, introspection
+from . import model, desc
 from rex.query.builder import q
 
 
@@ -205,10 +203,10 @@ class ExecutionContext:
         self._arguments_cache = {}
         self._subfields_cache = {}
 
-    def get_param_values(
+    def get_field_params(
         self, parent, field: model.Field, field_node: language.ast.Field
     ):
-        k = field, field_node
+        k = field, field_node, id(parent)
         if k not in self._arguments_cache:
             self._arguments_cache[k] = get_param_values(
                 self,
@@ -216,6 +214,21 @@ class ExecutionContext:
                 field.params,
                 field_node.arguments,
                 self.variable_values,
+                allow_computed_params=True,
+            )
+
+        return self._arguments_cache[k]
+
+    def get_directive_params(self, directive, directive_node):
+        k = directive, directive_node
+        if k not in self._arguments_cache:
+            self._arguments_cache[k] = get_param_values(
+                self,
+                parent=None,
+                params=directive.params,
+                arg_nodes=directive_node.arguments,
+                variables=self.variable_values,
+                allow_computed_params=False,
             )
 
         return self._arguments_cache[k]
@@ -230,7 +243,6 @@ class ExecutionContext:
         raise error.GraphQLError(msg)
 
     def get_sub_fields(self, return_type, field_nodes):
-        # type: (GraphQLObjectType, List[Field]) -> DefaultOrderedDict
         k = return_type, tuple(field_nodes)
         if k not in self._subfields_cache:
             subfield_nodes = {}
@@ -247,16 +259,15 @@ class ExecutionContext:
 def collect_fields(
     ctx: ExecutionContext,
     runtime_type: model.Type,
-    selection_set,  # type: SelectionSet
+    selection_set,
     fields: typing.Dict,
 ):
     for selection in selection_set.selections:
         directives = selection.directives
 
         if isinstance(selection, language.ast.Field):
-            # TODO:
-            # if not should_include_node(ctx, directives):
-            #     continue
+            if not should_include_node(ctx, directives):
+                continue
 
             if selection.alias:
                 name = selection.alias.value
@@ -269,40 +280,77 @@ def collect_fields(
                 fields[name] = [selection]
 
         elif isinstance(selection, language.ast.InlineFragment):
+            if not should_include_node(ctx, directives):
+                continue
             # TODO:
-            # if not should_include_node(
-            #     ctx, directives
-            # ) or not does_fragment_condition_match(ctx, selection, runtime_type):
+            # if not does_fragment_condition_match(ctx, selection, runtime_type):
             #     continue
 
             collect_fields(ctx, runtime_type, selection.selection_set, fields)
 
         elif isinstance(selection, language.ast.FragmentSpread):
+            if not should_include_node(ctx, directives):
+                continue
+
             frag_name = selection.name.value
 
             # TODO:
-            # if frag_name in prev_fragment_names or not should_include_node(
-            #     ctx, directives
-            # ):
+            # if frag_name in prev_fragment_names:
             #     continue
 
             # prev_fragment_names.add(frag_name)
             fragment = ctx.fragments[frag_name]
+            if not fragment:
+                continue
+
             frag_directives = fragment.directives
+            if not should_include_node(ctx, frag_directives):
+                continue
 
             # TODO:
-            # if (
-            #     not fragment
-            #     or not should_include_node(ctx, frag_directives)
-            #     or not does_fragment_condition_match(
-            #         ctx, fragment, runtime_type
-            #     )
-            # ):
+            # if not does_fragment_condition_match(ctx, fragment, runtime_type):
             #     continue
 
             collect_fields(ctx, runtime_type, fragment.selection_set, fields)
 
     return fields
+
+
+def should_include_node(ctx: ExecutionContext, directives) -> bool:
+    if not directives:
+        return True
+
+    # Process @skip(if: Boolean!) directive.
+    skip_node = None
+    skip_directive = ctx.schema.skip_directive
+    for directive in directives:
+        if directive.name.value == skip_directive.name:
+            skip_node = directive
+            break
+
+    if skip_node:
+        args = ctx.get_directive_params(
+            directive=skip_directive, directive_node=skip_node
+        )
+        if args.get("if") is True:
+            return False
+
+    # Process @include(if: Boolean!) directive.
+    include_node = None
+    include_directive = ctx.schema.include_directive
+    for directive in directives:
+        if directive.name.value == include_directive.name:
+            include_node = directive
+            break
+
+    if include_node:
+        args = ctx.get_directive_params(
+            directive=include_directive, directive_node=include_node
+        )
+        if args.get("if") is False:
+            return False
+
+    return True
 
 
 def get_param_values(
@@ -311,6 +359,7 @@ def get_param_values(
     params: t.Dict[str, desc.Param],
     arg_nodes: t.List[language.ast.Argument],
     variables: t.Optional[t.Dict[str, t.Any]] = None,
+    allow_computed_params: bool = False,
 ) -> t.Dict[str, t.Any]:
     if not params:
         return {}
@@ -373,7 +422,7 @@ def get_param_values(
         elif isinstance(param, desc.ComputedParam):
             try:
                 param_value = param.compute(parent, ctx.context_value)
-            except Exception as err:
+            except Exception:
                 get_sentry().captureException()
                 ctx.raise_error(
                     msg=f"Error while computing param {param.name}",
@@ -807,11 +856,11 @@ def resolve_field(
     if isinstance(field_def, model.ComputedField):
         # Build a dict of arguments from the field.arguments AST, using the
         # variables scope to fulfill any variable references.
-        params = ctx.get_param_values(parent, field_def, field_node)
+        params = ctx.get_field_params(parent, field_def, field_node)
         resolve_fn = field_def.resolver
         try:
             result = resolve_fn(parent, info, params)
-        except Exception as err:
+        except Exception:
             get_sentry().captureException()
             ctx.raise_error(
                 msg=f"Error while executing {parent_type.name}.{field_name}",
@@ -837,7 +886,7 @@ def execute_query_field(ctx, parent, field: model.QueryField, field_nodes):
 
 def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
     field_node = field_nodes[0]
-    params = ctx.get_param_values(parent, field, field_node)
+    params = ctx.get_field_params(parent, field, field_node)
 
     # Bind GraphQL arguments
     vars = {}

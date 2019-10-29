@@ -5,7 +5,8 @@
  * Based on code found in https://github.com/davidtheclark/tabbable
  */
 
-const FOCUSABLE_SELECTOR = 'input, select, a[href], textarea, button, [tabindex]';
+const FOCUSABLE_SELECTOR =
+  "input, select, a[href], textarea, button, [tabindex]";
 
 export default function getFocusableElementList(el) {
   let basicTabbables = [];
@@ -23,20 +24,19 @@ export default function getFocusableElementList(el) {
     }
 
     if (tabIndex <= 0) {
-      basicTabbables.push({tabIndex, node});
+      basicTabbables.push({ tabIndex, node });
     } else {
-      orderedTabbables.push({tabIndex, node});
+      orderedTabbables.push({ tabIndex, node });
     }
   }
 
-  orderedTabbables = orderedTabbables
-    .sort((a, b) => a.tabIndex - b.tabIndex);
+  orderedTabbables = orderedTabbables.sort((a, b) => a.tabIndex - b.tabIndex);
 
   return orderedTabbables.concat(basicTabbables);
 }
 
 function isHiddenInput(node) {
-  return node.tagName === 'INPUT' && node.type === 'hidden';
+  return node.tagName === "INPUT" && node.type === "hidden";
 }
 
 function createIsHidden() {
@@ -58,7 +58,7 @@ function createIsHidden() {
 
     let result = false;
     let style = window.getComputedStyle(node);
-    if (style.visibility === 'hidden' || style.display === 'none') {
+    if (style.visibility === "hidden" || style.display === "none") {
       result = true;
     } else if (node.parentNode) {
       result = isHidden(node.parentNode);

@@ -187,6 +187,8 @@ class EnumType(Type, InputType, QueryInputType):
     def parse_literal(self, ast):
         if isinstance(ast, language.ast.EnumValue):
             return self.coerce_value(ast.value)
+        elif isinstance(ast, language.ast.StringValue):
+            return self.coerce_value(ast.value)
         return None
 
     def coerce_value(self, v):

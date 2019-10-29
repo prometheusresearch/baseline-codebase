@@ -1018,6 +1018,9 @@ def test_enum():
         }
     )
     assert execute(sch, '{sameday(day: sun)}') == {"sameday": "sun"}
+    # XXX(andreypopp): this is for backward compat: we allow string literals as
+    # well.
+    assert execute(sch, '{sameday(day: "sun")}') == {"sameday": "sun"}
 
 
 def test_entity_id():

@@ -13,16 +13,13 @@ from rex.graphql import (
     connect,
     query,
     q,
+    sort,
     scalar,
     argument,
     filter_from_function,
-    sort_from_function,
-    Enum,
-    EnumValue,
-    InputObject,
-    InputObjectField,
 )
 from rex.graphql.serve import serve
+
 
 
 class API(HandleLocation):
@@ -69,36 +66,16 @@ class API(HandleLocation):
             "system_admin", type=scalar.Boolean
         )
 
-        # sort_user_field = Enum(
-        #     name="sort_user_field",
-        #     values=[EnumValue(name="remote_user"), EnumValue(name="expires")],
-        # )
-
-        # sort_user_direction = InputObject(
-        #     name="sort_user_direction",
-        #     fields=lambda: {
-        #         "field": InputObjectField(sort_user_field),
-        #         "desc": InputObjectField(scalar.Boolean),
-        #     },
-        # )
-
-        # @sort_from_function()
-        # def sort_user(sort: sort_user_direction = None):
-        #     q_sort = None
-        #     if q_sort is not None:
-        #         q_sort = q[sort.field]
-        #         if sort.desc:
-        #             q_sort = q_sort.desc()
-        #     return q_sort
+        sort_user = sort(user, ("remote_user", "expires"))
 
         return schema(
             fields=lambda: {
                 "user": connect(
                     query=q.user,
                     type=user,
-                    # sort=sort_user,
+                    sort=sort_user,
                     filters=[filter_user_by_system_admin, search_user],
-                    description="Users"
+                    description="Users",
                 )
             }
         )

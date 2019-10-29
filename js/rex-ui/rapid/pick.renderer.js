@@ -138,7 +138,7 @@ const TableFilters = ({
                       name: `boolean-filter-${booleanFilterName}`
                     }}
                   >
-                    <MenuItem value={"undefined"}>Not applied</MenuItem>
+                    <MenuItem value={"undefined"}></MenuItem>
                     <MenuItem value={false}>No</MenuItem>
                     <MenuItem value={true}>Yes</MenuItem>
                   </Select>

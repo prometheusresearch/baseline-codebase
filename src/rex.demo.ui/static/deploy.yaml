@@ -1,8 +1,8 @@
+---
 - table: user
   with:
   - column: remote_user
     type: text
-  - identity: [remote_user]
   - column: expires
     type: datetime
     required: false
@@ -12,3 +12,75 @@
     required: true
     default: false
   - data: data.csv
+
+  - identity: [remote_user]
+
+- table: contact_info
+  with:
+  - column: code
+    type: integer
+  - link: user
+  - column: type
+    type: [phone, twitter, other]
+  - column: value
+    type: text
+
+  - identity: [user, code: offset]
+
+# DATA
+
+- table: user
+  with:
+  - data:
+    - remote_user: savitha@prometheusresearch.com
+      system_admin: true
+    - remote_user: jason@prometheusresearch.com
+      system_admin: true
+    - remote_user: xi@prometheusresearch.com
+      system_admin: true
+    - remote_user: andrey@prometheusresearch.com
+      system_admin: true
+    - remote_user: konstantin@prometheusresearch.com
+      system_admin: true
+    - remote_user: marcin@prometheusresearch.com
+      system_admin: true
+    - remote_user: leon@prometheusresearch.com
+      system_admin: true
+    - remote_user: john@prometheusresearch.com
+      system_admin: true
+    - remote_user: cce@prometheusresearch.com
+      system_admin: true
+    - remote_user: zindel@prometheusresearch.com
+      system_admin: true
+    - remote_user: ben@prometheusresearch.com
+      system_admin: false
+    - remote_user: alex@prometheusresearch.com
+      system_admin: false
+
+- table: contact_info
+  with:
+  - data:
+    - user: "'savitha@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-55
+    - user: "'jason@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-44
+    - user: "'xi@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-33
+    - user: "'andrey@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-22
+    - user: "'andrey@prometheusresearch.com'"
+      code: 2
+      type: twitter
+      value: andreypopp
+    - user: "'konstantin@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-11

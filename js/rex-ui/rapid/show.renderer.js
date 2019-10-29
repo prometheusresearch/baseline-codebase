@@ -39,7 +39,6 @@ type CustomRendererProps = { resource: Resource<any, any> };
 export type TypePropsRenderer = {|
   resource: Resource<any, any>,
   Renderer?: React.ComponentType<CustomRendererProps>,
-  dataObject?: object,
   fetch: string,
   ast: DocumentNode,
   args?: { [key: string]: any },
@@ -78,6 +77,7 @@ export const ShowRenderer = ({
   });
 
   if (resourceData == null) {
+    catcher(new Error("resourceData is null in ShowRenderer"));
     return null;
   }
 
@@ -85,13 +85,12 @@ export const ShowRenderer = ({
 
   const { id, name, ...rest } = data;
 
-  const sortedData = Object.keys(rest).reduce(
-    (acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }),
-    {
+  const sortedData = Object.keys(rest)
+    .sort()
+    .reduce((acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }), {
       id,
       name
-    }
-  );
+    });
 
   const whatToRender = Renderer ? (
     <Renderer resource={resourceData} />

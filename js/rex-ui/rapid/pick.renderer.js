@@ -48,32 +48,18 @@ import { withResourceErrorCatcher, calculateItemsLimit } from "./helpers";
 import { ComponentLoading } from "./component.loading";
 import { ShowRenderer, ShowCard } from "./show.renderer";
 
+import { type PropsSharedWithRenderer } from "./pick";
+
 type CustomRendererProps = { resource: Resource<any, any> };
 
 export type TypePropsRenderer = {|
   resource: Resource<any, any>,
   Renderer?: React.ComponentType<CustomRendererProps>,
-  fetch: string,
+
   ast: DocumentNode,
   columns: FieldNode[],
-  RendererColumnCell?: (props: {
-    column: FieldNode,
-    index: number
-  }) => React.Node,
-  RendererRowCell?: (props: {
-    column: FieldNode,
-    row: any,
-    index: number
-  }) => React.Node,
-  RendererRow?: (props: {
-    columns: FieldNode[],
-    row: any,
-    index: number
-  }) => React.Node,
-  ref?: any,
   catcher: (err: Error) => void,
-  isRowClickable?: boolean,
-  onRowClick?: (row: any) => void
+  ...PropsSharedWithRenderer
 |};
 
 const useStyles = makeStyles({
@@ -87,9 +73,6 @@ const useStyles = makeStyles({
   },
   tableControl: {
     padding: "16px"
-  },
-  itemsCount: {
-    padding: "0 16px"
   },
   formControl: {
     minWidth: 120
@@ -324,17 +307,44 @@ export const PickRenderer = ({
   });
 
   if (resourceData == null || columns.length === 0) {
+    catcher(
+      new Error("resourceData is null OR columns.length === 0 in PickRenderer")
+    );
     return null;
   }
 
   const data = _get(resourceData, fetch);
 
-  const TableHeadRows = columns.map((column, index) => {
+  const columnsMap = new Map();
+  for (let column of columns) {
+    columnsMap.set(column.name.value, column);
+  }
+
+  const columnNames = columns.map(column => column.name.value).sort();
+
+  let columnNamesMap: { [key: string]: true } = columnNames.reduce(
+    (acc, columnName) => {
+      return { ...acc, [columnName]: true };
+    },
+    {}
+  );
+  let { id, name, ...rest } = columnNamesMap;
+  columnNamesMap = { id, name, ...rest };
+
+  const updatedColumnNames = Object.keys(columnNamesMap);
+
+  const TableHeadRows = updatedColumnNames.map((columnName, index) => {
+    const column = columnsMap.get(columnName);
+
+    if (!column) {
+      return null;
+    }
+
     return RendererColumnCell ? (
       <RendererColumnCell column={column} index={index} key={index} />
     ) : (
-      <TableCell align="left" key={column.name.value}>
-        {column.name.value}
+      <TableCell align="left" key={columnName}>
+        {columnName}
       </TableCell>
     );
   });
@@ -349,7 +359,12 @@ export const PickRenderer = ({
         style={{ cursor: isRowClickable ? "pointer" : "default" }}
         onClick={ev => (onRowClick && isRowClickable ? onRowClick(row) : null)}
       >
-        {columns.map((column, index) => {
+        {updatedColumnNames.map((columnName, index) => {
+          const column = columnsMap.get(columnName);
+          if (!column) {
+            return null;
+          }
+
           return RendererRowCell ? (
             <RendererRowCell
               row={row}
@@ -358,8 +373,8 @@ export const PickRenderer = ({
               key={index}
             />
           ) : (
-            <TableCell key={column.name.value} align="left">
-              <span>{String(row[column.name.value])}</span>
+            <TableCell key={columnName} align="left">
+              <span>{String(row[columnName])}</span>
             </TableCell>
           );
         })}
@@ -395,11 +410,26 @@ export const PickRenderer = ({
                 </TableHead>
                 <TableBody>{TableBodyRows}</TableBody>
               </Table>
+            ) : data.length === 0 ? (
+              <div style={{ padding: 16 }}>
+                <Typography variant={"caption"}>No data</Typography>
+              </div>
             ) : (
               data.map((row, index) => {
+                const { id, name, ...rest } = row;
+                const sortedRow = Object.keys(rest)
+                  .sort()
+                  .reduce(
+                    (acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }),
+                    {
+                      id,
+                      name
+                    }
+                  );
+
                 return (
                   <div key={index} style={{ padding: 16 }}>
-                    <ShowCard data={row} />
+                    <ShowCard data={sortedRow} />
                   </div>
                 );
               })

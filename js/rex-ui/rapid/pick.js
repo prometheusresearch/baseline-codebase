@@ -40,28 +40,33 @@ import {
   getPathFromFetch
 } from "./helpers";
 
-export type PickPropsBase = {|
-  endpoint: Endpoint,
+export type PropsSharedWithRenderer = {|
   fetch: string,
-  fields?: Array<string>,
-  Renderer?: React.ComponentType<any>,
+  isRowClickable?: boolean,
+
   RendererColumnCell?: (props: {
-    column: FieldNode,
+    column?: FieldNode,
     index: number
   }) => React.Node,
   RendererRow?: (props: {
-    columns: FieldNode[],
-    row: any,
+    columns?: FieldNode[],
+    row?: any,
     index: number
   }) => React.Node,
   RendererRowCell?: (props: {
-    column: FieldNode,
-    row: any,
+    column?: FieldNode,
+    row?: any,
     index: number
   }) => React.Node,
-  onPick?: () => void,
-  isRowClickable?: boolean,
   onRowClick?: (row: any) => void
+|};
+
+export type PickPropsBase = {|
+  endpoint: Endpoint,
+  fields?: Array<string>,
+  Renderer?: React.ComponentType<any>,
+  onPick?: () => void,
+  ...PropsSharedWithRenderer
 |};
 
 export type PickProps<P, V> = {|

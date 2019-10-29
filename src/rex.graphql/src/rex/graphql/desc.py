@@ -697,7 +697,7 @@ def sort_from_function():
 
         >>> data = execute(sch, '''
         ... {
-        ...     region(sort_by: "name") { name }
+        ...     region(sort_by: name) { name }
         ... }
         ... ''')
         >>> [region['name'] for region in data.data['region']]
@@ -705,7 +705,7 @@ def sort_from_function():
 
         >>> data = execute(sch, '''
         ... {
-        ...     region(sort_by: "name", desc: true) { name }
+        ...     region(sort_by: name, desc: true) { name }
         ... }
         ... ''')
         >>> [region['name'] for region in data.data['region']]
@@ -713,7 +713,7 @@ def sort_from_function():
 
         >>> data = execute(sch, '''
         ... {
-        ...     region(sort_by: "comment") { name }
+        ...     region(sort_by: comment) { name }
         ... }
         ... ''')
         >>> [region['name'] for region in data.data['region']]
@@ -1285,6 +1285,41 @@ def param(
 #:   ...    return parent.name
 #:
 parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)
+
+
+@cached
+def sort_direction_type(type, fields):
+
+    field_type = Enum(
+        name=f"sort_{type.name}_field",
+        values=[EnumValue(name=name) for name in fields],
+    )
+
+    sort_direction_type = InputObject(
+        name=f"sort_{type.name}_direction",
+        fields=lambda: {
+            "field": InputObjectField(field_type),
+            "desc": InputObjectField(scalar.Boolean),
+        },
+    )
+
+    return sort_direction_type
+
+
+def sort(type, fields):
+    """ Define sort for a type."""
+    sort_type = sort_direction_type(type, fields=fields)
+
+    @sort_from_function()
+    def sort(sort: sort_type = None):
+        q_sort = None
+        if sort is not None:
+            q_sort = q[sort["field"]]
+            if sort["desc"]:
+                q_sort = q_sort.desc()
+        return q_sort
+
+    return sort
 
 
 class Mutation(Desc):

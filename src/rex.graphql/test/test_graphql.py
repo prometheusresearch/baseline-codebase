@@ -1017,7 +1017,7 @@ def test_enum():
             )
         }
     )
-    assert execute(sch, '{sameday(day: "sun")}') == {"sameday": "sun"}
+    assert execute(sch, '{sameday(day: sun)}') == {"sameday": "sun"}
 
 
 def test_entity_id():

@@ -895,6 +895,9 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
             # It's ok since we validated arguments above
             continue
         arg_type = model.find_named_type(arg.type)
+        if not model.is_query_input_type(arg_type):
+            # This might be used in filter or sort
+            continue
         assert arg_type is not None
         assert arg_type.bind_value is not None, f"{arg_type!r}"
         vars[name] = arg_type.bind_value(state, params[name])

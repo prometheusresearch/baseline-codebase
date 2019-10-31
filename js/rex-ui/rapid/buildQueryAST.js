@@ -17,7 +17,8 @@ import {
   type ArgumentNode,
   type SelectionNode,
   type DocumentNode,
-  type FieldNode
+  type FieldNode,
+  type OperationDefinitionNode
 } from "graphql/language/ast";
 import { buildVariableDefinition } from "./buildVariableDefinition";
 import { buildArgumentNode } from "./buildArgumentNode";
@@ -78,16 +79,26 @@ const buildSelectionSet = (
 ): SelectionSetNode => {
   // Break the recursion
   if (path.length === 0) {
-    const selections: FieldNode[] = currType.fields.map(f => {
-      return {
-        arguments: f.args.map(arg =>
-          buildArgumentNode(arg, collectInputValues)
-        ),
-        directives: [],
-        kind: "Field",
-        name: { kind: "Name", value: f.name }
-      };
-    });
+    const selections: FieldNode[] = currType.fields
+      .filter(field => {
+        // Get only SCALAR or NON_NULL of SCALAR field nodes
+        return (
+          field.type.kind === "SCALAR" ||
+          (field.type.kind === "NON_NULL" &&
+            field.type.ofType &&
+            field.type.ofType.kind === "SCALAR")
+        );
+      })
+      .map(field => {
+        return {
+          arguments: field.args.map(arg =>
+            buildArgumentNode(arg, collectInputValues)
+          ),
+          directives: [],
+          kind: "Field",
+          name: { kind: "Name", value: field.name }
+        };
+      });
 
     collectColumns(selections);
 
@@ -114,6 +125,7 @@ const buildSelectionSet = (
   const nextField = currType.fields.find(f => f.name === nextFieldName);
   invariant(nextField != null, `nextField for "${nextFieldName}" is null`);
 
+  // TODO: Move this out from here maybe
   const _typeForNextField = ((
     typesMap: Map<string, IntrospectionType>,
     field: IntrospectionField
@@ -178,7 +190,12 @@ const buildSelectionSet = (
 export const buildQueryAST = (props: {
   schema: IntrospectionSchema,
   path: Array<string>
-}): { ast: DocumentNode, columns: FieldNode[] } => {
+}): {|
+  ast: DocumentNode,
+  columns: FieldNode[],
+  introspectionTypesMap: Map<string, IntrospectionType>,
+  queryDefinition: OperationDefinitionNode
+|} => {
   invariant(props != null, "props is null");
 
   const { schema, path } = props;
@@ -242,6 +259,8 @@ export const buildQueryAST = (props: {
       kind: "Document",
       definitions: [operationDefinition]
     },
-    columns
+    columns,
+    introspectionTypesMap: typesMap,
+    queryDefinition: operationDefinition
   };
 };

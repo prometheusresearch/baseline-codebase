@@ -11,28 +11,35 @@ import {
   type VariableDefinitionNode
 } from "graphql/language/ast";
 
+import {
+  type IntrospectionType,
+  type IntrospectionInputObjectType,
+  type IntrospectionInputValue,
+  type IntrospectionEnumType
+} from "graphql/utilities/introspectionQuery";
+
 import { makeStyles, useTheme } from "@material-ui/styles";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
 
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
 import Table from "@material-ui/core/Table";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-
-import DeleteIcon from "@material-ui/icons/Delete";
+import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
+import InputLabel from "@material-ui/core/InputLabel";
+import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
+import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-
+import DeleteIcon from "@material-ui/icons/Delete";
+import FilterListIcon from "@material-ui/icons/FilterList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
@@ -43,12 +50,17 @@ import {
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
 
-import { withResourceErrorCatcher, calculateItemsLimit } from "./helpers";
+import {
+  withResourceErrorCatcher,
+  sortObjectFieldsWithPreferred,
+  debounce
+} from "./helpers";
 
 import { ComponentLoading } from "./component.loading";
 import { ShowRenderer, ShowCard } from "./show.renderer";
 
 import { type PropsSharedWithRenderer } from "./pick";
+import { buildSortingConfig } from "./buildSortingConfig";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
@@ -58,15 +70,22 @@ export type TypePropsRenderer = {|
 
   ast: DocumentNode,
   columns: FieldNode[],
+  queryDefinition: OperationDefinitionNode,
+  introspectionTypesMap: Map<string, IntrospectionType>,
   catcher: (err: Error) => void,
+  args?: { [key: string]: any },
+
   ...PropsSharedWithRenderer
 |};
 
 const useStyles = makeStyles({
   root: {
     width: "100%",
-    marginTop: "8px",
-    overflowX: "auto"
+    overflowX: "auto",
+    overflowY: "hidden",
+    maxHeight: "100vh",
+    display: "flex",
+    flexDirection: "column"
   },
   table: {
     minWidth: 720
@@ -74,21 +93,81 @@ const useStyles = makeStyles({
   tableControl: {
     padding: "16px"
   },
+  paginationWrapper: {
+    position: "relative",
+    zIndex: "5",
+    padding: "16px",
+    boxShadow: "0 0 10px -8px",
+    margin: 0,
+    width: "100%"
+  },
   formControl: {
-    minWidth: 120
+    minWidth: 120,
+    marginLeft: 16
+  },
+  tableHead: {
+    background: "white",
+    position: "sticky",
+    top: 0
+  },
+  tableHeadSortable: {
+    backgroundColor: "orange"
+  },
+  tableWrapper: {
+    overflowY: "scroll"
+  },
+  title: {
+    marginBottom: "8px"
+  },
+  description: {},
+  topPart: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: "16px"
+  },
+  topPartWrapper: {
+    position: "relative",
+    zIndex: "10"
   }
 });
+
+// TODO: We can make those constants -> props passed from component user
+const SORTING_VAR_NAME = "sort";
+const SEARCH_VAR_NAME = "search";
 
 const TableFilters = ({
   variableDefinitions,
   filterState,
-  setFilterState
+  sortingConfig,
+  setFilterState,
+  sortingState,
+  setSortingState,
+  searchState,
+  setSearchState
 }: {|
   variableDefinitions: VariableDefinitionNode[] | void,
   filterState: { [key: string]: boolean },
-  setFilterState: (varDefName: string, value: boolean) => void
+  sortingConfig: Array<{| desc: boolean, field: string |}>,
+  sortingState: {} | "undefined",
+  searchState: ?string,
+  setSearchState: (val: string) => void,
+  setFilterState: (name: string, value: boolean) => void,
+  setSortingState: (value: {} | "undefined") => void
 |}) => {
   const classes = useStyles();
+  const hasSorting = sortingConfig.length > 0;
+  const hasSearch = searchState != null;
+
+  const [isSearchInFocus, _setIsSearchInFocus] = React.useState(false);
+
+  const setIsSearchInFocus = (val: boolean) => _setIsSearchInFocus(val);
+
+  React.useEffect(() => {
+    if (isSearchInFocus) {
+      searchInputRef.current ? searchInputRef.current.focus() : null;
+    }
+  });
 
   if (variableDefinitions == null) {
     return null;
@@ -105,6 +184,55 @@ const TableFilters = ({
     >
       <Grid item>
         <FormGroup row>
+          {hasSearch ? (
+            <FormControl className={classes.formControl}>
+              <TextField
+                label="Search"
+                value={searchState}
+                onChange={ev => {
+                  // Need this to restore focus state after Suspense is loaded resources
+                  isSearchInFocus ? null : setIsSearchInFocus(true);
+                  setSearchState(ev.target.value);
+                }}
+                onBlur={() => {
+                  // Can not setIsSearchInFocus(false) here, since it would be also
+                  // triggered by Suspense-based unmounts
+                }}
+                margin={"none"}
+                InputLabelProps={{
+                  shrink: true
+                }}
+                inputRef={searchInputRef}
+              />
+            </FormControl>
+          ) : null}
+
+          {hasSorting ? (
+            <FormControl className={classes.formControl}>
+              <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
+              <Select
+                value={sortingState}
+                onChange={ev => {
+                  setIsSearchInFocus(false);
+                  setSortingState(ev.target.value);
+                }}
+                inputProps={{
+                  name: `sorting`
+                }}
+              >
+                <MenuItem key={"undefined"} value={"undefined"} />
+                {sortingConfig.map((obj, index) => {
+                  const value = JSON.stringify(obj);
+                  return (
+                    <MenuItem key={index} value={value}>
+                      {`${obj.field}, ${obj.desc ? "desc" : "asc"}`}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          ) : null}
+
           {variableDefinitions
             .filter(varDef => {
               // Get only Boolean vars
@@ -132,13 +260,14 @@ const TableFilters = ({
                         : filterState[booleanFilterName]
                     }
                     onChange={ev => {
+                      setIsSearchInFocus(false);
                       setFilterState(booleanFilterName, ev.target.value);
                     }}
                     inputProps={{
                       name: `boolean-filter-${booleanFilterName}`
                     }}
                   >
-                    <MenuItem value={"undefined"}></MenuItem>
+                    <MenuItem value={"undefined"} />
                     <MenuItem value={false}>No</MenuItem>
                     <MenuItem value={true}>Yes</MenuItem>
                   </Select>
@@ -173,7 +302,7 @@ const TablePagination = ({
       justify="flex-end"
       alignItems="center"
       spacing={8}
-      className={classes.tableControl}
+      className={classes.paginationWrapper}
     >
       <Grid item>
         <IconButton
@@ -199,6 +328,7 @@ const TablePagination = ({
 };
 
 const containerRef = React.createRef();
+const searchInputRef = React.createRef();
 
 export const PickRenderer = ({
   resource,
@@ -207,17 +337,31 @@ export const PickRenderer = ({
   columns,
   fetch,
   ast,
+  queryDefinition,
+  introspectionTypesMap,
   RendererColumnCell,
   RendererRowCell,
   RendererRow,
   isRowClickable,
-  onRowClick
+  onRowClick,
+  args,
+  title,
+  description
 }: TypePropsRenderer) => {
   const [offset, _setOffset] = React.useState<number>(0);
   const [limit, _setLimit] = React.useState<number>(0);
   const [filterState, _setFilterState] = React.useState({});
+  const [showFilters, _setShowFilters] = React.useState(false);
+  const [sortingState, _setSortingState] = React.useState<"undefined" | Object>(
+    "undefined"
+  );
+  const [searchState, _setSearchState] = React.useState<?string>(null);
+
+  const mobileLimitValue = 20;
+  const desktopLimitValue = 50;
 
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
+  const classes = useStyles();
 
   const setFilterState = (varDefName: string, value: boolean) => {
     setTimeout(() => {
@@ -226,11 +370,20 @@ export const PickRenderer = ({
     }, 128);
   };
 
-  const setLimit = (limit: number) => {
+  const setSortingState = (value: {} | "undefined") => {
     setTimeout(() => {
-      _setLimit(limit);
-      _setOffset(0);
+      _setSortingState(value);
     }, 128);
+  };
+
+  const toggleFilters = () => {
+    setTimeout(() => {
+      _setShowFilters(!showFilters);
+    }, 128);
+  };
+
+  const setSearchState = (val: string) => {
+    _setSearchState(val);
   };
 
   const decrementPage = () => {
@@ -242,12 +395,6 @@ export const PickRenderer = ({
     const newOffset = offset + limit;
     _setOffset(newOffset);
   };
-
-  let { definitions: _definitions } = ast;
-  const definitions: OperationDefinitionNode[] = (_definitions: any);
-  const queryDefinition = definitions[0];
-
-  invariant(queryDefinition != null, "queryDefinition is null");
 
   // Initializing boolean filters on new queryDefinition
   React.useEffect(() => {
@@ -262,6 +409,13 @@ export const PickRenderer = ({
       const typeNameValue =
         // $FlowFixMe
         variableDefinition.type.name && variableDefinition.type.name.value;
+
+      /// Add search filter
+      if (varName === SEARCH_VAR_NAME && typeNameValue === "String") {
+        setSearchState("");
+      }
+
+      // Add boolean filter to filterState
       if (typeNameValue === "Boolean") {
         newFilterState[varName] = "undefined";
       }
@@ -271,28 +425,21 @@ export const PickRenderer = ({
 
   // Calculating needed items limit
   React.useEffect(() => {
-    // Return on mobile view
     if (!isTabletWidth) {
-      _setLimit(1);
-      return;
+      _setLimit(mobileLimitValue);
+    } else {
+      _setLimit(desktopLimitValue);
     }
+  }, [isTabletWidth]);
 
-    if (containerRef && containerRef.current) {
-      const coords = containerRef.current.getBoundingClientRect();
-
-      const newLimit = calculateItemsLimit({
-        coords,
-        cellStaticHeightValue: 48
-      });
-
-      _setLimit(newLimit);
-    }
-  }, [containerRef, isTabletWidth]);
-
-  const classes = useStyles();
+  // Handle search param
+  React.useEffect(() => {
+    console.log("searchState: ", searchState);
+  }, [searchState]);
 
   // Replacing "undefined" -> undefined
-  // SelectInput warns if value is undefined, so "undefined" is put there as a string
+  // SelectInput warns if value is undefined
+  // So every SelectInput undefined value is set as a string "undefined"
   const preparedFilterState = Object.keys(filterState).reduce((acc, key) => {
     return {
       ...acc,
@@ -300,9 +447,41 @@ export const PickRenderer = ({
     };
   }, {});
 
+  const { variableDefinitions } = queryDefinition;
+
+  const sortingConfig = buildSortingConfig({
+    variableDefinitions,
+    introspectionTypesMap,
+    variableDefinitionName: SORTING_VAR_NAME
+  });
+
+  const hasLimitVariable = variableDefinitions
+    ? variableDefinitions.find(def => def.variable.name.value === "limit")
+    : null;
+  const hasOffsetVariable = variableDefinitions
+    ? variableDefinitions.find(def => def.variable.name.value === "offset")
+    : null;
+
+  // Forming query params
+  let gqlQueryParams = { ...args, ...preparedFilterState };
+  if (hasLimitVariable != null) {
+    gqlQueryParams = { ...gqlQueryParams, limit };
+  }
+  if (hasOffsetVariable != null) {
+    gqlQueryParams = { ...gqlQueryParams, offset };
+  }
+  if (sortingState) {
+    gqlQueryParams = {
+      ...gqlQueryParams,
+      sort: sortingState === "undefined" ? undefined : JSON.parse(sortingState)
+    };
+  }
+  if (searchState) {
+    gqlQueryParams = { ...gqlQueryParams, search: searchState };
+  }
+
   const resourceData = withResourceErrorCatcher({
-    getResource: () =>
-      useResource(resource, { ...preparedFilterState, offset, limit }),
+    getResource: () => useResource(resource, gqlQueryParams),
     catcher
   });
 
@@ -315,26 +494,31 @@ export const PickRenderer = ({
 
   const data = _get(resourceData, fetch);
 
+  // TODO: Looks messy
   const columnsMap = new Map();
   for (let column of columns) {
     columnsMap.set(column.name.value, column);
   }
-
   const columnNames = columns.map(column => column.name.value).sort();
-
   let columnNamesMap: { [key: string]: true } = columnNames.reduce(
     (acc, columnName) => {
       return { ...acc, [columnName]: true };
     },
     {}
   );
+
   let { id, name, ...rest } = columnNamesMap;
   columnNamesMap = { id, name, ...rest };
-
   const updatedColumnNames = Object.keys(columnNamesMap);
 
+  // TODO: Move to separate function
   const TableHeadRows = updatedColumnNames.map((columnName, index) => {
     const column = columnsMap.get(columnName);
+
+    let cellClasses = `${classes.tableHead} `;
+    sortingConfig.find(obj => obj.field === columnName)
+      ? (cellClasses = `${cellClasses} ${classes.tableHeadSortable}`)
+      : null;
 
     if (!column) {
       return null;
@@ -343,12 +527,13 @@ export const PickRenderer = ({
     return RendererColumnCell ? (
       <RendererColumnCell column={column} index={index} key={index} />
     ) : (
-      <TableCell align="left" key={columnName}>
+      <TableCell align="left" key={columnName} className={cellClasses}>
         {columnName}
       </TableCell>
     );
   });
 
+  // TODO: Move to separate function
   const TableBodyRows = data.map((row, index) => {
     return RendererRow ? (
       <RendererRow row={row} columns={columns} index={index} key={index} />
@@ -365,6 +550,26 @@ export const PickRenderer = ({
             return null;
           }
 
+          let cellValue;
+          switch (row[columnName]) {
+            case undefined:
+            case null: {
+              cellValue = "—";
+              break;
+            }
+            case true: {
+              cellValue = "Yes";
+              break;
+            }
+            case false: {
+              cellValue = "No";
+              break;
+            }
+            default: {
+              cellValue = String(row[columnName]);
+            }
+          }
+
           return RendererRowCell ? (
             <RendererRowCell
               row={row}
@@ -374,7 +579,7 @@ export const PickRenderer = ({
             />
           ) : (
             <TableCell key={columnName} align="left">
-              <span>{String(row[columnName])}</span>
+              <span>{cellValue}</span>
             </TableCell>
           );
         })}
@@ -389,50 +594,78 @@ export const PickRenderer = ({
       <Grid container>
         <Grid item xs={12}>
           <Paper className={classes.root}>
-            <TableFilters
-              filterState={filterState}
-              setFilterState={setFilterState}
-              variableDefinitions={
-                queryDefinition.variableDefinitions
-                  ? [...queryDefinition.variableDefinitions]
-                  : queryDefinition.variableDefinitions
-              }
-            />
+            <div className={classes.topPartWrapper}>
+              <div className={classes.topPart}>
+                <div>
+                  {title ? (
+                    <Typography variant={"h5"} className={classes.title}>
+                      {title}
+                    </Typography>
+                  ) : null}
+                  {description ? (
+                    <Typography
+                      variant={"caption"}
+                      className={classes.description}
+                    >
+                      {description}
+                    </Typography>
+                  ) : null}
+                </div>
+                <div>
+                  <IconButton onClick={toggleFilters} aria-label="Filter list">
+                    <FilterListIcon />
+                  </IconButton>
+                </div>
+              </div>
 
+              {showFilters ? (
+                <TableFilters
+                  filterState={filterState}
+                  setFilterState={setFilterState}
+                  sortingConfig={sortingConfig}
+                  sortingState={sortingState}
+                  setSortingState={setSortingState}
+                  searchState={searchState}
+                  setSearchState={setSearchState}
+                  variableDefinitions={
+                    queryDefinition.variableDefinitions
+                      ? [...queryDefinition.variableDefinitions]
+                      : queryDefinition.variableDefinitions
+                  }
+                />
+              ) : null}
+            </div>
+
+            {/* TODO: Refactor this ugly rendering code */}
             {isTabletWidth ? (
-              <Table
-                className={classes.table}
-                aria-label="simple table"
-                padding={"dense"}
-              >
-                <TableHead>
-                  <TableRow>{TableHeadRows}</TableRow>
-                </TableHead>
-                <TableBody>{TableBodyRows}</TableBody>
-              </Table>
+              <div className={classes.tableWrapper}>
+                <Table
+                  className={classes.table}
+                  aria-label="simple table"
+                  padding={"dense"}
+                >
+                  <TableHead>
+                    <TableRow>{TableHeadRows}</TableRow>
+                  </TableHead>
+                  <TableBody>{TableBodyRows}</TableBody>
+                </Table>
+              </div>
             ) : data.length === 0 ? (
-              <div style={{ padding: 16 }}>
+              <div className={classes.tableWrapper}>
                 <Typography variant={"caption"}>No data</Typography>
               </div>
             ) : (
-              data.map((row, index) => {
-                const { id, name, ...rest } = row;
-                const sortedRow = Object.keys(rest)
-                  .sort()
-                  .reduce(
-                    (acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }),
-                    {
-                      id,
-                      name
-                    }
-                  );
+              <div className={classes.tableWrapper}>
+                {data.map((row, index) => {
+                  const sortedRow = sortObjectFieldsWithPreferred(row);
 
-                return (
-                  <div key={index} style={{ padding: 16 }}>
-                    <ShowCard data={sortedRow} />
-                  </div>
-                );
-              })
+                  return (
+                    <div key={index}>
+                      <ShowCard data={sortedRow} />
+                    </div>
+                  );
+                })}
+              </div>
             )}
 
             <TablePagination

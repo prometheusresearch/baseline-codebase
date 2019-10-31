@@ -2,12 +2,16 @@
  * @flow
  */
 
-import { type IntrospectionSchema } from "graphql/utilities/introspectionQuery";
+import {
+  type IntrospectionSchema,
+  type IntrospectionType
+} from "graphql/utilities/introspectionQuery";
 import { print as gqlPrint } from "graphql/language/printer";
 import {
   type DocumentNode,
   type SelectionNode,
-  type FieldNode
+  type FieldNode,
+  type OperationDefinitionNode
 } from "graphql/language/ast";
 import { buildQueryAST } from "./buildQueryAST";
 
@@ -17,15 +21,27 @@ export const buildQuery = ({
 }: {
   schema: IntrospectionSchema,
   path: Array<string>
-}): {| query: string, ast: DocumentNode, columns: FieldNode[] |} => {
-  const { ast, columns } = buildQueryAST({ schema, path });
+}): {|
+  query: string,
+  ast: DocumentNode,
+  columns: FieldNode[],
+  introspectionTypesMap: Map<string, IntrospectionType>,
+  queryDefinition: OperationDefinitionNode
+|} => {
+  const {
+    ast,
+    columns,
+    queryDefinition,
+    introspectionTypesMap
+  } = buildQueryAST({ schema, path });
   const query = gqlPrint(ast);
 
-  console.log("query: ", query);
-
+  console.log(query);
   return {
     query,
     ast,
-    columns
+    columns,
+    queryDefinition,
+    introspectionTypesMap
   };
 };

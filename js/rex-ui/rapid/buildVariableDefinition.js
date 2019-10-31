@@ -70,7 +70,13 @@ export const buildVariableDefinition = (
       };
       break;
     }
+
+    case "INPUT_OBJECT":
     default: {
+      console.log(
+        `Getting default VariableDefinitionNode for: `,
+        inputValueType
+      );
       invariant(inputValueType.name != null, "inputValueTypeName is null");
 
       kind = "NamedType";

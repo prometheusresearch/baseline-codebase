@@ -86,3 +86,26 @@ export const calculateItemsLimit = ({
 
   return limit;
 };
+
+// TODO: Add "preferred" argument with fields
+export const sortObjectFieldsWithPreferred = (row: Object): Object => {
+  const { id, name, ...rest } = row;
+  const sortedRow = Object.keys(rest)
+    .sort()
+    .reduce((acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }), {
+      id,
+      name
+    });
+
+  return sortedRow;
+};
+
+export const debounce = (func: (args?: any) => any, delay: number) => {
+  let inDebounce;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(inDebounce);
+    inDebounce = setTimeout(() => func.apply(context, args), delay);
+  };
+};

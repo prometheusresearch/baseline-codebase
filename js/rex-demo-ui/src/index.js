@@ -7,6 +7,7 @@ import * as RexGraphQL from "rex-graphql";
 import { Pick, ComponentLoading } from "rex-ui/rapid";
 import { Show } from "rex-ui/rapid/show";
 import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 const endpoint = RexGraphQL.configure("/_api/graphql");
 
@@ -21,10 +22,21 @@ function App() {
     setSelectedRow(row);
   };
 
-  const reset = () => {
+  const resetState = () => {
     setComponentToShow("pick");
     setSelectedRow(null);
   };
+
+  const defaultView = (
+    <Pick
+      endpoint={endpoint}
+      fetch={"user.paginated"}
+      isRowClickable={true}
+      onRowClick={onRowClick}
+      title={"Example data"}
+      description={"Description text goes here"}
+    />
+  );
 
   switch (componentToShow) {
     case "show": {
@@ -32,7 +44,7 @@ function App() {
         return (
           <div>
             <div>
-              <Button onClick={reset}>Reset</Button>
+              <Button onClick={resetState}>Reset</Button>
             </div>
             <Show
               endpoint={endpoint}
@@ -42,17 +54,12 @@ function App() {
           </div>
         );
       }
+
+      return defaultView;
     }
 
     default: {
-      return (
-        <Pick
-          endpoint={endpoint}
-          fetch={"user.paginated"}
-          isRowClickable={true}
-          onRowClick={onRowClick}
-        />
-      );
+      return defaultView;
     }
   }
 }
@@ -62,6 +69,7 @@ invariant(root != null, "DOM is not avaialble: missing #root");
 
 ReactDOM.render(
   <React.Suspense fallback={ComponentLoading}>
+    <CssBaseline />
     <App />
   </React.Suspense>,
   root

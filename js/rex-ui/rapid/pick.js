@@ -4,6 +4,7 @@
 
 import * as React from "react";
 import invariant from "invariant";
+
 import type { StatelessFunctionalComponent } from "react";
 import {
   introspectionFromSchema,
@@ -15,7 +16,8 @@ import { GraphQLSchema } from "graphql/type/schema";
 import type {
   ASTNode,
   FieldNode,
-  SelectionSetNode
+  SelectionSetNode,
+  OperationDefinitionNode
 } from "graphql/language/ast";
 import { parse as gqlParse } from "graphql/language/parser";
 import { print as gqlPrint } from "graphql/language/printer";
@@ -43,6 +45,8 @@ import {
 export type PropsSharedWithRenderer = {|
   fetch: string,
   isRowClickable?: boolean,
+  title?: string,
+  description?: string,
 
   RendererColumnCell?: (props: {
     column?: FieldNode,
@@ -66,6 +70,7 @@ export type PickPropsBase = {|
   fields?: Array<string>,
   Renderer?: React.ComponentType<any>,
   onPick?: () => void,
+  args?: { [key: string]: any },
   ...PropsSharedWithRenderer
 |};
 
@@ -87,7 +92,10 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
     RendererRowCell,
     RendererRow,
     isRowClickable,
-    onRowClick
+    onRowClick,
+    args = {},
+    title,
+    description
   } = props;
 
   const [error, setError] = React.useState<Error | null>(null);
@@ -121,7 +129,13 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
 
   const schema = introspectionQueryFromSchema.__schema;
 
-  const { query, ast, columns } = withCatcher(
+  const {
+    query,
+    ast,
+    columns,
+    queryDefinition,
+    introspectionTypesMap
+  } = withCatcher(
     () =>
       buildQuery({
         schema,
@@ -141,12 +155,17 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
         catcher,
         fetch,
         ast,
+        queryDefinition,
+        introspectionTypesMap,
         columns,
         RendererColumnCell,
         RendererRowCell,
         RendererRow,
         isRowClickable,
-        onRowClick
+        onRowClick,
+        args,
+        title,
+        description
       }}
     />
   );

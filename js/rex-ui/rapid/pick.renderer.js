@@ -42,6 +42,9 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import SwapVertIcon from "@material-ui/icons/SwapVert";
+import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
 import _get from "lodash/get";
 
@@ -111,7 +114,13 @@ const useStyles = makeStyles({
     top: 0
   },
   tableHeadSortable: {
-    backgroundColor: "orange"
+    cursor: "pointer",
+    "&:hover": {
+      boxShadow: "0 5px 0px -4px"
+    }
+  },
+  tableHeadSorted: {
+    boxShadow: "0 5px 0px -4px"
   },
   tableWrapper: {
     overflowY: "scroll"
@@ -129,6 +138,15 @@ const useStyles = makeStyles({
   topPartWrapper: {
     position: "relative",
     zIndex: "10"
+  },
+  tableCellContentWrapper: {
+    display: "relative",
+    paddingRight: 24
+  },
+  tableCellSortIcon: {
+    position: "absolute",
+    top: 16,
+    right: 6
   }
 });
 
@@ -149,11 +167,11 @@ const TableFilters = ({
   variableDefinitions: VariableDefinitionNode[] | void,
   filterState: { [key: string]: boolean },
   sortingConfig: Array<{| desc: boolean, field: string |}>,
-  sortingState: {} | "undefined",
+  sortingState: {| field: string, desc: boolean |} | void,
   searchState: ?string,
   setSearchState: (val: string) => void,
   setFilterState: (name: string, value: boolean) => void,
-  setSortingState: (value: {} | "undefined") => void
+  setSortingState: (value: string) => void
 |}) => {
   const classes = useStyles();
   const hasSorting = sortingConfig.length > 0;
@@ -211,7 +229,9 @@ const TableFilters = ({
             <FormControl className={classes.formControl}>
               <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
               <Select
-                value={sortingState}
+                value={
+                  sortingState ? JSON.stringify(sortingState) : "undefined"
+                }
                 onChange={ev => {
                   setIsSearchInFocus(false);
                   setSortingState(ev.target.value);
@@ -352,9 +372,10 @@ export const PickRenderer = ({
   const [limit, _setLimit] = React.useState<number>(0);
   const [filterState, _setFilterState] = React.useState({});
   const [showFilters, _setShowFilters] = React.useState(false);
-  const [sortingState, _setSortingState] = React.useState<"undefined" | Object>(
-    "undefined"
-  );
+  const [sortingState, _setSortingState] = React.useState<void | {|
+    field: string,
+    desc: boolean
+  |}>(undefined);
   const [searchState, _setSearchState] = React.useState<?string>(null);
 
   const mobileLimitValue = 20;
@@ -370,9 +391,11 @@ export const PickRenderer = ({
     }, 128);
   };
 
-  const setSortingState = (value: {} | "undefined") => {
+  const setSortingState = (value: string) => {
     setTimeout(() => {
-      _setSortingState(value);
+      value === "undefined"
+        ? _setSortingState(undefined)
+        : _setSortingState(JSON.parse(value));
     }, 128);
   };
 
@@ -473,7 +496,9 @@ export const PickRenderer = ({
   if (sortingState) {
     gqlQueryParams = {
       ...gqlQueryParams,
-      sort: sortingState === "undefined" ? undefined : JSON.parse(sortingState)
+      // TODO: Fix this string/object mess in sortingState value!
+      // sort: sortingState === "undefined" ? undefined : JSON.parse(sortingState)
+      sort: sortingState
     };
   }
   if (searchState) {
@@ -516,19 +541,66 @@ export const PickRenderer = ({
     const column = columnsMap.get(columnName);
 
     let cellClasses = `${classes.tableHead} `;
-    sortingConfig.find(obj => obj.field === columnName)
-      ? (cellClasses = `${cellClasses} ${classes.tableHeadSortable}`)
-      : null;
+    const isSortable = sortingConfig.find(obj => obj.field === columnName);
+
+    if (isSortable) {
+      cellClasses = `${cellClasses} ${classes.tableHeadSortable}`;
+    }
+
+    const parsedSortingState = sortingState;
+
+    const isSortedAsc =
+      sortingState && sortingState.field === columnName && !sortingState.desc;
+    const isSortedDesc =
+      sortingState && sortingState.field === columnName && sortingState.desc;
+
+    if (isSortedAsc || isSortedDesc) {
+      cellClasses = `${cellClasses} ${classes.tableHeadSorted}`;
+    }
 
     if (!column) {
       return null;
     }
 
+    const onTableHeadClick = () => {
+      if (!isSortable) {
+        return;
+      }
+      if (!isSortedAsc && !isSortedDesc) {
+        setSortingState(JSON.stringify({ field: columnName, desc: true }));
+      }
+
+      if (isSortedAsc) {
+        setSortingState(JSON.stringify({ field: columnName, desc: true }));
+      }
+
+      if (isSortedDesc) {
+        setSortingState(JSON.stringify({ field: columnName, desc: false }));
+      }
+    };
+
     return RendererColumnCell ? (
       <RendererColumnCell column={column} index={index} key={index} />
     ) : (
-      <TableCell align="left" key={columnName} className={cellClasses}>
-        {columnName}
+      <TableCell
+        onClick={onTableHeadClick}
+        align="left"
+        key={columnName}
+        className={cellClasses}
+      >
+        <div className={classes.tableCellContentWrapper}>
+          {columnName}
+
+          <div className={classes.tableCellSortIcon}>
+            {isSortedAsc ? (
+              <ArrowUpwardIcon fontSize={"small"} />
+            ) : isSortedDesc ? (
+              <ArrowDownwardIcon fontSize={"small"} />
+            ) : isSortable ? (
+              <SwapVertIcon fontSize={"small"} />
+            ) : null}
+          </div>
+        </div>
       </TableCell>
     );
   });

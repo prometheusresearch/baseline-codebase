@@ -1,0 +1,113 @@
+/**
+ * @flow
+ */
+
+import * as React from "react";
+import invariant from "invariant";
+import { type VariableDefinitionNode } from "graphql/language/ast";
+import {
+  type IntrospectionType,
+  type IntrospectionInputObjectType,
+  type IntrospectionInputValue,
+  type IntrospectionEnumType
+} from "graphql/utilities/introspectionQuery";
+
+export const buildSortingConfig = ({
+  variableDefinitions,
+  introspectionTypesMap,
+  variableDefinitionName
+}: {
+  variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
+  introspectionTypesMap: Map<string, IntrospectionType>,
+  variableDefinitionName: string
+}): Array<{| field: string, desc: boolean |}> => {
+  if (!variableDefinitions) {
+    return [];
+  }
+
+  const variableDefinition = variableDefinitions.find(def => {
+    return def.variable.name.value === variableDefinitionName;
+  });
+
+  // TODO: Handle ListTypeNode and NonNullTypeNode, since they dont have
+  // variableDefinition.type.name field
+  invariant(variableDefinition != null, "variableDefinition is null");
+  invariant(
+    variableDefinition.type.name != null,
+    "Not a NamedTypeNode. variableDefinition.type.name is null."
+  );
+  invariant(
+    variableDefinition.type.name.value != null,
+    "variableDefinition.type.name.value is null."
+  );
+
+  const definitionTypeName = (variableDefinition.type.name.value: any);
+  const variableType = introspectionTypesMap.get(definitionTypeName);
+
+  invariant(
+    variableType != null,
+    `Could not get variableType for: ${definitionTypeName}`
+  );
+
+  const inputObjectType: IntrospectionInputObjectType = (variableType: any);
+  const { inputFields } = inputObjectType;
+
+  const hasValidFields =
+    inputFields.find(f => f.name === "field") &&
+    inputFields.find(f => f.name === "desc")
+      ? true
+      : false;
+
+  invariant(
+    hasValidFields === true,
+    "Not valid inputFields of inputObjectType"
+  );
+
+  const buildSortableFieldObjects = ({
+    inputFields,
+    fieldObjectExtensions,
+    introspectionTypesMap
+  }: {|
+    inputFields: $ReadOnlyArray<IntrospectionInputValue>,
+    fieldObjectExtensions: Array<{ [key: string]: any }>,
+    introspectionTypesMap: Map<string, IntrospectionType>
+  |}) => {
+    const sortFieldsField = inputFields.find(
+      inputField =>
+        inputField.name === "field" && inputField.type.kind === "ENUM"
+    );
+
+    invariant(sortFieldsField != null, "Could not find 'field' input field");
+
+    const enumType: IntrospectionEnumType = (sortFieldsField.type: any);
+    const sortFieldsFieldType: IntrospectionEnumType = (introspectionTypesMap.get(
+      enumType.name
+    ): any);
+
+    invariant(
+      sortFieldsFieldType != null,
+      "Could not find sortFieldsFieldType"
+    );
+
+    const sortableFieldNames = sortFieldsFieldType.enumValues.map(
+      val => val.name
+    );
+
+    let sortableFieldObjects = [];
+    sortableFieldNames.forEach(field => {
+      fieldObjectExtensions.forEach(fieldObjectExtension => {
+        sortableFieldObjects.push({ field, ...fieldObjectExtension });
+      });
+    });
+
+    return sortableFieldObjects;
+  };
+
+  const sortableFieldObjects = buildSortableFieldObjects({
+    inputFields,
+    fieldObjectExtensions: [{ desc: true }, { desc: false }],
+    introspectionTypesMap
+  });
+
+  return sortableFieldObjects;
+};

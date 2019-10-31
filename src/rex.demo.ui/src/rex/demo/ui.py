@@ -15,11 +15,11 @@ from rex.graphql import (
     q,
     sort,
     scalar,
+    entity_id,
     argument,
     filter_from_function,
 )
 from rex.graphql.serve import serve
-
 
 
 class API(HandleLocation):
@@ -45,6 +45,16 @@ class API(HandleLocation):
                     type=contact_info,
                     description="User phone contact information",
                 ),
+                "patients": query(q.patient, type=patient),
+            },
+        )
+
+        patient = Entity(
+            "patient",
+            fields=lambda: {
+                "name": query(q.name),
+                "date_of_birth": query(q.date_of_birth),
+                "caregiver": query(q.caregiver, type=user),
             },
         )
 
@@ -62,8 +72,17 @@ class API(HandleLocation):
             if search is not None:
                 yield q.remote_user.matches(search)
 
+        @filter_from_function()
+        def search_patient(search: scalar.String = None):
+            if search is not None:
+                yield q.name.matches(search)
+
         filter_user_by_system_admin = q.system_admin == argument(
             "system_admin", type=scalar.Boolean
+        )
+
+        filter_patient_by_caregiver = q.caregiver == argument(
+            "caregiver", type=entity_id.user
         )
 
         sort_user = sort(user, ("remote_user", "expires"))
@@ -76,7 +95,13 @@ class API(HandleLocation):
                     sort=sort_user,
                     filters=[filter_user_by_system_admin, search_user],
                     description="Users",
-                )
+                ),
+                "patient": connect(
+                    query=q.patient,
+                    type=patient,
+                    filters=[filter_patient_by_caregiver, search_patient],
+                    description="Patients",
+                ),
             }
         )
 

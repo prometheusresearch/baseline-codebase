@@ -45,6 +45,16 @@ class API(HandleLocation):
                     type=contact_info,
                     description="User phone contact information",
                 ),
+                "patients": query(q.patient, type=patient),
+            },
+        )
+
+        patient = Entity(
+            "patient",
+            fields=lambda: {
+                "name": query(q.name),
+                "date_of_birth": query(q.date_of_birth),
+                "caregiver": query(q.caregiver, type=user),
             },
         )
 
@@ -62,6 +72,11 @@ class API(HandleLocation):
             if search is not None:
                 yield q.remote_user.matches(search)
 
+        @filter_from_function()
+        def search_patient(search: scalar.String = None):
+            if search is not None:
+                yield q.name.matches(search)
+
         filter_user_by_system_admin = q.system_admin == argument(
             "system_admin", type=scalar.Boolean
         )
@@ -76,7 +91,13 @@ class API(HandleLocation):
                     sort=sort_user,
                     filters=[filter_user_by_system_admin, search_user],
                     description="Users",
-                )
+                ),
+                "patient": connect(
+                    query=q.patient,
+                    type=patient,
+                    filters=[search_patient],
+                    description="Patients",
+                ),
             }
         )
 

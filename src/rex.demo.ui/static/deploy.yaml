@@ -11,7 +11,6 @@
     type: boolean
     required: true
     default: false
-  - data: data.csv
 
   - identity: [remote_user]
 
@@ -26,6 +25,19 @@
     type: text
 
   - identity: [user, code: offset]
+
+- table: patient
+  with:
+  - column: code
+    type: integer
+  - column: name
+    type: text
+  - link: caregiver
+    to: user
+  - column: date_of_birth
+    type: date
+
+  - identity: [code: offset]
 
 # DATA
 
@@ -56,6 +68,9 @@
       system_admin: false
     - remote_user: alex@prometheusresearch.com
       system_admin: false
+
+- include: ./deploy_user.yaml
+- include: ./deploy_patient.yaml
 
 - table: contact_info
   with:

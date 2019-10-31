@@ -15,11 +15,11 @@ from rex.graphql import (
     q,
     sort,
     scalar,
+    entity_id,
     argument,
     filter_from_function,
 )
 from rex.graphql.serve import serve
-
 
 
 class API(HandleLocation):
@@ -81,6 +81,10 @@ class API(HandleLocation):
             "system_admin", type=scalar.Boolean
         )
 
+        filter_patient_by_caregiver = q.caregiver == argument(
+            "caregiver", type=entity_id.user
+        )
+
         sort_user = sort(user, ("remote_user", "expires"))
 
         return schema(
@@ -95,7 +99,7 @@ class API(HandleLocation):
                 "patient": connect(
                     query=q.patient,
                     type=patient,
-                    filters=[search_patient],
+                    filters=[filter_patient_by_caregiver, search_patient],
                     description="Patients",
                 ),
             }

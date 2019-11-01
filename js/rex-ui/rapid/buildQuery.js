@@ -7,8 +7,6 @@ import * as introspection from "graphql/utilities/introspectionQuery";
 import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
 
-import { buildVariableDefinition } from "./buildVariableDefinition";
-
 export type TypeIntrospectionFieldType = {|
   kind: string,
   name: ?string,
@@ -42,7 +40,7 @@ export const buildQuery = ({
     columns,
     queryDefinition,
     introspectionTypesMap
-  } = buildQueryAST({ schema, path });
+  } = buildQueryAST(schema, path);
   const query = print(ast);
   return {
     query,
@@ -53,47 +51,29 @@ export const buildQuery = ({
   };
 };
 
-const buildQueryAST = (props: {
+const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
   path: Array<string>
-}): {|
+): {|
   ast: ast.DocumentNode,
   columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode
 |} => {
-  invariant(props != null, "props is null");
-
-  const { schema, path } = props;
-
-  invariant(schema != null, "schema is null");
-  invariant(path != null, "path is null");
-
-  const introspectionTypes: $ReadOnlyArray<introspection.IntrospectionType> =
-    schema.types;
-
-  let typesMap = new Map();
-  for (let t of introspectionTypes) {
+  let typesMap: Map<string, introspection.IntrospectionType> = new Map();
+  for (let t of schema.types) {
     typesMap.set(t.name, t);
   }
 
-  let _rootType:
-    | introspection.IntrospectionType
-    | typeof undefined = typesMap.get(schema.queryType.name);
-  let rootType: introspection.IntrospectionObjectType = (_rootType: any);
-
-  invariant(rootType != null, "rootType is null | undefined");
+  let maybeRootType = typesMap.get(schema.queryType.name);
+  invariant(
+    maybeRootType != null && maybeRootType.kind == "OBJECT",
+    "Expected ObjectType at the root"
+  );
+  let rootType: introspection.IntrospectionObjectType = (maybeRootType: any);
 
   let [fieldName, ...restPath] = path;
-
-  // rootType -> fields -> fieldName
-  const baseType: introspection.IntrospectionObjectType = (getBaseTypeFromRoot(
-    typesMap,
-    rootType,
-    fieldName
-  ): any);
-
-  invariant(baseType != null, "baseType is null");
+  let [_field, baseType] = findNextObjectType(typesMap, rootType, fieldName);
 
   let [selectionSet, columns, inputValues] = buildSelectionSet(typesMap, {
     fieldName,
@@ -108,7 +88,7 @@ const buildQueryAST = (props: {
     name: { kind: "Name", value: "ConstructedQuery" },
     operation: "query",
     selectionSet,
-    variableDefinitions: inputValues.map(buildVariableDefinition)
+    variableDefinitions: inputValues.map(buildVariableDefinitionNode)
   };
 
   return {
@@ -122,37 +102,55 @@ const buildQueryAST = (props: {
   };
 };
 
-const getBaseTypeFromRoot = (
+const findNextObjectType = (
   typesMap: Map<string, introspection.IntrospectionType>,
-  rootType: introspection.IntrospectionObjectType,
-  base: string
-): introspection.IntrospectionType => {
-  const field = rootType.fields.find(f => f.name === base);
+  type: introspection.IntrospectionObjectType,
+  fieldName: string
+): [
+  introspection.IntrospectionField,
+  introspection.IntrospectionObjectType
+] => {
+  const field = type.fields.find(f => f.name === fieldName);
+  invariant(field, `No field "${type.name}.${fieldName}" found`);
 
-  invariant(field, `No field "${base}" found in getBaseTypeFromRoot`);
+  function resolveType(typeRef) {
+    let nextType;
+    switch (typeRef.kind) {
+      case "NON_NULL":
+        nextType = resolveType(typeRef.ofType);
+        break;
+      case "LIST":
+        nextType = resolveType(typeRef.ofType);
+        break;
+      case "ENUM":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      case "SCALAR":
+        break;
+      case "UNION":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      case "INTERFACE":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      case "OBJECT":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      default:
+        (typeRef.kind: empty);
+        invariant(false, "Impossible");
+    }
+    invariant(
+      nextType != null,
+      `No type for field "${type.name}.${fieldName}" found`
+    );
+    return nextType;
+  }
 
-  const { name, type } = field;
-  const { kind, ofType } = (type: any);
-
-  invariant(ofType != null, "ofType is null");
-  invariant(ofType.kind != null, "ofType.kind is null");
-  invariant(ofType.name != null, "ofType.name is null");
-
-  const baseType = typesMap.get(ofType.name);
-
-  invariant(baseType != null, "baseType is null");
-
-  return baseType;
+  let nextType = resolveType(field.type);
+  invariant(nextType.kind === "OBJECT", "Expected object type");
+  return [field, nextType];
 };
-
-function isFieldScalar(field) {
-  return (
-    field.type.kind === "SCALAR" ||
-    (field.type.kind === "NON_NULL" &&
-      field.type.ofType &&
-      field.type.ofType.kind === "SCALAR")
-  );
-}
 
 const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
@@ -174,7 +172,7 @@ const buildSelectionSet = (
 ] => {
   // Break the recursion
   if (path.length === 0) {
-    const fields = currType.fields.filter(isFieldScalar);
+    const fields = currType.fields.filter(isFieldNodeScalarLike);
     const selections: ast.FieldNode[] = [];
     const inputValues: introspection.IntrospectionInputValue[] = [];
 
@@ -212,47 +210,11 @@ const buildSelectionSet = (
     return [selectionSet, selections, inputValues];
   } else {
     const [nextFieldName, ...restPath] = path;
-
-    const nextField = currType.fields.find(f => f.name === nextFieldName);
-    invariant(nextField != null, `nextField for "${nextFieldName}" is null`);
-
-    // TODO: Move this out from here maybe
-    const _typeForNextField = ((
-      typesMap: Map<string, introspection.IntrospectionType>,
-      field: introspection.IntrospectionField
-    ) => {
-      let { type }: { type: TypeIntrospectionFieldType } = (field: any);
-
-      let nextTypeName: string;
-
-      if (type.kind && type.name) {
-        nextTypeName = type.name;
-      }
-
-      if (type.kind && !type.name) {
-        const { ofType } = type;
-
-        invariant(ofType != null, "ofType is null when type.name is also null");
-        invariant(
-          ofType.kind != null,
-          "ofType.kind is null when type.name is also null"
-        );
-        invariant(
-          ofType.name != null,
-          "ofType.name is null when type.name is also null"
-        );
-
-        nextTypeName = ofType.name;
-      }
-
-      invariant(nextTypeName != null, "nextTypeName is null");
-
-      return typesMap.get(nextTypeName);
-    })(typesMap, nextField);
-
-    invariant(_typeForNextField != null, "_nextType is null");
-
-    const typeForNextField: introspection.IntrospectionObjectType = (_typeForNextField: any);
+    const [nextField, nextFieldType] = findNextObjectType(
+      typesMap,
+      currType,
+      nextFieldName
+    );
 
     const fieldArguments = [];
     const inputValues = [];
@@ -266,7 +228,7 @@ const buildSelectionSet = (
       {
         fieldName: nextFieldName,
         fieldArguments,
-        currType: typeForNextField,
+        currType: nextFieldType,
         path: restPath
       }
     );
@@ -288,21 +250,18 @@ const buildSelectionSet = (
 };
 
 const buildArgumentNode = (
-  inputValue: introspection.IntrospectionInputValue
+  introInputValue: introspection.IntrospectionInputValue
 ): ast.ArgumentNode => {
-  const { name: inputValueName, type: _inputValueType } = inputValue;
-  const inputValueType: TypeIntrospectionFieldType = (_inputValueType: any);
-
   let name: ast.NameNode = {
     kind: "Name",
-    value: inputValueName
+    value: introInputValue.name
   };
 
   let value: ast.ValueNode = {
     kind: "Variable",
     name: {
       kind: "Name",
-      value: inputValueName
+      value: introInputValue.name
     }
   };
 
@@ -312,3 +271,71 @@ const buildArgumentNode = (
     value
   };
 };
+
+const buildVariableDefinitionNode = (
+  introInputValue: introspection.IntrospectionInputValue
+): ast.VariableDefinitionNode => {
+  return {
+    kind: "VariableDefinition",
+    variable: {
+      kind: "Variable",
+      name: {
+        kind: "Name",
+        value: introInputValue.name
+      }
+    },
+    type: buildTypeNode(introInputValue.type)
+  };
+};
+
+const buildTypeNode = (
+  introType: introspection.IntrospectionInputTypeRef
+): ast.TypeNode => {
+  switch (introType.kind) {
+    case "NON_NULL": {
+      let type = buildTypeNode(introType.ofType);
+      invariant(
+        type.kind != "NonNullType",
+        "Nested NonNullType is not possible"
+      );
+      // TODO(andreypopp): for some reason flow doesn't refine union based on a
+      // previous invariant.
+      let typeNonNull: ast.NamedTypeNode | ast.ListTypeNode = (type: any);
+      return {
+        kind: "NonNullType",
+        type: typeNonNull
+      };
+    }
+    case "LIST": {
+      return {
+        kind: "ListType",
+        type: buildTypeNode(introType.ofType)
+      };
+    }
+    case "INPUT_OBJECT":
+      return {
+        kind: "NamedType",
+        name: { kind: "Name", value: introType.name }
+      };
+    case "ENUM":
+      return {
+        kind: "NamedType",
+        name: { kind: "Name", value: introType.name }
+      };
+    case "SCALAR":
+      return {
+        kind: "NamedType",
+        name: { kind: "Name", value: introType.name }
+      };
+    default:
+      (introType.kind: empty);
+      invariant(false, `Unknown GraphQL introspection type: ${introType.kind}`);
+  }
+};
+
+function isFieldNodeScalarLike(field) {
+  return (
+    field.type.kind === "SCALAR" ||
+    (field.type.kind === "NON_NULL" && field.type.ofType.kind === "SCALAR")
+  );
+}

@@ -96,31 +96,19 @@ const buildQueryAST = (props: {
 
   invariant(baseType != null, "baseType is null");
 
-  const inputValues: introspection.IntrospectionInputValue[] = [];
-  const collectInputValues = (
-    inputValue: introspection.IntrospectionInputValue
-  ) => {
-    inputValues.push(inputValue);
-  };
-
-  let columns: ast.FieldNode[] = [];
-  const collectColumns = (selections: ast.FieldNode[]) => {
-    columns = selections;
-  };
+  let [selectionSet, columns, inputValues] = buildSelectionSet(typesMap, {
+    fieldName,
+    fieldArguments: [],
+    currType: baseType,
+    path: restPath
+  });
 
   const operationDefinition = {
     directives: [],
     kind: "OperationDefinition",
     name: { kind: "Name", value: "ConstructedQuery" },
     operation: "query",
-    selectionSet: buildSelectionSet(typesMap, {
-      fieldName,
-      fieldArguments: [],
-      currType: baseType,
-      path: restPath,
-      collectInputValues,
-      collectColumns
-    }),
+    selectionSet,
     variableDefinitions: inputValues.map(buildVariableDefinition)
   };
 
@@ -158,52 +146,54 @@ const getBaseTypeFromRoot = (
   return baseType;
 };
 
+function isFieldScalar(field) {
+  return (
+    field.type.kind === "SCALAR" ||
+    (field.type.kind === "NON_NULL" &&
+      field.type.ofType &&
+      field.type.ofType.kind === "SCALAR")
+  );
+}
+
 const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   {
     fieldName,
     fieldArguments,
     currType,
-    path,
-    collectInputValues,
-    collectColumns
+    path
   }: {
     fieldName: string,
     fieldArguments: ast.ArgumentNode[],
     currType: introspection.IntrospectionObjectType,
-    path: string[],
-    collectInputValues: (
-      inputValue: introspection.IntrospectionInputValue
-    ) => void,
-    collectColumns: (selections: ast.FieldNode[]) => void
+    path: string[]
   }
-): ast.SelectionSetNode => {
+): [
+  ast.SelectionSetNode,
+  ast.FieldNode[],
+  introspection.IntrospectionInputValue[]
+] => {
   // Break the recursion
   if (path.length === 0) {
-    const selections: ast.FieldNode[] = currType.fields
-      .filter(field => {
-        // Get only SCALAR or NON_NULL of SCALAR field nodes
-        return (
-          field.type.kind === "SCALAR" ||
-          (field.type.kind === "NON_NULL" &&
-            field.type.ofType &&
-            field.type.ofType.kind === "SCALAR")
-        );
-      })
-      .map(field => {
-        return {
-          arguments: field.args.map(arg =>
-            buildArgumentNode(arg, collectInputValues)
-          ),
-          directives: [],
-          kind: "Field",
-          name: { kind: "Name", value: field.name }
-        };
+    const fields = currType.fields.filter(isFieldScalar);
+    const selections: ast.FieldNode[] = [];
+    const inputValues: introspection.IntrospectionInputValue[] = [];
+
+    for (let field of fields) {
+      let args = [];
+      for (let arg of field.args) {
+        args.push(buildArgumentNode(arg));
+        inputValues.push(arg);
+      }
+      selections.push({
+        kind: "Field",
+        arguments: args,
+        directives: [],
+        name: { kind: "Name", value: field.name }
       });
+    }
 
-    collectColumns(selections);
-
-    return {
+    const selectionSet = {
       kind: "SelectionSet",
       selections: [
         {
@@ -219,71 +209,81 @@ const buildSelectionSet = (
         }
       ]
     };
-  }
 
-  const [nextFieldName, ...restPath] = path;
+    return [selectionSet, selections, inputValues];
+  } else {
+    const [nextFieldName, ...restPath] = path;
 
-  const nextField = currType.fields.find(f => f.name === nextFieldName);
-  invariant(nextField != null, `nextField for "${nextFieldName}" is null`);
+    const nextField = currType.fields.find(f => f.name === nextFieldName);
+    invariant(nextField != null, `nextField for "${nextFieldName}" is null`);
 
-  // TODO: Move this out from here maybe
-  const _typeForNextField = ((
-    typesMap: Map<string, introspection.IntrospectionType>,
-    field: introspection.IntrospectionField
-  ) => {
-    let { type }: { type: TypeIntrospectionFieldType } = (field: any);
+    // TODO: Move this out from here maybe
+    const _typeForNextField = ((
+      typesMap: Map<string, introspection.IntrospectionType>,
+      field: introspection.IntrospectionField
+    ) => {
+      let { type }: { type: TypeIntrospectionFieldType } = (field: any);
 
-    let nextTypeName: string;
+      let nextTypeName: string;
 
-    if (type.kind && type.name) {
-      nextTypeName = type.name;
-    }
-
-    if (type.kind && !type.name) {
-      const { ofType } = type;
-
-      invariant(ofType != null, "ofType is null when type.name is also null");
-      invariant(
-        ofType.kind != null,
-        "ofType.kind is null when type.name is also null"
-      );
-      invariant(
-        ofType.name != null,
-        "ofType.name is null when type.name is also null"
-      );
-
-      nextTypeName = ofType.name;
-    }
-
-    invariant(nextTypeName != null, "nextTypeName is null");
-
-    return typesMap.get(nextTypeName);
-  })(typesMap, nextField);
-
-  invariant(_typeForNextField != null, "_nextType is null");
-
-  const typeForNextField: introspection.IntrospectionObjectType = (_typeForNextField: any);
-
-  return {
-    kind: "SelectionSet",
-    selections: [
-      {
-        arguments: fieldArguments || [],
-        directives: [],
-        kind: "Field",
-        name: { kind: "Name", value: fieldName },
-
-        selectionSet: buildSelectionSet(typesMap, {
-          fieldName: nextFieldName,
-          fieldArguments: nextField.args.map(arg =>
-            buildArgumentNode(arg, collectInputValues)
-          ),
-          currType: typeForNextField,
-          path: restPath,
-          collectInputValues,
-          collectColumns
-        })
+      if (type.kind && type.name) {
+        nextTypeName = type.name;
       }
-    ]
-  };
+
+      if (type.kind && !type.name) {
+        const { ofType } = type;
+
+        invariant(ofType != null, "ofType is null when type.name is also null");
+        invariant(
+          ofType.kind != null,
+          "ofType.kind is null when type.name is also null"
+        );
+        invariant(
+          ofType.name != null,
+          "ofType.name is null when type.name is also null"
+        );
+
+        nextTypeName = ofType.name;
+      }
+
+      invariant(nextTypeName != null, "nextTypeName is null");
+
+      return typesMap.get(nextTypeName);
+    })(typesMap, nextField);
+
+    invariant(_typeForNextField != null, "_nextType is null");
+
+    const typeForNextField: introspection.IntrospectionObjectType = (_typeForNextField: any);
+
+    const fieldArguments = [];
+    const inputValues = [];
+    for (let arg of nextField.args) {
+      fieldArguments.push(buildArgumentNode(arg));
+      inputValues.push(arg);
+    }
+
+    const [selectionSet, selections, nextInputValues] = buildSelectionSet(
+      typesMap,
+      {
+        fieldName: nextFieldName,
+        fieldArguments,
+        currType: typeForNextField,
+        path: restPath
+      }
+    );
+
+    const ast = {
+      kind: "SelectionSet",
+      selections: [
+        {
+          arguments: fieldArguments || [],
+          directives: [],
+          kind: "Field",
+          name: { kind: "Name", value: fieldName },
+          selectionSet
+        }
+      ]
+    };
+    return [ast, selections, inputValues.concat(nextInputValues)];
+  }
 };

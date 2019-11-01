@@ -11,13 +11,13 @@ import { type IntrospectionInputValue } from "graphql/utilities/introspectionQue
 import { type TypeIntrospectionFieldType } from "./buildQueryAST";
 
 export const buildArgumentNode = (
-  inputValue: IntrospectionInputValue,
-  inputValueCallback: (inputValue: IntrospectionInputValue) => void
+  inputValue: IntrospectionInputValue
 ): ArgumentNode => {
   const { name: inputValueName, type: _inputValueType } = inputValue;
   const inputValueType: TypeIntrospectionFieldType = (_inputValueType: any);
 
   let name: NameNode = { kind: "Name", value: inputValueName };
+
   let value: ValueNode = {
     kind: "Variable",
     name: {
@@ -25,9 +25,6 @@ export const buildArgumentNode = (
       value: inputValueName
     }
   };
-
-  // Callback to collect all arguments for query
-  inputValueCallback(inputValue);
 
   return {
     kind: "Argument",

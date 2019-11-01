@@ -301,17 +301,15 @@ const TableFilters = ({
 };
 
 const TablePagination = ({
-  data,
-  limit,
-  offset,
-  decrementPage,
-  incrementPage
+  hasNext,
+  hasPrev,
+  onNextPage,
+  onPrevPage
 }: {|
-  data: any,
-  limit: number,
-  offset: number,
-  decrementPage: () => void,
-  incrementPage: () => void
+  hasNext: boolean,
+  hasPrev: boolean,
+  onNextPage: () => void,
+  onPrevPage: () => void
 |}) => {
   const classes = useStyles();
 
@@ -321,15 +319,15 @@ const TablePagination = ({
       direction="row"
       justify="flex-end"
       alignItems="center"
-      spacing={8}
+      spacing={2}
       className={classes.paginationWrapper}
     >
       <Grid item>
         <IconButton
           aria-label="previous"
           color="default"
-          onClick={decrementPage}
-          disabled={offset === 0}
+          onClick={onPrevPage}
+          disabled={!hasPrev}
         >
           <ChevronLeftIcon />
         </IconButton>
@@ -337,8 +335,8 @@ const TablePagination = ({
         <IconButton
           aria-label="next"
           color="default"
-          onClick={incrementPage}
-          disabled={data.length < limit}
+          onClick={onNextPage}
+          disabled={!hasNext}
         >
           <ChevronRightIcon />
         </IconButton>
@@ -741,11 +739,10 @@ export const PickRenderer = ({
             )}
 
             <TablePagination
-              data={data}
-              limit={limit}
-              offset={offset}
-              decrementPage={decrementPage}
-              incrementPage={incrementPage}
+              hasPrev={offset > 0}
+              hasNext={data.length >= limit}
+              onPrevPage={decrementPage}
+              onNextPage={incrementPage}
             />
           </Paper>
         </Grid>

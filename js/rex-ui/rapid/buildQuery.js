@@ -8,7 +8,6 @@ import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
 
 import { buildVariableDefinition } from "./buildVariableDefinition";
-import { buildArgumentNode } from "./buildArgumentNode";
 
 export type TypeIntrospectionFieldType = {|
   kind: string,
@@ -286,4 +285,30 @@ const buildSelectionSet = (
     };
     return [ast, selections, inputValues.concat(nextInputValues)];
   }
+};
+
+const buildArgumentNode = (
+  inputValue: introspection.IntrospectionInputValue
+): ast.ArgumentNode => {
+  const { name: inputValueName, type: _inputValueType } = inputValue;
+  const inputValueType: TypeIntrospectionFieldType = (_inputValueType: any);
+
+  let name: ast.NameNode = {
+    kind: "Name",
+    value: inputValueName
+  };
+
+  let value: ast.ValueNode = {
+    kind: "Variable",
+    name: {
+      kind: "Name",
+      value: inputValueName
+    }
+  };
+
+  return {
+    kind: "Argument",
+    name,
+    value
+  };
 };

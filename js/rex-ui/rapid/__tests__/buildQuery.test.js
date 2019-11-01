@@ -346,11 +346,10 @@ const referenceQuery = `query ConstructedQuery($offset: Int, $limit: Int) {
 describe("Testing constructQueryAST", function() {
   it("Should be equal to referenceQuery", function() {
     expect(
-      (() =>
-        buildQuery({
-          schema: testSchema,
-          path: ["user", "paginated"]
-        }))()
+      buildQuery({
+        schema: testSchema,
+        path: ["user", "paginated"]
+      }).query
     ).toEqual(referenceQuery);
   });
 });

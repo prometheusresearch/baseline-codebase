@@ -1,5 +1,5 @@
 /**
- * @flow
+ * @flow strict
  */
 
 import invariant from "invariant";
@@ -65,12 +65,15 @@ const buildQueryAST = (
     typesMap.set(t.name, t);
   }
 
-  let maybeRootType = typesMap.get(schema.queryType.name);
+  let rootType = typesMap.get(schema.queryType.name);
   invariant(
-    maybeRootType != null && maybeRootType.kind == "OBJECT",
+    rootType != null,
     "Expected ObjectType at the root"
   );
-  let rootType: introspection.IntrospectionObjectType = (maybeRootType: any);
+  invariant(
+    rootType.kind === 'OBJECT',
+    "Expected ObjectType at the root"
+  );
 
   let [selectionSet, columns, inputValues] = buildSelectionSet(
     typesMap,
@@ -212,15 +215,12 @@ const buildTypeNode = (
     case "NON_NULL": {
       let type = buildTypeNode(introType.ofType);
       invariant(
-        type.kind != "NonNullType",
+        type.kind === "ListType" || type.kind === "NamedType",
         "Nested NonNullType is not possible"
       );
-      // TODO(andreypopp): for some reason flow doesn't refine union based on a
-      // previous invariant.
-      let typeNonNull: ast.NamedTypeNode | ast.ListTypeNode = (type: any);
       return {
         kind: "NonNullType",
-        type: typeNonNull
+        type
       };
     }
     case "LIST": {

@@ -348,6 +348,9 @@ const TablePagination = ({
 const containerRef = React.createRef();
 const searchInputRef = React.createRef();
 
+const LIMIT_MOBILE = 20;
+const LIMIT_DESKTOP = 50;
+
 export const PickRenderer = ({
   resource,
   Renderer,
@@ -366,8 +369,8 @@ export const PickRenderer = ({
   title,
   description
 }: TypePropsRenderer) => {
-  const [offset, _setOffset] = React.useState<number>(0);
-  const [limit, _setLimit] = React.useState<number>(0);
+  const [offset, setOffset] = React.useState<number>(0);
+  const [limit, setLimit] = React.useState<number>(0);
   const [filterState, _setFilterState] = React.useState({});
   const [showFilters, _setShowFilters] = React.useState(false);
   const [sortingState, _setSortingState] = React.useState<void | {|
@@ -376,15 +379,12 @@ export const PickRenderer = ({
   |}>(undefined);
   const [searchState, _setSearchState] = React.useState<?string>(null);
 
-  const mobileLimitValue = 20;
-  const desktopLimitValue = 50;
-
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
   const classes = useStyles();
 
   const setFilterState = (varDefName: string, value: boolean) => {
     setTimeout(() => {
-      _setOffset(0);
+      setOffset(0);
       _setFilterState({ ...filterState, [varDefName]: value });
     }, 128);
   };
@@ -409,12 +409,12 @@ export const PickRenderer = ({
 
   const decrementPage = () => {
     const newOffset = offset - limit <= 0 ? 0 : offset - limit;
-    _setOffset(newOffset);
+    setOffset(newOffset);
   };
 
   const incrementPage = () => {
     const newOffset = offset + limit;
-    _setOffset(newOffset);
+    setOffset(newOffset);
   };
 
   // Initializing boolean filters on new queryDefinition
@@ -447,9 +447,9 @@ export const PickRenderer = ({
   // Calculating needed items limit
   React.useEffect(() => {
     if (!isTabletWidth) {
-      _setLimit(mobileLimitValue);
+      setLimit(LIMIT_MOBILE);
     } else {
-      _setLimit(desktopLimitValue);
+      setLimit(LIMIT_DESKTOP);
     }
   }, [isTabletWidth]);
 

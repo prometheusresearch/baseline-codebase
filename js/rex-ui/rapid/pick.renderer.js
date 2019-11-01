@@ -7,7 +7,8 @@ import invariant from "invariant";
 import {
   type DocumentNode,
   type FieldNode,
-  type OperationDefinitionNode
+  type OperationDefinitionNode,
+  type VariableDefinitionNode
 } from "graphql/language/ast";
 
 import {
@@ -22,16 +23,8 @@ import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMe
 
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import Table from "@material-ui/core/Table";
 import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import TableRow from "@material-ui/core/TableRow";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TextField from "@material-ui/core/TextField";
-import FormGroup from "@material-ui/core/FormGroup";
-import InputLabel from "@material-ui/core/InputLabel";
+
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import FormControl from "@material-ui/core/FormControl";
@@ -41,11 +34,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import SwapVertIcon from "@material-ui/icons/SwapVert";
-import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-
-import _get from "lodash/get";
 
 import {
   type Resource,
@@ -59,13 +47,14 @@ import {
 } from "./helpers";
 
 import { ComponentLoading } from "./component.loading";
-import { ShowRenderer, ShowCard } from "./show.renderer";
 
 import { type PropsSharedWithRenderer } from "./pick";
 import { buildSortingConfig } from "./buildSortingConfig";
 import { useStyles } from "./pick.renderer.styles";
 import { PickFilterToolbar } from "./pick.renderer.filters";
 import { PickPagination } from "./pick.renderer.pagination";
+import { DataView } from "./pick.renderer.dataView";
+import { type FieldSpec } from "./buildQuery";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
@@ -73,7 +62,7 @@ export type TypePropsRenderer = {|
   resource: Resource<any, any>,
   Renderer?: React.ComponentType<CustomRendererProps>,
 
-  columns: FieldNode[],
+  columns: FieldSpec[],
   queryDefinition: OperationDefinitionNode,
   introspectionTypesMap: Map<string, IntrospectionType>,
   catcher: (err: Error) => void,
@@ -85,188 +74,6 @@ export type TypePropsRenderer = {|
 // TODO: We can make those constants -> props passed from component user
 const SORTING_VAR_NAME = "sort";
 const SEARCH_VAR_NAME = "search";
-
-const PickNoDataPlaceholder = () => {
-  const classes = useStyles();
-  return (
-    <div className={classes.tableWrapper}>
-      <Typography variant={"caption"}>No data</Typography>
-    </div>
-  );
-};
-
-const PickCardListView = ({ data }) => {
-  const classes = useStyles();
-  return (
-    <div className={classes.tableWrapper}>
-      {data.map((row, index) => {
-        const sortedRow = sortObjectFieldsWithPreferred(row);
-
-        return (
-          <div key={index}>
-            <ShowCard data={sortedRow} />
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const PickTableView = ({
-  data,
-  columns,
-  sortingConfig,
-  sortingState,
-  setSortingState,
-  RendererColumnCell,
-  RendererRow,
-  RendererRowCell,
-  onRowClick
-}) => {
-  const classes = useStyles();
-
-  const columnsMap = new Map();
-  const columnsNames = [];
-  for (let column of columns) {
-    columnsMap.set(column.name.value, column);
-    columnsNames.push(column.name.value);
-  }
-  columnsNames.sort();
-
-  const TableHeadRows = columnsNames.map((columnName, index) => {
-    const column = columnsMap.get(columnName);
-
-    if (!column) {
-      return null;
-    }
-
-    let cellClasses = `${classes.tableHead} `;
-    const isSortable = sortingConfig.find(obj => obj.field === columnName);
-
-    if (isSortable) {
-      cellClasses = `${cellClasses} ${classes.tableHeadSortable}`;
-    }
-
-    const isSortedAsc =
-      sortingState && sortingState.field === columnName && !sortingState.desc;
-    const isSortedDesc =
-      sortingState && sortingState.field === columnName && sortingState.desc;
-
-    if (isSortedAsc || isSortedDesc) {
-      cellClasses = `${cellClasses} ${classes.tableHeadSorted}`;
-    }
-
-    const onTableHeadClick = () => {
-      if (!isSortable) {
-        return;
-      }
-      if (!isSortedAsc && !isSortedDesc) {
-        setSortingState(JSON.stringify({ field: columnName, desc: true }));
-      }
-
-      if (isSortedAsc) {
-        setSortingState(JSON.stringify({ field: columnName, desc: true }));
-      }
-
-      if (isSortedDesc) {
-        setSortingState(JSON.stringify({ field: columnName, desc: false }));
-      }
-    };
-
-    return RendererColumnCell ? (
-      <RendererColumnCell column={column} index={index} key={index} />
-    ) : (
-      <TableCell
-        onClick={onTableHeadClick}
-        align="left"
-        key={columnName}
-        className={cellClasses}
-      >
-        <div className={classes.tableCellContentWrapper}>
-          {columnName}
-
-          <div className={classes.tableCellSortIcon}>
-            {isSortedAsc ? (
-              <ArrowUpwardIcon fontSize={"small"} />
-            ) : isSortedDesc ? (
-              <ArrowDownwardIcon fontSize={"small"} />
-            ) : isSortable ? (
-              <SwapVertIcon fontSize={"small"} />
-            ) : null}
-          </div>
-        </div>
-      </TableCell>
-    );
-  });
-
-  const TableBodyRows = data.map((row, index) => {
-    return RendererRow ? (
-      <RendererRow row={row} columns={columns} index={index} key={index} />
-    ) : (
-      <TableRow
-        key={row.id}
-        hover={onRowClick != null}
-        style={{ cursor: onRowClick != null ? "pointer" : "default" }}
-        onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
-      >
-        {columnsNames.map((columnName, index) => {
-          const column = columnsMap.get(columnName);
-          if (!column) {
-            return null;
-          }
-
-          let cellValue;
-          switch (row[columnName]) {
-            case undefined:
-            case null: {
-              cellValue = "—";
-              break;
-            }
-            case true: {
-              cellValue = "Yes";
-              break;
-            }
-            case false: {
-              cellValue = "No";
-              break;
-            }
-            default: {
-              cellValue = String(row[columnName]);
-            }
-          }
-
-          return RendererRowCell ? (
-            <RendererRowCell
-              row={row}
-              column={column}
-              index={index}
-              key={index}
-            />
-          ) : (
-            <TableCell key={columnName} align="left">
-              <span>{cellValue}</span>
-            </TableCell>
-          );
-        })}
-      </TableRow>
-    );
-  });
-
-  return (
-    <div className={classes.tableWrapper}>
-      <Table
-        className={classes.table}
-        aria-label="simple table"
-        padding={"dense"}
-      >
-        <TableHead>
-          <TableRow>{TableHeadRows}</TableRow>
-        </TableHead>
-        <TableBody>{TableBodyRows}</TableBody>
-      </Table>
-    </div>
-  );
-};
 
 const PickHeader = ({ title, description, rightToolbar }) => {
   const classes = useStyles();
@@ -320,6 +127,7 @@ export const PickRenderer = ({
     desc: boolean
   |}>(undefined);
   const [searchState, _setSearchState] = React.useState<?string>(null);
+  const [viewData, setViewData] = React.useState<Array<any>>([]);
 
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
   const classes = useStyles();
@@ -396,9 +204,7 @@ export const PickRenderer = ({
   }, [isTabletWidth]);
 
   // Handle search param
-  React.useEffect(() => {
-    console.log("searchState: ", searchState);
-  }, [searchState]);
+  // React.useEffect(() => {}, [searchState]);
 
   // Replacing "undefined" -> undefined
   // SelectInput warns if value is undefined
@@ -418,68 +224,7 @@ export const PickRenderer = ({
     variableDefinitionName: SORTING_VAR_NAME
   });
 
-  const hasLimitVariable = variableDefinitions
-    ? variableDefinitions.find(def => def.variable.name.value === "limit")
-    : null;
-  const hasOffsetVariable = variableDefinitions
-    ? variableDefinitions.find(def => def.variable.name.value === "offset")
-    : null;
-
-  // Forming query params
-  let gqlQueryParams = { ...args, ...preparedFilterState };
-  if (hasLimitVariable != null) {
-    gqlQueryParams = { ...gqlQueryParams, limit };
-  }
-  if (hasOffsetVariable != null) {
-    gqlQueryParams = { ...gqlQueryParams, offset };
-  }
-  if (sortingState) {
-    gqlQueryParams = {
-      ...gqlQueryParams,
-      // TODO: Fix this string/object mess in sortingState value!
-      // sort: sortingState === "undefined" ? undefined : JSON.parse(sortingState)
-      sort: sortingState
-    };
-  }
-  if (searchState) {
-    gqlQueryParams = { ...gqlQueryParams, search: searchState };
-  }
-
-  const resourceData = withResourceErrorCatcher({
-    getResource: () => useResource(resource, gqlQueryParams),
-    catcher
-  });
-
-  if (resourceData == null || columns.length === 0) {
-    catcher(
-      new Error("resourceData is null OR columns.length === 0 in PickRenderer")
-    );
-    return null;
-  }
-
-  const data = _get(resourceData, fetch);
-
-  let sortBy = sortingConfig;
-  let dataView = null;
-  if (data.length === 0) {
-    dataView = <PickNoDataPlaceholder />;
-  } else if (isTabletWidth) {
-    dataView = (
-      <PickTableView
-        data={data}
-        columns={columns}
-        sortingConfig={sortingConfig}
-        sortingState={sortingState}
-        setSortingState={setSortingState}
-        RendererColumnCell={RendererColumnCell}
-        RendererRow={RendererRow}
-        RendererRowCell={RendererRowCell}
-        onRowClick={onRowClick}
-      />
-    );
-  } else {
-    dataView = <PickCardListView data={data} />;
-  }
+  const className = showFilters ? classes.filterIconButtonActive : undefined;
 
   return (
     <div>
@@ -491,7 +236,11 @@ export const PickRenderer = ({
                 title={title}
                 description={description}
                 rightToolbar={
-                  <IconButton onClick={toggleFilters} aria-label="Filter list">
+                  <IconButton
+                    onClick={toggleFilters}
+                    className={className}
+                    aria-label="Filter list"
+                  >
                     <FilterListIcon />
                   </IconButton>
                 }
@@ -513,10 +262,38 @@ export const PickRenderer = ({
                 />
               ) : null}
             </div>
-            {dataView}
+
+            <React.Suspense fallback={ComponentLoading}>
+              <DataView
+                filterState={filterState}
+                setFilterState={setFilterState}
+                sortingConfig={sortingConfig}
+                sortingState={sortingState}
+                setSortingState={setSortingState}
+                searchState={searchState}
+                setSearchState={setSearchState}
+                variableDefinitions={
+                  queryDefinition.variableDefinitions
+                    ? [...queryDefinition.variableDefinitions]
+                    : queryDefinition.variableDefinitions || []
+                }
+                onDataReceive={setViewData}
+                catcher={catcher}
+                columns={columns}
+                isTabletWidth={isTabletWidth}
+                fetch={fetch}
+                offset={offset}
+                limit={limit}
+                resource={resource}
+                preparedFilterState={preparedFilterState}
+                isRowClickable={isRowClickable}
+                onRowClick={onRowClick}
+              />
+            </React.Suspense>
+
             <PickPagination
               hasPrev={offset > 0}
-              hasNext={data.length >= limit}
+              hasNext={viewData.length >= limit}
               onPrevPage={decrementPage}
               onNextPage={incrementPage}
             />

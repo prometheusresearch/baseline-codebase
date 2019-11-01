@@ -33,6 +33,13 @@ function App() {
       fetch={"user.paginated"}
       isRowClickable={true}
       onRowClick={onRowClick}
+      fields={[
+        "id",
+        {
+          key: "remote_user",
+          require: ["remote_user", "expires"]
+        }
+      ]}
       title={"Example data"}
       description={"Description text goes here"}
     />

@@ -30,7 +30,7 @@ import {
 } from "rex-graphql/Resource";
 
 import { WithResource } from "./WithResource";
-import { buildQuery } from "./buildQuery";
+import { buildQuery, type FieldSpec, type FieldConfig } from "./buildQuery";
 import { ComponentLoading } from "./component.loading";
 import { ComponentError } from "./component.error";
 import { PickRenderer } from "./pick.renderer";
@@ -49,16 +49,16 @@ export type PropsSharedWithRenderer = {|
   description?: string,
 
   RendererColumnCell?: (props: {
-    column?: FieldNode,
+    column?: FieldSpec,
     index: number
   }) => React.Node,
   RendererRow?: (props: {
-    columns?: FieldNode[],
+    columns?: FieldSpec[],
     row?: any,
     index: number
   }) => React.Node,
   RendererRowCell?: (props: {
-    column?: FieldNode,
+    column?: FieldSpec,
     row?: any,
     index: number
   }) => React.Node,
@@ -67,7 +67,7 @@ export type PropsSharedWithRenderer = {|
 
 export type PickPropsBase = {|
   endpoint: Endpoint,
-  fields?: Array<string>,
+  fields?: FieldConfig[],
   Renderer?: React.ComponentType<any>,
   onPick?: () => void,
   args?: { [key: string]: any },
@@ -81,10 +81,36 @@ export type PickProps<P, V> = {|
 
 export type TypeSchemaMeta = {| ...Object |};
 
-/** Specifies how to render fields for a card list or a data table. */
-export type FieldConfig = {|
-  name: string
-|};
+const makeNodeToSpec = (nodes: FieldNode[] = []): FieldSpec[] => {
+  return nodes.map(node => {
+    return {
+      key: node.name.value,
+      require: [node.name.value]
+    };
+  });
+};
+
+const makeConfigToSpec = (nodes: FieldConfig[] = []): FieldSpec[] => {
+  return nodes.map(node => {
+    switch (typeof node) {
+      case "string": {
+        return {
+          key: node,
+          require: [node]
+        };
+      }
+
+      default: {
+        const { key, require, ...rest } = node;
+        return {
+          key: key,
+          require: require ? require : [key],
+          ...rest
+        };
+      }
+    }
+  });
+};
 
 const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
   const {
@@ -134,6 +160,8 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
 
   const schema = introspectionQueryFromSchema.__schema;
 
+  const userRequiredFields = makeConfigToSpec(fields);
+
   const {
     query,
     columns,
@@ -143,7 +171,8 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
     () =>
       buildQuery({
         schema,
-        path
+        path,
+        userRequiredFields
       }),
     catcher,
     {}
@@ -160,7 +189,7 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
         fetch,
         queryDefinition,
         introspectionTypesMap,
-        columns,
+        columns: makeNodeToSpec(columns),
         RendererColumnCell,
         RendererRowCell,
         RendererRow,

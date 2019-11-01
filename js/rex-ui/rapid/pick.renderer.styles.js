@@ -69,5 +69,8 @@ export const useStyles = makeStyles({
     position: "absolute",
     top: 16,
     right: 6
+  },
+  filterIconButtonActive: {
+    background: "rgba(0,0,0,0.1)"
   }
 });

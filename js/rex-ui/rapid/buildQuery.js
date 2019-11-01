@@ -1,7 +1,7 @@
 /**
- * @flow strict
+ * @flow
  */
-
+import { type AbstractComponent } from "react";
 import invariant from "invariant";
 import * as introspection from "graphql/utilities/introspectionQuery";
 import * as ast from "graphql/language/ast";
@@ -22,13 +22,35 @@ export type TypeSchemaDataObject = {|
   typesMap: Map<string, introspection.IntrospectionType>
 |};
 
+export type FieldConfigBase = {|
+  key: string,
+  require?: string[],
+  compute?: any => any,
+  render?: AbstractComponent<{ value: any }>,
+  /**
+   * Width of the column in table view, a string like '100px' or a flex
+   * grow value.
+   */
+  width?: ?string | number
+|};
+
+/** Specifies how to render fields for a card list or a data table. */
+export type FieldSpec = {|
+  ...FieldConfigBase,
+  require: string[]
+|};
+
+export type FieldConfig = string | FieldConfigBase;
+
 export const buildQuery = ({
   schema,
-  path
-}: {
+  path,
+  userRequiredFields
+}: {|
   schema: introspection.IntrospectionSchema,
-  path: Array<string>
-}): {|
+  path: Array<string>,
+  userRequiredFields?: FieldSpec[]
+|}): {|
   query: string,
   ast: ast.DocumentNode,
   columns: ast.FieldNode[],
@@ -40,7 +62,7 @@ export const buildQuery = ({
     columns,
     queryDefinition,
     introspectionTypesMap
-  } = buildQueryAST(schema, path);
+  } = buildQueryAST(schema, path, userRequiredFields);
   const query = print(ast);
   return {
     query,
@@ -53,7 +75,8 @@ export const buildQuery = ({
 
 const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
-  path: Array<string>
+  path: Array<string>,
+  userRequiredFields?: FieldSpec[]
 ): {|
   ast: ast.DocumentNode,
   columns: ast.FieldNode[],
@@ -66,19 +89,14 @@ const buildQueryAST = (
   }
 
   let rootType = typesMap.get(schema.queryType.name);
-  invariant(
-    rootType != null,
-    "Expected ObjectType at the root"
-  );
-  invariant(
-    rootType.kind === 'OBJECT',
-    "Expected ObjectType at the root"
-  );
+  invariant(rootType != null, "Expected ObjectType at the root");
+  invariant(rootType.kind === "OBJECT", "Expected ObjectType at the root");
 
   let [selectionSet, columns, inputValues] = buildSelectionSet(
     typesMap,
     rootType,
-    path
+    path,
+    userRequiredFields
   );
 
   const operationDefinition = {
@@ -104,7 +122,8 @@ const buildQueryAST = (
 const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
-  path: string[]
+  path: string[],
+  userRequiredFields?: FieldSpec[] = []
 ): [
   ast.SelectionSetNode,
   ast.FieldNode[],
@@ -112,7 +131,18 @@ const buildSelectionSet = (
 ] => {
   // Break the recursion
   if (path.length === 0) {
-    const fields = type.fields.filter(isFieldNodeScalarLike);
+    // TODO: Handle also OBJECT types for nested fields
+    let fields = type.fields.filter(isFieldNodeScalarLike);
+
+    // Filtering IntrospectionField[] from userRequiredFields
+    if (userRequiredFields && userRequiredFields.length > 0) {
+      fields = fields.filter(field => {
+        return userRequiredFields.find(spec => {
+          return spec.key === field.name || spec.require.includes(field.name);
+        });
+      });
+    }
+
     const selections: ast.FieldNode[] = [];
     const inputValues: introspection.IntrospectionInputValue[] = [];
 
@@ -150,7 +180,8 @@ const buildSelectionSet = (
     const [selectionSet, selections, nextInputValues] = buildSelectionSet(
       typesMap,
       fieldType,
-      restPath
+      restPath,
+      userRequiredFields
     );
 
     const ast = {

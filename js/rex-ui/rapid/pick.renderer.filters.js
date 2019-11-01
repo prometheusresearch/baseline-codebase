@@ -15,8 +15,6 @@ import FormControl from "@material-ui/core/FormControl";
 import { type VariableDefinitionNode } from "graphql/language/ast";
 import { useStyles } from "./pick.renderer.styles";
 
-const searchInputRef = React.createRef();
-
 export const PickFilterToolbar = ({
   variableDefinitions,
   filterState,
@@ -44,16 +42,6 @@ export const PickFilterToolbar = ({
   const hasSorting = sortingConfig.length > 0;
   const hasSearch = searchState != null;
 
-  const [isSearchInFocus, _setIsSearchInFocus] = React.useState(false);
-
-  const setIsSearchInFocus = (val: boolean) => _setIsSearchInFocus(val);
-
-  React.useEffect(() => {
-    if (isSearchInFocus) {
-      searchInputRef.current ? searchInputRef.current.focus() : null;
-    }
-  });
-
   return (
     <Grid
       container
@@ -71,8 +59,6 @@ export const PickFilterToolbar = ({
                 label="Search"
                 value={searchState}
                 onChange={ev => {
-                  // Need this to restore focus state after Suspense is loaded resources
-                  isSearchInFocus ? null : setIsSearchInFocus(true);
                   setSearchState(ev.target.value);
                 }}
                 onBlur={() => {
@@ -83,7 +69,6 @@ export const PickFilterToolbar = ({
                 InputLabelProps={{
                   shrink: true
                 }}
-                inputRef={searchInputRef}
               />
             </FormControl>
           ) : null}
@@ -96,7 +81,6 @@ export const PickFilterToolbar = ({
                   sortingState ? JSON.stringify(sortingState) : "undefined"
                 }
                 onChange={ev => {
-                  setIsSearchInFocus(false);
                   setSortingState(ev.target.value);
                 }}
                 inputProps={{
@@ -143,7 +127,6 @@ export const PickFilterToolbar = ({
                         : filterState[booleanFilterName]
                     }
                     onChange={ev => {
-                      setIsSearchInFocus(false);
                       setFilterState(booleanFilterName, ev.target.value);
                     }}
                     inputProps={{

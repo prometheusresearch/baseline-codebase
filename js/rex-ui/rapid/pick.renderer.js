@@ -154,7 +154,7 @@ const useStyles = makeStyles({
 const SORTING_VAR_NAME = "sort";
 const SEARCH_VAR_NAME = "search";
 
-const TableFilters = ({
+const PickFilterToolbar = ({
   variableDefinitions,
   filterState,
   sortingConfig,
@@ -300,18 +300,25 @@ const TableFilters = ({
   );
 };
 
-const TablePagination = ({
-  data,
-  limit,
-  offset,
-  decrementPage,
-  incrementPage
+const PickNoDataPlaceholder = () => {
+  const classes = useStyles();
+  return (
+    <div className={classes.tableWrapper}>
+      <Typography variant={"caption"}>No data</Typography>
+    </div>
+  );
+};
+
+const PickPagination = ({
+  hasNext,
+  hasPrev,
+  onNextPage,
+  onPrevPage
 }: {|
-  data: any,
-  limit: number,
-  offset: number,
-  decrementPage: () => void,
-  incrementPage: () => void
+  hasNext: boolean,
+  hasPrev: boolean,
+  onNextPage: () => void,
+  onPrevPage: () => void
 |}) => {
   const classes = useStyles();
 
@@ -321,15 +328,15 @@ const TablePagination = ({
       direction="row"
       justify="flex-end"
       alignItems="center"
-      spacing={8}
+      spacing={2}
       className={classes.paginationWrapper}
     >
       <Grid item>
         <IconButton
           aria-label="previous"
           color="default"
-          onClick={decrementPage}
-          disabled={offset === 0}
+          onClick={onPrevPage}
+          disabled={!hasPrev}
         >
           <ChevronLeftIcon />
         </IconButton>
@@ -337,8 +344,8 @@ const TablePagination = ({
         <IconButton
           aria-label="next"
           color="default"
-          onClick={incrementPage}
-          disabled={data.length < limit}
+          onClick={onNextPage}
+          disabled={!hasNext}
         >
           <ChevronRightIcon />
         </IconButton>
@@ -347,197 +354,45 @@ const TablePagination = ({
   );
 };
 
-const containerRef = React.createRef();
-const searchInputRef = React.createRef();
+const PickCardListView = ({ data }) => {
+  const classes = useStyles();
+  return (
+    <div className={classes.tableWrapper}>
+      {data.map((row, index) => {
+        const sortedRow = sortObjectFieldsWithPreferred(row);
 
-export const PickRenderer = ({
-  resource,
-  Renderer,
-  catcher,
+        return (
+          <div key={index}>
+            <ShowCard data={sortedRow} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const PickTableView = ({
+  data,
   columns,
-  fetch,
-  ast,
-  queryDefinition,
-  introspectionTypesMap,
+  sortingConfig,
+  sortingState,
+  setSortingState,
   RendererColumnCell,
-  RendererRowCell,
   RendererRow,
-  isRowClickable,
-  onRowClick,
-  args,
-  title,
-  description
-}: TypePropsRenderer) => {
-  const [offset, _setOffset] = React.useState<number>(0);
-  const [limit, _setLimit] = React.useState<number>(0);
-  const [filterState, _setFilterState] = React.useState({});
-  const [showFilters, _setShowFilters] = React.useState(false);
-  const [sortingState, _setSortingState] = React.useState<void | {|
-    field: string,
-    desc: boolean
-  |}>(undefined);
-  const [searchState, _setSearchState] = React.useState<?string>(null);
-
-  const mobileLimitValue = 20;
-  const desktopLimitValue = 50;
-
-  const isTabletWidth = useMediaQuery("(min-width: 720px)");
+  RendererRowCell,
+  onRowClick
+}) => {
   const classes = useStyles();
 
-  const setFilterState = (varDefName: string, value: boolean) => {
-    setTimeout(() => {
-      _setOffset(0);
-      _setFilterState({ ...filterState, [varDefName]: value });
-    }, 128);
-  };
-
-  const setSortingState = (value: string) => {
-    setTimeout(() => {
-      value === "undefined"
-        ? _setSortingState(undefined)
-        : _setSortingState(JSON.parse(value));
-    }, 128);
-  };
-
-  const toggleFilters = () => {
-    setTimeout(() => {
-      _setShowFilters(!showFilters);
-    }, 128);
-  };
-
-  const setSearchState = (val: string) => {
-    _setSearchState(val);
-  };
-
-  const decrementPage = () => {
-    const newOffset = offset - limit <= 0 ? 0 : offset - limit;
-    _setOffset(newOffset);
-  };
-
-  const incrementPage = () => {
-    const newOffset = offset + limit;
-    _setOffset(newOffset);
-  };
-
-  // Initializing boolean filters on new queryDefinition
-  React.useEffect(() => {
-    const { variableDefinitions } = queryDefinition;
-    if (variableDefinitions == null) {
-      return;
-    }
-
-    let newFilterState = {};
-    for (let variableDefinition of variableDefinitions) {
-      const varName = variableDefinition.variable.name.value;
-      const typeNameValue =
-        // $FlowFixMe
-        variableDefinition.type.name && variableDefinition.type.name.value;
-
-      /// Add search filter
-      if (varName === SEARCH_VAR_NAME && typeNameValue === "String") {
-        setSearchState("");
-      }
-
-      // Add boolean filter to filterState
-      if (typeNameValue === "Boolean") {
-        newFilterState[varName] = "undefined";
-      }
-    }
-    _setFilterState(newFilterState);
-  }, [queryDefinition]);
-
-  // Calculating needed items limit
-  React.useEffect(() => {
-    if (!isTabletWidth) {
-      _setLimit(mobileLimitValue);
-    } else {
-      _setLimit(desktopLimitValue);
-    }
-  }, [isTabletWidth]);
-
-  // Handle search param
-  React.useEffect(() => {
-    console.log("searchState: ", searchState);
-  }, [searchState]);
-
-  // Replacing "undefined" -> undefined
-  // SelectInput warns if value is undefined
-  // So every SelectInput undefined value is set as a string "undefined"
-  const preparedFilterState = Object.keys(filterState).reduce((acc, key) => {
-    return {
-      ...acc,
-      [key]: filterState[key] === "undefined" ? undefined : filterState[key]
-    };
-  }, {});
-
-  const { variableDefinitions } = queryDefinition;
-
-  const sortingConfig = buildSortingConfig({
-    variableDefinitions,
-    introspectionTypesMap,
-    variableDefinitionName: SORTING_VAR_NAME
-  });
-
-  const hasLimitVariable = variableDefinitions
-    ? variableDefinitions.find(def => def.variable.name.value === "limit")
-    : null;
-  const hasOffsetVariable = variableDefinitions
-    ? variableDefinitions.find(def => def.variable.name.value === "offset")
-    : null;
-
-  // Forming query params
-  let gqlQueryParams = { ...args, ...preparedFilterState };
-  if (hasLimitVariable != null) {
-    gqlQueryParams = { ...gqlQueryParams, limit };
-  }
-  if (hasOffsetVariable != null) {
-    gqlQueryParams = { ...gqlQueryParams, offset };
-  }
-  if (sortingState) {
-    gqlQueryParams = {
-      ...gqlQueryParams,
-      // TODO: Fix this string/object mess in sortingState value!
-      // sort: sortingState === "undefined" ? undefined : JSON.parse(sortingState)
-      sort: sortingState
-    };
-  }
-  if (searchState) {
-    gqlQueryParams = { ...gqlQueryParams, search: searchState };
-  }
-
-  const resourceData = withResourceErrorCatcher({
-    getResource: () => useResource(resource, gqlQueryParams),
-    catcher
-  });
-
-  if (resourceData == null || columns.length === 0) {
-    catcher(
-      new Error("resourceData is null OR columns.length === 0 in PickRenderer")
-    );
-    return null;
-  }
-
-  const data = _get(resourceData, fetch);
-
-  // TODO: Looks messy
   const columnsMap = new Map();
+  const columnsNames = [];
   for (let column of columns) {
     columnsMap.set(column.name.value, column);
+    columnsNames.push(column.name.value);
   }
-  const columnNames = columns.map(column => column.name.value).sort();
-  let columnNamesMap: { [key: string]: true } = columnNames.reduce(
-    (acc, columnName) => {
-      return { ...acc, [columnName]: true };
-    },
-    {}
-  );
+  columnsNames.sort();
 
-  let { id, name, ...rest } = columnNamesMap;
-  columnNamesMap = { id, name, ...rest };
-  const updatedColumnNames = Object.keys(columnNamesMap);
-
-  // TODO: Move to separate function
-  const TableHeadRows = updatedColumnNames.map((columnName, index) => {
+  const TableHeadRows = columnsNames.map((columnName, index) => {
     const column = columnsMap.get(columnName);
 
     let cellClasses = `${classes.tableHead} `;
@@ -605,18 +460,17 @@ export const PickRenderer = ({
     );
   });
 
-  // TODO: Move to separate function
   const TableBodyRows = data.map((row, index) => {
     return RendererRow ? (
       <RendererRow row={row} columns={columns} index={index} key={index} />
     ) : (
       <TableRow
         key={row.id}
-        hover={isRowClickable}
-        style={{ cursor: isRowClickable ? "pointer" : "default" }}
-        onClick={ev => (onRowClick && isRowClickable ? onRowClick(row) : null)}
+        hover={onRowClick != null}
+        style={{ cursor: onRowClick != null ? "pointer" : "default" }}
+        onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
       >
-        {updatedColumnNames.map((columnName, index) => {
+        {columnsNames.map((columnName, index) => {
           const column = columnsMap.get(columnName);
           if (!column) {
             return null;
@@ -659,39 +513,255 @@ export const PickRenderer = ({
     );
   });
 
-  const whatToRender = Renderer ? (
-    <Renderer resource={resourceData} columns={columns} />
-  ) : (
-    <div ref={containerRef}>
+  return (
+    <div className={classes.tableWrapper}>
+      <Table
+        className={classes.table}
+        aria-label="simple table"
+        padding={"dense"}
+      >
+        <TableHead>
+          <TableRow>{TableHeadRows}</TableRow>
+        </TableHead>
+        <TableBody>{TableBodyRows}</TableBody>
+      </Table>
+    </div>
+  );
+};
+
+const PickHeader = ({ title, description, rightToolbar }) => {
+  const classes = useStyles();
+  return (
+    <>
+      <div className={classes.topPart}>
+        <div>
+          {title ? (
+            <Typography variant={"h5"} className={classes.title}>
+              {title}
+            </Typography>
+          ) : null}
+          {description ? (
+            <Typography variant={"caption"} className={classes.description}>
+              {description}
+            </Typography>
+          ) : null}
+        </div>
+        {rightToolbar && <div>{rightToolbar}</div>}
+      </div>
+    </>
+  );
+};
+
+const searchInputRef = React.createRef();
+
+const LIMIT_MOBILE = 20;
+const LIMIT_DESKTOP = 50;
+
+export const PickRenderer = ({
+  resource,
+  Renderer,
+  catcher,
+  columns,
+  fetch,
+  ast,
+  queryDefinition,
+  introspectionTypesMap,
+  RendererColumnCell,
+  RendererRowCell,
+  RendererRow,
+  isRowClickable,
+  onRowClick,
+  args,
+  title,
+  description
+}: TypePropsRenderer) => {
+  const [offset, setOffset] = React.useState<number>(0);
+  const [limit, setLimit] = React.useState<number>(0);
+  const [filterState, _setFilterState] = React.useState({});
+  const [showFilters, _setShowFilters] = React.useState(false);
+  const [sortingState, _setSortingState] = React.useState<void | {|
+    field: string,
+    desc: boolean
+  |}>(undefined);
+  const [searchState, _setSearchState] = React.useState<?string>(null);
+
+  const isTabletWidth = useMediaQuery("(min-width: 720px)");
+  const classes = useStyles();
+
+  const setFilterState = (varDefName: string, value: boolean) => {
+    setTimeout(() => {
+      setOffset(0);
+      _setFilterState({ ...filterState, [varDefName]: value });
+    }, 128);
+  };
+
+  const setSortingState = (value: string) => {
+    setTimeout(() => {
+      value === "undefined"
+        ? _setSortingState(undefined)
+        : _setSortingState(JSON.parse(value));
+    }, 128);
+  };
+
+  const toggleFilters = () => {
+    setTimeout(() => {
+      _setShowFilters(!showFilters);
+    }, 128);
+  };
+
+  const setSearchState = (val: string) => {
+    _setSearchState(val);
+  };
+
+  const decrementPage = () => {
+    const newOffset = offset - limit <= 0 ? 0 : offset - limit;
+    setOffset(newOffset);
+  };
+
+  const incrementPage = () => {
+    const newOffset = offset + limit;
+    setOffset(newOffset);
+  };
+
+  // Initializing boolean filters on new queryDefinition
+  React.useEffect(() => {
+    const { variableDefinitions } = queryDefinition;
+    if (variableDefinitions == null) {
+      return;
+    }
+
+    let newFilterState = {};
+    for (let variableDefinition of variableDefinitions) {
+      const varName = variableDefinition.variable.name.value;
+      const typeNameValue =
+        // $FlowFixMe
+        variableDefinition.type.name && variableDefinition.type.name.value;
+
+      /// Add search filter
+      if (varName === SEARCH_VAR_NAME && typeNameValue === "String") {
+        setSearchState("");
+      }
+
+      // Add boolean filter to filterState
+      if (typeNameValue === "Boolean") {
+        newFilterState[varName] = "undefined";
+      }
+    }
+    _setFilterState(newFilterState);
+  }, [queryDefinition]);
+
+  // Calculating needed items limit
+  React.useEffect(() => {
+    if (!isTabletWidth) {
+      setLimit(LIMIT_MOBILE);
+    } else {
+      setLimit(LIMIT_DESKTOP);
+    }
+  }, [isTabletWidth]);
+
+  // Handle search param
+  React.useEffect(() => {
+    console.log("searchState: ", searchState);
+  }, [searchState]);
+
+  // Replacing "undefined" -> undefined
+  // SelectInput warns if value is undefined
+  // So every SelectInput undefined value is set as a string "undefined"
+  const preparedFilterState = Object.keys(filterState).reduce((acc, key) => {
+    return {
+      ...acc,
+      [key]: filterState[key] === "undefined" ? undefined : filterState[key]
+    };
+  }, {});
+
+  const { variableDefinitions } = queryDefinition;
+
+  const sortingConfig = buildSortingConfig({
+    variableDefinitions,
+    introspectionTypesMap,
+    variableDefinitionName: SORTING_VAR_NAME
+  });
+
+  const hasLimitVariable = variableDefinitions
+    ? variableDefinitions.find(def => def.variable.name.value === "limit")
+    : null;
+  const hasOffsetVariable = variableDefinitions
+    ? variableDefinitions.find(def => def.variable.name.value === "offset")
+    : null;
+
+  // Forming query params
+  let gqlQueryParams = { ...args, ...preparedFilterState };
+  if (hasLimitVariable != null) {
+    gqlQueryParams = { ...gqlQueryParams, limit };
+  }
+  if (hasOffsetVariable != null) {
+    gqlQueryParams = { ...gqlQueryParams, offset };
+  }
+  if (sortingState) {
+    gqlQueryParams = {
+      ...gqlQueryParams,
+      // TODO: Fix this string/object mess in sortingState value!
+      // sort: sortingState === "undefined" ? undefined : JSON.parse(sortingState)
+      sort: sortingState
+    };
+  }
+  if (searchState) {
+    gqlQueryParams = { ...gqlQueryParams, search: searchState };
+  }
+
+  const resourceData = withResourceErrorCatcher({
+    getResource: () => useResource(resource, gqlQueryParams),
+    catcher
+  });
+
+  if (resourceData == null || columns.length === 0) {
+    catcher(
+      new Error("resourceData is null OR columns.length === 0 in PickRenderer")
+    );
+    return null;
+  }
+
+  const data = _get(resourceData, fetch);
+
+  let sortBy = sortingConfig;
+  let dataView = null;
+  if (data.length === 0) {
+    dataView = <PickNoDataPlaceholder />;
+  } else if (isTabletWidth) {
+    dataView = (
+      <PickTableView
+        data={data}
+        columns={columns}
+        sortingConfig={sortingConfig}
+        sortingState={sortingState}
+        setSortingState={setSortingState}
+        RendererColumnCell={RendererColumnCell}
+        RendererRow={RendererRow}
+        RendererRowCell={RendererRowCell}
+        onRowClick={onRowClick}
+      />
+    );
+  } else {
+    dataView = <PickCardListView data={data} />;
+  }
+
+  return (
+    <div>
       <Grid container>
         <Grid item xs={12}>
           <Paper className={classes.root}>
             <div className={classes.topPartWrapper}>
-              <div className={classes.topPart}>
-                <div>
-                  {title ? (
-                    <Typography variant={"h5"} className={classes.title}>
-                      {title}
-                    </Typography>
-                  ) : null}
-                  {description ? (
-                    <Typography
-                      variant={"caption"}
-                      className={classes.description}
-                    >
-                      {description}
-                    </Typography>
-                  ) : null}
-                </div>
-                <div>
+              <PickHeader
+                title={title}
+                description={description}
+                rightToolbar={
                   <IconButton onClick={toggleFilters} aria-label="Filter list">
                     <FilterListIcon />
                   </IconButton>
-                </div>
-              </div>
-
+                }
+              />
               {showFilters ? (
-                <TableFilters
+                <PickFilterToolbar
                   filterState={filterState}
                   setFilterState={setFilterState}
                   sortingConfig={sortingConfig}
@@ -707,51 +777,16 @@ export const PickRenderer = ({
                 />
               ) : null}
             </div>
-
-            {/* TODO: Refactor this ugly rendering code */}
-            {isTabletWidth ? (
-              <div className={classes.tableWrapper}>
-                <Table
-                  className={classes.table}
-                  aria-label="simple table"
-                  padding={"dense"}
-                >
-                  <TableHead>
-                    <TableRow>{TableHeadRows}</TableRow>
-                  </TableHead>
-                  <TableBody>{TableBodyRows}</TableBody>
-                </Table>
-              </div>
-            ) : data.length === 0 ? (
-              <div className={classes.tableWrapper}>
-                <Typography variant={"caption"}>No data</Typography>
-              </div>
-            ) : (
-              <div className={classes.tableWrapper}>
-                {data.map((row, index) => {
-                  const sortedRow = sortObjectFieldsWithPreferred(row);
-
-                  return (
-                    <div key={index}>
-                      <ShowCard data={sortedRow} />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <TablePagination
-              data={data}
-              limit={limit}
-              offset={offset}
-              decrementPage={decrementPage}
-              incrementPage={incrementPage}
+            {dataView}
+            <PickPagination
+              hasPrev={offset > 0}
+              hasNext={data.length >= limit}
+              onPrevPage={decrementPage}
+              onNextPage={incrementPage}
             />
           </Paper>
         </Grid>
       </Grid>
     </div>
   );
-
-  return whatToRender;
 };

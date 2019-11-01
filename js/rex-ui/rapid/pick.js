@@ -81,6 +81,11 @@ export type PickProps<P, V> = {|
 
 export type TypeSchemaMeta = {| ...Object |};
 
+/** Specifies how to render fields for a card list or a data table. */
+export type FieldConfig = {|
+  name: string,
+|};
+
 const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
   const {
     endpoint,

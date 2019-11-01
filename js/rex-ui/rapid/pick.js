@@ -83,7 +83,7 @@ export type TypeSchemaMeta = {| ...Object |};
 
 /** Specifies how to render fields for a card list or a data table. */
 export type FieldConfig = {|
-  name: string,
+  name: string
 |};
 
 const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
@@ -136,7 +136,6 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
 
   const {
     query,
-    ast,
     columns,
     queryDefinition,
     introspectionTypesMap
@@ -159,7 +158,6 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
         Renderer,
         catcher,
         fetch,
-        ast,
         queryDefinition,
         introspectionTypesMap,
         columns,

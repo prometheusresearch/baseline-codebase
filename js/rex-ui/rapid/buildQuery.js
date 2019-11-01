@@ -72,15 +72,11 @@ const buildQueryAST = (
   );
   let rootType: introspection.IntrospectionObjectType = (maybeRootType: any);
 
-  let [fieldName, ...restPath] = path;
-  let [_field, baseType] = findNextObjectType(typesMap, rootType, fieldName);
-
-  let [selectionSet, columns, inputValues] = buildSelectionSet(typesMap, {
-    fieldName,
-    fieldArguments: [],
-    currType: baseType,
-    path: restPath
-  });
+  let [selectionSet, columns, inputValues] = buildSelectionSet(
+    typesMap,
+    rootType,
+    path
+  );
 
   const operationDefinition = {
     directives: [],
@@ -102,69 +98,10 @@ const buildQueryAST = (
   };
 };
 
-const findNextObjectType = (
-  typesMap: Map<string, introspection.IntrospectionType>,
-  type: introspection.IntrospectionObjectType,
-  fieldName: string
-): [
-  introspection.IntrospectionField,
-  introspection.IntrospectionObjectType
-] => {
-  const field = type.fields.find(f => f.name === fieldName);
-  invariant(field, `No field "${type.name}.${fieldName}" found`);
-
-  function resolveType(typeRef) {
-    let nextType;
-    switch (typeRef.kind) {
-      case "NON_NULL":
-        nextType = resolveType(typeRef.ofType);
-        break;
-      case "LIST":
-        nextType = resolveType(typeRef.ofType);
-        break;
-      case "ENUM":
-        nextType = typesMap.get(typeRef.name);
-        break;
-      case "SCALAR":
-        break;
-      case "UNION":
-        nextType = typesMap.get(typeRef.name);
-        break;
-      case "INTERFACE":
-        nextType = typesMap.get(typeRef.name);
-        break;
-      case "OBJECT":
-        nextType = typesMap.get(typeRef.name);
-        break;
-      default:
-        (typeRef.kind: empty);
-        invariant(false, "Impossible");
-    }
-    invariant(
-      nextType != null,
-      `No type for field "${type.name}.${fieldName}" found`
-    );
-    return nextType;
-  }
-
-  let nextType = resolveType(field.type);
-  invariant(nextType.kind === "OBJECT", "Expected object type");
-  return [field, nextType];
-};
-
 const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
-  {
-    fieldName,
-    fieldArguments,
-    currType,
-    path
-  }: {
-    fieldName: string,
-    fieldArguments: ast.ArgumentNode[],
-    currType: introspection.IntrospectionObjectType,
-    path: string[]
-  }
+  type: introspection.IntrospectionObjectType,
+  path: string[]
 ): [
   ast.SelectionSetNode,
   ast.FieldNode[],
@@ -172,7 +109,7 @@ const buildSelectionSet = (
 ] => {
   // Break the recursion
   if (path.length === 0) {
-    const fields = currType.fields.filter(isFieldNodeScalarLike);
+    const fields = type.fields.filter(isFieldNodeScalarLike);
     const selections: ast.FieldNode[] = [];
     const inputValues: introspection.IntrospectionInputValue[] = [];
 
@@ -190,54 +127,34 @@ const buildSelectionSet = (
       });
     }
 
-    const selectionSet = {
+    let selectionSet = {
       kind: "SelectionSet",
-      selections: [
-        {
-          arguments: fieldArguments || [],
-          directives: [],
-          kind: "Field",
-          name: { kind: "Name", value: fieldName },
-
-          selectionSet: {
-            kind: "SelectionSet",
-            selections
-          }
-        }
-      ]
+      selections
     };
 
     return [selectionSet, selections, inputValues];
   } else {
-    const [nextFieldName, ...restPath] = path;
-    const [nextField, nextFieldType] = findNextObjectType(
-      typesMap,
-      currType,
-      nextFieldName
-    );
+    const [fieldName, ...restPath] = path;
+    const [field, fieldType] = resolveField(typesMap, type, fieldName);
 
-    const fieldArguments = [];
+    const args = [];
     const inputValues = [];
-    for (let arg of nextField.args) {
-      fieldArguments.push(buildArgumentNode(arg));
+    for (let arg of field.args) {
+      args.push(buildArgumentNode(arg));
       inputValues.push(arg);
     }
 
     const [selectionSet, selections, nextInputValues] = buildSelectionSet(
       typesMap,
-      {
-        fieldName: nextFieldName,
-        fieldArguments,
-        currType: nextFieldType,
-        path: restPath
-      }
+      fieldType,
+      restPath
     );
 
     const ast = {
       kind: "SelectionSet",
       selections: [
         {
-          arguments: fieldArguments || [],
+          arguments: args,
           directives: [],
           kind: "Field",
           name: { kind: "Name", value: fieldName },
@@ -339,3 +256,53 @@ function isFieldNodeScalarLike(field) {
     (field.type.kind === "NON_NULL" && field.type.ofType.kind === "SCALAR")
   );
 }
+
+const resolveField = (
+  typesMap: Map<string, introspection.IntrospectionType>,
+  type: introspection.IntrospectionObjectType,
+  fieldName: string
+): [
+  introspection.IntrospectionField,
+  introspection.IntrospectionObjectType
+] => {
+  const field = type.fields.find(f => f.name === fieldName);
+  invariant(field, `No field "${type.name}.${fieldName}" found`);
+
+  function resolveType(typeRef) {
+    let nextType;
+    switch (typeRef.kind) {
+      case "NON_NULL":
+        nextType = resolveType(typeRef.ofType);
+        break;
+      case "LIST":
+        nextType = resolveType(typeRef.ofType);
+        break;
+      case "ENUM":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      case "SCALAR":
+        break;
+      case "UNION":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      case "INTERFACE":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      case "OBJECT":
+        nextType = typesMap.get(typeRef.name);
+        break;
+      default:
+        (typeRef.kind: empty);
+        invariant(false, "Impossible");
+    }
+    invariant(
+      nextType != null,
+      `No type for field "${type.name}.${fieldName}" found`
+    );
+    return nextType;
+  }
+
+  let nextType = resolveType(field.type);
+  invariant(nextType.kind === "OBJECT", "Expected object type");
+  return [field, nextType];
+};

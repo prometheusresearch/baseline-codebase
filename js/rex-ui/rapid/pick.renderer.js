@@ -118,9 +118,13 @@ export const PickRenderer = ({
   title,
   description
 }: TypePropsRenderer) => {
+  console.log("COLUMNS: ", columns);
+
   const [offset, setOffset] = React.useState<number>(0);
   const [limit, setLimit] = React.useState<number>(0);
-  const [filterState, _setFilterState] = React.useState({});
+  const [filterState, _setFilterState] = React.useState<{ [key: string]: any }>(
+    {}
+  );
   const [showFilters, _setShowFilters] = React.useState(false);
   const [sortingState, _setSortingState] = React.useState<void | {|
     field: string,
@@ -228,7 +232,7 @@ export const PickRenderer = ({
 
   return (
     <div>
-      <Grid container>
+      <Grid container spacing={8}>
         <Grid item xs={12}>
           <Paper className={classes.root}>
             <div className={classes.topPartWrapper}>

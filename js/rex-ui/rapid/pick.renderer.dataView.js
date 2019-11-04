@@ -85,8 +85,8 @@ const PickTableView = ({
   const columnsMap = new Map();
   const columnsNames = [];
   for (let column of columns) {
-    columnsMap.set(column.key, column);
-    columnsNames.push(column.key);
+    columnsMap.set(column.require.field, column);
+    columnsNames.push(column.require.field);
   }
   columnsNames.sort();
 
@@ -138,6 +138,7 @@ const PickTableView = ({
         align="left"
         key={columnName}
         className={cellClasses}
+        variant={"head"}
       >
         <div className={classes.tableCellContentWrapper}>
           {columnName}
@@ -168,6 +169,7 @@ const PickTableView = ({
       >
         {columnsNames.map((columnName, index) => {
           const column = columnsMap.get(columnName);
+
           if (!column) {
             return null;
           }
@@ -188,20 +190,22 @@ const PickTableView = ({
               break;
             }
             default: {
-              cellValue = String(row[columnName]);
+              cellValue = row[columnName];
             }
           }
 
-          return RendererRowCell ? (
-            <RendererRowCell
-              row={row}
-              column={column}
-              index={index}
-              key={index}
-            />
-          ) : (
-            <TableCell key={columnName} align="left">
-              <span>{cellValue}</span>
+          return (
+            <TableCell
+              key={columnName}
+              align="left"
+              variant={"head"}
+              className={classes.tableCell}
+            >
+              {column.render ? (
+                <column.render value={cellValue} />
+              ) : (
+                <span>{String(cellValue)}</span>
+              )}
             </TableCell>
           );
         })}

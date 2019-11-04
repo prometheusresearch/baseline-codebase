@@ -13,7 +13,8 @@ export const useStyles = makeStyles({
     flexDirection: "column"
   },
   table: {
-    minWidth: 720
+    minWidth: 1280,
+    tableLayout: "fixed"
   },
   tableControl: {
     padding: "16px"
@@ -60,6 +61,9 @@ export const useStyles = makeStyles({
   topPartWrapper: {
     position: "relative",
     zIndex: "10"
+  },
+  tableCell: {
+    wordBreak: "break-word"
   },
   tableCellContentWrapper: {
     display: "relative",

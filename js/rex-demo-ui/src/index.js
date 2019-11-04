@@ -36,8 +36,15 @@ function App() {
       fields={[
         "id",
         {
-          key: "remote_user",
-          require: ["remote_user", "expires"]
+          require: { field: "remote_user" }
+        },
+        "expires",
+        {
+          require: {
+            field: "contact_info",
+            require: [{ field: "id" }, { field: "type" }, { field: "value" }]
+          },
+          render: ({ value }) => JSON.stringify(value)
         }
       ]}
       title={"Users"}

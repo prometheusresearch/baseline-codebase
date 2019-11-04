@@ -84,31 +84,11 @@ export type TypeSchemaMeta = {| ...Object |};
 const makeNodeToSpec = (nodes: FieldNode[] = []): FieldSpec[] => {
   return nodes.map(node => {
     return {
-      key: node.name.value,
-      require: [node.name.value]
+      require: {
+        field: node.name.value,
+        require: []
+      }
     };
-  });
-};
-
-const makeConfigToSpec = (nodes: FieldConfig[] = []): FieldSpec[] => {
-  return nodes.map(node => {
-    switch (typeof node) {
-      case "string": {
-        return {
-          key: node,
-          require: [node]
-        };
-      }
-
-      default: {
-        const { key, require, ...rest } = node;
-        return {
-          key: key,
-          require: require ? require : [key],
-          ...rest
-        };
-      }
-    }
   });
 };
 
@@ -160,19 +140,18 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
 
   const schema = introspectionQueryFromSchema.__schema;
 
-  const userRequiredFields = makeConfigToSpec(fields);
-
   const {
     query,
     columns,
     queryDefinition,
-    introspectionTypesMap
+    introspectionTypesMap,
+    fieldSpecs
   } = withCatcher(
     () =>
       buildQuery({
         schema,
         path,
-        userRequiredFields
+        fields
       }),
     catcher,
     {}
@@ -189,7 +168,7 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
         fetch,
         queryDefinition,
         introspectionTypesMap,
-        columns: makeNodeToSpec(columns),
+        columns: fieldSpecs,
         RendererColumnCell,
         RendererRowCell,
         RendererRow,

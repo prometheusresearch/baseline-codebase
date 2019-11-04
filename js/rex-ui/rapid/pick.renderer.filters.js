@@ -48,7 +48,6 @@ export const PickFilterToolbar = ({
       direction="row"
       justify="flex-end"
       alignItems="center"
-      spacing={8}
       className={classes.tableControl}
     >
       <Grid item>

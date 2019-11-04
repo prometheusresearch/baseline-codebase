@@ -22,64 +22,83 @@ export type TypeSchemaDataObject = {|
   typesMap: Map<string, introspection.IntrospectionType>
 |};
 
-export type FieldConfigBase = {|
-  key: string,
-  require?: string[],
-  compute?: any => any,
-  render?: AbstractComponent<{ value: any }>,
+type QueryFieldSpec = {
+  title?: string,
+  field: string,
+  require?: QueryFieldSpec[]
+};
+
+/** Configure visual fields (columns in a table, fields in a card) */
+export type FieldConfig =
+  | string // 'some' is the same as {require: ['some']}
+  | FieldSpec;
+
+export type FieldSpec = {
   /**
-   * Width of the column in table view, a string like '100px' or a flex
-   * grow value.
+   * TODO: Maybe change to prevent things like:
+   * "specName.require.require" -> "specName.subfields.require"
    */
-  width?: ?string | number
-|};
+  require: QueryFieldSpec,
+  render?: AbstractComponent<{ value: any }>,
+  width?: number
+};
 
-/** Specifies how to render fields for a card list or a data table. */
+export const makeConfigToSpec = (nodes: FieldConfig[] = []): FieldSpec[] => {
+  return nodes.map(node => {
+    switch (typeof node) {
+      case "string": {
+        return {
+          require: {
+            field: node,
+            require: []
+          }
+        };
+      }
 
-export type FieldSpec = {|
-  ...FieldConfigBase,
-  require: string[]
-|};
+      default: {
+        const { render, require } = node;
+        return {
+          require,
+          render
+        };
+      }
+    }
+  });
+};
 
-/**
- * TODO: Make FieldSpec foldable
- * type FieldSpec = {
- *   ...FieldConfigBase,
- *   field: string,
- *   subfields: void | FieldSpec[]
- * };
- */
-
-export type FieldConfig = string | FieldConfigBase;
-
+/** Configure fields to fetch from GraphQL endpoint. */
 export const buildQuery = ({
   schema,
   path,
-  userRequiredFields
+  fields
 }: {|
   schema: introspection.IntrospectionSchema,
   path: Array<string>,
-  userRequiredFields?: FieldSpec[]
+  fields?: void | Array<FieldConfig>
 |}): {|
   query: string,
   ast: ast.DocumentNode,
   columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
-  queryDefinition: ast.OperationDefinitionNode
+  queryDefinition: ast.OperationDefinitionNode,
+  fieldSpecs: FieldSpec[]
 |} => {
+  const fieldSpecs = makeConfigToSpec(fields);
+
   const {
     ast,
     columns,
     queryDefinition,
     introspectionTypesMap
-  } = buildQueryAST(schema, path, userRequiredFields);
+  } = buildQueryAST(schema, path, fieldSpecs);
   const query = print(ast);
   return {
     query,
     ast,
     columns,
     queryDefinition,
-    introspectionTypesMap
+    introspectionTypesMap,
+    fieldSpecs
   };
 };
 
@@ -129,6 +148,27 @@ const buildQueryAST = (
   };
 };
 
+const makeSelectionSetFromSpec = (
+  fieldSpec?: FieldSpec
+): void | ast.SelectionSetNode => {
+  if (!fieldSpec) return;
+
+  return {
+    kind: "SelectionSet",
+    selections: fieldSpec.require.require
+      ? fieldSpec.require.require.map(obj => {
+          return {
+            kind: "Field",
+            name: {
+              kind: "Name",
+              value: obj.field
+            }
+          };
+        })
+      : []
+  };
+};
+
 const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
@@ -141,14 +181,18 @@ const buildSelectionSet = (
 ] => {
   // Break the recursion
   if (path.length === 0) {
-    // TODO: Handle also OBJECT types for nested fields
-    let fields = type.fields.filter(isFieldNodeScalarLike);
+    let fields = type.fields.filter(
+      field =>
+        isFieldNodeScalarLike(field) ||
+        isFieldNodeObjectLike(field) ||
+        isFieldNodeListLike(field)
+    );
 
     // Filtering IntrospectionField[] from userRequiredFields
     if (userRequiredFields && userRequiredFields.length > 0) {
       fields = fields.filter(field => {
-        return userRequiredFields.find(spec => {
-          return spec.key === field.name || spec.require.includes(field.name);
+        return userRequiredFields.find(fieldSpec => {
+          return fieldSpec.require.field === field.name;
         });
       });
     }
@@ -162,11 +206,24 @@ const buildSelectionSet = (
         args.push(buildArgumentNode(arg));
         inputValues.push(arg);
       }
+
+      const fieldSpec = userRequiredFields.find(
+        f => f.require.field === field.name
+      );
+      invariant(
+        fieldSpec != null,
+        `Can not find fieldSpec with name ${field.name} in userRequiredFields`
+      );
+
+      // TODO: Make it recursive
+      const selectionSet = makeSelectionSetFromSpec(fieldSpec);
+
       selections.push({
         kind: "Field",
         arguments: args,
         directives: [],
-        name: { kind: "Name", value: field.name }
+        name: { kind: "Name", value: field.name },
+        selectionSet
       });
     }
 
@@ -174,6 +231,8 @@ const buildSelectionSet = (
       kind: "SelectionSet",
       selections
     };
+
+    // console.log("selectionSet: ", selectionSet);
 
     return [selectionSet, selections, inputValues];
   } else {
@@ -295,6 +354,20 @@ function isFieldNodeScalarLike(field) {
   return (
     field.type.kind === "SCALAR" ||
     (field.type.kind === "NON_NULL" && field.type.ofType.kind === "SCALAR")
+  );
+}
+
+function isFieldNodeObjectLike(field) {
+  return (
+    field.type.kind === "OBJECT" ||
+    (field.type.kind === "NON_NULL" && field.type.ofType.kind === "OBJECT")
+  );
+}
+
+function isFieldNodeListLike(field) {
+  return (
+    field.type.kind === "LIST" ||
+    (field.type.kind === "NON_NULL" && field.type.ofType.kind === "LIST")
   );
 }
 

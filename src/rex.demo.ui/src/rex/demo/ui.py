@@ -1,3 +1,4 @@
+from datetime import datetime
 from webob.exc import HTTPUnauthorized
 from rex.core import cached, Error
 from rex.web import (
@@ -29,11 +30,15 @@ class API(HandleLocation):
 
     @cached
     def schema(self):
+        # compute column
+        q_user_expired = q.expires <= datetime.now()
+
         user = Entity(
             "user",
             fields=lambda: {
                 "remote_user": query(q.remote_user),
                 "expires": query(q.expires),
+                "expired": query(q_user_expired),
                 "system_admin": query(q.system_admin),
                 "contact_info": query(
                     q.contact_info,
@@ -85,6 +90,14 @@ class API(HandleLocation):
             "caregiver", type=entity_id.user
         )
 
+        @filter_from_function()
+        def filter_user_by_expired(expired: scalar.Boolean = None):
+            if expired is not None:
+                if expired:
+                    yield q_user_expired
+                else:
+                    yield ~q_user_expired
+
         sort_user = sort(user, ("remote_user", "expires"))
 
         return schema(
@@ -93,7 +106,11 @@ class API(HandleLocation):
                     query=q.user,
                     type=user,
                     sort=sort_user,
-                    filters=[filter_user_by_system_admin, search_user],
+                    filters=[
+                        filter_user_by_system_admin,
+                        filter_user_by_expired,
+                        search_user,
+                    ],
                     description="Users",
                 ),
                 "patient": connect(

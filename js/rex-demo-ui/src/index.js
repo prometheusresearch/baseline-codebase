@@ -40,8 +40,8 @@ function App() {
           require: ["remote_user", "expires"]
         }
       ]}
-      title={"Example data"}
-      description={"Description text goes here"}
+      title={"Users"}
+      description={"List of users"}
     />
   );
 
@@ -51,7 +51,7 @@ function App() {
         return (
           <div>
             <div>
-              <Button onClick={resetState}>Reset</Button>
+              <Button onClick={resetState}>Back</Button>
             </div>
             <Show
               endpoint={endpoint}

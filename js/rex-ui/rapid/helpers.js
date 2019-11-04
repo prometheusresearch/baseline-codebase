@@ -89,12 +89,28 @@ export const calculateItemsLimit = ({
 
 // TODO: Add "preferred" argument with fields
 export const sortObjectFieldsWithPreferred = (row: Object): Object => {
-  const { id, name, ...rest } = row;
+  const {
+    id,
+    name,
+    first_name,
+    last_name,
+    title,
+    display_name,
+    gender,
+    sex,
+    ...rest
+  } = row;
   const sortedRow = Object.keys(rest)
     .sort()
     .reduce((acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }), {
       id,
-      name
+      name,
+      first_name,
+      last_name,
+      title,
+      display_name,
+      gender,
+      sex
     });
 
   return sortedRow;

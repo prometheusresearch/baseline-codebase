@@ -3,12 +3,15 @@
  */
 import { makeStyles } from "@material-ui/styles";
 
+const DEFAULT_TEXT_COLOR = "rgba(0, 0, 0, 0.87)";
+
 export const useStyles = makeStyles({
   root: {
     width: "100%",
     overflowX: "auto",
     overflowY: "hidden",
     maxHeight: "100vh",
+    height: "100vh",
     display: "flex",
     flexDirection: "column"
   },
@@ -34,7 +37,8 @@ export const useStyles = makeStyles({
   tableHead: {
     background: "white",
     position: "sticky",
-    top: 0
+    top: 0,
+    color: DEFAULT_TEXT_COLOR
   },
   tableHeadSortable: {
     cursor: "pointer",
@@ -46,7 +50,8 @@ export const useStyles = makeStyles({
     boxShadow: "0 5px 0px -4px"
   },
   tableWrapper: {
-    overflowY: "scroll"
+    overflowY: "scroll",
+    flex: "1 1 auto"
   },
   title: {
     marginBottom: "8px"
@@ -62,8 +67,12 @@ export const useStyles = makeStyles({
     position: "relative",
     zIndex: "10"
   },
+  topPartWrapperMobile: {
+    boxShadow: "0 0 10px -8px"
+  },
   tableCell: {
-    wordBreak: "break-word"
+    wordBreak: "break-word",
+    color: DEFAULT_TEXT_COLOR
   },
   tableCellContentWrapper: {
     display: "relative",
@@ -76,5 +85,9 @@ export const useStyles = makeStyles({
   },
   filterIconButtonActive: {
     background: "rgba(0,0,0,0.1)"
+  },
+  rendererRoot: {
+    maxWidth: "100%",
+    margin: 0
   }
 });

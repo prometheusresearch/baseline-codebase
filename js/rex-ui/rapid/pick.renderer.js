@@ -208,7 +208,6 @@ export const PickRenderer = ({
   }, [isTabletWidth]);
 
   // Handle search param
-  // React.useEffect(() => {}, [searchState]);
 
   // Replacing "undefined" -> undefined
   // SelectInput warns if value is undefined
@@ -230,45 +229,32 @@ export const PickRenderer = ({
 
   const className = showFilters ? classes.filterIconButtonActive : undefined;
 
-  return (
-    <div>
-      <Grid container spacing={8}>
-        <Grid item xs={12}>
-          <Paper className={classes.root}>
-            <div className={classes.topPartWrapper}>
-              <PickHeader
-                title={title}
-                description={description}
-                rightToolbar={
-                  <IconButton
-                    onClick={toggleFilters}
-                    className={className}
-                    aria-label="Filter list"
-                  >
-                    <FilterListIcon />
-                  </IconButton>
-                }
-              />
-              {showFilters ? (
-                <PickFilterToolbar
-                  filterState={filterState}
-                  setFilterState={setFilterState}
-                  sortingConfig={sortingConfig}
-                  sortingState={sortingState}
-                  setSortingState={setSortingState}
-                  searchState={searchState}
-                  setSearchState={setSearchState}
-                  variableDefinitions={
-                    queryDefinition.variableDefinitions
-                      ? [...queryDefinition.variableDefinitions]
-                      : queryDefinition.variableDefinitions
-                  }
-                />
-              ) : null}
-            </div>
+  const topPartClassNames = [classes.topPartWrapper];
+  if (!isTabletWidth) {
+    topPartClassNames.push(classes.topPartWrapperMobile);
+  }
 
-            <React.Suspense fallback={ComponentLoading}>
-              <DataView
+  return (
+    <Grid container spacing={8} className={classes.rendererRoot}>
+      <Grid item xs={12}>
+        <Paper className={classes.root}>
+          {/* npm -> "classnames" would be handy here */}
+          <div className={topPartClassNames.join(" ")}>
+            <PickHeader
+              title={title}
+              description={description}
+              rightToolbar={
+                <IconButton
+                  onClick={toggleFilters}
+                  className={className}
+                  aria-label="Filter list"
+                >
+                  <FilterListIcon />
+                </IconButton>
+              }
+            />
+            {showFilters ? (
+              <PickFilterToolbar
                 filterState={filterState}
                 setFilterState={setFilterState}
                 sortingConfig={sortingConfig}
@@ -276,34 +262,56 @@ export const PickRenderer = ({
                 setSortingState={setSortingState}
                 searchState={searchState}
                 setSearchState={setSearchState}
+                isTabletWidth={isTabletWidth}
                 variableDefinitions={
                   queryDefinition.variableDefinitions
                     ? [...queryDefinition.variableDefinitions]
-                    : queryDefinition.variableDefinitions || []
+                    : queryDefinition.variableDefinitions
                 }
-                onDataReceive={setViewData}
-                catcher={catcher}
-                columns={columns}
-                isTabletWidth={isTabletWidth}
-                fetch={fetch}
-                offset={offset}
-                limit={limit}
-                resource={resource}
-                preparedFilterState={preparedFilterState}
-                isRowClickable={isRowClickable}
-                onRowClick={onRowClick}
               />
-            </React.Suspense>
+            ) : null}
+          </div>
 
-            <PickPagination
-              hasPrev={offset > 0}
-              hasNext={viewData.length >= limit}
-              onPrevPage={decrementPage}
-              onNextPage={incrementPage}
+          <React.Suspense
+            fallback={
+              <div className={classes.tableWrapper}>{ComponentLoading}</div>
+            }
+          >
+            <DataView
+              filterState={filterState}
+              setFilterState={setFilterState}
+              sortingConfig={sortingConfig}
+              sortingState={sortingState}
+              setSortingState={setSortingState}
+              searchState={searchState}
+              setSearchState={setSearchState}
+              variableDefinitions={
+                queryDefinition.variableDefinitions
+                  ? [...queryDefinition.variableDefinitions]
+                  : queryDefinition.variableDefinitions || []
+              }
+              onDataReceive={setViewData}
+              catcher={catcher}
+              columns={columns}
+              isTabletWidth={isTabletWidth}
+              fetch={fetch}
+              offset={offset}
+              limit={limit}
+              resource={resource}
+              preparedFilterState={preparedFilterState}
+              isRowClickable={isRowClickable}
+              onRowClick={onRowClick}
             />
-          </Paper>
-        </Grid>
+          </React.Suspense>
+
+          <PickPagination
+            hasPrev={offset > 0}
+            hasNext={viewData.length >= limit}
+            onPrevPage={decrementPage}
+            onNextPage={incrementPage}
+          />
+        </Paper>
       </Grid>
-    </div>
+    </Grid>
   );
 };

@@ -23,7 +23,8 @@ export const PickFilterToolbar = ({
   sortingState,
   setSortingState,
   searchState,
-  setSearchState
+  setSearchState,
+  isTabletWidth
 }: {|
   variableDefinitions: VariableDefinitionNode[] | void,
   filterState: { [key: string]: boolean },
@@ -32,7 +33,8 @@ export const PickFilterToolbar = ({
   searchState: ?string,
   setSearchState: (val: string) => void,
   setFilterState: (name: string, value: boolean) => void,
-  setSortingState: (value: string) => void
+  setSortingState: (value: string) => void,
+  isTabletWidth?: boolean
 |}) => {
   if (variableDefinitions == null) {
     return null;
@@ -42,13 +44,18 @@ export const PickFilterToolbar = ({
   const hasSorting = sortingConfig.length > 0;
   const hasSearch = searchState != null;
 
+  const classNames = [classes.tableControl];
+  if (!isTabletWidth) {
+    classNames.push(classes.tableFiltersWrapperMobile);
+  }
+
   return (
     <Grid
       container
       direction="row"
       justify="flex-end"
       alignItems="center"
-      className={classes.tableControl}
+      className={classNames}
     >
       <Grid item>
         <FormGroup row>

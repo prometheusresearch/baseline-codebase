@@ -94,9 +94,13 @@ const PickTableView = ({
     columnsMap.set(column.require.field, column);
     columnsNames.push(column.require.field);
   }
-  columnsNames.sort();
 
-  const TableHeadRows = columnsNames.map((columnName, index) => {
+  const sortedColumns = sortObjectFieldsWithPreferred(
+    columnsNames.reduce((acc, key) => ({ ...acc, [key]: true }), {})
+  );
+  const sortedColumnsNames = Object.keys(sortedColumns);
+
+  const TableHeadRows = sortedColumnsNames.map((columnName, index) => {
     const column = columnsMap.get(columnName);
 
     if (!column) {
@@ -136,9 +140,7 @@ const PickTableView = ({
       }
     };
 
-    return RendererColumnCell ? (
-      <RendererColumnCell column={column} index={index} key={index} />
-    ) : (
+    return (
       <TableCell
         onClick={onTableHeadClick}
         align="left"
@@ -146,27 +148,29 @@ const PickTableView = ({
         className={cellClasses}
         variant={"head"}
       >
-        <div className={classes.tableCellContentWrapper}>
-          {columnName}
+        {RendererColumnCell ? (
+          <RendererColumnCell column={column} index={index} key={index} />
+        ) : (
+          <div className={classes.tableCellContentWrapper}>
+            {columnName}
 
-          <div className={classes.tableCellSortIcon}>
-            {isSortedAsc ? (
-              <ArrowUpwardIcon fontSize={"small"} />
-            ) : isSortedDesc ? (
-              <ArrowDownwardIcon fontSize={"small"} />
-            ) : isSortable ? (
-              <SwapVertIcon fontSize={"small"} />
-            ) : null}
+            <div className={classes.tableCellSortIcon}>
+              {isSortedAsc ? (
+                <ArrowUpwardIcon fontSize={"small"} />
+              ) : isSortedDesc ? (
+                <ArrowDownwardIcon fontSize={"small"} />
+              ) : isSortable ? (
+                <SwapVertIcon fontSize={"small"} />
+              ) : null}
+            </div>
           </div>
-        </div>
+        )}
       </TableCell>
     );
   });
 
   const TableBodyRows = data.map((row, index) => {
-    return RendererRow ? (
-      <RendererRow row={row} columns={columns} index={index} key={index} />
-    ) : (
+    return (
       <TableRow
         key={row.id}
         hover={onRowClick != null}

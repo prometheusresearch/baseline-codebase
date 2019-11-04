@@ -13,14 +13,15 @@ import {
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
 
-import { buildQuery } from "./buildQuery";
+import { buildQuery, type FieldSpec, type FieldConfig } from "./buildQuery";
+
 import { ShowRenderer } from "./show.renderer";
 import { getPathFromFetch } from "./helpers";
 
 export type ShowProps = {|
   endpoint: Endpoint,
   fetch: string,
-  fields?: Array<string>,
+  fields?: FieldConfig[],
   args?: { [key: string]: any },
   Renderer?: React.ComponentType<any>,
   renderTitle?: ({| data: any |}) => React.Node
@@ -45,14 +46,26 @@ export const Show = (props: ShowProps) => {
     (props: ShowProps) => {
       const { fetch, endpoint, fields: _fields, ...rest } = props;
       const introspection = useResource(resourceIntrospection);
-      let resource = React.useMemo(() => {
+      let { resource, fieldSpecs } = React.useMemo(() => {
         const path = getPathFromFetch(fetch);
         const schema = introspection.__schema;
-        const { query, ast, columns } = buildQuery({ schema, path });
+        const { query, ast, fieldSpecs } = buildQuery({
+          schema,
+          path,
+          fields: _fields
+        });
         const resource = defineQuery<void, any>({ endpoint, query });
-        return resource;
+        return { resource, fieldSpecs };
       }, [introspection, endpoint, fetch]);
-      return <ShowRenderer {...rest} fetch={fetch} resource={resource} />;
+
+      return (
+        <ShowRenderer
+          {...rest}
+          fetch={fetch}
+          resource={resource}
+          columns={fieldSpecs}
+        />
+      );
     },
     [resourceIntrospection]
   );

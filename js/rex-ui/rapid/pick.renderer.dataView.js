@@ -45,7 +45,13 @@ const PickNoDataPlaceholder = () => {
   );
 };
 
-const PickCardListView = ({ data }: { data: Array<any> }) => {
+const PickCardListView = ({
+  data,
+  columns
+}: {
+  data: Array<any>,
+  columns: FieldSpec[]
+}) => {
   const classes = useStyles();
   return (
     <div className={classes.tableWrapper}>
@@ -54,7 +60,7 @@ const PickCardListView = ({ data }: { data: Array<any> }) => {
 
         return (
           <div key={index}>
-            <ShowCard title={null} data={sortedRow} />
+            <ShowCard title={null} data={sortedRow} columns={columns} />
           </div>
         );
       })}
@@ -329,5 +335,5 @@ export const DataView = ({
     );
   }
 
-  return <PickCardListView data={data} />;
+  return <PickCardListView data={data} columns={columns} />;
 };

@@ -64,6 +64,24 @@ function App() {
               endpoint={endpoint}
               fetch={"user.get"}
               args={{ id: selectedRow.id }}
+              fields={[
+                "id",
+                {
+                  require: { field: "remote_user" }
+                },
+                "expires",
+                {
+                  require: {
+                    field: "contact_info",
+                    require: [
+                      { field: "id" },
+                      { field: "type" },
+                      { field: "value" }
+                    ]
+                  },
+                  render: ({ value }) => JSON.stringify(value)
+                }
+              ]}
             />
           </div>
         );

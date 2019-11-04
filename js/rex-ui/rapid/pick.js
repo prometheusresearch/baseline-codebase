@@ -142,7 +142,6 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
 
   const {
     query,
-    columns,
     queryDefinition,
     introspectionTypesMap,
     fieldSpecs

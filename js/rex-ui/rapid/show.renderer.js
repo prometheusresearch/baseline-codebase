@@ -28,6 +28,7 @@ import {
   type Resource,
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
+import { type FieldSpec } from "./buildQuery";
 
 import { withResourceErrorCatcher, calculateItemsLimit } from "./helpers";
 
@@ -42,7 +43,8 @@ export type ShowRendererProps = {|
   Renderer?: React.ComponentType<CustomRendererProps>,
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
-  renderTitle?: ({| data: any |}) => React.Node
+  renderTitle?: ({| data: any |}) => React.Node,
+  columns: FieldSpec[]
 |};
 
 const useStyles = makeStyles({
@@ -53,13 +55,9 @@ const useStyles = makeStyles({
   }
 });
 
-export const ShowRenderer = ({
-  resource,
-  Renderer,
-  fetch,
-  args = {},
-  renderTitle
-}: ShowRendererProps) => {
+export const ShowRenderer = (props: ShowRendererProps) => {
+  const { resource, Renderer, fetch, args = {}, renderTitle, columns } = props;
+
   const classes = useStyles();
 
   const resourceData = useResource(resource, { ...args });
@@ -84,35 +82,53 @@ export const ShowRenderer = ({
     title = renderTitle({ data });
   }
 
-  return <ShowCard title={title} data={sortedData} />;
+  return <ShowCard title={title} data={sortedData} columns={columns} />;
 };
 
 const commonWrapperStyle = { marginBottom: "16px" };
 
-export const ShowCard = ({ data, title }: { data: any, title: React.Node }) => {
+export const ShowCard = ({
+  data,
+  title,
+  columns
+}: {
+  data: any,
+  title: React.Node,
+  columns: FieldSpec[]
+}) => {
   const classes = useStyles();
 
   const content = Object.keys(data).map(dataKey => {
+    const column = columns.find(spec => spec.require.field === dataKey);
+
     switch (dataKey) {
       case "id": {
         return (
           <div key={dataKey} style={commonWrapperStyle}>
-            <Typography key={dataKey} color="textSecondary" gutterBottom>
-              {data[dataKey]}
-            </Typography>
+            {column && column.render ? (
+              <column.render value={data[dataKey]} />
+            ) : (
+              <Typography key={dataKey} color="textSecondary" gutterBottom>
+                {data[dataKey]}
+              </Typography>
+            )}
           </div>
         );
       }
       case "name": {
         return (
           <div key={dataKey} style={commonWrapperStyle}>
-            <Typography
-              variant="h5"
-              component="h3"
-              style={{ marginBottom: "16" }}
-            >
-              {data[dataKey]}
-            </Typography>
+            {column && column.render ? (
+              <column.render value={data[dataKey]} />
+            ) : (
+              <Typography
+                variant="h5"
+                component="h3"
+                style={{ marginBottom: "16" }}
+              >
+                {data[dataKey]}
+              </Typography>
+            )}
           </div>
         );
       }
@@ -120,7 +136,13 @@ export const ShowCard = ({ data, title }: { data: any, title: React.Node }) => {
         return (
           <div key={dataKey} style={commonWrapperStyle}>
             <Typography variant={"caption"}>{dataKey}</Typography>
-            <Typography component="p">{String(data[dataKey])}</Typography>
+            <Typography component="p">
+              {column && column.render ? (
+                <column.render value={data[dataKey]} />
+              ) : (
+                String(data[dataKey])
+              )}
+            </Typography>
           </div>
         );
       }

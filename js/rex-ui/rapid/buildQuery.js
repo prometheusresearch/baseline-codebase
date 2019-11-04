@@ -78,7 +78,6 @@ export const buildQuery = ({
 |}): {|
   query: string,
   ast: ast.DocumentNode,
-  columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
   fieldSpecs: FieldSpec[]
@@ -95,7 +94,6 @@ export const buildQuery = ({
   return {
     query,
     ast,
-    columns,
     queryDefinition,
     introspectionTypesMap,
     fieldSpecs
@@ -209,10 +207,6 @@ const buildSelectionSet = (
 
       const fieldSpec = userRequiredFields.find(
         f => f.require.field === field.name
-      );
-      invariant(
-        fieldSpec != null,
-        `Can not find fieldSpec with name ${field.name} in userRequiredFields`
       );
 
       // TODO: Make it recursive

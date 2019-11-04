@@ -35,10 +35,20 @@ export type FieldConfigBase = {|
 |};
 
 /** Specifies how to render fields for a card list or a data table. */
+
 export type FieldSpec = {|
   ...FieldConfigBase,
   require: string[]
 |};
+
+/**
+ * TODO: Make FieldSpec foldable
+ * type FieldSpec = {
+ *   ...FieldConfigBase,
+ *   field: string,
+ *   subfields: void | FieldSpec[]
+ * };
+ */
 
 export type FieldConfig = string | FieldConfigBase;
 

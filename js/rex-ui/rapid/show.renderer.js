@@ -36,13 +36,13 @@ import { object } from "prop-types";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
-export type TypePropsRenderer = {|
+export type ShowRendererProps = {|
   resource: Resource<any, any>,
-  Renderer?: React.ComponentType<CustomRendererProps>,
   fetch: string,
-  ast: DocumentNode,
+  Renderer?: React.ComponentType<CustomRendererProps>,
   args?: { [key: string]: any },
-  catcher: (err: Error) => void
+  catcher?: (err: Error) => void,
+  renderTitle?: ({| data: any |}) => React.Node
 |};
 
 const useStyles = makeStyles({
@@ -53,31 +53,18 @@ const useStyles = makeStyles({
   }
 });
 
-const containerRef = React.createRef();
-
 export const ShowRenderer = ({
   resource,
   Renderer,
-  catcher,
   fetch,
-  ast,
-  args = {}
-}: TypePropsRenderer) => {
-  let { definitions: _definitions } = ast;
-  const definitions: OperationDefinitionNode[] = (_definitions: any);
-  const queryDefinition = definitions[0];
-
-  invariant(queryDefinition != null, "queryDefinition is null");
-
+  args = {},
+  renderTitle
+}: ShowRendererProps) => {
   const classes = useStyles();
 
-  const resourceData = withResourceErrorCatcher({
-    getResource: () => useResource(resource, { ...args }),
-    catcher
-  });
+  const resourceData = useResource(resource, { ...args });
 
   if (resourceData == null) {
-    catcher(new Error("resourceData is null in ShowRenderer"));
     return null;
   }
 
@@ -92,19 +79,17 @@ export const ShowRenderer = ({
       name
     });
 
-  const whatToRender = Renderer ? (
-    <Renderer resource={resourceData} />
-  ) : (
-    <div ref={containerRef}>
-      <ShowCard data={sortedData} />
-    </div>
-  );
+  let title = null;
+  if (renderTitle != null) {
+    title = renderTitle({ data });
+  }
 
-  return whatToRender;
+  return <ShowCard title={title} data={sortedData} />;
 };
 
 const commonWrapperStyle = { marginBottom: "16px" };
-export const ShowCard = ({ data }: { data: any }) => {
+
+export const ShowCard = ({ data, title }: { data: any, title: React.Node }) => {
   const classes = useStyles();
 
   const content = Object.keys(data).map(dataKey => {
@@ -147,7 +132,14 @@ export const ShowCard = ({ data }: { data: any }) => {
       <Grid item xs={12}>
         <Paper className={classes.root}>
           <Card>
-            <CardContent>{content}</CardContent>
+            <CardContent>
+              {title != null && (
+                <Typography variant="h5" gutterBottom>
+                  {title}
+                </Typography>
+              )}
+              {content}
+            </CardContent>
           </Card>
         </Paper>
       </Grid>

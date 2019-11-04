@@ -54,7 +54,7 @@ const PickCardListView = ({ data }: { data: Array<any> }) => {
 
         return (
           <div key={index}>
-            <ShowCard data={sortedRow} />
+            <ShowCard title={null} data={sortedRow} />
           </div>
         );
       })}

@@ -30,7 +30,6 @@ import {
 } from "rex-graphql/Resource";
 import { RenderValue } from "./RenderValue.js";
 
-import { calculateItemsLimit } from "./helpers";
 import * as Field from "./Field.js";
 
 type CustomRendererProps = { resource: Resource<any, any> };

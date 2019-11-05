@@ -8,7 +8,7 @@ import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
 import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
-import { capitalize, sortObjectFieldsWithPreferred } from "./helpers.js";
+import { capitalize } from "./helpers.js";
 
 export type TypeIntrospectionFieldType = {|
   kind: string,
@@ -165,24 +165,34 @@ const buildSelectionSet = (
         };
 
         fieldIntros.push(field);
-        fieldSpecs.push(spec);
         fieldSpecsMap.set(field.name, spec);
+      }
 
-        // Sorting
-        let fieldSpecsObj = fieldSpecs.reduce(
-          (acc, spec) => ({ ...acc, [spec.require.field]: spec }),
-          ({}: { [key: string]: Field.FieldSpec })
-        );
+      let COMMON_NAMES = [
+        "id",
+        "name",
+        "first_name",
+        "last_name",
+        "title",
+        "display_name",
+        "gender",
+        "sex"
+      ];
 
-        fieldSpecsObj = sortObjectFieldsWithPreferred(fieldSpecsObj);
-        fieldSpecs = [];
+      let seen = new Set();
+      for (let name of COMMON_NAMES) {
+        let spec = fieldSpecsMap.get(name);
+        if (spec == null) {
+          continue;
+        }
+        fieldSpecs.push(spec);
+        seen.add(name);
+      }
 
-        Object.keys(fieldSpecsObj).forEach(key => {
-          const spec = fieldSpecsMap.get(key);
-          if (spec) {
-            fieldSpecs.push(spec);
-          }
-        });
+      for (let spec of fieldSpecsMap.values()) {
+        if (!seen.has(spec.require.field)) {
+          fieldSpecs.push(spec);
+        }
       }
     }
 

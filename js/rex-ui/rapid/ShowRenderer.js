@@ -30,11 +30,7 @@ import {
 } from "rex-graphql/Resource";
 import { type FieldSpec } from "./buildQuery";
 
-import {
-  withResourceErrorCatcher,
-  calculateItemsLimit,
-  sortObjectFieldsWithPreferred
-} from "./helpers";
+import { calculateItemsLimit, sortObjectFieldsWithPreferred } from "./helpers";
 
 import { ComponentLoading } from "./component.loading";
 import { object } from "prop-types";

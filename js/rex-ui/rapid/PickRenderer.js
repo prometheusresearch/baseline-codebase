@@ -40,11 +40,7 @@ import {
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
 
-import {
-  withResourceErrorCatcher,
-  sortObjectFieldsWithPreferred,
-  debounce
-} from "./helpers";
+import { sortObjectFieldsWithPreferred } from "./helpers";
 
 import { ComponentLoading } from "./component.loading";
 

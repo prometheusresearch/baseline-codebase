@@ -28,7 +28,8 @@ export const useStyles = makeStyles({
     padding: "16px",
     boxShadow: "0 0 10px -8px",
     margin: 0,
-    width: "100%"
+    width: "100%",
+    flex: "0 0 auto"
   },
   formControl: {
     minWidth: 120,
@@ -43,11 +44,13 @@ export const useStyles = makeStyles({
   tableHeadSortable: {
     cursor: "pointer",
     "&:hover": {
-      boxShadow: "0 5px 0px -4px"
+      backgroundColor: "rgb(66,66,66)",
+      color: "white"
     }
   },
   tableHeadSorted: {
-    boxShadow: "0 5px 0px -4px"
+    backgroundColor: "rgb(128,128,128)",
+    color: "white"
   },
   tableWrapper: {
     overflowY: "scroll",

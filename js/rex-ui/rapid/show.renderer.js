@@ -30,7 +30,11 @@ import {
 } from "rex-graphql/Resource";
 import { type FieldSpec } from "./buildQuery";
 
-import { withResourceErrorCatcher, calculateItemsLimit } from "./helpers";
+import {
+  withResourceErrorCatcher,
+  calculateItemsLimit,
+  sortObjectFieldsWithPreferred
+} from "./helpers";
 
 import { ComponentLoading } from "./component.loading";
 import { object } from "prop-types";
@@ -68,14 +72,7 @@ export const ShowRenderer = (props: ShowRendererProps) => {
 
   const data = _get(resourceData, fetch);
 
-  const { id, name, ...rest } = data;
-
-  const sortedData = Object.keys(rest)
-    .sort()
-    .reduce((acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }), {
-      id,
-      name
-    });
+  const sortedData = sortObjectFieldsWithPreferred(data);
 
   let title = null;
   if (renderTitle != null) {
@@ -85,7 +82,7 @@ export const ShowRenderer = (props: ShowRendererProps) => {
   return <ShowCard title={title} data={sortedData} columns={columns} />;
 };
 
-const commonWrapperStyle = { marginBottom: "16px" };
+const commonWrapperStyle = { marginBottom: "16px", wordBreak: "break-word" };
 
 export const ShowCard = ({
   data,
@@ -101,6 +98,12 @@ export const ShowCard = ({
   const content = Object.keys(data).map(dataKey => {
     const column = columns.find(spec => spec.require.field === dataKey);
 
+    // No such a column at all.
+    // dataKey is likely placed there by sortObjectFieldsWithPreferred
+    if (!column) {
+      return null;
+    }
+
     switch (dataKey) {
       case "id": {
         return (
@@ -108,23 +111,11 @@ export const ShowCard = ({
             {column && column.render ? (
               <column.render value={data[dataKey]} />
             ) : (
-              <Typography key={dataKey} color="textSecondary" gutterBottom>
-                {data[dataKey]}
-              </Typography>
-            )}
-          </div>
-        );
-      }
-      case "name": {
-        return (
-          <div key={dataKey} style={commonWrapperStyle}>
-            {column && column.render ? (
-              <column.render value={data[dataKey]} />
-            ) : (
               <Typography
-                variant="h5"
-                component="h3"
-                style={{ marginBottom: "16" }}
+                variant={"h6"}
+                key={dataKey}
+                color="textSecondary"
+                gutterBottom
               >
                 {data[dataKey]}
               </Typography>
@@ -132,10 +123,13 @@ export const ShowCard = ({
           </div>
         );
       }
+
       default: {
         return (
           <div key={dataKey} style={commonWrapperStyle}>
-            <Typography variant={"caption"}>{dataKey}</Typography>
+            <Typography variant={"caption"}>
+              {(column && column.title) || dataKey}
+            </Typography>
             <Typography component="p">
               {column && column.render ? (
                 <column.render value={data[dataKey]} />
@@ -150,7 +144,7 @@ export const ShowCard = ({
   });
 
   return (
-    <Grid container>
+    <Grid container spacing={8}>
       <Grid item xs={12}>
         <Paper className={classes.root}>
           <Card>

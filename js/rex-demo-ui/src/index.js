@@ -8,6 +8,7 @@ import { Pick, ComponentLoading } from "rex-ui/rapid";
 import { Show } from "rex-ui/rapid/show";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import { Grid } from "@material-ui/core";
 
 const endpoint = RexGraphQL.configure("/_api/graphql");
 
@@ -36,7 +37,8 @@ function App() {
       fields={[
         "id",
         {
-          require: { field: "remote_user" }
+          require: { field: "remote_user" },
+          title: "Remote User"
         },
         "expires",
         {
@@ -44,7 +46,8 @@ function App() {
             field: "contact_info",
             require: [{ field: "id" }, { field: "type" }, { field: "value" }]
           },
-          render: ({ value }) => JSON.stringify(value)
+          render: ({ value }) => JSON.stringify(value),
+          title: "Contact Info"
         }
       ]}
       title={"Users"}
@@ -56,34 +59,36 @@ function App() {
     case "show": {
       if (selectedRow != null) {
         return (
-          <div>
-            <div>
-              <Button onClick={resetState}>Back</Button>
-            </div>
-            <Show
-              endpoint={endpoint}
-              fetch={"user.get"}
-              args={{ id: selectedRow.id }}
-              fields={[
-                "id",
-                {
-                  require: { field: "remote_user" }
-                },
-                "expires",
-                {
-                  require: {
-                    field: "contact_info",
-                    require: [
-                      { field: "id" },
-                      { field: "type" },
-                      { field: "value" }
-                    ]
+          <Grid container style={{ padding: 8 }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <div>
+                <Button onClick={resetState}>Back</Button>
+              </div>
+              <Show
+                endpoint={endpoint}
+                fetch={"user.get"}
+                args={{ id: selectedRow.id }}
+                fields={[
+                  "id",
+                  {
+                    require: { field: "remote_user" }
                   },
-                  render: ({ value }) => JSON.stringify(value)
-                }
-              ]}
-            />
-          </div>
+                  "expires",
+                  {
+                    require: {
+                      field: "contact_info",
+                      require: [
+                        { field: "id" },
+                        { field: "type" },
+                        { field: "value" }
+                      ]
+                    },
+                    render: ({ value }) => JSON.stringify(value)
+                  }
+                ]}
+              />
+            </Grid>
+          </Grid>
         );
       }
 

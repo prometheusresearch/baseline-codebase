@@ -23,7 +23,6 @@ export type TypeSchemaDataObject = {|
 |};
 
 type QueryFieldSpec = {
-  title?: string,
   field: string,
   require?: QueryFieldSpec[]
 };
@@ -38,6 +37,7 @@ export type FieldSpec = {
    * TODO: Maybe change to prevent things like:
    * "specName.require.require" -> "specName.subfields.require"
    */
+  title?: string,
   require: QueryFieldSpec,
   render?: AbstractComponent<{ value: any }>,
   width?: number
@@ -56,11 +56,7 @@ export const makeConfigToSpec = (nodes: FieldConfig[] = []): FieldSpec[] => {
       }
 
       default: {
-        const { render, require } = node;
-        return {
-          require,
-          render
-        };
+        return node;
       }
     }
   });

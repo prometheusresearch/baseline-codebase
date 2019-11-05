@@ -100,6 +100,9 @@ const PickTableView = ({
   );
   const sortedColumnsNames = Object.keys(sortedColumns);
 
+  /**
+   * TODO: Move out table headers from Suspense
+   */
   const TableHeadRows = sortedColumnsNames.map((columnName, index) => {
     const column = columnsMap.get(columnName);
 
@@ -140,6 +143,8 @@ const PickTableView = ({
       }
     };
 
+    const title = column.title || columnName;
+
     return (
       <TableCell
         onClick={onTableHeadClick}
@@ -152,7 +157,7 @@ const PickTableView = ({
           <RendererColumnCell column={column} index={index} key={index} />
         ) : (
           <div className={classes.tableCellContentWrapper}>
-            {columnName}
+            {title}
 
             <div className={classes.tableCellSortIcon}>
               {isSortedAsc ? (
@@ -177,7 +182,7 @@ const PickTableView = ({
         style={{ cursor: onRowClick != null ? "pointer" : "default" }}
         onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
       >
-        {columnsNames.map((columnName, index) => {
+        {sortedColumnsNames.map((columnName, index) => {
           const column = columnsMap.get(columnName);
 
           if (!column) {

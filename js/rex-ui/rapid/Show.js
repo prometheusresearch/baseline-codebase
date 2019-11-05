@@ -10,8 +10,8 @@ import * as Resource from "rex-graphql/Resource";
 
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import { buildQuery, type FieldSpec, type FieldConfig } from "./buildQuery";
-import { ShowRenderer } from "./show.renderer";
 import { getPathFromFetch } from "./helpers";
+import { ShowRenderer } from "./ShowRenderer.js";
 
 export type ShowProps = {|
   endpoint: Endpoint,

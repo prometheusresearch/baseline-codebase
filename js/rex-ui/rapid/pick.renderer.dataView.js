@@ -31,7 +31,7 @@ import {
   withResourceErrorCatcher,
   sortObjectFieldsWithPreferred
 } from "./helpers";
-import { ShowCard } from "./show.renderer";
+import { ShowCard } from "./ShowRenderer.js";
 import { useStyles } from "./pick.renderer.styles";
 import { type PropsSharedWithRenderer } from "./pick";
 import { type FieldSpec } from "./buildQuery";

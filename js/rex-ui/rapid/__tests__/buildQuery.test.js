@@ -4,6 +4,7 @@
 
 import { type IntrospectionSchema } from "graphql/utilities/introspectionQuery";
 import { buildQuery } from "../buildQuery";
+import * as QueryPath from "../QueryPath.js";
 
 const testSchema: IntrospectionSchema = {
   queryType: ({
@@ -348,7 +349,7 @@ describe("Testing constructQueryAST", function() {
     expect(
       buildQuery({
         schema: testSchema,
-        path: ["user", "paginated"]
+        path: QueryPath.make(["user", "paginated"])
       }).query
     ).toEqual(referenceQuery);
   });

@@ -13,7 +13,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
-import { useStyles } from "./pick.renderer.styles";
+import { useStyles } from "./PickStyles.js";
 
 export const PickFilterToolbar = ({
   variableDefinitions,

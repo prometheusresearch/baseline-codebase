@@ -32,8 +32,8 @@ import {
   sortObjectFieldsWithPreferred
 } from "./helpers";
 import { ShowCard } from "./ShowRenderer.js";
-import { useStyles } from "./pick.renderer.styles";
-import { type PropsSharedWithRenderer } from "./pick";
+import { useStyles } from "./PickStyles.js";
+import { type PickRendererConfigProps } from "./PickRenderer.js";
 import { type FieldSpec } from "./buildQuery";
 
 const PickNoDataPlaceholder = () => {
@@ -84,7 +84,7 @@ const PickTableView = ({
   sortingConfig: Array<{| desc: boolean, field: string |}>,
   sortingState: void | {| desc: boolean, field: string |},
   setSortingState: (value: string) => void,
-  ...PropsSharedWithRenderer
+  ...PickRendererConfigProps
 |}) => {
   const classes = useStyles();
 
@@ -244,7 +244,7 @@ const PickTableView = ({
   );
 };
 
-export const DataView = ({
+export const PickDataView = ({
   onDataReceive,
   variableDefinitions,
   args,
@@ -254,7 +254,6 @@ export const DataView = ({
   sortingState,
   searchState,
   resource,
-  catcher,
   columns,
   fetch,
   isTabletWidth,
@@ -268,7 +267,6 @@ export const DataView = ({
   resource: Resource<any, any>,
   onDataReceive: any => any,
   columns: FieldSpec[],
-  catcher: (err: Error) => void,
   args?: { [key: string]: any },
   variableDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
   preparedFilterState: { [key: string]: any },
@@ -279,7 +277,7 @@ export const DataView = ({
   isTabletWidth: boolean,
   sortingConfig: Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
-  ...PropsSharedWithRenderer
+  ...PickRendererConfigProps
 }) => {
   const hasLimitVariable = variableDefinitions
     ? variableDefinitions.find(def => def.variable.name.value === "limit")
@@ -306,15 +304,9 @@ export const DataView = ({
     gqlQueryParams = { ...gqlQueryParams, search: searchState };
   }
 
-  const resourceData = withResourceErrorCatcher({
-    getResource: () => useResource(resource, gqlQueryParams),
-    catcher
-  });
+  const resourceData = useResource(resource, gqlQueryParams);
 
   if (resourceData == null || columns.length === 0) {
-    catcher(
-      new Error("resourceData is null OR columns.length === 0 in PickRenderer")
-    );
     return null;
   }
 

@@ -11,7 +11,7 @@ import * as Resource from "rex-graphql/Resource";
 import * as QueryPath from "./QueryPath.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import { buildQuery, type FieldSpec, type FieldConfig } from "./buildQuery";
-import { PickRenderer, type PickRendererConfigProps } from "./pick.renderer";
+import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
 
 export type PickProps = {|
   endpoint: Endpoint,

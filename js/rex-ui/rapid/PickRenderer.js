@@ -49,10 +49,10 @@ import {
 import { ComponentLoading } from "./component.loading";
 
 import { buildSortingConfig } from "./buildSortingConfig";
-import { useStyles } from "./pick.renderer.styles";
-import { PickFilterToolbar } from "./pick.renderer.filters";
-import { PickPagination } from "./pick.renderer.pagination";
-import { DataView } from "./pick.renderer.dataView";
+import { useStyles } from "./PickStyles.js";
+import { PickFilterToolbar } from "./PickFilterToolbar.js";
+import { PickPagination } from "./PickPagination.js";
+import { PickDataView } from "./PickDataView.js";
 import { type FieldSpec } from "./buildQuery";
 
 type CustomRendererProps = { resource: Resource<any, any> };
@@ -292,7 +292,7 @@ export const PickRenderer = ({
               <div className={classes.tableWrapper}>{ComponentLoading}</div>
             }
           >
-            <DataView
+            <PickDataView
               filterState={filterState}
               setFilterState={setFilterState}
               sortingConfig={sortingConfig}

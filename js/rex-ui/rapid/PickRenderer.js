@@ -48,6 +48,7 @@ import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
 import * as Field from "./Field.js";
+import { number, bool } from "prop-types";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
@@ -114,6 +115,16 @@ const PickHeader = ({ title, description, rightToolbar }) => {
 const LIMIT_MOBILE = 20;
 const LIMIT_DESKTOP = 50;
 
+type SortDirection = {| field: string, desc: boolean |};
+
+export type PickState = {|
+  offset: number,
+  limit: number,
+  search: ?string,
+  sort: ?SortDirection,
+  filter: { [key: string]: ?boolean }
+|};
+
 export const PickRenderer = ({
   resource,
   columns,
@@ -129,109 +140,86 @@ export const PickRenderer = ({
   title,
   description
 }: PickRendererProps) => {
-  const [offset, setOffset] = React.useState<number>(0);
-  const [limit, setLimit] = React.useState<number>(0);
-  const [filterState, _setFilterState] = React.useState<{ [key: string]: any }>(
-    {}
-  );
+  let [state, setState] = React.useState<PickState>({
+    offset: 0,
+    limit: LIMIT_DESKTOP,
+    search: null,
+    sort: null,
+    filter: {}
+  });
+
   const [showFilters, _setShowFilters] = React.useState(false);
-  const [sortingState, _setSortingState] = React.useState<void | {|
-    field: string,
-    desc: boolean
-  |}>(undefined);
-  const [searchState, _setSearchState] = React.useState<?string>(null);
+
   const [viewData, setViewData] = React.useState<Array<any>>([]);
 
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
   const classes = useStyles();
 
-  const setFilterState = (varDefName: string, value: boolean) => {
-    setTimeout(() => {
-      setOffset(0);
-      _setFilterState({ ...filterState, [varDefName]: value });
-    }, 128);
+  const setFilterState = (name: string, value: ?boolean) => {
+    setState(state => ({
+      ...state,
+      offset: 0,
+      filter: { ...state.filter, [name]: value }
+    }));
   };
 
   const setSortingState = (value: string) => {
-    setTimeout(() => {
-      value === "undefined"
-        ? _setSortingState(undefined)
-        : _setSortingState(JSON.parse(value));
-    }, 128);
+    setState(state => ({
+      ...state,
+      offset: 0,
+      sort: value === "__undefined__" ? null : JSON.parse(value)
+    }));
   };
 
   const toggleFilters = () => {
-    setTimeout(() => {
-      _setShowFilters(!showFilters);
-    }, 128);
+    _setShowFilters(v => !v);
   };
 
-  const setSearchState = (val: string) => {
-    _setSearchState(val);
+  const setSearchState = (search: string) => {
+    setState(state => ({
+      ...state,
+      offset: 0,
+      search
+    }));
   };
 
   const decrementPage = () => {
-    const newOffset = offset - limit <= 0 ? 0 : offset - limit;
-    setOffset(newOffset);
+    const offset =
+      state.offset - state.limit <= 0 ? 0 : state.offset - state.limit;
+    setState(state => ({
+      ...state,
+      offset
+    }));
   };
 
   const incrementPage = () => {
-    const newOffset = offset + limit;
-    setOffset(newOffset);
+    const offset = state.offset + state.limit;
+    setState(state => ({
+      ...state,
+      offset
+    }));
   };
-
-  // Initializing boolean filters on new queryDefinition
-  React.useEffect(() => {
-    const { variableDefinitions } = queryDefinition;
-    if (variableDefinitions == null) {
-      return;
-    }
-
-    let newFilterState = {};
-    for (let variableDefinition of variableDefinitions) {
-      const varName = variableDefinition.variable.name.value;
-      const typeNameValue =
-        // $FlowFixMe
-        variableDefinition.type.name && variableDefinition.type.name.value;
-
-      /// Add search filter
-      if (varName === SEARCH_VAR_NAME && typeNameValue === "String") {
-        setSearchState("");
-      }
-
-      // Add boolean filter to filterState
-      if (typeNameValue === "Boolean") {
-        newFilterState[varName] = "undefined";
-      }
-    }
-    _setFilterState(newFilterState);
-  }, [queryDefinition]);
-
-  // Calculating needed items limit
-  React.useEffect(() => {
-    if (!isTabletWidth) {
-      setLimit(LIMIT_MOBILE);
-    } else {
-      setLimit(LIMIT_DESKTOP);
-    }
-  }, [isTabletWidth]);
-
-  // Handle search param
-
-  // Replacing "undefined" -> undefined
-  // SelectInput warns if value is undefined
-  // So every SelectInput undefined value is set as a string "undefined"
-  const preparedFilterState = Object.keys(filterState).reduce((acc, key) => {
-    return {
-      ...acc,
-      [key]: filterState[key] === "undefined" ? undefined : filterState[key]
-    };
-  }, {});
 
   const { variableDefinitions } = queryDefinition;
 
+  // Initialize search state if there's SEARCH_VAR_NAME
+  React.useEffect(() => {
+    if (
+      variableDefinitions != null &&
+      variableDefinitions.find(
+        def => def.variable.name.value === SEARCH_VAR_NAME
+      )
+    ) {
+      setState(state => ({
+        ...state,
+        search: ""
+      }));
+    }
+  }, [variableDefinitions]);
+
   const sortingConfig = buildSortingConfig({
     variableDefinitions,
+    columns,
     introspectionTypesMap,
     variableDefinitionName: SORTING_VAR_NAME
   });
@@ -262,12 +250,10 @@ export const PickRenderer = ({
         />
         {showFilters ? (
           <PickFilterToolbar
-            filterState={filterState}
+            state={state}
             setFilterState={setFilterState}
             sortingConfig={sortingConfig}
-            sortingState={sortingState}
             setSortingState={setSortingState}
-            searchState={searchState}
             setSearchState={setSearchState}
             isTabletWidth={isTabletWidth}
             variableDefinitions={
@@ -287,13 +273,9 @@ export const PickRenderer = ({
         }
       >
         <PickDataView
-          filterState={filterState}
-          setFilterState={setFilterState}
+          state={state}
           sortingConfig={sortingConfig}
-          sortingState={sortingState}
           setSortingState={setSortingState}
-          searchState={searchState}
-          setSearchState={setSearchState}
           variableDefinitions={
             queryDefinition.variableDefinitions
               ? [...queryDefinition.variableDefinitions]
@@ -303,18 +285,15 @@ export const PickRenderer = ({
           columns={columns}
           isTabletWidth={isTabletWidth}
           fetch={fetch}
-          offset={offset}
-          limit={limit}
           resource={resource}
-          preparedFilterState={preparedFilterState}
           isRowClickable={isRowClickable}
           onRowClick={onRowClick}
         />
       </React.Suspense>
 
       <PickPagination
-        hasPrev={offset > 0}
-        hasNext={viewData.length >= limit}
+        hasPrev={state.offset > 0}
+        hasNext={viewData.length >= state.limit}
         onPrevPage={decrementPage}
         onNextPage={incrementPage}
       />

@@ -33,6 +33,7 @@ import { useStyles } from "./PickStyles.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
 import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
+import { type PickState } from "./PickRenderer";
 
 const PickNoDataPlaceholder = () => {
   let classes = useStyles();
@@ -68,7 +69,7 @@ const PickTableView = ({
   data,
   columns,
   sortingConfig,
-  sortingState,
+  sort,
   setSortingState,
   RendererColumnCell,
   RendererRow,
@@ -78,7 +79,7 @@ const PickTableView = ({
   data: Array<any>,
   columns: Field.FieldSpec[],
   sortingConfig: Array<{| desc: boolean, field: string |}>,
-  sortingState: void | {| desc: boolean, field: string |},
+  sort?: ?{| desc: boolean, field: string |},
   setSortingState: (value: string) => void,
   ...PickRendererConfigProps
 |}) => {
@@ -108,10 +109,8 @@ const PickTableView = ({
       cellClasses = `${cellClasses} ${classes.tableHeadSortable}`;
     }
 
-    const isSortedAsc =
-      sortingState && sortingState.field === columnName && !sortingState.desc;
-    const isSortedDesc =
-      sortingState && sortingState.field === columnName && sortingState.desc;
+    const isSortedAsc = sort && sort.field === columnName && !sort.desc;
+    const isSortedDesc = sort && sort.field === columnName && sort.desc;
 
     if (isSortedAsc || isSortedDesc) {
       cellClasses = `${cellClasses} ${classes.tableHeadSorted}`;
@@ -216,15 +215,27 @@ const PickTableView = ({
   );
 };
 
+const buildParams = (pickState: PickState) => {
+  const { filter, limit, offset, search, sort } = pickState;
+  let params = { ...filter, limit, offset };
+
+  if (sort) {
+    params = {
+      ...params,
+      sort
+    };
+  }
+  if (search) {
+    params = { ...params, search };
+  }
+
+  return params;
+};
+
 export const PickDataView = ({
   onDataReceive,
   variableDefinitions,
   args,
-  preparedFilterState,
-  limit,
-  offset,
-  sortingState,
-  searchState,
   resource,
   columns,
   fetch,
@@ -234,49 +245,23 @@ export const PickDataView = ({
   RendererColumnCell,
   RendererRow,
   RendererRowCell,
-  onRowClick
-}: {
+  onRowClick,
+  state
+}: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
   columns: Field.FieldSpec[],
   args?: { [key: string]: any },
   variableDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
-  preparedFilterState: { [key: string]: any },
-  limit: number,
-  offset: number,
-  sortingState: void | {| desc: boolean, field: string |},
-  searchState: ?string,
   isTabletWidth: boolean,
   sortingConfig: Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
+  state: PickState,
   ...PickRendererConfigProps
-}) => {
-  const hasLimitVariable = variableDefinitions
-    ? variableDefinitions.find(def => def.variable.name.value === "limit")
-    : null;
-  const hasOffsetVariable = variableDefinitions
-    ? variableDefinitions.find(def => def.variable.name.value === "offset")
-    : null;
+|}) => {
+  const params = buildParams(state);
 
-  // Forming query params
-  let gqlQueryParams = { ...args, ...preparedFilterState };
-  if (hasLimitVariable != null) {
-    gqlQueryParams = { ...gqlQueryParams, limit };
-  }
-  if (hasOffsetVariable != null) {
-    gqlQueryParams = { ...gqlQueryParams, offset };
-  }
-  if (sortingState) {
-    gqlQueryParams = {
-      ...gqlQueryParams,
-      sort: sortingState
-    };
-  }
-  if (searchState) {
-    gqlQueryParams = { ...gqlQueryParams, search: searchState };
-  }
-
-  const resourceData = useResource(resource, gqlQueryParams);
+  const resourceData = useResource(resource, params);
 
   if (resourceData == null || columns.length === 0) {
     return null;
@@ -294,10 +279,10 @@ export const PickDataView = ({
   if (isTabletWidth) {
     return (
       <PickTableView
+        sort={state.sort}
         data={data}
         columns={columns}
         sortingConfig={sortingConfig}
-        sortingState={sortingState}
         setSortingState={setSortingState}
         RendererColumnCell={RendererColumnCell}
         RendererRow={RendererRow}

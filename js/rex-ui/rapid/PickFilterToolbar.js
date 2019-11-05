@@ -13,27 +13,24 @@ import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
+import { type PickState } from "./PickRenderer";
 import { useStyles } from "./PickStyles.js";
 import * as Field from "./Field.js";
 
 export const PickFilterToolbar = ({
   variableDefinitions,
-  filterState,
+  state,
   sortingConfig,
   setFilterState,
-  sortingState,
   setSortingState,
-  searchState,
   setSearchState,
   isTabletWidth
 }: {|
+  state: PickState,
   variableDefinitions: VariableDefinitionNode[] | void,
-  filterState: { [key: string]: boolean },
   sortingConfig: Array<{| desc: boolean, field: string |}>,
-  sortingState: {| field: string, desc: boolean |} | void,
-  searchState: ?string,
   setSearchState: (val: string) => void,
-  setFilterState: (name: string, value: boolean) => void,
+  setFilterState: (name: string, value: ?boolean) => void,
   setSortingState: (value: string) => void,
   isTabletWidth?: boolean
 |}) => {
@@ -43,7 +40,7 @@ export const PickFilterToolbar = ({
 
   const classes = useStyles();
   const hasSorting = sortingConfig.length > 0;
-  const hasSearch = searchState != null;
+  const hasSearch = state.search != null;
 
   const classNames = [classes.tableControl];
   if (!isTabletWidth) {
@@ -64,7 +61,7 @@ export const PickFilterToolbar = ({
             <FormControl className={classes.formControl}>
               <TextField
                 label="Search"
-                value={searchState}
+                value={state.search}
                 onChange={ev => {
                   setSearchState(ev.target.value);
                 }}
@@ -84,9 +81,7 @@ export const PickFilterToolbar = ({
             <FormControl className={classes.formControl}>
               <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
               <Select
-                value={
-                  sortingState ? JSON.stringify(sortingState) : "undefined"
-                }
+                value={state.sort ? JSON.stringify(state.sort) : NO_VALUE}
                 onChange={ev => {
                   setSortingState(ev.target.value);
                 }}
@@ -94,7 +89,7 @@ export const PickFilterToolbar = ({
                   name: `sorting`
                 }}
               >
-                <MenuItem key={"undefined"} value={"undefined"} />
+                <MenuItem key={NO_VALUE} value={NO_VALUE} />
                 {sortingConfig.map((obj, index) => {
                   const value = JSON.stringify(obj);
                   return (
@@ -120,31 +115,12 @@ export const PickFilterToolbar = ({
               const booleanFilterName = varDef.variable.name.value;
 
               return (
-                <FormControl
-                  key={`boolean-filter-${booleanFilterName}`}
-                  className={classes.formControl}
-                >
-                  <InputLabel htmlFor={`boolean-filter-${booleanFilterName}`}>
-                    {Field.guessFieldTitle(booleanFilterName)}
-                  </InputLabel>
-                  <Select
-                    value={
-                      filterState[booleanFilterName] === undefined
-                        ? "undefined"
-                        : filterState[booleanFilterName]
-                    }
-                    onChange={ev => {
-                      setFilterState(booleanFilterName, ev.target.value);
-                    }}
-                    inputProps={{
-                      name: `boolean-filter-${booleanFilterName}`
-                    }}
-                  >
-                    <MenuItem value={"undefined"} />
-                    <MenuItem value={false}>No</MenuItem>
-                    <MenuItem value={true}>Yes</MenuItem>
-                  </Select>
-                </FormControl>
+                <BooleanFilter
+                  key={booleanFilterName}
+                  value={state.filter[booleanFilterName]}
+                  onValue={value => setFilterState(booleanFilterName, value)}
+                  name={booleanFilterName}
+                />
               );
             })}
         </FormGroup>
@@ -152,3 +128,40 @@ export const PickFilterToolbar = ({
     </Grid>
   );
 };
+
+const NO_VALUE = "__undefined__";
+
+function BooleanFilter({
+  name,
+  label,
+  value,
+  onValue
+}: {|
+  value: ?boolean,
+  onValue: (?boolean) => void,
+  label?: string,
+  name: string
+|}) {
+  const classes = useStyles();
+
+  return (
+    <FormControl key={`boolean-filter-${name}`} className={classes.formControl}>
+      <InputLabel htmlFor={`boolean-filter-${name}`}>
+        {label || Field.guessFieldTitle(name)}
+      </InputLabel>
+      <Select
+        value={value == null ? NO_VALUE : value}
+        onChange={ev => {
+          onValue(ev.target.value === NO_VALUE ? null : ev.target.value);
+        }}
+        inputProps={{
+          name: `boolean-filter-${name}`
+        }}
+      >
+        <MenuItem value={NO_VALUE} />
+        <MenuItem value={false}>No</MenuItem>
+        <MenuItem value={true}>Yes</MenuItem>
+      </Select>
+    </FormControl>
+  );
+}

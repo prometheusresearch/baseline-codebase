@@ -72,9 +72,10 @@ export const buildSortingConfig = ({
     return def.variable.name.value === variableDefinitionName;
   });
 
-  // TODO: Handle ListTypeNode and NonNullTypeNode, since they dont have
-  // variableDefinition.type.name field
-  invariant(variableDefinition != null, "variableDefinition is null");
+  if (variableDefinition == null) {
+    return [];
+  }
+
   invariant(
     variableDefinition.type.name != null,
     "Not a NamedTypeNode. variableDefinition.type.name is null."

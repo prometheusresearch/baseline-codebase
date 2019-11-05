@@ -4,13 +4,12 @@
 
 import * as React from "react";
 import invariant from "invariant";
-
-import type { StatelessFunctionalComponent } from "react";
 import {
   introspectionFromSchema,
   buildClientSchema,
   getIntrospectionQuery,
-  type IntrospectionQuery
+  type IntrospectionQuery,
+  type IntrospectionSchema
 } from "graphql";
 import { GraphQLSchema } from "graphql/type/schema";
 import type {
@@ -29,6 +28,7 @@ import {
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
 
+import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import { WithResource } from "./WithResource";
 import { buildQuery, type FieldSpec, type FieldConfig } from "./buildQuery";
 import { ComponentLoading } from "./component.loading";
@@ -36,7 +36,6 @@ import { ComponentError } from "./component.error";
 import { PickRenderer } from "./pick.renderer";
 import { complexQuery } from "./data.examples";
 import {
-  toJS,
   withResourceErrorCatcher,
   withCatcher,
   getPathFromFetch
@@ -65,20 +64,6 @@ export type PropsSharedWithRenderer = {|
   onRowClick?: (row: any) => void
 |};
 
-export type PickPropsBase = {|
-  endpoint: Endpoint,
-  fields?: FieldConfig[],
-  Renderer?: React.ComponentType<any>,
-  onPick?: () => void,
-  args?: { [key: string]: any },
-  ...PropsSharedWithRenderer
-|};
-
-export type PickProps<P, V> = {|
-  ...PickPropsBase,
-  resource?: Resource<P, V>
-|};
-
 export type TypeSchemaMeta = {| ...Object |};
 
 const makeNodeToSpec = (nodes: FieldNode[] = []): FieldSpec[] => {
@@ -92,12 +77,16 @@ const makeNodeToSpec = (nodes: FieldNode[] = []): FieldSpec[] => {
   });
 };
 
-const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
+type PickBaseProps = {|
+  ...PickProps,
+  schema: IntrospectionSchema
+|};
+
+const PickBase = (props: PickBaseProps) => {
   const {
     endpoint,
     fetch,
     fields,
-    resource,
     Renderer,
     RendererColumnCell,
     RendererRowCell,
@@ -106,7 +95,8 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
     onRowClick,
     args = {},
     title,
-    description
+    description,
+    schema
   } = props;
 
   const [error, setError] = React.useState<Error | null>(null);
@@ -121,24 +111,11 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
     [err, setErr]
   );
 
-  const resourceData = withResourceErrorCatcher({
-    getResource: () => useResource((resource: any)),
-    catcher
-  });
-
   if (err) {
     return <ComponentError message={err.message} />;
   }
 
-  const introspectionQuery: IntrospectionQuery = (resourceData: any);
-  const clientSchema = buildClientSchema(introspectionQuery);
-  const introspectionQueryFromSchema: IntrospectionQuery = introspectionFromSchema(
-    clientSchema
-  );
-
   const path = withCatcher(() => getPathFromFetch(fetch), catcher, []);
-
-  const schema = introspectionQueryFromSchema.__schema;
 
   const {
     query,
@@ -181,15 +158,17 @@ const PickBase = (props: PickProps<void, IntrospectionQuery>) => {
   );
 };
 
-export const Pick = (props: PickPropsBase) => {
-  const { endpoint } = props;
+export type PickProps = {|
+  endpoint: Endpoint,
+  fields?: FieldConfig[],
+  Renderer?: React.ComponentType<any>,
+  onPick?: () => void,
+  args?: { [key: string]: any },
+  ...PropsSharedWithRenderer
+|};
 
-  return (
-    <WithResource
-      endpoint={endpoint}
-      Renderer={PickBase}
-      query={getIntrospectionQuery()}
-      passProps={props}
-    />
-  );
+export const Pick = (props: PickProps) => {
+  const { endpoint } = props;
+  let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
+  return <PickBase {...props} schema={schema} />;
 };

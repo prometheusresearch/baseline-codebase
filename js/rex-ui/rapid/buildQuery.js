@@ -7,6 +7,8 @@ import * as introspection from "graphql/utilities/introspectionQuery";
 import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
 import * as QueryPath from "./QueryPath.js";
+import * as Field from "./Field.js";
+import { capitalize } from "./helpers.js";
 
 export type TypeIntrospectionFieldType = {|
   kind: string,
@@ -28,41 +30,6 @@ type QueryFieldSpec = {
   require?: QueryFieldSpec[]
 };
 
-/** Configure visual fields (columns in a table, fields in a card) */
-export type FieldConfig =
-  | string // 'some' is the same as {require: ['some']}
-  | FieldSpec;
-
-export type FieldSpec = {
-  /**
-   * TODO: Maybe change to prevent things like:
-   * "specName.require.require" -> "specName.subfields.require"
-   */
-  title?: string,
-  require: QueryFieldSpec,
-  render?: AbstractComponent<{ value: any }>,
-  width?: number
-};
-
-export const makeConfigToSpec = (nodes: FieldConfig[] = []): FieldSpec[] => {
-  return nodes.map(node => {
-    switch (typeof node) {
-      case "string": {
-        return {
-          require: {
-            field: node,
-            require: []
-          }
-        };
-      }
-
-      default: {
-        return node;
-      }
-    }
-  });
-};
-
 /** Configure fields to fetch from GraphQL endpoint. */
 export const buildQuery = ({
   schema,
@@ -71,41 +38,35 @@ export const buildQuery = ({
 }: {|
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fields?: void | Array<FieldConfig>
+  fields: ?Array<Field.FieldSpec>
 |}): {|
   query: string,
   ast: ast.DocumentNode,
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
-  fieldSpecs: FieldSpec[]
+  fields: Field.FieldSpec[]
 |} => {
-  const fieldSpecs = makeConfigToSpec(fields);
-
-  const {
-    ast,
-    columns,
-    queryDefinition,
-    introspectionTypesMap
-  } = buildQueryAST(schema, path, fieldSpecs);
-  const query = print(ast);
+  const info = buildQueryAST(schema, path, fields);
+  const query = print(info.ast);
   return {
     query,
-    ast,
-    queryDefinition,
-    introspectionTypesMap,
-    fieldSpecs
+    ast: info.ast,
+    queryDefinition: info.queryDefinition,
+    introspectionTypesMap: info.introspectionTypesMap,
+    fields: info.fields
   };
 };
 
 const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  userRequiredFields?: FieldSpec[]
+  fieldSpecsRequested: ?(Field.FieldSpec[])
 ): {|
   ast: ast.DocumentNode,
   columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
-  queryDefinition: ast.OperationDefinitionNode
+  queryDefinition: ast.OperationDefinitionNode,
+  fields: Field.FieldSpec[]
 |} => {
   let typesMap: Map<string, introspection.IntrospectionType> = new Map();
   for (let t of schema.types) {
@@ -116,11 +77,11 @@ const buildQueryAST = (
   invariant(rootType != null, "Expected ObjectType at the root");
   invariant(rootType.kind === "OBJECT", "Expected ObjectType at the root");
 
-  let [selectionSet, columns, inputValues] = buildSelectionSet(
+  let [selectionSet, columns, inputValues, fields] = buildSelectionSet(
     typesMap,
     rootType,
     QueryPath.toArray(path),
-    userRequiredFields
+    fieldSpecsRequested
   );
 
   const operationDefinition = {
@@ -139,12 +100,13 @@ const buildQueryAST = (
     },
     columns,
     introspectionTypesMap: typesMap,
-    queryDefinition: operationDefinition
+    queryDefinition: operationDefinition,
+    fields
   };
 };
 
 const makeSelectionSetFromSpec = (
-  fieldSpec?: FieldSpec
+  fieldSpec: Field.FieldSpec
 ): void | ast.SelectionSetNode => {
   if (!fieldSpec) return;
 
@@ -168,44 +130,60 @@ const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
   path: string[],
-  userRequiredFields?: FieldSpec[] = []
+  fieldSpecsRequested: ?(Field.FieldSpec[])
 ): [
   ast.SelectionSetNode,
   ast.FieldNode[],
-  introspection.IntrospectionInputValue[]
+  introspection.IntrospectionInputValue[],
+  Field.FieldSpec[]
 ] => {
   // Break the recursion
   if (path.length === 0) {
-    let fields = type.fields.filter(
-      field =>
-        isFieldNodeScalarLike(field) ||
-        isFieldNodeObjectLike(field) ||
-        isFieldNodeListLike(field)
-    );
+    // TODO(andreypopp): Convert fieldSpecsRequested into Map<string, ...> for
+    // efficient lookup.
+    let fieldIntros: introspection.IntrospectionField[] = [];
+    let fieldSpecs: Field.FieldSpec[] = [];
 
-    // Filtering IntrospectionField[] from userRequiredFields
-    if (userRequiredFields && userRequiredFields.length > 0) {
-      fields = fields.filter(field => {
-        return userRequiredFields.find(fieldSpec => {
+    if (fieldSpecsRequested != null) {
+      fieldSpecs = fieldSpecsRequested;
+      fieldIntros = type.fields.filter(field => {
+        return fieldSpecsRequested.find(spec => {
           // We always include id field.
-          return fieldSpec.require.field === field.name || field.name === "id";
+          return spec.require.field === field.name || field.name === "id";
         });
       });
+    } else {
+      for (let field of type.fields) {
+        if (!isFieldNodeScalarLike(field)) {
+          continue;
+        }
+
+        fieldIntros.push(field);
+        fieldSpecs.push({
+          title: Field.guessFieldTitle(field.name),
+          require: { field: field.name }
+        });
+      }
     }
 
     const selections: ast.FieldNode[] = [];
     const inputValues: introspection.IntrospectionInputValue[] = [];
 
-    for (let field of fields) {
+    for (let field of fieldIntros) {
       let args = [];
       for (let arg of field.args) {
         args.push(buildArgumentNode(arg));
         inputValues.push(arg);
       }
 
-      const fieldSpec = userRequiredFields.find(
-        f => f.require.field === field.name
-      );
+      let fieldSpec = fieldSpecs.find(f => f.require.field === field.name);
+      if (fieldSpec == null) {
+        if (field.name === "id") {
+          fieldSpec = { title: "ID", require: { field: "id" } };
+        } else {
+          invariant(false, `Missing field spec for ${field.name}`);
+        }
+      }
 
       // TODO: Make it recursive
       const selectionSet = makeSelectionSetFromSpec(fieldSpec);
@@ -226,7 +204,7 @@ const buildSelectionSet = (
 
     // console.log("selectionSet: ", selectionSet);
 
-    return [selectionSet, selections, inputValues];
+    return [selectionSet, selections, inputValues, fieldSpecs];
   } else {
     const [fieldName, ...restPath] = path;
     const [field, fieldType] = resolveField(typesMap, type, fieldName);
@@ -238,12 +216,12 @@ const buildSelectionSet = (
       inputValues.push(arg);
     }
 
-    const [selectionSet, selections, nextInputValues] = buildSelectionSet(
-      typesMap,
-      fieldType,
-      restPath,
-      userRequiredFields
-    );
+    const [
+      selectionSet,
+      selections,
+      nextInputValues,
+      fieldSpecs
+    ] = buildSelectionSet(typesMap, fieldType, restPath, fieldSpecsRequested);
 
     const ast = {
       kind: "SelectionSet",
@@ -257,7 +235,7 @@ const buildSelectionSet = (
         }
       ]
     };
-    return [ast, selections, inputValues.concat(nextInputValues)];
+    return [ast, selections, inputValues.concat(nextInputValues), fieldSpecs];
   }
 };
 

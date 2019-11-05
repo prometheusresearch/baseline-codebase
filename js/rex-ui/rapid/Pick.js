@@ -10,18 +10,19 @@ import * as Resource from "rex-graphql/Resource";
 
 import * as QueryPath from "./QueryPath.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import { buildQuery, type FieldSpec, type FieldConfig } from "./buildQuery";
+import { buildQuery } from "./buildQuery";
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
+import * as Field from "./Field.js";
 
 export type PickProps = {|
   endpoint: Endpoint,
-  fields?: FieldConfig[],
+  fields?: Field.FieldConfig[],
   args?: { [key: string]: any },
   ...PickRendererConfigProps
 |};
 
 export let Pick = (props: PickProps) => {
-  let { endpoint, fields, fetch, ...rest } = props;
+  let { endpoint, fields = null, fetch, ...rest } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
   let {
@@ -31,18 +32,24 @@ export let Pick = (props: PickProps) => {
     queryDefinition
   } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
+    let fieldSpecs = Field.configureFields(fields);
     let {
       query,
       queryDefinition,
       introspectionTypesMap,
-      fieldSpecs
+      fields: nextFieldSpecs
     } = buildQuery({
       schema,
       path,
-      fields
+      fields: fieldSpecs
     });
     let resource = Resource.defineQuery({ query, endpoint });
-    return { resource, fieldSpecs, introspectionTypesMap, queryDefinition };
+    return {
+      resource,
+      fieldSpecs: nextFieldSpecs,
+      introspectionTypesMap,
+      queryDefinition
+    };
   }, [fetch, schema, endpoint]);
 
   return (

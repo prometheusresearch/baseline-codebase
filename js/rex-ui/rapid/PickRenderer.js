@@ -47,7 +47,7 @@ import { useStyles } from "./PickStyles.js";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
-import { type FieldSpec } from "./buildQuery";
+import * as Field from "./Field.js";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
@@ -58,16 +58,16 @@ export type PickRendererConfigProps = {|
   description?: string,
 
   RendererColumnCell?: (props: {
-    column?: FieldSpec,
+    column?: Field.FieldSpec,
     index: number
   }) => React.Node,
   RendererRow?: (props: {
-    columns?: FieldSpec[],
+    columns?: Field.FieldSpec[],
     row?: any,
     index: number
   }) => React.Node,
   RendererRowCell?: (props: {
-    column?: FieldSpec,
+    column?: Field.FieldSpec,
     row?: any,
     index: number
   }) => React.Node,
@@ -76,7 +76,7 @@ export type PickRendererConfigProps = {|
 
 export type PickRendererProps = {|
   resource: Resource<any, any>,
-  columns: FieldSpec[],
+  columns: Field.FieldSpec[],
   queryDefinition: OperationDefinitionNode,
   introspectionTypesMap: Map<string, IntrospectionType>,
   args?: { [key: string]: any },

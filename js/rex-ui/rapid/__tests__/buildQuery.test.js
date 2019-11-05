@@ -349,7 +349,8 @@ describe("Testing constructQueryAST", function() {
     expect(
       buildQuery({
         schema: testSchema,
-        path: QueryPath.make(["user", "paginated"])
+        path: QueryPath.make(["user", "paginated"]),
+        fields: null,
       }).query
     ).toEqual(referenceQuery);
   });

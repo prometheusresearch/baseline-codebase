@@ -31,8 +31,8 @@ import { sortObjectFieldsWithPreferred, capitalize } from "./helpers";
 import { ShowCard } from "./ShowRenderer.js";
 import { useStyles } from "./PickStyles.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
-import { type FieldSpec } from "./buildQuery";
 import { RenderValue } from "./RenderValue.js";
+import * as Field from "./Field.js";
 
 const PickNoDataPlaceholder = () => {
   let classes = useStyles();
@@ -48,7 +48,7 @@ const PickCardListView = ({
   columns
 }: {
   data: Array<any>,
-  columns: FieldSpec[]
+  columns: Field.FieldSpec[]
 }) => {
   const classes = useStyles();
   return (
@@ -76,7 +76,7 @@ const PickTableView = ({
   onRowClick
 }: {|
   data: Array<any>,
-  columns: FieldSpec[],
+  columns: Field.FieldSpec[],
   sortingConfig: Array<{| desc: boolean, field: string |}>,
   sortingState: void | {| desc: boolean, field: string |},
   setSortingState: (value: string) => void,
@@ -238,7 +238,7 @@ export const PickDataView = ({
 }: {
   resource: Resource<any, any>,
   onDataReceive: any => any,
-  columns: FieldSpec[],
+  columns: Field.FieldSpec[],
   args?: { [key: string]: any },
   variableDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
   preparedFilterState: { [key: string]: any },

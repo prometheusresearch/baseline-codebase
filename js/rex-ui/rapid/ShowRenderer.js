@@ -28,10 +28,10 @@ import {
   type Resource,
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
-import { type FieldSpec } from "./buildQuery";
 import { RenderValue } from "./RenderValue.js";
 
 import { calculateItemsLimit, sortObjectFieldsWithPreferred } from "./helpers";
+import * as Field from './Field.js';
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
@@ -42,7 +42,7 @@ export type ShowRendererProps = {|
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
   renderTitle?: ({| data: any |}) => React.Node,
-  columns: FieldSpec[]
+  columns: Field.FieldSpec[]
 |};
 
 const useStyles = makeStyles({
@@ -83,7 +83,7 @@ export const ShowCard = ({
 }: {
   data: any,
   title: React.Node,
-  columns: FieldSpec[]
+  columns: Field.FieldSpec[]
 }) => {
   const classes = useStyles();
 

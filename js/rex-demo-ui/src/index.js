@@ -4,7 +4,7 @@ import invariant from "invariant";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as RexGraphQL from "rex-graphql";
-import { Pick, Show, ComponentLoading } from "rex-ui/rapid";
+import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { Grid } from "@material-ui/core";
@@ -103,7 +103,7 @@ let root = document.getElementById("root");
 invariant(root != null, "DOM is not avaialble: missing #root");
 
 ReactDOM.render(
-  <React.Suspense fallback={ComponentLoading}>
+  <React.Suspense fallback={<LoadingIndicator />}>
     <CssBaseline />
     <App />
   </React.Suspense>,

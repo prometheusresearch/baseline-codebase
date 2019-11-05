@@ -42,7 +42,7 @@ import {
 
 import { sortObjectFieldsWithPreferred } from "./helpers";
 
-import { ComponentLoading } from "./component.loading";
+import { LoadingIndicator } from "./LoadingIndicator.js";
 
 import { buildSortingConfig } from "./buildSortingConfig";
 import { useStyles } from "./PickStyles.js";
@@ -285,7 +285,7 @@ export const PickRenderer = ({
 
           <React.Suspense
             fallback={
-              <div className={classes.tableWrapper}>{ComponentLoading}</div>
+              <div className={classes.tableWrapper}>{<LoadingIndicator />}</div>
             }
           >
             <PickDataView

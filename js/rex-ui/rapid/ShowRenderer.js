@@ -32,9 +32,6 @@ import { type FieldSpec } from "./buildQuery";
 
 import { calculateItemsLimit, sortObjectFieldsWithPreferred } from "./helpers";
 
-import { ComponentLoading } from "./component.loading";
-import { object } from "prop-types";
-
 type CustomRendererProps = { resource: Resource<any, any> };
 
 export type ShowRendererProps = {|

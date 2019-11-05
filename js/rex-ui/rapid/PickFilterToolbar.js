@@ -14,6 +14,7 @@ import FormControl from "@material-ui/core/FormControl";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
 import { useStyles } from "./PickStyles.js";
+import * as Field from "./Field.js";
 
 export const PickFilterToolbar = ({
   variableDefinitions,
@@ -55,7 +56,7 @@ export const PickFilterToolbar = ({
       direction="row"
       justify="flex-end"
       alignItems="center"
-      className={classNames.join(' ')}
+      className={classNames.join(" ")}
     >
       <Grid item>
         <FormGroup row>
@@ -124,7 +125,7 @@ export const PickFilterToolbar = ({
                   className={classes.formControl}
                 >
                   <InputLabel htmlFor={`boolean-filter-${booleanFilterName}`}>
-                    {booleanFilterName}
+                    {Field.guessFieldTitle(booleanFilterName)}
                   </InputLabel>
                   <Select
                     value={

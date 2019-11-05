@@ -22,9 +22,9 @@ function App() {
 
   let renderPickView = React.useCallback(() => {
     let onRowClick = (row: any) => {
-      console.log(row);
       setScreen({ type: "show", id: row.id });
     };
+
     let phoneField = {
       title: "Phone",
       require: {
@@ -35,11 +35,11 @@ function App() {
         return value != null ? <div>tel: {value.value}</div> : "—";
       }
     };
+
     return (
       <Pick
         endpoint={endpoint}
         fetch={"user.paginated"}
-        isRowClickable={true}
         onRowClick={onRowClick}
         fields={[
           { require: { field: "remote_user" } },

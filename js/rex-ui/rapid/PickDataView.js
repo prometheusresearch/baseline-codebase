@@ -27,7 +27,7 @@ import {
 } from "rex-graphql/Resource";
 import _get from "lodash/get";
 
-import { sortObjectFieldsWithPreferred, capitalize } from "./helpers";
+import { capitalize } from "./helpers";
 import { ShowCard } from "./ShowRenderer.js";
 import { useStyles } from "./PickStyles.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";

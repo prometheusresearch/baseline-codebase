@@ -8,7 +8,7 @@ import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
 import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
-import { capitalize } from "./helpers.js";
+import { capitalize, sortObjectFieldsWithPreferred } from "./helpers.js";
 
 export type TypeIntrospectionFieldType = {|
   kind: string,
@@ -141,27 +141,47 @@ const buildSelectionSet = (
   if (path.length === 0) {
     // TODO(andreypopp): Convert fieldSpecsRequested into Map<string, ...> for
     // efficient lookup.
+    let fieldSpecsMap = new Map<string, Field.FieldSpec>();
     let fieldIntros: introspection.IntrospectionField[] = [];
     let fieldSpecs: Field.FieldSpec[] = [];
 
     if (fieldSpecsRequested != null) {
+      for (let fieldSpec of fieldSpecsRequested) {
+        fieldSpecsMap.set(fieldSpec.require.field, fieldSpec);
+      }
+
       fieldSpecs = fieldSpecsRequested;
       fieldIntros = type.fields.filter(field => {
-        return fieldSpecsRequested.find(spec => {
-          // We always include id field.
-          return spec.require.field === field.name || field.name === "id";
-        });
+        return fieldSpecsMap.get(field.name) || field.name === "id";
       });
     } else {
       for (let field of type.fields) {
         if (!isFieldNodeScalarLike(field)) {
           continue;
         }
-
-        fieldIntros.push(field);
-        fieldSpecs.push({
+        const spec = {
           title: Field.guessFieldTitle(field.name),
           require: { field: field.name }
+        };
+
+        fieldIntros.push(field);
+        fieldSpecs.push(spec);
+        fieldSpecsMap.set(field.name, spec);
+
+        // Sorting
+        let fieldSpecsObj = fieldSpecs.reduce(
+          (acc, spec) => ({ ...acc, [spec.require.field]: spec }),
+          ({}: { [key: string]: Field.FieldSpec })
+        );
+
+        fieldSpecsObj = sortObjectFieldsWithPreferred(fieldSpecsObj);
+        fieldSpecs = [];
+
+        Object.keys(fieldSpecsObj).forEach(key => {
+          const spec = fieldSpecsMap.get(key);
+          if (spec) {
+            fieldSpecs.push(spec);
+          }
         });
       }
     }
@@ -176,7 +196,7 @@ const buildSelectionSet = (
         inputValues.push(arg);
       }
 
-      let fieldSpec = fieldSpecs.find(f => f.require.field === field.name);
+      let fieldSpec = fieldSpecsMap.get(field.name);
       if (fieldSpec == null) {
         if (field.name === "id") {
           fieldSpec = { title: "ID", require: { field: "id" } };
@@ -201,8 +221,6 @@ const buildSelectionSet = (
       kind: "SelectionSet",
       selections
     };
-
-    // console.log("selectionSet: ", selectionSet);
 
     return [selectionSet, selections, inputValues, fieldSpecs];
   } else {

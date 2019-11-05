@@ -54,7 +54,6 @@ type CustomRendererProps = { resource: Resource<any, any> };
 
 export type PickRendererConfigProps = {|
   fetch: string,
-  isRowClickable?: boolean,
   title?: string,
   description?: string,
 
@@ -134,7 +133,6 @@ export const PickRenderer = ({
   RendererColumnCell,
   RendererRowCell,
   RendererRow,
-  isRowClickable,
   onRowClick,
   args,
   title,
@@ -279,7 +277,6 @@ export const PickRenderer = ({
         isTabletWidth={isTabletWidth}
         fetch={fetch}
         resource={resource}
-        isRowClickable={isRowClickable}
         onRowClick={onRowClick}
       />
 

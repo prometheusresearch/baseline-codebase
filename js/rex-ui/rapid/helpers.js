@@ -39,16 +39,21 @@ export const sortObjectFieldsWithPreferred = (row: Object): Object => {
   } = row;
   const sortedRow = Object.keys(rest)
     .sort()
-    .reduce((acc, dataKey) => ({ ...acc, [dataKey]: rest[dataKey] }), {
-      id,
-      name,
-      first_name,
-      last_name,
-      title,
-      display_name,
-      gender,
-      sex
-    });
+    .reduce(
+      (acc, dataKey) => {
+        return { ...acc, [dataKey]: rest[dataKey] };
+      },
+      {
+        id,
+        name,
+        first_name,
+        last_name,
+        title,
+        display_name,
+        gender,
+        sex
+      }
+    );
 
   return sortedRow;
 };

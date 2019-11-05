@@ -265,31 +265,23 @@ export const PickRenderer = ({
         ) : null}
       </div>
 
-      <React.Suspense
-        fallback={
-          <div className={classes.center}>
-            <LoadingIndicator />
-          </div>
+      <PickDataView
+        state={state}
+        sortingConfig={sortingConfig}
+        setSortingState={setSortingState}
+        variableDefinitions={
+          queryDefinition.variableDefinitions
+            ? [...queryDefinition.variableDefinitions]
+            : queryDefinition.variableDefinitions || []
         }
-      >
-        <PickDataView
-          state={state}
-          sortingConfig={sortingConfig}
-          setSortingState={setSortingState}
-          variableDefinitions={
-            queryDefinition.variableDefinitions
-              ? [...queryDefinition.variableDefinitions]
-              : queryDefinition.variableDefinitions || []
-          }
-          onDataReceive={setViewData}
-          columns={columns}
-          isTabletWidth={isTabletWidth}
-          fetch={fetch}
-          resource={resource}
-          isRowClickable={isRowClickable}
-          onRowClick={onRowClick}
-        />
-      </React.Suspense>
+        onDataReceive={setViewData}
+        columns={columns}
+        isTabletWidth={isTabletWidth}
+        fetch={fetch}
+        resource={resource}
+        isRowClickable={isRowClickable}
+        onRowClick={onRowClick}
+      />
 
       <PickPagination
         hasPrev={state.offset > 0}

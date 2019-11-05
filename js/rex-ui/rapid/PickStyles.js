@@ -23,8 +23,11 @@ export const useStyles = makeStyles({
     flexDirection: "column"
   },
   table: {
-    minWidth: 1280,
+    minWidth: "100%",
     tableLayout: "fixed"
+  },
+  tableFullHeight: {
+    minHeight: "100%"
   },
   tableControl: {
     padding: "16px"

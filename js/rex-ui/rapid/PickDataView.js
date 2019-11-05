@@ -34,13 +34,20 @@ import { type PickRendererConfigProps } from "./PickRenderer.js";
 import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
 import { type PickState } from "./PickRenderer";
+import { LoadingIndicator } from "./LoadingIndicator";
 
-const PickNoDataPlaceholder = () => {
+const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
   let classes = useStyles();
   return (
-    <div className={classes.center}>
-      <Typography variant={"caption"}>No data</Typography>
-    </div>
+    <TableBody>
+      <TableRow>
+        <TableCell colSpan={columns.length}>
+          <div className={classes.center}>
+            <Typography variant={"caption"}>No data</Typography>
+          </div>
+        </TableCell>
+      </TableRow>
+    </TableBody>
   );
 };
 
@@ -65,25 +72,157 @@ const PickCardListView = ({
   );
 };
 
-const PickTableView = ({
-  data,
+const PickTableBody = ({
   columns,
   sortingConfig,
-  sort,
   setSortingState,
   RendererColumnCell,
   RendererRow,
   RendererRowCell,
-  onRowClick
+  onRowClick,
+  isTabletWidth,
+  columnsNames,
+  columnsMap,
+  pickState,
+  resource,
+  fetch,
+  onDataReceive
 }: {|
-  data: Array<any>,
   columns: Field.FieldSpec[],
   sortingConfig: Array<{| desc: boolean, field: string |}>,
-  sort?: ?{| desc: boolean, field: string |},
   setSortingState: (value: string) => void,
+  isTabletWidth: boolean,
+  columnsNames: string[],
+  columnsMap: Map<string, Field.FieldSpec>,
+  pickState: PickState,
+  resource: Resource<any, any>,
+  fetch: string,
+  onDataReceive: any => void,
+
   ...PickRendererConfigProps
 |}) => {
   const classes = useStyles();
+  const params = buildParams(pickState);
+  const resourceData = useResource(resource, params);
+
+  if (resourceData == null || columns.length === 0) {
+    return null;
+  }
+
+  const data = React.useMemo(() => {
+    const data = _get(resourceData, fetch);
+    onDataReceive(data);
+    return data;
+  }, [resourceData, fetch, onDataReceive]);
+
+  if (data.length === 0) {
+    return <PickNoDataPlaceholder columns={columns} />;
+  }
+
+  if (!isTabletWidth) {
+    return (
+      <TableBody>
+        <TableRow>
+          <TableCell style={{ padding: 0 }}>
+            <PickCardListView data={data} columns={columns} />
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    );
+  }
+
+  const TableBodyRows = data.map((row, index) => {
+    return (
+      <TableRow
+        key={index}
+        hover={onRowClick != null}
+        style={{ cursor: onRowClick != null ? "pointer" : "default" }}
+        onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
+      >
+        {columnsNames.map((columnName, index) => {
+          const column = columnsMap.get(columnName);
+
+          if (!column) {
+            return null;
+          }
+          let value = row[columnName];
+
+          return (
+            <TableCell
+              key={columnName}
+              align="left"
+              variant={"head"}
+              className={classes.tableCell}
+            >
+              {column.render ? (
+                <column.render value={value} />
+              ) : (
+                <RenderValue value={value} />
+              )}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  });
+
+  return <TableBody>{TableBodyRows}</TableBody>;
+};
+
+const buildParams = (pickState: PickState) => {
+  const { filter, limit, offset, search, sort } = pickState;
+  let params = { ...filter, limit, offset };
+
+  if (sort) {
+    params = {
+      ...params,
+      sort
+    };
+  }
+  if (search) {
+    params = { ...params, search };
+  }
+
+  return params;
+};
+
+export const PickDataView = ({
+  onDataReceive: _onDataReceive,
+  variableDefinitions,
+  args,
+  resource,
+  columns,
+  fetch,
+  isTabletWidth,
+  sortingConfig,
+  setSortingState,
+  RendererColumnCell,
+  RendererRow,
+  RendererRowCell,
+  onRowClick,
+  state
+}: {|
+  resource: Resource<any, any>,
+  onDataReceive: any => any,
+  columns: Field.FieldSpec[],
+  args?: { [key: string]: any },
+  variableDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
+  isTabletWidth: boolean,
+  sortingConfig: Array<{| desc: boolean, field: string |}>,
+  setSortingState: (value: string) => void,
+  state: PickState,
+  ...PickRendererConfigProps
+|}) => {
+  const classes = useStyles();
+
+  const [data, setData] = React.useState([]);
+  const onDataReceive = React.useMemo(
+    () => data => {
+      _onDataReceive(data);
+      setData(data);
+    },
+    [_onDataReceive]
+  );
 
   const columnsMap = new Map();
   const columnsNames = [];
@@ -92,9 +231,6 @@ const PickTableView = ({
     columnsNames.push(column.require.field);
   }
 
-  /**
-   * TODO: Move out table headers from Suspense
-   */
   const TableHeadRows = columnsNames.map((columnName, index) => {
     const column = columnsMap.get(columnName);
 
@@ -109,8 +245,10 @@ const PickTableView = ({
       cellClasses = `${cellClasses} ${classes.tableHeadSortable}`;
     }
 
-    const isSortedAsc = sort && sort.field === columnName && !sort.desc;
-    const isSortedDesc = sort && sort.field === columnName && sort.desc;
+    const isSortedAsc =
+      state.sort && state.sort.field === columnName && !state.sort.desc;
+    const isSortedDesc =
+      state.sort && state.sort.field === columnName && state.sort.desc;
 
     if (isSortedAsc || isSortedDesc) {
       cellClasses = `${cellClasses} ${classes.tableHeadSorted}`;
@@ -164,134 +302,55 @@ const PickTableView = ({
     );
   });
 
-  const TableBodyRows = data.map((row, index) => {
-    return (
-      <TableRow
-        key={index}
-        hover={onRowClick != null}
-        style={{ cursor: onRowClick != null ? "pointer" : "default" }}
-        onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
-      >
-        {columnsNames.map((columnName, index) => {
-          const column = columnsMap.get(columnName);
-
-          if (!column) {
-            return null;
-          }
-          let value = row[columnName];
-
-          return (
-            <TableCell
-              key={columnName}
-              align="left"
-              variant={"head"}
-              className={classes.tableCell}
-            >
-              {column.render ? (
-                <column.render value={value} />
-              ) : (
-                <RenderValue value={value} />
-              )}
-            </TableCell>
-          );
-        })}
-      </TableRow>
-    );
-  });
+  const tableClassNames = [classes.table];
+  if (data.length === 0) {
+    tableClassNames.push(classes.tableFullHeight);
+  }
 
   return (
     <div className={classes.tableWrapper}>
       <Table
-        className={classes.table}
+        className={tableClassNames.join(" ")}
         aria-label="simple table"
         padding={"dense"}
       >
-        <TableHead>
-          <TableRow>{TableHeadRows}</TableRow>
-        </TableHead>
-        <TableBody>{TableBodyRows}</TableBody>
+        {isTabletWidth ? (
+          <TableHead>
+            <TableRow>{TableHeadRows}</TableRow>
+          </TableHead>
+        ) : null}
+
+        <React.Suspense
+          fallback={
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={columns.length}>
+                  <div className={classes.center}>
+                    <LoadingIndicator />
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          }
+        >
+          <PickTableBody
+            pickState={state}
+            onDataReceive={onDataReceive}
+            resource={resource}
+            columns={columns}
+            sortingConfig={sortingConfig}
+            setSortingState={setSortingState}
+            RendererColumnCell={RendererColumnCell}
+            RendererRow={RendererRow}
+            RendererRowCell={RendererRowCell}
+            onRowClick={onRowClick}
+            fetch={fetch}
+            isTabletWidth={isTabletWidth}
+            columnsMap={columnsMap}
+            columnsNames={columnsNames}
+          />
+        </React.Suspense>
       </Table>
     </div>
   );
-};
-
-const buildParams = (pickState: PickState) => {
-  const { filter, limit, offset, search, sort } = pickState;
-  let params = { ...filter, limit, offset };
-
-  if (sort) {
-    params = {
-      ...params,
-      sort
-    };
-  }
-  if (search) {
-    params = { ...params, search };
-  }
-
-  return params;
-};
-
-export const PickDataView = ({
-  onDataReceive,
-  variableDefinitions,
-  args,
-  resource,
-  columns,
-  fetch,
-  isTabletWidth,
-  sortingConfig,
-  setSortingState,
-  RendererColumnCell,
-  RendererRow,
-  RendererRowCell,
-  onRowClick,
-  state
-}: {|
-  resource: Resource<any, any>,
-  onDataReceive: any => any,
-  columns: Field.FieldSpec[],
-  args?: { [key: string]: any },
-  variableDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
-  isTabletWidth: boolean,
-  sortingConfig: Array<{| desc: boolean, field: string |}>,
-  setSortingState: (value: string) => void,
-  state: PickState,
-  ...PickRendererConfigProps
-|}) => {
-  const params = buildParams(state);
-
-  const resourceData = useResource(resource, params);
-
-  if (resourceData == null || columns.length === 0) {
-    return null;
-  }
-
-  const data = React.useMemo(() => {
-    const data = _get(resourceData, fetch);
-    onDataReceive(data);
-    return data;
-  }, [resourceData, fetch, onDataReceive]);
-
-  if (data.length === 0) {
-    return <PickNoDataPlaceholder />;
-  }
-  if (isTabletWidth) {
-    return (
-      <PickTableView
-        sort={state.sort}
-        data={data}
-        columns={columns}
-        sortingConfig={sortingConfig}
-        setSortingState={setSortingState}
-        RendererColumnCell={RendererColumnCell}
-        RendererRow={RendererRow}
-        RendererRowCell={RendererRowCell}
-        onRowClick={onRowClick}
-        fetch={fetch}
-      />
-    );
-  }
-
-  return <PickCardListView data={data} columns={columns} />;
 };

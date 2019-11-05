@@ -8,9 +8,9 @@ import * as React from "react";
 import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource";
 
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import { buildQuery, type FieldSpec, type FieldConfig } from "./buildQuery";
-import { getPathFromFetch } from "./helpers";
+import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
+import * as QueryPath from "./QueryPath.js";
 import { ShowRenderer } from "./ShowRenderer.js";
 
 export type ShowProps = {|
@@ -23,19 +23,15 @@ export type ShowProps = {|
 |};
 
 export let Show = (props: ShowProps) => {
-  let { fetch, endpoint, fields: _fields, ...rest } = props;
+  let { fetch, endpoint, fields, ...rest } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
   let { resource, fieldSpecs } = React.useMemo(() => {
-    let path = getPathFromFetch(fetch);
-    let { query, ast, fieldSpecs } = buildQuery({
-      schema,
-      path,
-      fields: _fields
-    });
+    let path = QueryPath.make(fetch);
+    let { query, ast, fieldSpecs } = buildQuery({ schema, path, fields });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { resource, fieldSpecs };
-  }, []);
+  }, [fetch, fields, endpoint, schema]);
 
   return (
     <ShowRenderer

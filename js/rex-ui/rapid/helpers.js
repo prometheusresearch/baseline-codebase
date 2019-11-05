@@ -14,15 +14,6 @@ export function toJS<T, U>(
     });
 }
 
-export const getPathFromFetch = (fetch: string): string[] => {
-  const path = fetch.split(".");
-
-  invariant(fetch != "", "fetch is empty string");
-  invariant(path.length != 0, "fetch is empty string");
-
-  return path;
-};
-
 export const withCatcher = <T>(
   fn: () => T,
   catcher: (err: Error) => any,

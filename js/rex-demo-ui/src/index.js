@@ -4,99 +4,97 @@ import invariant from "invariant";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as RexGraphQL from "rex-graphql";
-import { Pick, ComponentLoading } from "rex-ui/rapid";
-import { Show } from "rex-ui/rapid/show";
+import { Pick, Show, ComponentLoading } from "rex-ui/rapid";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { Grid } from "@material-ui/core";
 
-const endpoint = RexGraphQL.configure("/_api/graphql");
+let endpoint = RexGraphQL.configure("/_api/graphql");
+
+type Screen = { type: "pick" } | { type: "show", id: string };
 
 function App() {
-  const [componentToShow, setComponentToShow] = React.useState<"pick" | "show">(
-    "pick"
-  );
-  const [selectedRow, setSelectedRow] = React.useState<?any>(null);
+  let [screen, setScreen] = React.useState<Screen>({ type: "pick" });
 
-  const onRowClick = (row: any) => {
-    setComponentToShow("show");
-    setSelectedRow(row);
+  let onBack = () => {
+    setScreen({ type: "pick" });
   };
 
-  const resetState = () => {
-    setComponentToShow("pick");
-    setSelectedRow(null);
-  };
-
-  const defaultView = (
-    <Pick
-      endpoint={endpoint}
-      fetch={"user.paginated"}
-      isRowClickable={true}
-      onRowClick={onRowClick}
-      fields={[
-        "id",
-        {
-          require: { field: "remote_user" },
-          title: "Remote User"
-        },
-        "expires",
-        {
-          require: {
-            field: "contact_info",
-            require: [{ field: "id" }, { field: "type" }, { field: "value" }]
+  let renderPickView = React.useCallback(() => {
+    let onRowClick = (row: any) => {
+      setScreen({ type: "show", id: row.id });
+    };
+    return (
+      <Pick
+        endpoint={endpoint}
+        fetch={"user.paginated"}
+        isRowClickable={true}
+        onRowClick={onRowClick}
+        fields={[
+          "id",
+          {
+            require: { field: "remote_user" },
+            title: "Remote User"
           },
-          render: ({ value }) => JSON.stringify(value),
-          title: "Contact Info"
-        }
-      ]}
-      title={"Users"}
-      description={"List of users"}
-    />
-  );
+          "expires",
+          {
+            require: {
+              field: "contact_info",
+              require: [{ field: "id" }, { field: "type" }, { field: "value" }]
+            },
+            render: ({ value }) => JSON.stringify(value),
+            title: "Contact Info"
+          }
+        ]}
+        title={"Users"}
+        description={"List of users"}
+      />
+    );
+  }, []);
 
-  switch (componentToShow) {
-    case "show": {
-      if (selectedRow != null) {
-        return (
-          <Grid container style={{ padding: 8 }}>
-            <Grid item xs={12} sm={6} md={3}>
-              <div>
-                <Button onClick={resetState}>Back</Button>
-              </div>
-              <Show
-                endpoint={endpoint}
-                fetch={"user.get"}
-                args={{ id: selectedRow.id }}
-                fields={[
-                  "id",
-                  {
-                    require: { field: "remote_user" }
-                  },
-                  "expires",
-                  {
-                    require: {
-                      field: "contact_info",
-                      require: [
-                        { field: "id" },
-                        { field: "type" },
-                        { field: "value" }
-                      ]
-                    },
-                    render: ({ value }) => JSON.stringify(value)
-                  }
-                ]}
-              />
-            </Grid>
-          </Grid>
-        );
-      }
+  let renderShowView = React.useCallback(id => {
+    return (
+      <Grid container style={{ padding: 8 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <div>
+            <Button onClick={onBack}>Back</Button>
+          </div>
+          <Show
+            endpoint={endpoint}
+            fetch={"user.get"}
+            args={{ id: id }}
+            fields={[
+              "id",
+              {
+                require: { field: "remote_user" }
+              },
+              "expires",
+              {
+                require: {
+                  field: "contact_info",
+                  require: [
+                    { field: "id" },
+                    { field: "type" },
+                    { field: "value" }
+                  ]
+                },
+                render: ({ value }) => JSON.stringify(value)
+              }
+            ]}
+          />
+        </Grid>
+      </Grid>
+    );
+  }, []);
 
-      return defaultView;
-    }
-
+  switch (screen.type) {
+    case "show":
+      return renderShowView(screen.id);
+    case "pick":
+      return renderPickView();
     default: {
-      return defaultView;
+      (screen.type: empty); // eslint-disable-line
+      throw new Error(`Unknown screen: ${screen.type}`);
     }
   }
 }

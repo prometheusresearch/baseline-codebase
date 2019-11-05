@@ -6,6 +6,7 @@ import invariant from "invariant";
 import * as introspection from "graphql/utilities/introspectionQuery";
 import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
+import * as QueryPath from "./QueryPath.js";
 
 export type TypeIntrospectionFieldType = {|
   kind: string,
@@ -69,7 +70,7 @@ export const buildQuery = ({
   fields
 }: {|
   schema: introspection.IntrospectionSchema,
-  path: Array<string>,
+  path: QueryPath.QueryPath,
   fields?: void | Array<FieldConfig>
 |}): {|
   query: string,
@@ -98,7 +99,7 @@ export const buildQuery = ({
 
 const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
-  path: Array<string>,
+  path: QueryPath.QueryPath,
   userRequiredFields?: FieldSpec[]
 ): {|
   ast: ast.DocumentNode,
@@ -118,7 +119,7 @@ const buildQueryAST = (
   let [selectionSet, columns, inputValues] = buildSelectionSet(
     typesMap,
     rootType,
-    path,
+    QueryPath.toArray(path),
     userRequiredFields
   );
 

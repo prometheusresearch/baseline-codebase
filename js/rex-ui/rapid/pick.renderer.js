@@ -48,7 +48,6 @@ import {
 
 import { ComponentLoading } from "./component.loading";
 
-import { type PropsSharedWithRenderer } from "./pick";
 import { buildSortingConfig } from "./buildSortingConfig";
 import { useStyles } from "./pick.renderer.styles";
 import { PickFilterToolbar } from "./pick.renderer.filters";
@@ -58,17 +57,37 @@ import { type FieldSpec } from "./buildQuery";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
-export type TypePropsRenderer = {|
-  resource: Resource<any, any>,
-  Renderer?: React.ComponentType<CustomRendererProps>,
+export type PickRendererConfigProps = {|
+  fetch: string,
+  isRowClickable?: boolean,
+  title?: string,
+  description?: string,
 
+  RendererColumnCell?: (props: {
+    column?: FieldSpec,
+    index: number
+  }) => React.Node,
+  RendererRow?: (props: {
+    columns?: FieldSpec[],
+    row?: any,
+    index: number
+  }) => React.Node,
+  RendererRowCell?: (props: {
+    column?: FieldSpec,
+    row?: any,
+    index: number
+  }) => React.Node,
+  onRowClick?: (row: any) => void
+|};
+
+export type PickRendererProps = {|
+  resource: Resource<any, any>,
   columns: FieldSpec[],
   queryDefinition: OperationDefinitionNode,
   introspectionTypesMap: Map<string, IntrospectionType>,
-  catcher: (err: Error) => void,
   args?: { [key: string]: any },
 
-  ...PropsSharedWithRenderer
+  ...PickRendererConfigProps
 |};
 
 // TODO: We can make those constants -> props passed from component user
@@ -103,8 +122,6 @@ const LIMIT_DESKTOP = 50;
 
 export const PickRenderer = ({
   resource,
-  Renderer,
-  catcher,
   columns,
   fetch,
   queryDefinition,
@@ -117,9 +134,7 @@ export const PickRenderer = ({
   args,
   title,
   description
-}: TypePropsRenderer) => {
-  console.log("COLUMNS: ", columns);
-
+}: PickRendererProps) => {
   const [offset, setOffset] = React.useState<number>(0);
   const [limit, setLimit] = React.useState<number>(0);
   const [filterState, _setFilterState] = React.useState<{ [key: string]: any }>(
@@ -291,7 +306,6 @@ export const PickRenderer = ({
                   : queryDefinition.variableDefinitions || []
               }
               onDataReceive={setViewData}
-              catcher={catcher}
               columns={columns}
               isTabletWidth={isTabletWidth}
               fetch={fetch}

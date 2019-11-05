@@ -29,6 +29,7 @@ import {
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
 import { type FieldSpec } from "./buildQuery";
+import { RenderValue } from "./RenderValue.js";
 
 import { calculateItemsLimit, sortObjectFieldsWithPreferred } from "./helpers";
 
@@ -65,14 +66,12 @@ export const ShowRenderer = (props: ShowRendererProps) => {
 
   const data = _get(resourceData, fetch);
 
-  const sortedData = sortObjectFieldsWithPreferred(data);
-
   let title = null;
   if (renderTitle != null) {
     title = renderTitle({ data });
   }
 
-  return <ShowCard title={title} data={sortedData} columns={columns} />;
+  return <ShowCard title={title} data={data} columns={columns} />;
 };
 
 const commonWrapperStyle = { marginBottom: "16px", wordBreak: "break-word" };
@@ -88,52 +87,23 @@ export const ShowCard = ({
 }) => {
   const classes = useStyles();
 
-  const content = Object.keys(data).map(dataKey => {
-    const column = columns.find(spec => spec.require.field === dataKey);
-
-    // No such a column at all.
-    // dataKey is likely placed there by sortObjectFieldsWithPreferred
-    if (!column) {
-      return null;
-    }
-
-    switch (dataKey) {
-      case "id": {
-        return (
-          <div key={dataKey} style={commonWrapperStyle}>
-            {column && column.render ? (
-              <column.render value={data[dataKey]} />
-            ) : (
-              <Typography
-                variant={"h6"}
-                key={dataKey}
-                color="textSecondary"
-                gutterBottom
-              >
-                {data[dataKey]}
-              </Typography>
-            )}
-          </div>
-        );
-      }
-
-      default: {
-        return (
-          <div key={dataKey} style={commonWrapperStyle}>
-            <Typography variant={"caption"}>
-              {(column && column.title) || dataKey}
-            </Typography>
-            <Typography component="p">
-              {column && column.render ? (
-                <column.render value={data[dataKey]} />
-              ) : (
-                String(data[dataKey])
-              )}
-            </Typography>
-          </div>
-        );
-      }
-    }
+  const content = columns.map(spec => {
+    let key = spec.require.field;
+    let value = data[key];
+    return (
+      <div key={key} style={commonWrapperStyle}>
+        <Typography variant={"caption"}>
+          {(spec && spec.title) || key}
+        </Typography>
+        <Typography component="p">
+          {spec && spec.render ? (
+            <spec.render value={value} />
+          ) : (
+            <RenderValue value={value} />
+          )}
+        </Typography>
+      </div>
+    );
   });
 
   return (

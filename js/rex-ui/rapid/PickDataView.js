@@ -27,16 +27,17 @@ import {
 } from "rex-graphql/Resource";
 import _get from "lodash/get";
 
-import { sortObjectFieldsWithPreferred } from "./helpers";
+import { sortObjectFieldsWithPreferred, capitalize } from "./helpers";
 import { ShowCard } from "./ShowRenderer.js";
 import { useStyles } from "./PickStyles.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
 import { type FieldSpec } from "./buildQuery";
+import { RenderValue } from "./RenderValue.js";
 
 const PickNoDataPlaceholder = () => {
-  const classes = useStyles();
+  let classes = useStyles();
   return (
-    <div className={classes.tableWrapper}>
+    <div className={classes.center}>
       <Typography variant={"caption"}>No data</Typography>
     </div>
   );
@@ -53,11 +54,9 @@ const PickCardListView = ({
   return (
     <div className={classes.tableWrapper}>
       {data.map((row, index) => {
-        const sortedRow = sortObjectFieldsWithPreferred(row);
-
         return (
           <div key={index}>
-            <ShowCard title={null} data={sortedRow} columns={columns} />
+            <ShowCard title={null} data={row} columns={columns} />
           </div>
         );
       })}
@@ -92,15 +91,10 @@ const PickTableView = ({
     columnsNames.push(column.require.field);
   }
 
-  const sortedColumns = sortObjectFieldsWithPreferred(
-    columnsNames.reduce((acc, key) => ({ ...acc, [key]: true }), {})
-  );
-  const sortedColumnsNames = Object.keys(sortedColumns);
-
   /**
    * TODO: Move out table headers from Suspense
    */
-  const TableHeadRows = sortedColumnsNames.map((columnName, index) => {
+  const TableHeadRows = columnsNames.map((columnName, index) => {
     const column = columnsMap.get(columnName);
 
     if (!column) {
@@ -140,7 +134,7 @@ const PickTableView = ({
       }
     };
 
-    const title = column.title || columnName;
+    const title = column.title || capitalize(columnName);
 
     return (
       <TableCell
@@ -171,33 +165,15 @@ const PickTableView = ({
     );
   });
 
-  const CellValue = ({ value }) => {
-    let cellValue;
-    switch (value) {
-      case undefined:
-      case null: {
-        return <span>—</span>;
-      }
-      case true: {
-        return <span>Yes</span>;
-      }
-      case false: {
-        return <span>No</span>;
-      }
-      default:
-        return <span>{String(value)}</span>;
-    }
-  };
-
   const TableBodyRows = data.map((row, index) => {
     return (
       <TableRow
-        key={row.id}
+        key={index}
         hover={onRowClick != null}
         style={{ cursor: onRowClick != null ? "pointer" : "default" }}
         onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
       >
-        {sortedColumnsNames.map((columnName, index) => {
+        {columnsNames.map((columnName, index) => {
           const column = columnsMap.get(columnName);
 
           if (!column) {
@@ -215,7 +191,7 @@ const PickTableView = ({
               {column.render ? (
                 <column.render value={value} />
               ) : (
-                <CellValue value={value} />
+                <RenderValue value={value} />
               )}
             </TableCell>
           );

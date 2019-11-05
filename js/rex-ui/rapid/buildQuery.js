@@ -187,7 +187,8 @@ const buildSelectionSet = (
     if (userRequiredFields && userRequiredFields.length > 0) {
       fields = fields.filter(field => {
         return userRequiredFields.find(fieldSpec => {
-          return fieldSpec.require.field === field.name;
+          // We always include id field.
+          return fieldSpec.require.field === field.name || field.name === "id";
         });
       });
     }

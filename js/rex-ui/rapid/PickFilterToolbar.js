@@ -55,7 +55,7 @@ export const PickFilterToolbar = ({
       direction="row"
       justify="flex-end"
       alignItems="center"
-      className={classNames}
+      className={classNames.join(' ')}
     >
       <Grid item>
         <FormGroup row>

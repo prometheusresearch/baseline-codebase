@@ -40,8 +40,6 @@ import {
   unstable_useResource as useResource
 } from "rex-graphql/Resource";
 
-import { sortObjectFieldsWithPreferred } from "./helpers";
-
 import { LoadingIndicator } from "./LoadingIndicator.js";
 
 import { buildSortingConfig } from "./buildSortingConfig";
@@ -246,82 +244,80 @@ export const PickRenderer = ({
   }
 
   return (
-    <Grid container spacing={8} className={classes.rendererRoot}>
-      <Grid item xs={12}>
-        <Paper className={classes.root}>
-          {/* npm -> "classnames" would be handy here */}
-          <div className={topPartClassNames.join(" ")}>
-            <PickHeader
-              title={title}
-              description={description}
-              rightToolbar={
-                <IconButton
-                  onClick={toggleFilters}
-                  className={className}
-                  aria-label="Filter list"
-                >
-                  <FilterListIcon />
-                </IconButton>
-              }
-            />
-            {showFilters ? (
-              <PickFilterToolbar
-                filterState={filterState}
-                setFilterState={setFilterState}
-                sortingConfig={sortingConfig}
-                sortingState={sortingState}
-                setSortingState={setSortingState}
-                searchState={searchState}
-                setSearchState={setSearchState}
-                isTabletWidth={isTabletWidth}
-                variableDefinitions={
-                  queryDefinition.variableDefinitions
-                    ? [...queryDefinition.variableDefinitions]
-                    : queryDefinition.variableDefinitions
-                }
-              />
-            ) : null}
-          </div>
-
-          <React.Suspense
-            fallback={
-              <div className={classes.tableWrapper}>{<LoadingIndicator />}</div>
+    <Paper className={classes.root}>
+      {/* npm -> "classnames" would be handy here */}
+      <div className={topPartClassNames.join(" ")}>
+        <PickHeader
+          title={title}
+          description={description}
+          rightToolbar={
+            <IconButton
+              onClick={toggleFilters}
+              className={className}
+              aria-label="Filter list"
+            >
+              <FilterListIcon />
+            </IconButton>
+          }
+        />
+        {showFilters ? (
+          <PickFilterToolbar
+            filterState={filterState}
+            setFilterState={setFilterState}
+            sortingConfig={sortingConfig}
+            sortingState={sortingState}
+            setSortingState={setSortingState}
+            searchState={searchState}
+            setSearchState={setSearchState}
+            isTabletWidth={isTabletWidth}
+            variableDefinitions={
+              queryDefinition.variableDefinitions
+                ? [...queryDefinition.variableDefinitions]
+                : queryDefinition.variableDefinitions
             }
-          >
-            <PickDataView
-              filterState={filterState}
-              setFilterState={setFilterState}
-              sortingConfig={sortingConfig}
-              sortingState={sortingState}
-              setSortingState={setSortingState}
-              searchState={searchState}
-              setSearchState={setSearchState}
-              variableDefinitions={
-                queryDefinition.variableDefinitions
-                  ? [...queryDefinition.variableDefinitions]
-                  : queryDefinition.variableDefinitions || []
-              }
-              onDataReceive={setViewData}
-              columns={columns}
-              isTabletWidth={isTabletWidth}
-              fetch={fetch}
-              offset={offset}
-              limit={limit}
-              resource={resource}
-              preparedFilterState={preparedFilterState}
-              isRowClickable={isRowClickable}
-              onRowClick={onRowClick}
-            />
-          </React.Suspense>
-
-          <PickPagination
-            hasPrev={offset > 0}
-            hasNext={viewData.length >= limit}
-            onPrevPage={decrementPage}
-            onNextPage={incrementPage}
           />
-        </Paper>
-      </Grid>
-    </Grid>
+        ) : null}
+      </div>
+
+      <React.Suspense
+        fallback={
+          <div className={classes.center}>
+            <LoadingIndicator />
+          </div>
+        }
+      >
+        <PickDataView
+          filterState={filterState}
+          setFilterState={setFilterState}
+          sortingConfig={sortingConfig}
+          sortingState={sortingState}
+          setSortingState={setSortingState}
+          searchState={searchState}
+          setSearchState={setSearchState}
+          variableDefinitions={
+            queryDefinition.variableDefinitions
+              ? [...queryDefinition.variableDefinitions]
+              : queryDefinition.variableDefinitions || []
+          }
+          onDataReceive={setViewData}
+          columns={columns}
+          isTabletWidth={isTabletWidth}
+          fetch={fetch}
+          offset={offset}
+          limit={limit}
+          resource={resource}
+          preparedFilterState={preparedFilterState}
+          isRowClickable={isRowClickable}
+          onRowClick={onRowClick}
+        />
+      </React.Suspense>
+
+      <PickPagination
+        hasPrev={offset > 0}
+        hasNext={viewData.length >= limit}
+        onPrevPage={decrementPage}
+        onNextPage={incrementPage}
+      />
+    </Paper>
   );
 };

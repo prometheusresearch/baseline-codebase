@@ -22,7 +22,18 @@ function App() {
 
   let renderPickView = React.useCallback(() => {
     let onRowClick = (row: any) => {
+      console.log(row);
       setScreen({ type: "show", id: row.id });
+    };
+    let phoneField = {
+      title: "Phone",
+      require: {
+        field: "phone",
+        require: [{ field: "value" }]
+      },
+      render({ value }) {
+        return value != null ? <div>tel: {value.value}</div> : "—";
+      }
     };
     return (
       <Pick
@@ -31,20 +42,10 @@ function App() {
         isRowClickable={true}
         onRowClick={onRowClick}
         fields={[
-          "id",
-          {
-            require: { field: "remote_user" },
-            title: "Remote User"
-          },
-          "expires",
-          {
-            require: {
-              field: "contact_info",
-              require: [{ field: "id" }, { field: "type" }, { field: "value" }]
-            },
-            render: ({ value }) => JSON.stringify(value),
-            title: "Contact Info"
-          }
+          { require: { field: "remote_user" } },
+          phoneField,
+          "expired",
+          { require: { field: "system_admin" } }
         ]}
         title={"Users"}
         description={"List of users"}
@@ -64,12 +65,11 @@ function App() {
             fetch={"user.get"}
             args={{ id: id }}
             fields={[
-              "id",
+              { title: "Remote User", require: { field: "remote_user" } },
+              "system_admin",
+              "expired",
               {
-                require: { field: "remote_user" }
-              },
-              "expires",
-              {
+                title: "Contact Info",
                 require: {
                   field: "contact_info",
                   require: [

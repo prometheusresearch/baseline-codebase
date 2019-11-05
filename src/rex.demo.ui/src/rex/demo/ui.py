@@ -30,8 +30,8 @@ class API(HandleLocation):
 
     @cached
     def schema(self):
-        # compute column
-        q_user_expired = q.expires <= datetime.now()
+        q_user_expired = q.expires.boolean() & (q.expires <= datetime.now())
+        q_user_phone = q.contact_info.filter(q.type == "phone").first()
 
         user = Entity(
             "user",
@@ -46,7 +46,7 @@ class API(HandleLocation):
                     description="Contact information for the user",
                 ),
                 "phone": query(
-                    q.contact_info.filter(q.type == "phone").first(),
+                    q_user_phone,
                     type=contact_info,
                     description="User phone contact information",
                 ),
@@ -98,6 +98,14 @@ class API(HandleLocation):
                 else:
                     yield ~q_user_expired
 
+        @filter_from_function()
+        def filter_user_by_has_phone(has_phone: scalar.Boolean = None):
+            if has_phone is not None:
+                if has_phone:
+                    yield q_user_phone.boolean()
+                else:
+                    yield ~q_user_phone.boolean()
+
         sort_user = sort(user, ("remote_user", "expires"))
 
         return schema(
@@ -109,6 +117,7 @@ class API(HandleLocation):
                     filters=[
                         filter_user_by_system_admin,
                         filter_user_by_expired,
+                        filter_user_by_has_phone,
                         search_user,
                     ],
                     description="Users",

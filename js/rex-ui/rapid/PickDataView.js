@@ -27,10 +27,7 @@ import {
 } from "rex-graphql/Resource";
 import _get from "lodash/get";
 
-import {
-  withResourceErrorCatcher,
-  sortObjectFieldsWithPreferred
-} from "./helpers";
+import { sortObjectFieldsWithPreferred } from "./helpers";
 import { ShowCard } from "./ShowRenderer.js";
 import { useStyles } from "./PickStyles.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
@@ -174,6 +171,24 @@ const PickTableView = ({
     );
   });
 
+  const CellValue = ({ value }) => {
+    let cellValue;
+    switch (value) {
+      case undefined:
+      case null: {
+        return <span>—</span>;
+      }
+      case true: {
+        return <span>Yes</span>;
+      }
+      case false: {
+        return <span>No</span>;
+      }
+      default:
+        return <span>{String(value)}</span>;
+    }
+  };
+
   const TableBodyRows = data.map((row, index) => {
     return (
       <TableRow
@@ -188,26 +203,7 @@ const PickTableView = ({
           if (!column) {
             return null;
           }
-
-          let cellValue;
-          switch (row[columnName]) {
-            case undefined:
-            case null: {
-              cellValue = "—";
-              break;
-            }
-            case true: {
-              cellValue = "Yes";
-              break;
-            }
-            case false: {
-              cellValue = "No";
-              break;
-            }
-            default: {
-              cellValue = row[columnName];
-            }
-          }
+          let value = row[columnName];
 
           return (
             <TableCell
@@ -217,9 +213,9 @@ const PickTableView = ({
               className={classes.tableCell}
             >
               {column.render ? (
-                <column.render value={cellValue} />
+                <column.render value={value} />
               ) : (
-                <span>{String(cellValue)}</span>
+                <CellValue value={value} />
               )}
             </TableCell>
           );

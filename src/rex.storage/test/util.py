@@ -23,6 +23,16 @@ def makedirs(*dirs):
         if not path.exists():
             os.makedirs(str(path))
 
+def reset_storage():
+    remove_storage()
+    make_storage()
+    makedirs(
+        'foo',
+        'bar/subbar',
+        'container',
+    )
+    ensure_test_input_dir()
+
 def read_file(filename):
     path = (STORAGE_PATH / Path(filename)).resolve(strict=False)
     assert STORAGE_PATH in path.parents
@@ -41,4 +51,16 @@ def ensure_test_input_dir():
         makedirs(str(path.parent))
         with open(str(path), 'w') as f:
             f.write(file)
+
+
+def flatten_object_tree(tree):
+    new_tree = {}
+
+    for key, value in tree.items():
+        if isinstance(value, dict):
+            new_tree[key] = flatten_object_tree(value)
+        else:
+            new_tree[key] = value.name
+
+    return new_tree
 

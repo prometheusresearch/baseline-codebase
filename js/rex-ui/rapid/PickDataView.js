@@ -215,6 +215,8 @@ export const PickDataView = ({
 |}) => {
   const classes = useStyles();
 
+  const tableRef = React.useMemo(() => React.createRef(), []);
+
   const [data, setData] = React.useState([]);
   const onDataReceive = React.useMemo(
     () => data => {
@@ -223,6 +225,13 @@ export const PickDataView = ({
     },
     [_onDataReceive]
   );
+
+  React.useLayoutEffect(() => {
+    if (tableRef.current != null) {
+      console.log("tableRef.current: ", tableRef.current);
+      tableRef.current.scrollTop = 0;
+    }
+  }, [state]);
 
   const columnsMap = new Map();
   const columnsNames = [];
@@ -313,6 +322,7 @@ export const PickDataView = ({
         className={tableClassNames.join(" ")}
         aria-label="simple table"
         padding={"dense"}
+        innerRef={tableRef}
       >
         {isTabletWidth ? (
           <TableHead>

@@ -4,6 +4,8 @@ title: 'Fields: Date'
 record:
   - id: plain
     type: date
+  - id: useLocale
+    type: date
   - id: required
     type: date
     required: true

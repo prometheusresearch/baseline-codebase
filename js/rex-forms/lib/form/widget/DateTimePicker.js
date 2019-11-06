@@ -8,15 +8,15 @@ import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import Moment from "moment";
 
-import { createMuiTheme } from "@material-ui/core/styles";
-import { ThemeProvider } from "@material-ui/styles";
-
-import { DateTimePicker as RexUIDateTimePicker } from "rex-ui/datepicker";
-import DateRange from "@material-ui/icons/DateRange";
-import { Button } from "rex-ui";
-
-import { Modal } from "@material-ui/core";
+import Modal from "@material-ui/core/Modal";
 import Paper from "@material-ui/core/Paper";
+import DateRange from "@material-ui/icons/DateRange";
+
+import { ThemeProvider } from "@material-ui/styles";
+import { createMuiTheme } from "@material-ui/core/styles";
+
+import { Button } from "rex-ui";
+import { DateTimePicker as RexUIDateTimePicker } from "rex-ui/datepicker";
 
 import type {
   WidgetProps,

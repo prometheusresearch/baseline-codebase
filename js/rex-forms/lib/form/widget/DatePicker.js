@@ -37,11 +37,14 @@ import {
 } from "./styled.components";
 import ErrorList from "../ErrorList";
 
-const DATE_FORMAT = "YYYY-MM-DD";
+const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
+const DEFAULT_INPUT_MASK = "9999-99-99";
 
 const theme = createMuiTheme();
 
 const InputDate = (props: WidgetInputProps) => {
+  const { schema } = props.formValue;
+
   const [viewDate, setViewDate] = React.useState(Moment());
   const [mode, setMode] = React.useState("days");
   const [showModal, setShowModal] = React.useState(false);
@@ -50,11 +53,11 @@ const InputDate = (props: WidgetInputProps) => {
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    DATE_FORMAT
+    DEFAULT_DATE_FORMAT
   );
 
   let selectedDate =
-    props.value != null ? Moment(props.value, DATE_FORMAT) : Moment();
+    props.value != null ? Moment(props.value, DEFAULT_DATE_FORMAT) : Moment();
 
   if (!selectedDate.isValid()) {
     selectedDate = null;
@@ -66,12 +69,13 @@ const InputDate = (props: WidgetInputProps) => {
 
   const onSelectedDate = (date: ?moment$Moment) => {
     setShowModal(false);
-    const dateString = date != null ? date.format(DATE_FORMAT) : "";
+    const dateString = date != null ? date.format(DEFAULT_DATE_FORMAT) : "";
     props.onChange(dateString);
   };
 
   const onChange = value => {
-    let viewDate = value != null ? Moment(value, DATE_FORMAT) : Moment();
+    let viewDate =
+      value != null ? Moment(value, DEFAULT_DATE_FORMAT) : Moment();
 
     if (!viewDate.isValid()) {
       viewDate = Moment();
@@ -150,10 +154,18 @@ function DatePicker(props: WidgetProps) {
           width: "small"
         }
   };
+  const { schema } = updatedProps.formValue;
 
-  let renderInput = (props: WidgetInputProps) => (
-    <ReactForms.Input {...props} Component={InputDate} mask="9999-99-99" />
-  );
+  let renderInput = (props: WidgetInputProps) => {
+    const { schema } = props.formValue;
+    return (
+      <ReactForms.Input
+        {...props}
+        Component={InputDate}
+        mask={schema.formatInputMask || DEFAULT_INPUT_MASK}
+      />
+    );
+  };
 
   return <InputText {...updatedProps} renderInput={renderInput} />;
 }

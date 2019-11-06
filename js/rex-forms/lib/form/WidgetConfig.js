@@ -59,7 +59,8 @@ export type WidgetInputProps = {|
   variant: {| error: boolean |},
   onBlur: () => void,
   instrument: any,
-  formValue: FormValue
+  formValue: FormValue,
+  useLocaleFormat?: boolean
 |};
 
 export type InstrumentDateTime = {|

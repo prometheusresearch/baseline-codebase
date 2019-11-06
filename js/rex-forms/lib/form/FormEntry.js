@@ -3,7 +3,7 @@
  */
 
 import * as React from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import * as ReactDOM from "react-dom";
 import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
@@ -32,7 +32,30 @@ function createFormState({
   initialValue = {},
   i18n
 }) {
-  let schema = InstrumentSchema.fromInstrument(instrument, { i18n });
+  const useLocaleForFields = new Set();
+  const pages = form.pages || [];
+
+  const questions = pages
+    .map(page => [...page.elements])
+    .reduce((acc, arr) => [...acc, ...arr], [])
+    .filter(el => el.type === "question");
+  const questionsWithLocaleProp = questions.filter(({ options }) => {
+    return (
+      options.widget &&
+      options.widget.options &&
+      options.widget.options.useLocaleFormat === true
+    );
+  });
+
+  questionsWithLocaleProp.forEach(q =>
+    useLocaleForFields.add(q.options.fieldId)
+  );
+
+  let schema = InstrumentSchema.fromInstrument(
+    instrument,
+    { i18n },
+    { useLocaleForFields }
+  );
   let original = atom(initialValue);
   let event = EventExecutor.create(form, schema, original, parameters);
   schema.event = event;
@@ -77,9 +100,9 @@ const FormProgressBar = InjectI18N(
       );
     }
 
-    formatLabel = (state) => {
+    formatLabel = state => {
       return this.getI18N().formatPercent(state.progress);
-    }
+    };
   }
 );
 
@@ -266,7 +289,7 @@ export default InjectI18N(
                 return (
                   isFieldCompleted(formState.value.select(fieldId)) ||
                   isHidden(fieldId, ...tags) || // TODO: check what this expects
-                  isDisabled(fieldId, ...tags)  // {} doesn't make any sense here
+                  isDisabled(fieldId, ...tags) // {} doesn't make any sense here
                 );
               } else {
                 return false;

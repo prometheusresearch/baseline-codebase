@@ -13,7 +13,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
-    license="AGPLv3",
+    license="Apache-2.0",
     url="https://bitbucket.org/prometheus/rex.port",
     package_dir={'': 'src'},
     packages=find_packages('src'),

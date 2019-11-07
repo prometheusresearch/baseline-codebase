@@ -15,7 +15,7 @@ This package provides a uniform interface for sending email messages.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
-released under the AGPLv3 license with a commensurate attribution clause.  For
+released under the Apache v2 license with a commensurate attribution clause.  For
 more information, please visit http://rexdb.org/.
 
 The development of this product was supported by the National Institute of

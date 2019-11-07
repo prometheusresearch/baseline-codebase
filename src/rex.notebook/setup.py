@@ -13,6 +13,7 @@ setup(
     long_description=open("README.rst", "r").read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
+    license="Apache-2.0",
     package_dir={"": "src"},
     packages=find_packages("src"),
     namespace_packages=["rex"],

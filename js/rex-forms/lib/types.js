@@ -57,6 +57,7 @@ export type JSONSchemaExtension = {
   dateFormat?: string,
   dateInputMask?: string,
   dateTimeRegex?: RegExp,
+  dateTimeRegexBase?: RegExp,
   dateTimeFormatBase?: string,
   dateTimeInputMaskBase?: string
 };

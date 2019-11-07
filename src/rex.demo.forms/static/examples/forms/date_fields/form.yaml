@@ -16,7 +16,7 @@ pages:
             en: No constraints.
       - type: question
         options:
-          fieldId: useLocale
+          fieldId: use_locale
           text:
             en: No constraints (useLocaleFormat).
           widget:

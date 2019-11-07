@@ -53,11 +53,13 @@ const InputDate = (props: WidgetInputProps) => {
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    DEFAULT_DATE_FORMAT
+    schema.dateFormat || DEFAULT_DATE_FORMAT
   );
 
+  const dateFormat = schema.dateFormat || DEFAULT_DATE_FORMAT;
+
   let selectedDate =
-    props.value != null ? Moment(props.value, DEFAULT_DATE_FORMAT) : Moment();
+    props.value != null ? Moment(props.value, dateFormat) : Moment();
 
   if (!selectedDate.isValid()) {
     selectedDate = null;
@@ -69,13 +71,12 @@ const InputDate = (props: WidgetInputProps) => {
 
   const onSelectedDate = (date: ?moment$Moment) => {
     setShowModal(false);
-    const dateString = date != null ? date.format(DEFAULT_DATE_FORMAT) : "";
+    const dateString = date != null ? date.format(dateFormat) : "";
     props.onChange(dateString);
   };
 
   const onChange = value => {
-    let viewDate =
-      value != null ? Moment(value, DEFAULT_DATE_FORMAT) : Moment();
+    let viewDate = value != null ? Moment(value, dateFormat) : Moment();
 
     if (!viewDate.isValid()) {
       viewDate = Moment();

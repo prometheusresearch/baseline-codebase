@@ -26,7 +26,7 @@ type Env = {
   types: RIOSTypeCatalog
 };
 type SchemaOptions = {|
-  useLocaleForFields: Set<string>
+  useLocaleForFields?: Map<string, boolean | string>
 |};
 
 type ConfiguredEnv = Env & {
@@ -219,8 +219,29 @@ export function generateValueSchema(
   env: ConfiguredEnv,
   fieldId: string
 ): JSONSchemaExt {
-  const { useLocaleForFields } = env;
-  const shouldUseLocale = useLocaleForFields.has(fieldId);
+  const { useLocaleForFields, i18n } = env;
+
+  let shouldUseLocale = false;
+  let localeForProcessing = useLocaleForFields
+    ? useLocaleForFields.get(fieldId)
+    : undefined;
+  let typeLocaleForProcessing = typeof localeForProcessing;
+
+  switch (typeLocaleForProcessing) {
+    case "boolean": {
+      shouldUseLocale = localeForProcessing;
+      localeForProcessing = undefined;
+      break;
+    }
+    case "string": {
+      shouldUseLocale = true;
+      break;
+    }
+    default: {
+      shouldUseLocale = false;
+    }
+  }
+
   const {
     dateRegex,
     dateFormat,

@@ -23,6 +23,7 @@ const DATE_TIME_RE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/;
 const DATE_RE = /^\d\d\d\d-\d\d-\d\d$/;
 const TIME_RE = /^\d\d:\d\d(:\d\d)?$/;
 const ISO_DATE_FORMAT = "YYYY-MM-DD";
+const ISO_DATE_TIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
 /**
  * Determine if field value is empty.
@@ -173,8 +174,8 @@ export default class Validate {
 
     invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.range) {
-      let isoValue = moment(partDate, dateFormat).format(ISO_DATE_FORMAT);
-      let failure = this.checkValueRange(isoValue, node.instrument.type.range);
+      // let isoValue = moment(value, ISO_DATE_TIME_FORMAT).format(ISO_DATE_TIME_FORMAT);
+      let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
         return failure;
       }
@@ -357,8 +358,16 @@ export default class Validate {
   };
 
   checkValueRange(value: any, { min, max }: { min?: any, max?: any }) {
-    let minFailure = min !== undefined && min > value;
-    let maxFailure = max !== undefined && max < value;
+    let minFailure = min != undefined && min > value;
+    let maxFailure = max != undefined && max < value;
+
+    console.log("==========");
+    console.log("value: ", value);
+    console.log("min: ", min);
+    console.log("max: ", max);
+    console.log("minFailure: ", min > value);
+    console.log("maxFailure: ", max < value);
+
     if (minFailure || maxFailure) {
       if (min !== undefined && max !== undefined) {
         return this.i18n.gettext("Must be between %(min)s and %(max)s.", {

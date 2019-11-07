@@ -32,7 +32,7 @@ function createFormState({
   initialValue = {},
   i18n
 }) {
-  const useLocaleForFields = new Set();
+  const useLocaleForFields = new Map();
   const pages = form.pages || [];
 
   const questions = pages
@@ -43,12 +43,15 @@ function createFormState({
     return (
       options.widget &&
       options.widget.options &&
-      options.widget.options.useLocaleFormat === true
+      options.widget.options.useLocaleFormat !== undefined
     );
   });
 
   questionsWithLocaleProp.forEach(q =>
-    useLocaleForFields.add(q.options.fieldId)
+    useLocaleForFields.set(
+      q.options.fieldId,
+      q.options.widget.options.useLocaleFormat
+    )
   );
 
   let schema = InstrumentSchema.fromInstrument(

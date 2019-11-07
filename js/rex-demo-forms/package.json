@@ -14,9 +14,8 @@
     "lodash": "*"
   },
   "scripts": {
-    "build": "node scripts/build.js",
-    "watch": "node scripts/watch.js",
-    "test": "exit 0"
+    "build": "rex-webpack-build",
+    "watch": "rex-webpack-watch"
   },
   "browserslist": [
     ">0.2%",

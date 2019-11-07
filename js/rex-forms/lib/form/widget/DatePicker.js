@@ -162,7 +162,7 @@ function DatePicker(props: WidgetProps) {
       <ReactForms.Input
         {...props}
         Component={InputDate}
-        mask={schema.formatInputMask || DEFAULT_INPUT_MASK}
+        mask={schema.dateInputMask || DEFAULT_INPUT_MASK}
       />
     );
   };

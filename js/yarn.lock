@@ -5629,13 +5629,6 @@ fast-levenshtein@~2.0.4:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
-fastpack@^0.8.4:
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/fastpack/-/fastpack-0.8.4.tgz#67242beea5dcfb186125eb914888412e72bc7435"
-  integrity sha512-7DFOb0oI478o5NXLZuSZYJW61r8Jsyn2vy127VBRMiN+ObAGuv8yklb/weCxNMUnlRLP5Sf3WmIlvniDJWGrKQ==
-  dependencies:
-    loader-runner "^3.0.0"
-
 fastparse@^1.1.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/fastparse/-/fastparse-1.1.2.tgz#91728c5a5942eced8531283c79441ee4122c35a9"
@@ -9314,11 +9307,6 @@ loader-runner@^2.3.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-2.3.1.tgz#026f12fe7c3115992896ac02ba022ba92971b979"
   integrity sha512-By6ZFY7ETWOc9RFaAIb23IjJVcM4dvJC/N57nmdz9RSkMXvAXGI7SyVlAw3v8vjtDRlqThgVDVmTnr9fqMlxkw==
-
-loader-runner@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-3.0.0.tgz#c86f303af2dacbd27eabd2ea3aaa957291562e23"
-  integrity sha512-BlinBEAJYOUubaKH9hMxshD1FltYLTd3FA4DoxEh/82C0Rc4cmcqI61bEUj0/osbmW9FCTXTpMAO/jHZDZC5Fw==
 
 loader-utils@0.x.x, loader-utils@^0.2.11, loader-utils@^0.2.5:
   version "0.2.17"

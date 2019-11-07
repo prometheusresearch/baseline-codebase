@@ -37,6 +37,7 @@ import {
 import { getDatesFromRange } from "../WidgetConfig";
 import ErrorList from "../ErrorList";
 
+const DATE_REGEX = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/;
 const DATE_REGEX_NO_SECONDS = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d$/;
 const DATE_FORMAT_BASE = "YYYY-MM-DDTHH:mm";
 
@@ -45,7 +46,7 @@ const theme = createMuiTheme();
 const InputDateTime = (
   props: WidgetInputProps & { instrument: InstrumentDateTime }
 ) => {
-  const { instrument, formValue, ...rest } = props;
+  const { instrument, formValue, value, ...rest } = props;
   const { schema } = formValue;
   const {
     dateRegex,
@@ -130,6 +131,7 @@ const InputDateTime = (
         <InputWrapper>
           <ReactUI.Input
             {...rest}
+            value={value}
             mask={mask}
             Component={MaskedInput}
             onChange={onChange}

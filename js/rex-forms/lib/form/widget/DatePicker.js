@@ -49,17 +49,15 @@ const InputDate = (props: WidgetInputProps) => {
   const [mode, setMode] = React.useState("days");
   const [showModal, setShowModal] = React.useState(false);
 
-  const { instrument, formValue, ...rest } = props;
+  const { instrument, formValue, value, ...rest } = props;
+  const dateFormat = schema.dateFormat || DEFAULT_DATE_FORMAT;
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    schema.dateFormat || DEFAULT_DATE_FORMAT
+    DEFAULT_DATE_FORMAT
   );
 
-  const dateFormat = schema.dateFormat || DEFAULT_DATE_FORMAT;
-
-  let selectedDate =
-    props.value != null ? Moment(props.value, dateFormat) : Moment();
+  let selectedDate = value != null ? Moment(value, dateFormat) : Moment();
 
   if (!selectedDate.isValid()) {
     selectedDate = null;
@@ -76,7 +74,8 @@ const InputDate = (props: WidgetInputProps) => {
   };
 
   const onChange = value => {
-    let viewDate = value != null ? Moment(value, dateFormat) : Moment();
+    let momentFormatted = Moment(value, dateFormat);
+    let viewDate = value != null ? momentFormatted : Moment();
 
     if (!viewDate.isValid()) {
       viewDate = Moment();
@@ -104,6 +103,7 @@ const InputDate = (props: WidgetInputProps) => {
         <InputWrapper>
           <ReactUI.Input
             {...rest}
+            value={value}
             onChange={onChange}
             Component={MaskedInput}
           />

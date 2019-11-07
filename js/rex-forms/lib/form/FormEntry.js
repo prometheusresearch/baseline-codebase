@@ -24,6 +24,7 @@ import FormPage from "./FormPage";
 import FormPaginator from "./FormPaginator";
 import FormContext from "./FormContext";
 import * as EventExecutor from "./event/EventExecutor";
+import { getFormFormatConfig } from "./FormFormatConfig";
 
 function createFormState({
   instrument,
@@ -32,32 +33,12 @@ function createFormState({
   initialValue = {},
   i18n
 }) {
-  const useLocaleForFields = new Map();
-  const pages = form.pages || [];
-
-  const questions = pages
-    .map(page => [...page.elements])
-    .reduce((acc, arr) => [...acc, ...arr], [])
-    .filter(el => el.type === "question");
-  const questionsWithLocaleProp = questions.filter(({ options }) => {
-    return (
-      options.widget &&
-      options.widget.options &&
-      options.widget.options.useLocaleFormat !== undefined
-    );
-  });
-
-  questionsWithLocaleProp.forEach(q =>
-    useLocaleForFields.set(
-      q.options.fieldId,
-      q.options.widget.options.useLocaleFormat
-    )
-  );
+  const formatConfig = getFormFormatConfig({ form, i18n });
 
   let schema = InstrumentSchema.fromInstrument(
     instrument,
     { i18n },
-    { useLocaleForFields }
+    { formatConfig }
   );
   let original = atom(initialValue);
   let event = EventExecutor.create(form, schema, original, parameters);
@@ -83,7 +64,8 @@ function createFormState({
     original,
     observed,
     value,
-    event
+    event,
+    formatConfig
   };
 }
 
@@ -443,7 +425,10 @@ export default InjectI18N(
           this.formState.value.value,
           this.props.instrument,
           {},
-          { language: this.getI18N().config.locale }
+          {
+            language: this.getI18N().config.locale,
+            formatConfig: this.formState.formatConfig
+          }
         );
       }
 
@@ -464,6 +449,7 @@ export default InjectI18N(
         formValue = formValue || this.formState.value;
         let { instrument } = this.props;
         let { locale } = this.getI18N().config;
+        let { formatConfig } = this.formState;
 
         return {
           getAssessment: () => {
@@ -471,7 +457,10 @@ export default InjectI18N(
               formValue.value,
               instrument,
               {},
-              { language: locale }
+              {
+                language: locale,
+                formatConfig
+              }
             );
           },
 

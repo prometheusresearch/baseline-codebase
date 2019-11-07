@@ -7,6 +7,8 @@ record:
   - id: required
     type: dateTime
     required: true
+  - id: useLocale
+    type: dateTime
 
   - id: min_value
     type:

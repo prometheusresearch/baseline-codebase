@@ -16,9 +16,13 @@ import isPlainObject from "lodash/isPlainObject";
 
 import cast from "../cast";
 
+/**
+ * ISO8601-based default regexps
+ */
 const DATE_TIME_RE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/;
 const DATE_RE = /^\d\d\d\d-\d\d-\d\d$/;
 const TIME_RE = /^\d\d:\d\d(:\d\d)?$/;
+const ISO_DATE_FORMAT = "YYYY-MM-DD";
 
 /**
  * Determine if field value is empty.
@@ -119,12 +123,9 @@ export default class Validate {
     return true;
   };
 
-  date = (
-    value: string,
-    node: { ...JSONSchemaExt, formatRegex?: RegExp, formatFormat?: string }
-  ) => {
-    const regex = node.formatRegex ? new RegExp(node.formatRegex) : DATE_RE;
-    const format = node.formatFormat || "YYYY-MM-DD";
+  date = (value: string, node: JSONSchemaExt) => {
+    const regex = node.dateRegex ? new RegExp(node.dateRegex) : DATE_RE;
+    const format = node.dateFormat || ISO_DATE_FORMAT;
 
     if (!regex.exec(value)) {
       return this.i18n.gettext(`This must be entered in the form: ${format}`);
@@ -145,32 +146,35 @@ export default class Validate {
     return true;
   };
 
-  dateTime = (
-    value: string,
-    node: { ...JSONSchemaExt, dateTimeRegex?: RegExp, formatFormat?: string }
-  ) => {
+  dateTime = (value: string, node: JSONSchemaExt) => {
     const regex = node.dateTimeRegex
       ? new RegExp(node.dateTimeRegex)
       : DATE_TIME_RE;
-    const format = node.formatFormat || "YYYY-MM-DD";
+    const dateFormat = node.dateFormat || ISO_DATE_FORMAT;
 
-    if (!DATE_TIME_RE.exec(value)) {
+    if (!regex.exec(value)) {
       return this.i18n.gettext(
-        "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]"
+        `This must be entered in the form: ${dateFormat}THH:MM[:SS]`
       );
     }
 
     let parts = value.split("T");
-    // if (!this.checkLegalDate(parts[0])) {
-    //   return this.i18n.gettext("Not a valid date.");
-    // }
-    // if (!this.checkLegalTime(parts[1])) {
-    //   return this.i18n.gettext("Not a valid time.");
-    // }
+    let partDate = parts[0];
+    let partTime = parts[1];
+
+    if (!moment(partDate, dateFormat).isValid()) {
+      return this.i18n.gettext("Not a valid date.");
+    }
+
+    let TIME_FORMAT = "HH:mm:ss";
+    if (!moment(partTime, TIME_FORMAT).isValid()) {
+      return this.i18n.gettext("Not a valid time.");
+    }
 
     invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.range) {
-      let failure = this.checkValueRange(value, node.instrument.type.range);
+      let isoValue = moment(partDate, dateFormat).format(ISO_DATE_FORMAT);
+      let failure = this.checkValueRange(isoValue, node.instrument.type.range);
       if (failure !== true) {
         return failure;
       }

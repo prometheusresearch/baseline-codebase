@@ -56,20 +56,30 @@ function getDateFormats(locale) {
         patterns.push(`\\d\\d`);
         break;
       case "literal":
-        // format.push(part.value.replace(/[^\u0000-\u007F]+/g, ""));
         format.push("-");
         break;
     }
   });
 
-  let formatRegex = new RegExp(`^${patterns.join("-")}$`);
-  let momentFormat = format.join("");
-  let inputMask = momentFormat.replace(/[MDY]/g, "9");
+  let dateRegex = new RegExp(`^${patterns.join("-")}$`);
+  let dateFormat = format.join("");
+  let dateInputMask = dateFormat.replace(/[MDY]/g, "9");
   let dateTimeRegex = new RegExp(
     `^${patterns.join("-")}T\\d\\d:\\d\\d(:\\d\\d)?$`
   );
+  let dateTimeRegexBase = new RegExp(`^${patterns.join("-")}T\\d\\d:\\d\\d$`);
+  let dateTimeFormatBase = `${dateFormat}THH:mm`;
+  let dateTimeInputMaskBase = dateTimeFormatBase.replace(/[MDYHm]/g, "9");
 
-  return { momentFormat, inputMask, formatRegex, dateTimeRegex };
+  return {
+    dateRegex,
+    dateFormat,
+    dateInputMask,
+    dateTimeRegex,
+    dateTimeRegexBase,
+    dateTimeFormatBase,
+    dateTimeInputMaskBase
+  };
 }
 
 /**
@@ -80,8 +90,6 @@ export function fromInstrument(
   env: Env,
   schemaOptions: SchemaOptions
 ): JSONSchemaExt {
-  console.log("schemaOptions: ", schemaOptions);
-
   env = {
     ...env,
     types: instrument.types,
@@ -213,7 +221,15 @@ export function generateValueSchema(
 ): JSONSchemaExt {
   const { useLocaleForFields } = env;
   const shouldUseLocale = useLocaleForFields.has(fieldId);
-  const { formatRegex, momentFormat, inputMask } = getDateFormats();
+  const {
+    dateRegex,
+    dateFormat,
+    dateInputMask,
+    dateTimeRegex,
+    dateTimeRegexBase,
+    dateTimeFormatBase,
+    dateTimeInputMaskBase
+  } = getDateFormats();
 
   switch (type.base) {
     case "float":
@@ -244,9 +260,9 @@ export function generateValueSchema(
         type: "string",
         format: env.validate.date,
         instrument: { type },
-        formatFormat: shouldUseLocale ? momentFormat : undefined,
-        formatRegex: shouldUseLocale ? formatRegex : undefined,
-        formatInputMask: shouldUseLocale ? inputMask : undefined
+        dateFormat: shouldUseLocale ? dateFormat : undefined,
+        dateRegex: shouldUseLocale ? dateRegex : undefined,
+        dateInputMask: shouldUseLocale ? dateInputMask : undefined
       };
     case "time":
       return {
@@ -259,9 +275,15 @@ export function generateValueSchema(
         type: "string",
         format: env.validate.dateTime,
         instrument: { type },
-        formatFormat: shouldUseLocale ? momentFormat : undefined,
-        formatRegex: shouldUseLocale ? formatRegex : undefined,
-        formatInputMask: shouldUseLocale ? inputMask : undefined
+        dateFormat: shouldUseLocale ? dateFormat : undefined,
+        dateRegex: shouldUseLocale ? dateRegex : undefined,
+        dateInputMask: shouldUseLocale ? dateInputMask : undefined,
+        dateTimeRegex: shouldUseLocale ? dateTimeRegex : undefined,
+        dateTimeRegexBase: shouldUseLocale ? dateTimeRegexBase : undefined,
+        dateTimeFormatBase: shouldUseLocale ? dateTimeFormatBase : undefined,
+        dateTimeInputMaskBase: shouldUseLocale
+          ? dateTimeInputMaskBase
+          : undefined
       };
     case "recordList":
       invariant(type.record != null, "Invalid recordList type");

@@ -46,15 +46,29 @@ const InputDateTime = (
   props: WidgetInputProps & { instrument: InstrumentDateTime }
 ) => {
   const { instrument, formValue, ...rest } = props;
+  const { schema } = formValue;
+  const {
+    dateRegex,
+    dateFormat,
+    dateInputMask,
+    dateTimeRegex,
+    dateTimeRegexBase,
+    dateTimeFormatBase,
+    dateTimeInputMaskBase
+  } = schema;
 
   const [viewDate, setViewDate] = React.useState(Moment());
   const [showModal, setShowModal] = React.useState(false);
   const [datePickerMode, setDatePickerMode] = React.useState("days");
   const [timePickerMode, setTimePickerMode] = React.useState("time");
 
+  const dateFormatBase = dateTimeFormatBase || DATE_FORMAT_BASE;
+  const mask = dateTimeInputMaskBase
+    ? `${dateTimeInputMaskBase}:99`
+    : "9999-99-99T99:99:99";
   let selectedDate =
     props.value != null
-      ? Moment(props.value, `${DATE_FORMAT_BASE}:ss`)
+      ? Moment(props.value, `${dateFormatBase}:ss`)
       : Moment();
 
   if (!selectedDate.isValid()) {
@@ -63,7 +77,7 @@ const InputDateTime = (
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    `${DATE_FORMAT_BASE}:ss`
+    `${dateFormatBase}:ss`
   );
 
   const onModalClose = () => setShowModal(false);
@@ -73,7 +87,7 @@ const InputDateTime = (
       value = value.substring(0, value.length - 3);
     }
 
-    let viewDate = value != null ? Moment(value, DATE_FORMAT_BASE) : Moment();
+    let viewDate = value != null ? Moment(value, dateFormatBase) : Moment();
 
     if (!viewDate.isValid()) {
       viewDate = Moment();
@@ -84,14 +98,14 @@ const InputDateTime = (
   };
 
   const onSelectedDate = (date: ?moment$Moment) => {
-    const dateString =
-      date != null ? date.format(`${DATE_FORMAT_BASE}:00`) : "";
+    const dateString = date != null ? date.format(`${dateFormatBase}:00`) : "";
     onChange(dateString);
   };
 
   const onBlur = () => {
     let { value } = props;
-    if (value && value.match(DATE_REGEX_NO_SECONDS)) {
+    let matcher = dateTimeRegexBase || DATE_REGEX_NO_SECONDS;
+    if (value && value.match(matcher)) {
       props.onChange(value + ":00");
     }
     props.onBlur();
@@ -116,7 +130,7 @@ const InputDateTime = (
         <InputWrapper>
           <ReactUI.Input
             {...rest}
-            mask="9999-99-99T99:99:99"
+            mask={mask}
             Component={MaskedInput}
             onChange={onChange}
             onBlur={onBlur}

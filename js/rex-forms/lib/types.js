@@ -52,7 +52,13 @@ export type JSONSchemaExtension = {
     type: RIOSExtendedType,
     required?: boolean,
     requiredColumns?: Array<string>
-  }
+  },
+  dateRegex?: RegExp,
+  dateFormat?: string,
+  dateInputMask?: string,
+  dateTimeRegex?: RegExp,
+  dateTimeFormatBase?: string,
+  dateTimeInputMaskBase?: string
 };
 
 export type JSONSchemaExt =

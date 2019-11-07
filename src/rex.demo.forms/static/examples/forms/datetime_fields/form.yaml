@@ -16,6 +16,15 @@ pages:
             en: No constraints.
       - type: question
         options:
+          fieldId: useLocale
+          text:
+            en: No constraints (useLocaleFormat).
+          widget:
+            type: dateTime
+            options:
+              useLocaleFormat: true
+      - type: question
+        options:
           fieldId: required
           text:
             en: This is required.

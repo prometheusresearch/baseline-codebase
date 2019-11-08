@@ -98,6 +98,7 @@ export function getFormFormatConfig({
   i18n: any
 |}) {
   const localeFieldsMap: ConfigMap = new Map();
+
   const pages = form.pages || [];
 
   for (let page of pages) {

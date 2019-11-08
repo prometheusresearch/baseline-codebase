@@ -7,11 +7,21 @@ import isArray from "lodash/isArray";
 import isPlainObject from "lodash/isPlainObject";
 import moment from "moment";
 import type { RIOSInstrument } from "../types.js";
+import type { ConfigMap } from "../form/FormFormatConfig";
 
 import { resolveType } from "./schema";
 
 type Value = {
-  [key: string]: Value | string
+  value:
+    | string
+    | null
+    | {
+        [key: string]: Value
+      }
+};
+
+type ValuesTree = {
+  [key: string]: Value
 };
 
 type Assessment = {
@@ -19,9 +29,7 @@ type Assessment = {
     id: string,
     version: string
   },
-  values: {
-    [key: string]: Value
-  },
+  values: ValuesTree,
   meta?: {
     [key: string]: any
   }
@@ -63,14 +71,71 @@ function coerceEmptyValueToNull(value): null | Object {
   return result;
 }
 
-type Result = {| value: ?Value, explanation?: any, annotation?: any |};
+type Result = {| value: ?string, explanation?: any, annotation?: any |};
 
-function makeAssessmentValue(value): Result {
+function replaceDateToISO(
+  value: ?string,
+  eventKey: string[],
+  formatConfig: ConfigMap
+) {
+  /**
+   * ConfigMap keys are "path.to.folded.value"
+   */
+  let keyString = eventKey.join(".");
+  let valueConfig = formatConfig.get(keyString);
+
+  if (valueConfig == null || value == null) {
+    return null;
+  }
+
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  let updatedValue = value;
+
+  switch (valueConfig.type) {
+    case "datePicker": {
+      if (updatedValue.match(valueConfig.dateRegex)) {
+        const momentObj = moment(updatedValue, valueConfig.dateFormat);
+        if (!momentObj.isValid()) {
+          break;
+        }
+        updatedValue = momentObj.format(valueConfig.DEFAULT_DATE_FORMAT);
+      }
+      break;
+    }
+
+    case "dateTime": {
+      if (updatedValue.match(valueConfig.dateTimeRegex)) {
+        const momentObj = moment(updatedValue, valueConfig.dateTimeFormat);
+        if (!momentObj.isValid()) {
+          break;
+        }
+        updatedValue = momentObj.format(valueConfig.DEFAULT_DATETIME_FORMAT);
+      }
+      break;
+    }
+    default: {
+    }
+  }
+
+  return updatedValue;
+}
+
+function makeAssessmentValue(
+  value,
+  eventKey: string[],
+  formatConfig: ConfigMap
+) {
   let result: Result = {
     value: null
   };
   if (value) {
     result.value = coerceEmptyValueToNull(value.value);
+
+    // Replace values from locale ones (if used) to ISO date/dateTime
+    result.value = replaceDateToISO(value.value, eventKey, formatConfig);
   }
   if (value && value.explanation) {
     result.explanation = value.explanation;
@@ -81,12 +146,20 @@ function makeAssessmentValue(value): Result {
   return result;
 }
 
-function makeAssessmentRecord(value, types, record = [], valueOverlay) {
+function makeAssessmentRecord(
+  value,
+  types,
+  record = [],
+  valueOverlay,
+  eventKey: string[],
+  formatConfig: ConfigMap
+) {
   let values = {};
 
   for (let i = 0, len = record.length; i < len; i++) {
     let recordId = record[i].id;
     let fieldType = resolveType(record[i].type, types);
+    let updatedEventKey = [...eventKey, recordId];
 
     if (valueOverlay[recordId]) {
       // If we're overriding this field, just take the override.
@@ -94,7 +167,11 @@ function makeAssessmentRecord(value, types, record = [], valueOverlay) {
     } else if (fieldType.base === "recordList") {
       // If this is a record list, clean up the value, then clean up each of
       // the subrecords.
-      values[recordId] = makeAssessmentValue(value[recordId]);
+      values[recordId] = makeAssessmentValue(
+        value[recordId],
+        updatedEventKey,
+        formatConfig
+      );
       if (values[recordId].value) {
         values[recordId].value = values[recordId].value
           .map(rec => {
@@ -102,7 +179,9 @@ function makeAssessmentRecord(value, types, record = [], valueOverlay) {
               rec,
               types,
               fieldType.record,
-              valueOverlay
+              valueOverlay,
+              updatedEventKey,
+              formatConfig
             );
           })
           .filter(rec => {
@@ -119,7 +198,11 @@ function makeAssessmentRecord(value, types, record = [], valueOverlay) {
       }
     } else if (fieldType.base === "matrix") {
       // If this is a matrix, make sure each cell is represented.
-      values[recordId] = makeAssessmentValue(value[recordId]);
+      values[recordId] = makeAssessmentValue(
+        value[recordId],
+        updatedEventKey,
+        formatConfig
+      );
       values[recordId].value = values[recordId].value || {};
 
       let rows = fieldType.rows || [];
@@ -130,14 +213,22 @@ function makeAssessmentRecord(value, types, record = [], valueOverlay) {
 
         let columns = fieldType.columns || [];
         columns.forEach(column => {
+          let columnEventKey = [...updatedEventKey, row.id, column.id];
+
           values[recordId].value[row.id][column.id] = makeAssessmentValue(
-            values[recordId].value[row.id][column.id]
+            values[recordId].value[row.id][column.id],
+            columnEventKey,
+            formatConfig
           );
         });
       });
     } else {
       // Otherwise, just clean up the value.
-      values[recordId] = makeAssessmentValue(value[recordId]);
+      values[recordId] = makeAssessmentValue(
+        value[recordId],
+        updatedEventKey,
+        formatConfig
+      );
     }
   }
 
@@ -156,59 +247,16 @@ export function makeAssessment(
   value: Object,
   instrument: RIOSInstrument,
   valueOverlay: Object = {},
-  meta: Object = {}
+  meta: { formatConfig: ?ConfigMap } = {}
 ) {
   let values = makeAssessmentRecord(
     value,
     instrument.types,
     instrument.record,
-    valueOverlay
+    valueOverlay,
+    [],
+    meta.formatConfig || new Map()
   );
-
-  const { formatConfig } = meta;
-  if (formatConfig) {
-    for (let key of formatConfig.keys()) {
-      const keyValue = values[key] ? values[key].value : null;
-      const keyConfig = formatConfig.get(key);
-
-      if (keyValue == null) {
-        continue;
-      }
-
-      switch (keyConfig.type) {
-        case "datePicker": {
-          if (keyValue.match(keyConfig.dateRegex)) {
-            const momentObj = moment(keyValue, keyConfig.dateFormat);
-            if (!momentObj.isValid()) {
-              return;
-            }
-
-            values[key] = {
-              ...values[key],
-              value: momentObj.format(keyConfig.DEFAULT_DATE_FORMAT)
-            };
-          }
-          break;
-        }
-        case "dateTime": {
-          if (keyValue.match(keyConfig.dateTimeRegex)) {
-            const momentObj = moment(keyValue, keyConfig.dateTimeFormat);
-            if (!momentObj.isValid()) {
-              return;
-            }
-
-            values[key] = {
-              ...values[key],
-              value: momentObj.format(keyConfig.DEFAULT_DATETIME_FORMAT)
-            };
-          }
-          break;
-        }
-        default: {
-        }
-      }
-    }
-  }
 
   let assessment: Assessment = {
     instrument: {

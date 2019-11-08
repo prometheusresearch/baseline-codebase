@@ -203,7 +203,7 @@ function generateFieldSchema(
     schema.required.push("explanation");
   }
 
-  schema.properties.value = generateValueSchema(type, eventKey, env, field.id);
+  schema.properties.value = generateValueSchema(type, eventKey, env);
   if (field.required && ["recordList", "matrix"].indexOf(type.base) < 0) {
     schema.required = schema.required || [];
     schema.required.push("value");
@@ -217,11 +217,11 @@ function generateFieldSchema(
 export function generateValueSchema(
   type: RIOSExtendedType,
   eventKey: Array<string>,
-  env: ConfiguredEnv,
-  fieldId: string
+  env: ConfiguredEnv
 ): JSONSchemaExt {
+  const eventKeyString = eventKey.join(".");
   const { formatConfig } = env;
-  let config = formatConfig ? formatConfig.get(fieldId) : {};
+  let config = formatConfig ? formatConfig.get(eventKeyString) : {};
   config = config || {};
 
   let {

@@ -113,9 +113,9 @@ export function fromInstrument(
   return (schema: JSONSchemaExtension & JSONObjectSchema<JSONSchemaExt>);
 }
 
-function generateRecordSchema(
+export function generateRecordSchema(
   record: Array<RIOSField>,
-  context,
+  context: string,
   eventKey: Array<string>,
   env: ConfiguredEnv
 ) {
@@ -204,6 +204,7 @@ function generateFieldSchema(
   }
 
   schema.properties.value = generateValueSchema(type, eventKey, env);
+
   if (field.required && ["recordList", "matrix"].indexOf(type.base) < 0) {
     schema.required = schema.required || [];
     schema.required.push("value");

@@ -2,7 +2,16 @@
  * @flow
  */
 
-import type { RIOSForm, RIOSQuestionElement, RIOSWidgetConfig } from "../types";
+import { generateRecordSchema } from "../instrument/schema";
+import Validate from "../instrument/validate";
+
+import type {
+  RIOSForm,
+  RIOSQuestion,
+  RIOSQuestionElement,
+  RIOSWidgetConfig,
+  RIOSInstrument
+} from "../types";
 
 export type FieldConfig = {|
   dateRegex: RegExp,
@@ -77,7 +86,7 @@ function getFieldConfig(locale, widget: void | RIOSWidgetConfig) {
 }
 
 function getFieldFormatConfig(
-  element: RIOSQuestionElement,
+  question: RIOSQuestion,
   useLocaleFormat: string | true,
   i18n
 ): FieldConfig {
@@ -87,43 +96,102 @@ function getFieldFormatConfig(
     locale = useLocaleFormat;
   }
 
-  return getFieldConfig(locale, element.options.widget);
+  return getFieldConfig(locale, question.widget);
 }
+
+function traverseRIOSQuestion(
+  question: RIOSQuestion,
+  eventKey: string[],
+  configMap: ConfigMap,
+  i18n: any
+) {
+  let updatedEventKey = [...eventKey, question.fieldId];
+
+  if (
+    question.widget &&
+    question.widget.options &&
+    question.widget.options.useLocaleFormat
+  ) {
+    let updatedEventKeyString = updatedEventKey.join(".");
+
+    configMap.set(
+      updatedEventKeyString,
+      getFieldFormatConfig(
+        question,
+        //$FlowFixMe
+        question.widget.options.useLocaleFormat,
+        i18n
+      )
+    );
+  }
+
+  if (question.rows && question.questions) {
+    let rows = question.rows || [];
+    rows.forEach(row => {
+      let questions = question.questions || [];
+      updatedEventKey = [...updatedEventKey, row.id];
+
+      questions.forEach(q => {
+        traverseRIOSQuestion(q, updatedEventKey, configMap, i18n);
+      });
+    });
+  }
+
+  if (!question.rows && question.questions) {
+    question.questions.forEach(q => {
+      traverseRIOSQuestion(q, updatedEventKey, configMap, i18n);
+    });
+  }
+}
+
+const getFormConfig = (
+  formElements: Array<RIOSQuestionElement>,
+  configMap: ConfigMap,
+  i18n: any,
+  eventKey: string[]
+) => {
+  for (let formElement of formElements) {
+    const { options: question } = formElement;
+
+    traverseRIOSQuestion(question, eventKey, configMap, i18n);
+  }
+};
 
 export function getFormFormatConfig({
   form,
-  i18n
+  i18n,
+  instrument
 }: {|
   form: RIOSForm,
-  i18n: any
+  i18n: any,
+  instrument: RIOSInstrument
 |}) {
   const localeFieldsMap: ConfigMap = new Map();
 
+  const { record } = instrument;
+
+  let env = {
+    i18n,
+    validate: new Validate({ i18n }),
+    types: instrument.types
+  };
+
   const pages = form.pages || [];
+  let formElements: Array<RIOSQuestionElement> = [];
 
   for (let page of pages) {
     const { elements } = page;
+
     for (let element of elements) {
       if (element.type !== "question") {
         continue;
       }
-      const { options } = element;
-      if (
-        options.widget &&
-        options.widget.options &&
-        options.widget.options.useLocaleFormat
-      ) {
-        localeFieldsMap.set(
-          options.fieldId,
-          getFieldFormatConfig(
-            element,
-            options.widget.options.useLocaleFormat,
-            i18n
-          )
-        );
-      }
+
+      formElements.push(element);
     }
   }
+
+  getFormConfig(formElements, localeFieldsMap, i18n, []);
 
   return localeFieldsMap;
 }

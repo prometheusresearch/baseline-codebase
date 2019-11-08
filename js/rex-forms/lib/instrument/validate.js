@@ -361,13 +361,6 @@ export default class Validate {
     let minFailure = min != undefined && min > value;
     let maxFailure = max != undefined && max < value;
 
-    console.log("==========");
-    console.log("value: ", value);
-    console.log("min: ", min);
-    console.log("max: ", max);
-    console.log("minFailure: ", min > value);
-    console.log("maxFailure: ", max < value);
-
     if (minFailure || maxFailure) {
       if (min !== undefined && max !== undefined) {
         return this.i18n.gettext("Must be between %(min)s and %(max)s.", {

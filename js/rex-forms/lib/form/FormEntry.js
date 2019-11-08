@@ -33,7 +33,7 @@ function createFormState({
   initialValue = {},
   i18n
 }) {
-  const formatConfig = getFormFormatConfig({ form, i18n });
+  const formatConfig = getFormFormatConfig({ form, i18n, instrument });
 
   let schema = InstrumentSchema.fromInstrument(
     instrument,

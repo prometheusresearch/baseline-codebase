@@ -1,14 +1,33 @@
 /**
+ * @flow
  * @copyright 2016-present, Prometheus Research, LLC
  */
 
 import isArray from "lodash/isArray";
 import isPlainObject from "lodash/isPlainObject";
 import moment from "moment";
+import type { RIOSInstrument } from "../types.js";
 
 import { resolveType } from "./schema";
 
-function coerceEmptyValueToNull(value) {
+type Value = {
+  [key: string]: Value | string
+};
+
+type Assessment = {
+  instrument: {
+    id: string,
+    version: string
+  },
+  values: {
+    [key: string]: Value
+  },
+  meta?: {
+    [key: string]: any
+  }
+};
+
+function coerceEmptyValueToNull(value): null | Object {
   if (
     value === undefined ||
     value === "" ||
@@ -44,8 +63,12 @@ function coerceEmptyValueToNull(value) {
   return result;
 }
 
-function makeAssessmentValue(value) {
-  let result = { value: null };
+type Result = {| value: ?Value, explanation?: any, annotation?: any |};
+
+function makeAssessmentValue(value): Result {
+  let result: Result = {
+    value: null
+  };
   if (value) {
     result.value = coerceEmptyValueToNull(value.value);
   }
@@ -58,7 +81,7 @@ function makeAssessmentValue(value) {
   return result;
 }
 
-function makeAssessmentRecord(value, types, record, valueOverlay) {
+function makeAssessmentRecord(value, types, record = [], valueOverlay) {
   let values = {};
 
   for (let i = 0, len = record.length; i < len; i++) {
@@ -99,12 +122,14 @@ function makeAssessmentRecord(value, types, record, valueOverlay) {
       values[recordId] = makeAssessmentValue(value[recordId]);
       values[recordId].value = values[recordId].value || {};
 
-      fieldType.rows.forEach(row => {
+      let rows = fieldType.rows || [];
+      rows.forEach(row => {
         if (!values[recordId].value[row.id]) {
           values[recordId].value[row.id] = {};
         }
 
-        fieldType.columns.forEach(column => {
+        let columns = fieldType.columns || [];
+        columns.forEach(column => {
           values[recordId].value[row.id][column.id] = makeAssessmentValue(
             values[recordId].value[row.id][column.id]
           );
@@ -128,10 +153,10 @@ function makeAssessmentRecord(value, types, record, valueOverlay) {
  * @returns {Assessment}
  */
 export function makeAssessment(
-  value,
-  instrument,
-  valueOverlay = {},
-  meta = {}
+  value: Object,
+  instrument: RIOSInstrument,
+  valueOverlay: Object = {},
+  meta: Object = {}
 ) {
   let values = makeAssessmentRecord(
     value,
@@ -185,7 +210,7 @@ export function makeAssessment(
     }
   }
 
-  let assessment = {
+  let assessment: Assessment = {
     instrument: {
       id: instrument.id,
       version: instrument.version

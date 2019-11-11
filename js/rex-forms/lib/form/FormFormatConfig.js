@@ -101,6 +101,7 @@ function getFieldFormatConfig(
 
   return getFieldConfig(locale, question.widget);
 }
+
 function traverseRIOSQuestion(
   question: RIOSQuestion,
   eventKey: string[],

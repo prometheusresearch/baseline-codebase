@@ -11,17 +11,16 @@ import type { ConfigMap } from "../form/FormFormatConfig";
 
 import { resolveType } from "./schema";
 
-type Value = {
-  value:
-    | string
-    | null
-    | {
-        [key: string]: Value
-      }
-};
+// TODO: Wrong types
+type ValueObject =
+  | string
+  | number
+  | Array<ValueObject>
+  | { value: string | number }
+  | { [key: string]: ValueObject };
 
-type ValuesTree = {
-  [key: string]: Value
+type ValueCollection = {
+  [key: string]: ValueObject
 };
 
 type Assessment = {
@@ -29,7 +28,7 @@ type Assessment = {
     id: string,
     version: string
   },
-  values: ValuesTree,
+  values: ValueCollection,
   meta?: {
     [key: string]: any
   }
@@ -122,6 +121,10 @@ function replaceDateToISO(
 
   return updatedValue;
 }
+
+export const replaceISOtoLocale = (value: ValueCollection): ValueCollection => {
+  return value;
+};
 
 function makeAssessmentValue(
   value,

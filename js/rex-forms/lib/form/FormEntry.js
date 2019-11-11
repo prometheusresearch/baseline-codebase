@@ -19,7 +19,7 @@ import {
   isFieldCompleted,
   createReactFormsMessages
 } from "../instrument/validate";
-import { makeAssessment } from "../instrument/assessment";
+import { makeAssessment, replaceISOtoLocale } from "../instrument/assessment";
 import FormPage from "./FormPage";
 import FormPaginator from "./FormPaginator";
 import FormContext from "./FormContext";
@@ -40,7 +40,8 @@ function createFormState({
     { i18n },
     { formatConfig }
   );
-  let original = atom(initialValue);
+  let processedInitialValue = replaceISOtoLocale(initialValue);
+  let original = atom(processedInitialValue);
   let event = EventExecutor.create(form, schema, original, parameters);
   schema.event = event;
   let onChange = (update, keyPath) => {

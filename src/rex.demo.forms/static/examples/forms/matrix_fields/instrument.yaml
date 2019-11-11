@@ -117,4 +117,14 @@ record:
           type: text
         - id: col5
           type: date
-
+  - id: q4
+    type:
+      base: matrix
+      rows:
+        - id: row1
+        - id: row2
+      columns:
+        - id: col1
+          type: date
+        - id: col2
+          type: dateTime

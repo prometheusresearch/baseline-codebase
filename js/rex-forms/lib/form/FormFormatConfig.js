@@ -125,37 +125,26 @@ function traverseRIOSQuestion(
     );
   }
 
-  if (question.rows && question.questions) {
-    let rows = question.rows || [];
-    rows.forEach(row => {
-      let questions = question.questions || [];
-      updatedEventKey = [...updatedEventKey, row.id];
+  if (question.questions != null) {
+    if (question.rows != null) {
+      // Matrix
+      let rows = question.rows || [];
+      rows.forEach(row => {
+        let questions = question.questions || [];
+        updatedEventKey = [...updatedEventKey, row.id];
 
-      questions.forEach(q => {
+        questions.forEach(q => {
+          traverseRIOSQuestion(q, updatedEventKey, configMap, i18n);
+        });
+      });
+    } else {
+      // Record
+      question.questions.forEach(q => {
         traverseRIOSQuestion(q, updatedEventKey, configMap, i18n);
       });
-    });
-  }
-
-  if (!question.rows && question.questions) {
-    question.questions.forEach(q => {
-      traverseRIOSQuestion(q, updatedEventKey, configMap, i18n);
-    });
+    }
   }
 }
-
-const getFormConfig = (
-  formElements: Array<RIOSQuestionElement>,
-  configMap: ConfigMap,
-  i18n: any,
-  eventKey: string[]
-) => {
-  for (let formElement of formElements) {
-    const { options: question } = formElement;
-
-    traverseRIOSQuestion(question, eventKey, configMap, i18n);
-  }
-};
 
 export function getFormFormatConfig({
   form,
@@ -191,7 +180,11 @@ export function getFormFormatConfig({
     }
   }
 
-  getFormConfig(formElements, localeFieldsMap, i18n, []);
+  for (let formElement of formElements) {
+    const { options: question } = formElement;
+
+    traverseRIOSQuestion(question, [], localeFieldsMap, i18n);
+  }
 
   return localeFieldsMap;
 }

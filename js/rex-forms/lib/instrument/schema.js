@@ -264,9 +264,9 @@ export function generateValueSchema(
         type: "string",
         format: env.validate.date,
         instrument: { type },
-        dateFormat: dateFormat || undefined,
-        dateRegex: dateRegex || undefined,
-        dateInputMask: dateInputMask || undefined
+        dateFormat,
+        dateRegex,
+        dateInputMask
       };
     case "time":
       return {
@@ -279,13 +279,13 @@ export function generateValueSchema(
         type: "string",
         format: env.validate.dateTime,
         instrument: { type },
-        dateFormat: dateFormat || undefined,
-        dateRegex: dateRegex || undefined,
-        dateInputMask: dateInputMask || undefined,
-        dateTimeRegex: dateTimeRegex || undefined,
-        dateTimeRegexBase: dateTimeRegexBase || undefined,
-        dateTimeFormatBase: dateTimeFormatBase || undefined,
-        dateTimeInputMaskBase: dateTimeInputMaskBase || undefined
+        dateFormat,
+        dateRegex,
+        dateInputMask,
+        dateTimeRegex,
+        dateTimeRegexBase,
+        dateTimeFormatBase,
+        dateTimeInputMaskBase
       };
     case "recordList":
       invariant(type.record != null, "Invalid recordList type");

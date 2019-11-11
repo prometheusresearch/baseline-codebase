@@ -32,7 +32,10 @@ export type ConfigMap = Map<string, FieldConfig>;
 const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
 const DEFAULT_DATETIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
-function getFieldConfig(locale, widget: void | RIOSWidgetConfig) {
+export function getFieldConfig(
+  locale: string,
+  widget: void | RIOSWidgetConfig
+) {
   let date = new Date(Date.UTC(2019, 12, 31, 0, 0, 0));
   let options = { year: "numeric", month: "2-digit", day: "2-digit" };
   let parts = new Intl.DateTimeFormat(locale, options).formatToParts(date);
@@ -98,7 +101,6 @@ function getFieldFormatConfig(
 
   return getFieldConfig(locale, question.widget);
 }
-
 function traverseRIOSQuestion(
   question: RIOSQuestion,
   eventKey: string[],
@@ -131,10 +133,10 @@ function traverseRIOSQuestion(
       let rows = question.rows || [];
       rows.forEach(row => {
         let questions = question.questions || [];
-        updatedEventKey = [...updatedEventKey, row.id];
+        let updatedEventKeyRow = [...updatedEventKey, row.id];
 
         questions.forEach(q => {
-          traverseRIOSQuestion(q, updatedEventKey, configMap, i18n);
+          traverseRIOSQuestion(q, updatedEventKeyRow, configMap, i18n);
         });
       });
     } else {

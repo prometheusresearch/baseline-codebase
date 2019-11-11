@@ -6,6 +6,10 @@
 import assert from "assert";
 import { validate } from "react-forms";
 import { fromInstrument } from "../schema";
+import {
+  getFieldConfig,
+  traverseRIOSQuestion
+} from "../../form/FormFormatConfig";
 
 let MOCK_ENV = {
   i18n: {
@@ -523,6 +527,12 @@ describe("rex-forms/lib/instrument/schema", function() {
             field: "data.key.value"
           }
         ]);
+        assertInvalid(schema, { key: { value: "2012-13-12" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value"
+          }
+        ]);
       });
 
       it("validates with min range constraint", function() {
@@ -578,6 +588,41 @@ describe("rex-forms/lib/instrument/schema", function() {
           }
         ]);
       });
+
+      it("validates with useLocaleFormat 'en'", function() {
+        let formatConfig = new Map();
+        let id = "key";
+        formatConfig.set(id, getFieldConfig("en"));
+        let instrument = {
+          record: [{ id, type: "date" }]
+        };
+        let schema = fromInstrument(instrument, MOCK_ENV, { formatConfig });
+
+        assertValid(schema, {});
+        assertValid(schema, { key: {} });
+        assertValid(schema, { key: { value: "12-12-2012" } });
+        assertInvalid(schema, { key: { value: "13-12-2012" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value"
+          }
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYY",
+            field: "data.key.value"
+          }
+        ]);
+        assertInvalid(schema, { key: { value: 42 } }, [
+          { message: "is the wrong type", field: "data.key.value" }
+        ]);
+        assertInvalid(schema, { key: { value: "oops" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYY",
+            field: "data.key.value"
+          }
+        ]);
+      });
     });
 
     describe('"dateTime" type', function() {
@@ -589,6 +634,12 @@ describe("rex-forms/lib/instrument/schema", function() {
         assertValid(schema, {});
         assertValid(schema, { key: {} });
         assertValid(schema, { key: { value: "2012-12-12T12:12:12" } });
+        assertInvalid(schema, { key: { value: "2012-13-12T12:12:12" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value"
+          }
+        ]);
         assertInvalid(schema, { key: { value: "2012-12-12" } }, [
           {
             message: "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]",
@@ -682,6 +733,54 @@ describe("rex-forms/lib/instrument/schema", function() {
         assertInvalid(schema, { key: { value: "1987-05-08T21:22:22" } }, [
           {
             message: "Must be between %(min)s and %(max)s.",
+            field: "data.key.value"
+          }
+        ]);
+      });
+
+      it("validates with useLocaleFormat 'en'", function() {
+        let formatConfig = new Map();
+        let id = "key";
+        formatConfig.set(id, getFieldConfig("en"));
+        let instrument = {
+          record: [{ id, type: "dateTime" }]
+        };
+        let schema = fromInstrument(instrument, MOCK_ENV, { formatConfig });
+
+        assertValid(schema, {});
+        assertValid(schema, { key: {} });
+        assertValid(schema, { key: { value: "12-12-2012T12:12:12" } });
+        assertValid(schema, { key: { value: "12-12-2012T12:12" } });
+        assertInvalid(schema, { key: { value: "13-12-2012T12:12:12" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value"
+          }
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            field: "data.key.value"
+          }
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12T12:12:12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            field: "data.key.value"
+          }
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            field: "data.key.value"
+          }
+        ]);
+        assertInvalid(schema, { key: { value: 42 } }, [
+          { message: "is the wrong type", field: "data.key.value" }
+        ]);
+        assertInvalid(schema, { key: { value: "oops" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
             field: "data.key.value"
           }
         ]);
@@ -1325,6 +1424,95 @@ describe("rex-forms/lib/instrument/schema", function() {
             {
               message: "Not a valid whole number.",
               field: "data.key.value.row2.col2.value"
+            }
+          ]
+        );
+      });
+
+      it("validates with date and dateTime types using useLocaleFormat 'en'", function() {
+        let formatConfig = new Map();
+        formatConfig.set(
+          "key.row1.col1",
+          getFieldConfig("en", { type: "date" })
+        );
+        formatConfig.set(
+          "key.row2.col1",
+          getFieldConfig("en", { type: "date" })
+        );
+        formatConfig.set(
+          "key.row1.col2",
+          getFieldConfig("en", { type: "dateTime" })
+        );
+        formatConfig.set(
+          "key.row2.col2",
+          getFieldConfig("en", { type: "dateTime" })
+        );
+        let instrument = {
+          record: [
+            {
+              id: "key",
+              type: {
+                base: "matrix",
+                columns: [
+                  { id: "col1", type: "date" },
+                  { id: "col2", type: "dateTime" }
+                ],
+                rows: [{ id: "row1" }, { id: "row2" }]
+              }
+            }
+          ]
+        };
+
+        let schema = fromInstrument(instrument, MOCK_ENV, { formatConfig });
+
+        assertValid(schema, {});
+        assertValid(schema, { key: { value: {} } });
+        assertValid(schema, { key: { value: null } });
+        assertValid(schema, { key: { value: undefined } });
+        assertValid(schema, {
+          key: {
+            value: {
+              row1: {
+                col1: { value: "12-12-2012" },
+                col2: { value: "12-12-2012T12:12" }
+              },
+              row2: {
+                col1: { value: "12-12-2012" },
+                col2: { value: "12-12-2012T12:12:12" }
+              }
+            }
+          }
+        });
+        assertInvalid(schema, { key: { value: 12 } }, [
+          { message: "is the wrong type", field: "data.key.value" }
+        ]);
+        assertInvalid(
+          schema,
+          {
+            key: {
+              value: {
+                row1: { col1: { value: "a" }, col2: { value: 1 } },
+                row2: { col1: { value: "a" }, col2: { value: "foo" } }
+              }
+            }
+          },
+          [
+            {
+              field: "data.key.value.row1.col1.value",
+              message: "This must be entered in the form: MM-DD-YYYY"
+            },
+            {
+              field: "data.key.value.row1.col2.value",
+              message: "is the wrong type"
+            },
+            {
+              field: "data.key.value.row2.col1.value",
+              message: "This must be entered in the form: MM-DD-YYYY"
+            },
+            {
+              field: "data.key.value.row2.col2.value",
+              message: "Not a valid whole number.",
+              message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]"
             }
           ]
         );

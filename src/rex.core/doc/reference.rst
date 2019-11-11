@@ -118,5 +118,6 @@ Validators
 .. automethod:: rex.core.locate
 .. autoclass:: rex.core.ValidatingLoader
    :special-members: __call__, __iter__
+.. autoclass:: rex.core.RexJSONEncoder
 
 

@@ -5,7 +5,13 @@
 .. contents:: Table of Contents
 
 
-1.18.0 (2018-XX-XX)
+1.19.0 (2019-11-11)
+===================
+
+* Make ``Record`` objects JSON-serializable.
+
+
+1.18.0 (2018-12-04)
 ===================
 
 * ``UnionVal``: ``OnField`` can discriminate based on the field value.

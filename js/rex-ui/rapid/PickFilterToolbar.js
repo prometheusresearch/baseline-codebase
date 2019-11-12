@@ -61,13 +61,9 @@ export const PickFilterToolbar = ({
             <FormControl className={classes.formControl}>
               <TextField
                 label="Search"
-                value={state.search}
+                value={state.searchText}
                 onChange={ev => {
                   setSearchState(ev.target.value);
-                }}
-                onBlur={() => {
-                  // Can not setIsSearchInFocus(false) here, since it would be also
-                  // triggered by Suspense-based unmounts
                 }}
                 margin={"none"}
                 InputLabelProps={{

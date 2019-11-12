@@ -18,6 +18,8 @@ import {
   type IntrospectionEnumType
 } from "graphql/utilities/introspectionQuery";
 
+import debounce from "lodash/debounce";
+
 import { makeStyles } from "@material-ui/styles";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
 
@@ -120,6 +122,7 @@ export type PickState = {|
   offset: number,
   limit: number,
   search: ?string,
+  searchText: ?string,
   sort: ?SortDirection,
   filter: { [key: string]: ?boolean }
 |};
@@ -142,9 +145,12 @@ export const PickRenderer = ({
     offset: 0,
     limit: LIMIT_DESKTOP,
     search: null,
+    searchText: null,
     sort: null,
     filter: {}
   });
+
+  const debouncedSetState = React.useMemo(() => debounce(setState, 256), []);
 
   const [showFilters, _setShowFilters] = React.useState(false);
 
@@ -173,12 +179,14 @@ export const PickRenderer = ({
     _setShowFilters(v => !v);
   };
 
-  const setSearchState = (search: string) => {
+  const setSearchState = (searchText: string) => {
     setState(state => ({
       ...state,
       offset: 0,
-      search
+      searchText
     }));
+
+    debouncedSetState(state => ({ ...state, search: searchText }));
   };
 
   const decrementPage = () => {

@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+4.1.0 (2019-11-11)
+==================
+
+* Use ``rex.core.RexJSONEncoder`` in ``json`` Jinja filter.
+
+
 4.0.0 (2019-08-05)
 ==================
 

@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.core',
-    version="1.18.0",
+    version="1.19.0",
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

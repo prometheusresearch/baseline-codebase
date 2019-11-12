@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import get_packages, cached, get_settings, Error
+from rex.core import get_packages, cached, get_settings, Error, RexJSONEncoder
 from .handle import HandleFile
 from .route import url_for, make_sentry_script_tag
 from .auth import authenticate
@@ -108,9 +108,8 @@ def jinja_filter_json(value):
     Characters ``<``, ``>``, and ``&`` are escaped so the output is safe
     to use in the ``<script>`` block.
     """
-    return json.dumps(value, sort_keys=True).replace('<', '\\u003c') \
-                                            .replace('>', '\\u003e') \
-                                            .replace('&', '\\u0026')
+    return json.dumps(value, cls=RexJSONEncoder, sort_keys=True) \
+            .replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
 
 
 def _quote(value):

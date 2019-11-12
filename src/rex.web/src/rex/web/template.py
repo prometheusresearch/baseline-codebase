@@ -108,7 +108,7 @@ def jinja_filter_json(value):
     Characters ``<``, ``>``, and ``&`` are escaped so the output is safe
     to use in the ``<script>`` block.
     """
-    return json.dumps(value, cls=RexJSONEncoder) \
+    return json.dumps(value, cls=RexJSONEncoder, sort_keys=True) \
             .replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
 
 

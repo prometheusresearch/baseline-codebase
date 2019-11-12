@@ -179,7 +179,7 @@ The output of ``json`` is safe to use in a ``<script>`` block::
     <!DOCTYPE html>
     <title>Testing JSON in &lt;script&gt; block</title>
     <script>
-      var tag = {"start": "\u003ctitle\u003e", "end": "\u003c/title\u003e", "content": "Alice, Bob \u0026 Carl"};
+      var tag = {"content": "Alice, Bob \u0026 Carl", "end": "\u003c/title\u003e", "start": "\u003ctitle\u003e"};
     </script>
 
 Filter ``urlencode`` percent-encodes the value::

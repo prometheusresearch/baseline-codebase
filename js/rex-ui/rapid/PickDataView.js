@@ -215,7 +215,7 @@ export const PickDataView = ({
 |}) => {
   const classes = useStyles();
 
-  const tableRef = React.useMemo(() => React.createRef(), []);
+  const wrapperRef = React.useMemo(() => React.createRef(), []);
 
   const [data, setData] = React.useState([]);
   const onDataReceive = React.useMemo(
@@ -227,9 +227,8 @@ export const PickDataView = ({
   );
 
   React.useLayoutEffect(() => {
-    if (tableRef.current != null) {
-      console.log("tableRef.current: ", tableRef.current);
-      tableRef.current.scrollTop = 0;
+    if (wrapperRef.current != null) {
+      wrapperRef.current.scrollTop = 0;
     }
   }, [state]);
 
@@ -317,12 +316,11 @@ export const PickDataView = ({
   }
 
   return (
-    <div className={classes.tableWrapper}>
+    <div className={classes.tableWrapper} ref={wrapperRef}>
       <Table
         className={tableClassNames.join(" ")}
         aria-label="simple table"
         padding={"dense"}
-        innerRef={tableRef}
       >
         {isTabletWidth ? (
           <TableHead>

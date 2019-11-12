@@ -86,7 +86,8 @@ const PickTableBody = ({
   pickState,
   resource,
   fetch,
-  onDataReceive
+  onDataReceive,
+  setTableFullHeight
 }: {|
   columns: Field.FieldSpec[],
   sortingConfig: Array<{| desc: boolean, field: string |}>,
@@ -98,12 +99,16 @@ const PickTableBody = ({
   resource: Resource<any, any>,
   fetch: string,
   onDataReceive: any => void,
+  setTableFullHeight: (is: boolean) => void,
 
   ...PickRendererConfigProps
 |}) => {
   const classes = useStyles();
   const params = buildParams(pickState);
+
+  setTableFullHeight(true);
   const resourceData = useResource(resource, params);
+  setTableFullHeight(false);
 
   if (resourceData == null || columns.length === 0) {
     return null;
@@ -217,6 +222,7 @@ export const PickDataView = ({
 
   const wrapperRef = React.useMemo(() => React.createRef(), []);
 
+  const [isTableFullHeight, setTableFullHeight] = React.useState(false);
   const [data, setData] = React.useState([]);
   const onDataReceive = React.useMemo(
     () => data => {
@@ -311,7 +317,9 @@ export const PickDataView = ({
   });
 
   const tableClassNames = [classes.table];
-  if (data.length === 0) {
+  console.log("isTableFullHeight: ", isTableFullHeight);
+  if (data.length === 0 || isTableFullHeight) {
+    console.log("Should be FULL HEIGHT");
     tableClassNames.push(classes.tableFullHeight);
   }
 
@@ -356,6 +364,7 @@ export const PickDataView = ({
             isTabletWidth={isTabletWidth}
             columnsMap={columnsMap}
             columnsNames={columnsNames}
+            setTableFullHeight={setTableFullHeight}
           />
         </React.Suspense>
       </Table>

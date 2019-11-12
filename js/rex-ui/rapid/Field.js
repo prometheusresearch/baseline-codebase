@@ -74,3 +74,5 @@ export function guessFieldTitle(field: string) {
         .join(" ");
   }
 }
+
+export const FILTER_NO_VALUE = "__undefined__";

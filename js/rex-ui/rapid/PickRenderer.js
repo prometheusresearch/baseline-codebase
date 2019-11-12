@@ -165,7 +165,7 @@ export const PickRenderer = ({
     setState(state => ({
       ...state,
       offset: 0,
-      sort: value === "__undefined__" ? null : JSON.parse(value)
+      sort: value === Field.FILTER_NO_VALUE ? null : JSON.parse(value)
     }));
   };
 

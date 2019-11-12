@@ -21,5 +21,7 @@ CMD ["/app/bin/rex"]
 
 COPY --from=build app /app/
 
+RUN /app/bin/rex
+
 ENV PATH "/app/bin:${PATH}"
 

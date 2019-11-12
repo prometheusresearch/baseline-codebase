@@ -41,7 +41,8 @@ export type ShowRendererProps = {|
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
   renderTitle?: ({| data: any |}) => React.Node,
-  columns: Field.FieldSpec[]
+  columns: Field.FieldSpec[],
+  onCardClick?: (row: any) => void
 |};
 
 const useStyles = makeStyles({
@@ -49,11 +50,26 @@ const useStyles = makeStyles({
     width: "100%",
     marginTop: "8px",
     overflowX: "auto"
+  },
+  card: {},
+  cardClickable: {
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.9
+    }
   }
 });
 
 export const ShowRenderer = (props: ShowRendererProps) => {
-  const { resource, Renderer, fetch, args = {}, renderTitle, columns } = props;
+  const {
+    resource,
+    Renderer,
+    fetch,
+    args = {},
+    renderTitle,
+    columns,
+    onCardClick
+  } = props;
 
   const classes = useStyles();
 
@@ -70,7 +86,14 @@ export const ShowRenderer = (props: ShowRendererProps) => {
     title = renderTitle({ data });
   }
 
-  return <ShowCard title={title} data={data} columns={columns} />;
+  return (
+    <ShowCard
+      onCardClick={onCardClick}
+      title={title}
+      data={data}
+      columns={columns}
+    />
+  );
 };
 
 const commonWrapperStyle = { marginBottom: "16px", wordBreak: "break-word" };
@@ -78,13 +101,20 @@ const commonWrapperStyle = { marginBottom: "16px", wordBreak: "break-word" };
 export const ShowCard = ({
   data,
   title,
-  columns
-}: {
+  columns,
+  onCardClick
+}: {|
   data: any,
   title: React.Node,
-  columns: Field.FieldSpec[]
-}) => {
+  columns: Field.FieldSpec[],
+  onCardClick?: () => void
+|}) => {
   const classes = useStyles();
+
+  let cardClassNames = [classes.card];
+  if (onCardClick) {
+    cardClassNames = [...cardClassNames, classes.cardClickable];
+  }
 
   const content = columns.map(spec => {
     let key = spec.require.field;
@@ -109,7 +139,7 @@ export const ShowCard = ({
     <Grid container spacing={8}>
       <Grid item xs={12}>
         <Paper className={classes.root}>
-          <Card>
+          <Card onClick={onCardClick} className={cardClassNames.join(" ")}>
             <CardContent>
               {title != null && (
                 <Typography variant="h5" gutterBottom>

@@ -53,18 +53,26 @@ const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
 
 const PickCardListView = ({
   data,
-  columns
-}: {
+  columns,
+  onCardClick
+}: {|
   data: Array<any>,
-  columns: Field.FieldSpec[]
-}) => {
+  columns: Field.FieldSpec[],
+  onCardClick?: (row: any) => void
+|}) => {
   const classes = useStyles();
+
   return (
     <div className={classes.tableWrapper}>
       {data.map((row, index) => {
         return (
           <div key={index}>
-            <ShowCard title={null} data={row} columns={columns} />
+            <ShowCard
+              onCardClick={onCardClick ? () => onCardClick(row) : undefined}
+              title={null}
+              data={row}
+              columns={columns}
+            />
           </div>
         );
       })}
@@ -129,7 +137,11 @@ const PickTableBody = ({
       <TableBody>
         <TableRow>
           <TableCell style={{ padding: 0 }}>
-            <PickCardListView data={data} columns={columns} />
+            <PickCardListView
+              onCardClick={onRowClick}
+              data={data}
+              columns={columns}
+            />
           </TableCell>
         </TableRow>
       </TableBody>
@@ -317,9 +329,7 @@ export const PickDataView = ({
   });
 
   const tableClassNames = [classes.table];
-  console.log("isTableFullHeight: ", isTableFullHeight);
   if (data.length === 0 || isTableFullHeight) {
-    console.log("Should be FULL HEIGHT");
     tableClassNames.push(classes.tableFullHeight);
   }
 

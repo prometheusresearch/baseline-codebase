@@ -95,7 +95,9 @@ const PickTableBody = ({
   resource,
   fetch,
   onDataReceive,
-  setTableFullHeight
+  setTableFullHeight,
+  cardsViewOnly,
+  tableViewOnly
 }: {|
   columns: Field.FieldSpec[],
   sortingConfig: Array<{| desc: boolean, field: string |}>,
@@ -133,7 +135,7 @@ const PickTableBody = ({
     return <PickNoDataPlaceholder columns={columns} />;
   }
 
-  if (!isTabletWidth) {
+  if ((!isTabletWidth && !tableViewOnly) || (cardsViewOnly && !tableViewOnly)) {
     return (
       <TableBody>
         <TableRow>
@@ -218,7 +220,9 @@ export const PickDataView = ({
   RendererRow,
   RendererRowCell,
   onRowClick,
-  state
+  state,
+  cardsViewOnly,
+  tableViewOnly
 }: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
@@ -341,7 +345,7 @@ export const PickDataView = ({
         aria-label="simple table"
         padding={"dense"}
       >
-        {isTabletWidth ? (
+        {(isTabletWidth && !cardsViewOnly) || tableViewOnly ? (
           <TableHead>
             <TableRow>{TableHeadRows}</TableRow>
           </TableHead>
@@ -376,6 +380,8 @@ export const PickDataView = ({
             columnsMap={columnsMap}
             columnsNames={columnsNames}
             setTableFullHeight={setTableFullHeight}
+            cardsViewOnly={cardsViewOnly}
+            tableViewOnly={tableViewOnly}
           />
         </React.Suspense>
       </Table>

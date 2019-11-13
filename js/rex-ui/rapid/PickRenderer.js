@@ -59,6 +59,8 @@ export type PickRendererConfigProps = {|
   title?: string,
   description?: string,
   fieldDescription?: ?string,
+  cardsViewOnly?: boolean,
+  tableViewOnly?: boolean,
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -141,7 +143,9 @@ export const PickRenderer = ({
   args,
   title,
   description,
-  fieldDescription
+  fieldDescription,
+  cardsViewOnly,
+  tableViewOnly
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
 
@@ -299,6 +303,8 @@ export const PickRenderer = ({
         fetch={fetch}
         resource={resource}
         onRowClick={onRowClick}
+        cardsViewOnly={cardsViewOnly}
+        tableViewOnly={tableViewOnly}
       />
 
       <PickPagination

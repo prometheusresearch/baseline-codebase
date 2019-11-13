@@ -118,11 +118,11 @@ export const PickFilterToolbar = ({
                 : undefined;
               return value === "Boolean";
             })
-            .map(varDef => {
+            .map((varDef, index) => {
               const booleanFilterName = varDef.variable.name.value;
 
               return (
-                <Grid item xs={6} sm={4} md={3} lg={2}>
+                <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
                   <BooleanFilter
                     key={booleanFilterName}
                     value={state.filter[booleanFilterName]}

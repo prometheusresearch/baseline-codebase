@@ -17,12 +17,14 @@ const buildSortableFieldObjects = ({
   inputFields,
   fieldObjectExtensions,
   introspectionTypesMap,
-  columns
+  columns,
+  sortableColumns
 }: {|
   inputFields: $ReadOnlyArray<IntrospectionInputValue>,
   fieldObjectExtensions: Array<{ [key: string]: any }>,
   introspectionTypesMap: Map<string, IntrospectionType>,
-  columns: Field.FieldSpec[]
+  columns: Field.FieldSpec[],
+  sortableColumns?: string[]
 |}) => {
   const sortFieldsField = inputFields.find(
     inputField => inputField.name === "field" && inputField.type.kind === "ENUM"
@@ -45,6 +47,9 @@ const buildSortableFieldObjects = ({
   sortableFieldNames
     .filter(name => columns.find(col => col.require.field === name))
     .forEach(field => {
+      if (sortableColumns != null && !sortableColumns.includes(field)) {
+        return;
+      }
       fieldObjectExtensions.forEach(fieldObjectExtension => {
         sortableFieldObjects.push({ field, ...fieldObjectExtension });
       });
@@ -57,13 +62,15 @@ export const buildSortingConfig = ({
   variableDefinitions,
   introspectionTypesMap,
   variableDefinitionName,
-  columns
-}: {
+  columns,
+  sortableColumns
+}: {|
   variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
   introspectionTypesMap: Map<string, IntrospectionType>,
   variableDefinitionName: string,
-  columns: Field.FieldSpec[]
-}): Array<{| field: string, desc: boolean |}> => {
+  columns: Field.FieldSpec[],
+  sortableColumns?: string[]
+|}): Array<{| field: string, desc: boolean |}> => {
   if (!variableDefinitions) {
     return [];
   }
@@ -111,7 +118,8 @@ export const buildSortingConfig = ({
     inputFields,
     columns,
     fieldObjectExtensions: [{ desc: true }, { desc: false }],
-    introspectionTypesMap
+    introspectionTypesMap,
+    sortableColumns
   });
 
   return sortableFieldObjects;

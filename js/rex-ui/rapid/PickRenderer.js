@@ -50,7 +50,6 @@ import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
 import * as Field from "./Field.js";
-import { number, bool } from "prop-types";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
@@ -61,6 +60,7 @@ export type PickRendererConfigProps = {|
   description?: string,
   fieldDescription?: ?string,
   showAs?: PickMode,
+  sortableColumns?: string[],
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -144,7 +144,8 @@ export const PickRenderer = ({
   title,
   description,
   fieldDescription,
-  showAs
+  showAs,
+  sortableColumns
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
 
@@ -243,7 +244,8 @@ export const PickRenderer = ({
     variableDefinitions,
     columns,
     introspectionTypesMap,
-    variableDefinitionName: SORTING_VAR_NAME
+    variableDefinitionName: SORTING_VAR_NAME,
+    sortableColumns
   });
 
   const className = showFilters ? classes.filterIconButtonActive : undefined;

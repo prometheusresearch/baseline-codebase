@@ -49,6 +49,7 @@ function App() {
         ]}
         title={"Users"}
         description={"List of users"}
+        sortableColumns={["remote_user"]}
       />
     );
   }, []);

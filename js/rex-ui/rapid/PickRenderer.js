@@ -53,14 +53,14 @@ import * as Field from "./Field.js";
 import { number, bool } from "prop-types";
 
 type CustomRendererProps = { resource: Resource<any, any> };
+type PickMode = "table" | "card-list";
 
 export type PickRendererConfigProps = {|
   fetch: string,
   title?: string,
   description?: string,
   fieldDescription?: ?string,
-  cardsViewOnly?: boolean,
-  tableViewOnly?: boolean,
+  showAs?: PickMode,
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -144,8 +144,7 @@ export const PickRenderer = ({
   title,
   description,
   fieldDescription,
-  cardsViewOnly,
-  tableViewOnly
+  showAs
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
 
@@ -303,8 +302,7 @@ export const PickRenderer = ({
         fetch={fetch}
         resource={resource}
         onRowClick={onRowClick}
-        cardsViewOnly={cardsViewOnly}
-        tableViewOnly={tableViewOnly}
+        showAs={showAs}
       />
 
       <PickPagination

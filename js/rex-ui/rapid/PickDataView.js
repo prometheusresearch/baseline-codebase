@@ -16,6 +16,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import InputLabel from "@material-ui/core/InputLabel";
+import Grid from "@material-ui/core/Grid";
 
 import SwapVertIcon from "@material-ui/icons/SwapVert";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
@@ -63,20 +64,22 @@ const PickCardListView = ({
   const classes = useStyles();
 
   return (
-    <div className={classes.tableWrapper}>
+    <Grid container>
       {data.map((row, index) => {
         return (
-          <div key={index}>
-            <ShowCard
-              onCardClick={onCardClick ? () => onCardClick(row) : undefined}
-              title={null}
-              data={row}
-              columns={columns}
-            />
-          </div>
+          <Grid item xs={12} md={6} lg={4} style={{ padding: "0 8px" }}>
+            <div key={index}>
+              <ShowCard
+                onCardClick={onCardClick ? () => onCardClick(row) : undefined}
+                title={null}
+                data={row}
+                columns={columns}
+              />
+            </div>
+          </Grid>
         );
       })}
-    </div>
+    </Grid>
   );
 };
 
@@ -96,8 +99,7 @@ const PickTableBody = ({
   fetch,
   onDataReceive,
   setTableFullHeight,
-  cardsViewOnly,
-  tableViewOnly
+  showAs
 }: {|
   columns: Field.FieldSpec[],
   sortingConfig: Array<{| desc: boolean, field: string |}>,
@@ -126,6 +128,10 @@ const PickTableBody = ({
 
   const data = React.useMemo(() => {
     const data = _get(resourceData, fetch);
+    /**
+     * Used for pagination to have idea if received date length equal to limit
+     * to know if incremention of page is allowed
+     */
     onDataReceive(data);
     const dataTrimmed = data.slice(0, data.length - 1);
     return dataTrimmed;
@@ -135,7 +141,7 @@ const PickTableBody = ({
     return <PickNoDataPlaceholder columns={columns} />;
   }
 
-  if ((!isTabletWidth && !tableViewOnly) || (cardsViewOnly && !tableViewOnly)) {
+  if ((!isTabletWidth && showAs !== "table") || showAs === "card-list") {
     return (
       <TableBody>
         <TableRow>
@@ -221,8 +227,7 @@ export const PickDataView = ({
   RendererRowCell,
   onRowClick,
   state,
-  cardsViewOnly,
-  tableViewOnly
+  showAs
 }: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
@@ -345,7 +350,7 @@ export const PickDataView = ({
         aria-label="simple table"
         padding={"dense"}
       >
-        {(isTabletWidth && !cardsViewOnly) || tableViewOnly ? (
+        {(isTabletWidth && showAs !== "card-list") || showAs === "table" ? (
           <TableHead>
             <TableRow>{TableHeadRows}</TableRow>
           </TableHead>
@@ -380,8 +385,7 @@ export const PickDataView = ({
             columnsMap={columnsMap}
             columnsNames={columnsNames}
             setTableFullHeight={setTableFullHeight}
-            cardsViewOnly={cardsViewOnly}
-            tableViewOnly={tableViewOnly}
+            showAs={showAs}
           />
         </React.Suspense>
       </Table>

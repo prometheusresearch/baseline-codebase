@@ -78,3 +78,18 @@ record:
   - id: q2
     type: date
 
+  - id: inside_matrix
+    type:
+      base: matrix
+      rows:
+        - id: row1
+      columns:
+        - id: col1
+          type: date
+
+  - id: inside_record_list
+    type:
+      base: recordList
+      record:
+        - id: item1
+          type: date

@@ -56,31 +56,6 @@ pages:
             en: A row and a column are required.
           rows: *rows
           questions: *questions
-      - type: question
-        options:
-          fieldId: q4
-          text:
-            en: A Small With Locale Date Inputs
-          rows:
-            - id: row1
-              text:
-                en: First Row
-            - id: row2
-              text:
-                en: Second Row
-          questions:
-            - fieldId: col1
-              text:
-                en: date column
-              widget:
-                options:
-                  useLocaleFormat: en
-            - fieldId: col2
-              text:
-                en: dateTime column
-              widget:
-                options:
-                  useLocaleFormat: en
 
   - id: page2
     elements:

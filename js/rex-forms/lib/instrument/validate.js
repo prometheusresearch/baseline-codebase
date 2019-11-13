@@ -6,7 +6,7 @@
 import moment from "moment";
 import type { Value, error } from "react-forms";
 import type { I18N } from "rex-i18n";
-import type { JSONSchemaExt } from "../types";
+import type { JSONSchema } from "../types";
 
 import invariant from "invariant";
 import isInteger from "lodash/isInteger";
@@ -96,7 +96,7 @@ export default class Validate {
     this.i18n = i18n;
   }
 
-  number = (value: number, node: JSONSchemaExt) => {
+  number = (value: number, node: JSONSchema) => {
     if (!isFinite(value)) {
       return this.i18n.gettext("Not a valid number.");
     }
@@ -110,7 +110,7 @@ export default class Validate {
     return true;
   };
 
-  integer = (value: number, node: JSONSchemaExt) => {
+  integer = (value: number, node: JSONSchema) => {
     if (!isInteger(value)) {
       return this.i18n.gettext("Not a valid whole number.");
     }
@@ -124,7 +124,7 @@ export default class Validate {
     return true;
   };
 
-  date = (value: string, node: JSONSchemaExt) => {
+  date = (value: string, node: JSONSchema) => {
     const regex = node.dateRegex ? new RegExp(node.dateRegex) : DATE_RE;
     const format = node.dateFormat || ISO_DATE_FORMAT;
 
@@ -147,7 +147,7 @@ export default class Validate {
     return true;
   };
 
-  dateTime = (value: string, node: JSONSchemaExt) => {
+  dateTime = (value: string, node: JSONSchema) => {
     const regex = node.dateTimeRegex
       ? new RegExp(node.dateTimeRegex)
       : DATE_TIME_RE;
@@ -183,7 +183,7 @@ export default class Validate {
     return true;
   };
 
-  time = (value: string, node: JSONSchemaExt) => {
+  time = (value: string, node: JSONSchema) => {
     if (!TIME_RE.exec(value)) {
       return this.i18n.gettext("This must be entered in the form: HH:MM[:SS]");
     }
@@ -201,7 +201,7 @@ export default class Validate {
     return true;
   };
 
-  recordList = (value: Array<Object>, node: JSONSchemaExt) => {
+  recordList = (value: Array<Object>, node: JSONSchema) => {
     value = value || [];
 
     if (value.length > 0) {
@@ -257,7 +257,7 @@ export default class Validate {
     return true;
   };
 
-  matrix = (value: Object, node: JSONSchemaExt) => {
+  matrix = (value: Object, node: JSONSchema) => {
     if (isEmptyValue(value)) {
       invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.required) {
@@ -267,7 +267,7 @@ export default class Validate {
     return true;
   };
 
-  matrixRow = (value: Object, node: JSONSchemaExt) => {
+  matrixRow = (value: Object, node: JSONSchema) => {
     if (isEmptyValue(value)) {
       invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.required) {
@@ -294,7 +294,7 @@ export default class Validate {
     return true;
   };
 
-  enumerationSet = (value: Array<string>, node: JSONSchemaExt) => {
+  enumerationSet = (value: Array<string>, node: JSONSchema) => {
     value = value || [];
     invariant(node.instrument != null, "Incomplete schema");
     if (value.length > 0 && node.instrument.type.length) {
@@ -321,7 +321,7 @@ export default class Validate {
     return true;
   };
 
-  text = (value: string, node: JSONSchemaExt) => {
+  text = (value: string, node: JSONSchema) => {
     value = value || "";
     invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.length) {

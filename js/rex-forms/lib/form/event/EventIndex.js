@@ -15,7 +15,7 @@ import type {
   RIOSHideEnumerationEvent,
   RIOSFailEvent,
   RIOSLocalizedString,
-  JSONSchemaExt,
+  JSONSchema,
   KeyPath
 } from "../../types";
 
@@ -72,7 +72,7 @@ export type EventIndex = {
 };
 
 export type Scope = {
-  node: JSONSchemaExt,
+  node: JSONSchema,
   value: Derivable<mixed>,
   keyPath: KeyPath
 };

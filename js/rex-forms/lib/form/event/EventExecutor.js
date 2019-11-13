@@ -5,7 +5,7 @@
 
 import type {Derivable} from 'derivable';
 import type {
-  JSONSchemaExt,
+  JSONSchema,
   JSONObjectSchema,
   JSONSchemaExtension,
   KeyPath,
@@ -37,7 +37,7 @@ import {createEventIndex, selectScope} from './EventIndex';
 
 export function create(
   form: RIOSForm,
-  node: JSONSchemaExtension & JSONObjectSchema<JSONSchemaExt>,
+  node: JSONObjectSchema,
   value: Derivable<mixed>,
   parameters: Object,
 ) {
@@ -57,13 +57,13 @@ export function create(
 
 function childrenScope(scope: Scope): {[keyPath: string] : Scope} {
   let children = {};
+  let scopeNode = scope.node;
   invariant(
-    // $FlowFixMe: ...
-    scope.node.type === 'object',
+    scopeNode.type === 'object',
     'Invalid schema'
   );
-  for (let k in scope.node.properties) {
-    let node = scope.node.properties[k];
+  for (let k in (scopeNode : JSONObjectSchema).properties) {
+    let node = scopeNode.properties[k];
     invariant(
       node.instrument && node.instrument.type,
       'Invalid schema'

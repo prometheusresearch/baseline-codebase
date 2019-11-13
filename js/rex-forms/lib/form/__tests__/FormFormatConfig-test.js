@@ -3,31 +3,15 @@
  * @flow
  */
 
+import type { RIOSForm, RIOSInstrument } from "../../types.js";
 import assert from "assert";
 import { validate } from "react-forms";
 import { fromInstrument } from "../../instrument/schema";
-import { getFormFormatConfig } from "../FormFormatConfig";
+import * as FormFormatConfig from "../FormFormatConfig";
 
-let MOCK_ENV = {
-  i18n: {
-    gettext: msg => {
-      return msg;
-    },
-    config: {}
-  },
-  types: {}
-};
-
-let MOCK_ENV_EN = {
-  i18n: {
-    gettext: msg => {
-      return msg;
-    },
-    config: {
-      locale: "en"
-    }
-  },
-  types: {}
+let i18n = {
+  gettext: msg => msg,
+  config: { locale: "en" }
 };
 
 function assertValid(schema, value) {
@@ -47,7 +31,7 @@ function assertInvalid(schema, value, expectedErrors) {
 /**
  * Matrix
  */
-const matrix_instrument: any = {
+const matrix_instrument: RIOSInstrument = {
   id: "urn:matrix-fields",
   version: "1.0",
   title: "Fields: Matrix",
@@ -56,20 +40,26 @@ const matrix_instrument: any = {
       base: "matrix",
       rows: [
         {
-          id: "row1"
+          id: "row1",
+          required: false
         },
         {
-          id: "row2"
+          id: "row2",
+          required: false
         }
       ],
       columns: [
         {
           id: "col1",
-          type: "text"
+          type: "text",
+          required: false,
+          identifiable: false
         },
         {
           id: "col2",
-          type: "dateTime"
+          type: "dateTime",
+          required: false,
+          identifiable: false
         }
       ]
     }
@@ -77,12 +67,14 @@ const matrix_instrument: any = {
   record: [
     {
       id: "plain",
-      type: "basic"
+      type: "basic",
+      required: false,
+      identifiable: false
     }
   ]
 };
 
-const matrix_form_en = {
+const matrix_form_en: RIOSForm = {
   instrument: {
     id: "urn:matrix-fields",
     version: "1.0"
@@ -94,6 +86,7 @@ const matrix_form_en = {
       elements: [
         {
           type: "header",
+          tags: [],
           options: {
             text: {
               en: "Constraints"
@@ -102,6 +95,7 @@ const matrix_form_en = {
         },
         {
           type: "question",
+          tags: [],
           options: {
             fieldId: "plain",
             text: {
@@ -130,7 +124,6 @@ const matrix_form_en = {
               },
               {
                 fieldId: "col2",
-                type: "dateTime",
                 text: {
                   en: "Another column"
                 },
@@ -149,7 +142,7 @@ const matrix_form_en = {
   ]
 };
 
-const matrix_form = {
+const matrix_form: RIOSForm = {
   instrument: {
     id: "urn:matrix-fields",
     version: "1.0"
@@ -161,6 +154,7 @@ const matrix_form = {
       elements: [
         {
           type: "header",
+          tags: [],
           options: {
             text: {
               en: "Constraints"
@@ -169,6 +163,7 @@ const matrix_form = {
         },
         {
           type: "question",
+          tags: [],
           options: {
             fieldId: "plain",
             text: {
@@ -197,7 +192,6 @@ const matrix_form = {
               },
               {
                 fieldId: "col2",
-                type: "dateTime",
                 text: {
                   en: "Another column"
                 }
@@ -240,7 +234,7 @@ const records_instrument: any = {
   ]
 };
 
-const records_form_en = {
+const records_form_en: RIOSForm = {
   instrument: {
     id: "urn:recordlist-fields",
     version: "1.0"
@@ -251,6 +245,7 @@ const records_form_en = {
       elements: [
         {
           type: "header",
+          tags: [],
           options: {
             text: {
               en: "Constraints"
@@ -259,6 +254,7 @@ const records_form_en = {
         },
         {
           type: "question",
+          tags: [],
           options: {
             fieldId: "plain",
             text: {
@@ -277,6 +273,7 @@ const records_form_en = {
                   en: "Second is 1."
                 },
                 widget: {
+                  type: "date",
                   options: {
                     useLocaleFormat: "en"
                   }
@@ -290,7 +287,7 @@ const records_form_en = {
   ]
 };
 
-const records_form = {
+const records_form: RIOSForm = {
   instrument: {
     id: "urn:recordlist-fields",
     version: "1.0"
@@ -301,6 +298,7 @@ const records_form = {
       elements: [
         {
           type: "header",
+          tags: [],
           options: {
             text: {
               en: "Constraints"
@@ -309,6 +307,7 @@ const records_form = {
         },
         {
           type: "question",
+          tags: [],
           options: {
             fieldId: "plain",
             text: {
@@ -338,13 +337,13 @@ const records_form = {
 describe("Test matrix date/dateTime fields", function() {
   describe("Test matrix form", function() {
     it("Validate values", function() {
-      let formatConfig = getFormFormatConfig({
-        form: (matrix_form: any),
-        i18n: MOCK_ENV.i18n,
-        instrument: matrix_instrument
-      });
+      let formatConfig = FormFormatConfig.make(
+        (matrix_form: any),
+        i18n.config.locale
+      );
 
-      let schema = fromInstrument(matrix_instrument, MOCK_ENV, {
+      let schema = fromInstrument(matrix_instrument, {
+        i18n,
         formatConfig
       });
 
@@ -390,13 +389,21 @@ describe("Test matrix date/dateTime fields", function() {
 
   describe("Test matrix form with useLocaleConfig 'en'", function() {
     it("Validate values", function() {
-      let formatConfig = getFormFormatConfig({
-        form: (matrix_form_en: any),
-        i18n: MOCK_ENV_EN.i18n,
-        instrument: matrix_instrument
-      });
+      let formatConfig = FormFormatConfig.make(
+        matrix_form_en,
+        i18n.config.locale
+      );
 
-      let schema = fromInstrument(matrix_instrument, MOCK_ENV, {
+      expect(
+        FormFormatConfig.findFieldConfig(formatConfig, [
+          "plain",
+          "row2",
+          "col2"
+        ])
+      ).toBeTruthy();
+
+      let schema = fromInstrument(matrix_instrument, {
+        i18n,
         formatConfig
       });
 
@@ -444,13 +451,13 @@ describe("Test matrix date/dateTime fields", function() {
 describe("Test records date/dateTime fields", function() {
   describe("Test records form", function() {
     it("Validate values", function() {
-      let formatConfig = getFormFormatConfig({
-        form: (records_form: any),
-        i18n: MOCK_ENV_EN.i18n,
-        instrument: records_instrument
-      });
+      let formatConfig = FormFormatConfig.make(
+        records_form,
+        i18n.config.locale
+      );
 
-      let schema = fromInstrument(records_instrument, MOCK_ENV, {
+      let schema = fromInstrument(records_instrument, {
+        i18n,
         formatConfig
       });
 
@@ -475,13 +482,17 @@ describe("Test records date/dateTime fields", function() {
 
   describe("Test records form with partially useLocaleConfig set 'en'", function() {
     it("Validate values", function() {
-      let formatConfig = getFormFormatConfig({
-        form: (records_form_en: any),
-        i18n: MOCK_ENV_EN.i18n,
-        instrument: records_instrument
-      });
+      let formatConfig = FormFormatConfig.make(
+        records_form_en,
+        i18n.config.locale
+      );
 
-      let schema = fromInstrument(records_instrument, MOCK_ENV, {
+      expect(
+        FormFormatConfig.findFieldConfig(formatConfig, ["plain", "subfield1"])
+      ).toBeTruthy();
+
+      let schema = fromInstrument(records_instrument, {
+        i18n,
         formatConfig
       });
 

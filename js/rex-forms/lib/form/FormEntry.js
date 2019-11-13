@@ -19,12 +19,12 @@ import {
   isFieldCompleted,
   createReactFormsMessages
 } from "../instrument/validate";
-import { makeAssessment, replaceISOtoLocale } from "../instrument/assessment";
+import { makeAssessment, makeInitialValue } from "../instrument/assessment";
 import FormPage from "./FormPage";
 import FormPaginator from "./FormPaginator";
 import FormContext from "./FormContext";
 import * as EventExecutor from "./event/EventExecutor";
-import { getFormFormatConfig } from "./FormFormatConfig";
+import * as FormFormatConfig from "./FormFormatConfig";
 
 function createFormState({
   instrument,
@@ -33,14 +33,13 @@ function createFormState({
   initialValue = {},
   i18n
 }) {
-  const formatConfig = getFormFormatConfig({ form, i18n, instrument });
+  const formatConfig = FormFormatConfig.make(form, i18n.config.locale);
 
   let schema = InstrumentSchema.fromInstrument(
     instrument,
-    { i18n },
-    { formatConfig }
+    { i18n, formatConfig },
   );
-  let processedInitialValue = replaceISOtoLocale(initialValue);
+  let processedInitialValue = makeInitialValue(initialValue);
   let original = atom(processedInitialValue);
   let event = EventExecutor.create(form, schema, original, parameters);
   schema.event = event;

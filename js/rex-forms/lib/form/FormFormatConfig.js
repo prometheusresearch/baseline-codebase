@@ -2,7 +2,6 @@
  * @flow
  */
 
-import { generateRecordSchema } from "../instrument/schema";
 import Validate from "../instrument/validate";
 
 import type {
@@ -23,19 +22,72 @@ export type FieldConfig = {|
   dateTimeFormat: string,
   dateTimeInputMaskBase: string,
   DEFAULT_DATE_FORMAT: string,
-  DEFAULT_DATETIME_FORMAT: string,
-  type?: string
+  DEFAULT_DATETIME_FORMAT: string
 |};
 
-export type ConfigMap = Map<string, FieldConfig>;
+export opaque type Config = Map<string, FieldConfig>;
+
+export function make(form: RIOSForm, formLocale: string) {
+  function visitQuestion(question: RIOSQuestion, key: string[]) {
+    key = [...key, question.fieldId];
+
+    if (
+      question.widget &&
+      question.widget.options &&
+      question.widget.options.useLocaleFormat
+    ) {
+      let fieldLocale: string;
+      if (question.widget.options.useLocaleFormat !== true) {
+        fieldLocale = (question.widget.options.useLocaleFormat: string);
+      } else {
+        fieldLocale = formLocale;
+      }
+      config.set(key.join("."), makeFieldConfig(fieldLocale));
+    }
+
+    if (question.questions != null) {
+      if (question.rows != null) {
+        // matrix
+        let rows = question.rows || [];
+        for (let row of rows) {
+          let questions = question.questions || [];
+          for (let q of question.questions) {
+            visitQuestion(q, [...key, row.id]);
+          }
+        }
+      } else {
+        // recordList
+        for (let q of question.questions) {
+          visitQuestion(q, key);
+        }
+      }
+    }
+  }
+
+  let config: Config = new Map();
+  let pages = form.pages || [];
+  for (let page of pages) {
+    for (let element of page.elements) {
+      if (element.type === "question") {
+        visitQuestion(element.options, []);
+      }
+    }
+  }
+  return config;
+}
+
+export function makeEmpty(): Config {
+  return new Map();
+}
+
+export function findFieldConfig(config: Config, key: string[]): ?FieldConfig {
+  return config.get(key.join("."));
+}
 
 const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
 const DEFAULT_DATETIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
-export function getFieldConfig(
-  locale: string,
-  widget: void | RIOSWidgetConfig
-) {
+export function makeFieldConfig(locale: string) {
   let date = new Date(Date.UTC(2019, 12, 31, 0, 0, 0));
   let options = { year: "numeric", month: "2-digit", day: "2-digit" };
   let parts = new Intl.DateTimeFormat(locale, options).formatToParts(date);
@@ -83,111 +135,6 @@ export function getFieldConfig(
     dateTimeFormatBase,
     dateTimeInputMaskBase,
     DEFAULT_DATE_FORMAT,
-    DEFAULT_DATETIME_FORMAT,
-    type: widget ? widget.type : undefined
+    DEFAULT_DATETIME_FORMAT
   };
-}
-
-function getFieldFormatConfig(
-  question: RIOSQuestion,
-  useLocaleFormat: string | true,
-  i18n
-): FieldConfig {
-  let locale = i18n.config.locale;
-
-  if (useLocaleFormat !== true) {
-    locale = useLocaleFormat;
-  }
-
-  return getFieldConfig(locale, question.widget);
-}
-
-function traverseRIOSQuestion(
-  question: RIOSQuestion,
-  eventKey: string[],
-  configMap: ConfigMap,
-  i18n: any
-) {
-  let updatedEventKey = [...eventKey, question.fieldId];
-
-  if (
-    question.widget &&
-    question.widget.options &&
-    question.widget.options.useLocaleFormat
-  ) {
-    let updatedEventKeyString = updatedEventKey.join(".");
-
-    configMap.set(
-      updatedEventKeyString,
-      getFieldFormatConfig(
-        question,
-        //$FlowFixMe
-        question.widget.options.useLocaleFormat,
-        i18n
-      )
-    );
-  }
-
-  if (question.questions != null) {
-    if (question.rows != null) {
-      // Matrix
-      let rows = question.rows || [];
-      rows.forEach(row => {
-        let questions = question.questions || [];
-        let updatedEventKeyRow = [...updatedEventKey, row.id];
-
-        questions.forEach(q => {
-          traverseRIOSQuestion(q, updatedEventKeyRow, configMap, i18n);
-        });
-      });
-    } else {
-      // Record
-      question.questions.forEach(q => {
-        traverseRIOSQuestion(q, updatedEventKey, configMap, i18n);
-      });
-    }
-  }
-}
-
-export function getFormFormatConfig({
-  form,
-  i18n,
-  instrument
-}: {|
-  form: RIOSForm,
-  i18n: any,
-  instrument: RIOSInstrument
-|}) {
-  const localeFieldsMap: ConfigMap = new Map();
-
-  const { record } = instrument;
-
-  let env = {
-    i18n,
-    validate: new Validate({ i18n }),
-    types: instrument.types
-  };
-
-  const pages = form.pages || [];
-  let formElements: Array<RIOSQuestionElement> = [];
-
-  for (let page of pages) {
-    const { elements } = page;
-
-    for (let element of elements) {
-      if (element.type !== "question") {
-        continue;
-      }
-
-      formElements.push(element);
-    }
-  }
-
-  for (let formElement of formElements) {
-    const { options: question } = formElement;
-
-    traverseRIOSQuestion(question, [], localeFieldsMap, i18n);
-  }
-
-  return localeFieldsMap;
 }

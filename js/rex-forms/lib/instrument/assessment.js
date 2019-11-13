@@ -6,33 +6,19 @@
 import isArray from "lodash/isArray";
 import isPlainObject from "lodash/isPlainObject";
 import moment from "moment";
-import type { RIOSInstrument } from "../types.js";
-import type { ConfigMap } from "../form/FormFormatConfig";
+import type {
+  RIOSInstrument,
+  RIOSField,
+  RIOSRecord,
+  RIOSAssessment,
+  RIOSValueCollection,
+  RIOSValueObject,
+  RIOSValue,
+  RIOSExtendedType
+} from "../types.js";
+import * as FormFormatConfig from "../form/FormFormatConfig";
 
 import { resolveType } from "./schema";
-
-// TODO: Wrong types
-type ValueObject =
-  | string
-  | number
-  | Array<ValueObject>
-  | { value: string | number }
-  | { [key: string]: ValueObject };
-
-type ValueCollection = {
-  [key: string]: ValueObject
-};
-
-type Assessment = {
-  instrument: {
-    id: string,
-    version: string
-  },
-  values: ValueCollection,
-  meta?: {
-    [key: string]: any
-  }
-};
 
 function coerceEmptyValueToNull(value): null | Object {
   if (
@@ -70,75 +56,92 @@ function coerceEmptyValueToNull(value): null | Object {
   return result;
 }
 
-type Result = {| value: ?string, explanation?: any, annotation?: any |};
-
-function replaceDateToISO(
-  value: ?string,
-  eventKey: string[],
-  formatConfig: ConfigMap
+function localeFormatToFormat(
+  value: string,
+  fieldType: RIOSExtendedType,
+  format: FormFormatConfig.FieldConfig
 ) {
-  /**
-   * ConfigMap keys are "path.to.folded.value"
-   */
-  let keyString = eventKey.join(".");
-  let valueConfig = formatConfig.get(keyString);
-
-  if (valueConfig == null || value == null) {
-    return null;
-  }
-
-  if (typeof value !== "string") {
-    return value;
-  }
-
-  let updatedValue = value;
-
-  switch (valueConfig.type) {
-    case "datePicker": {
-      if (updatedValue.match(valueConfig.dateRegex)) {
-        const momentObj = moment(updatedValue, valueConfig.dateFormat);
-        if (!momentObj.isValid()) {
-          break;
+  switch (fieldType.base) {
+    case "date": {
+      if (value.match(format.dateRegex)) {
+        const date = moment(value, format.dateFormat);
+        if (!date.isValid()) {
+          return value;
         }
-        updatedValue = momentObj.format(valueConfig.DEFAULT_DATE_FORMAT);
+        return date.format(format.DEFAULT_DATE_FORMAT);
+      } else {
+        return value;
       }
-      break;
+    }
+    case "dateTime": {
+      if (value.match(format.dateTimeRegex)) {
+        const date = moment(value, format.dateTimeFormat);
+        if (!date.isValid()) {
+          return value;
+        }
+        return date.format(format.DEFAULT_DATETIME_FORMAT);
+      } else {
+        return value;
+      }
+    }
+    default: {
+      return value;
+    }
+  }
+}
+
+function formatToLocaleFormat(
+  value: string,
+  fieldType: RIOSExtendedType,
+  format: FormFormatConfig.FieldConfig
+) {
+  switch (fieldType.base) {
+    case "date": {
+      if (value.match(format.dateRegex)) {
+        const date = moment(value, format.dateFormat);
+        if (!date.isValid()) {
+          return value;
+        }
+        return date.format(format.DEFAULT_DATE_FORMAT);
+      } else {
+        return value;
+      }
     }
 
     case "dateTime": {
-      if (updatedValue.match(valueConfig.dateTimeRegex)) {
-        const momentObj = moment(updatedValue, valueConfig.dateTimeFormat);
-        if (!momentObj.isValid()) {
-          break;
+      if (value.match(format.dateTimeRegex)) {
+        const date = moment(value, format.dateTimeFormat);
+        if (!date.isValid()) {
+          return value;
         }
-        updatedValue = momentObj.format(valueConfig.DEFAULT_DATETIME_FORMAT);
+        return date.format(format.DEFAULT_DATETIME_FORMAT);
+      } else {
+        return value;
       }
-      break;
     }
     default: {
+      return value;
     }
   }
-
-  return updatedValue;
 }
-
-export const replaceISOtoLocale = (value: ValueCollection): ValueCollection => {
-  return value;
-};
 
 function makeAssessmentValue(
   value,
-  eventKey: string[],
-  formatConfig: ConfigMap
+  key: string[],
+  fieldType: RIOSExtendedType,
+  formatConfig: FormFormatConfig.Config
 ) {
-  let result: Result = {
+  let result: RIOSValueObject = {
     value: null
   };
   if (value) {
     result.value = coerceEmptyValueToNull(value.value);
 
     // Replace values from locale ones (if used) to ISO date/dateTime
-    result.value = replaceDateToISO(value.value, eventKey, formatConfig);
+    let format = FormFormatConfig.findFieldConfig(formatConfig, key);
+    if (format != null && result.value != null) {
+      result.value = localeFormatToFormat(value.value, fieldType, format);
+    }
   }
   if (value && value.explanation) {
     result.explanation = value.explanation;
@@ -154,15 +157,15 @@ function makeAssessmentRecord(
   types,
   record = [],
   valueOverlay,
-  eventKey: string[],
-  formatConfig: ConfigMap
+  key: string[],
+  formatConfig: FormFormatConfig.Config
 ) {
   let values = {};
 
   for (let i = 0, len = record.length; i < len; i++) {
     let recordId = record[i].id;
     let fieldType = resolveType(record[i].type, types);
-    let updatedEventKey = [...eventKey, recordId];
+    let updatedEventKey = [...key, recordId];
 
     if (valueOverlay[recordId]) {
       // If we're overriding this field, just take the override.
@@ -173,6 +176,7 @@ function makeAssessmentRecord(
       values[recordId] = makeAssessmentValue(
         value[recordId],
         updatedEventKey,
+        fieldType,
         formatConfig
       );
       if (values[recordId].value) {
@@ -204,6 +208,7 @@ function makeAssessmentRecord(
       values[recordId] = makeAssessmentValue(
         value[recordId],
         updatedEventKey,
+        fieldType,
         formatConfig
       );
       values[recordId].value = values[recordId].value || {};
@@ -221,6 +226,7 @@ function makeAssessmentRecord(
           values[recordId].value[row.id][column.id] = makeAssessmentValue(
             values[recordId].value[row.id][column.id],
             columnEventKey,
+            resolveType(column.type, types),
             formatConfig
           );
         });
@@ -230,6 +236,7 @@ function makeAssessmentRecord(
       values[recordId] = makeAssessmentValue(
         value[recordId],
         updatedEventKey,
+        fieldType,
         formatConfig
       );
     }
@@ -250,7 +257,7 @@ export function makeAssessment(
   value: Object,
   instrument: RIOSInstrument,
   valueOverlay: Object = {},
-  meta: { formatConfig: ?ConfigMap } = {}
+  meta: { formatConfig: ?FormFormatConfig.Config } = {}
 ) {
   let values = makeAssessmentRecord(
     value,
@@ -258,10 +265,10 @@ export function makeAssessment(
     instrument.record,
     valueOverlay,
     [],
-    meta.formatConfig || new Map()
+    meta.formatConfig || FormFormatConfig.makeEmpty()
   );
 
-  let assessment: Assessment = {
+  let assessment: RIOSAssessment = {
     instrument: {
       id: instrument.id,
       version: instrument.version
@@ -274,4 +281,113 @@ export function makeAssessment(
   }
 
   return assessment;
+}
+
+/**
+ * Map RIOSValueCollection by applying a mapper function to all scalar fields
+ * (all non martrix and non recordList fields).
+ */
+export let mapValueCollection = (
+  instrument: RIOSInstrument,
+  values: RIOSValueCollection,
+  mapper: (RIOSValue, RIOSField, RIOSExtendedType, string[]) => RIOSValue
+): RIOSValueCollection => {
+  function makeValue(value: ?RIOSValue, field: RIOSField, key: string[]) {
+    let fieldType = resolveType(field.type, instrument.types);
+    switch (fieldType.base) {
+      case "recordList": {
+        let record = fieldType.record;
+        if (record != null && value != null && Array.isArray(value)) {
+          let nextValue = [];
+          for (let item of value) {
+            if (typeof item !== "string") {
+              nextValue.push(makeValueCollection(item, record, key));
+            }
+          }
+          return nextValue;
+        } else {
+          return value;
+        }
+      }
+      case "matrix": {
+        let rows = fieldType.rows;
+        let columns = fieldType.columns;
+        if (
+          rows != null &&
+          columns != null &&
+          value != null &&
+          typeof value === "object" &&
+          !Array.isArray(value)
+        ) {
+          let nextValues = {};
+          for (let rowId in value) {
+            let rowValues = value[rowId];
+            if (rowValues == null) {
+              nextValues[rowId] = rowValues;
+              continue;
+            }
+            let record: RIOSRecord = columns.map(col => ({
+              id: col.id,
+              description: col.description,
+              type: col.type,
+              identifiable: col.identifiable,
+              required: col.required
+            }));
+            let nextRowValues = makeValueCollection(rowValues, record, [
+              ...key,
+              rowId
+            ]);
+            nextValues[rowId] = nextRowValues;
+          }
+          return nextValues;
+        } else {
+          return value;
+        }
+      }
+      default: {
+        if (value != null) {
+          return mapper(value, field, fieldType, key);
+        } else {
+          return value;
+        }
+      }
+    }
+  }
+
+  function makeValueCollection(
+    values: RIOSValueCollection,
+    record: RIOSRecord,
+    key: string[]
+  ): RIOSValueCollection {
+    let nextValues = {};
+    for (let fieldId in values) {
+      let value = values[fieldId];
+      let field = record.find(field => field.id === fieldId);
+      nextValues[fieldId] = {
+        ...value,
+        value:
+          field != null
+            ? makeValue(value.value, field, [...key, field.id])
+            : value.value
+      };
+    }
+    return nextValues;
+  }
+
+  return makeValueCollection(values, instrument.record, []);
+};
+
+export function makeInitialValue(
+  instrument: RIOSInstrument,
+  values: RIOSValueCollection,
+  formatConfig: FormFormatConfig.Config
+): RIOSValueCollection {
+  return mapValueCollection(instrument, values, (value, field, type, key) => {
+    let format = FormFormatConfig.findFieldConfig(formatConfig, key);
+    if (format != null && typeof value === "string") {
+      return formatToLocaleFormat(value, type, format);
+    } else {
+      return value;
+    }
+  });
 }

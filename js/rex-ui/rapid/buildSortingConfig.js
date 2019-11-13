@@ -12,6 +12,7 @@ import {
   type IntrospectionEnumType
 } from "graphql/utilities/introspectionQuery";
 import * as Field from "./Field";
+import { ConfigError } from "./ErrorBoundary";
 
 const buildSortableFieldObjects = ({
   inputFields,
@@ -30,14 +31,20 @@ const buildSortableFieldObjects = ({
     inputField => inputField.name === "field" && inputField.type.kind === "ENUM"
   );
 
-  invariant(sortFieldsField != null, "Could not find 'field' input field");
+  if (sortFieldsField == null) {
+    throw new ConfigError(
+      "Could not find 'field' input field in buildSortableFieldObjects"
+    );
+  }
 
   const enumType: IntrospectionEnumType = (sortFieldsField.type: any);
   const sortFieldsFieldType: IntrospectionEnumType = (introspectionTypesMap.get(
     enumType.name
   ): any);
 
-  invariant(sortFieldsFieldType != null, "Could not find sortFieldsFieldType");
+  if (sortFieldsFieldType == null) {
+    throw new ConfigError("Could not find sortFieldsFieldType");
+  }
 
   const sortableFieldNames = sortFieldsFieldType.enumValues.map(
     val => val.name
@@ -95,10 +102,11 @@ export const buildSortingConfig = ({
   const definitionTypeName = (variableDefinition.type.name.value: any);
   const variableType = introspectionTypesMap.get(definitionTypeName);
 
-  invariant(
-    variableType != null,
-    `Could not get variableType for: ${definitionTypeName}`
-  );
+  if (variableType == null) {
+    throw new ConfigError(
+      `Could not get variableType for: ${definitionTypeName}`
+    );
+  }
 
   const inputObjectType: IntrospectionInputObjectType = (variableType: any);
   const { inputFields } = inputObjectType;

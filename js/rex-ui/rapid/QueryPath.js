@@ -3,6 +3,7 @@
  */
 
 import invariant from "invariant";
+import { ConfigError } from "./ErrorBoundary";
 
 export opaque type QueryPath = string[];
 
@@ -11,7 +12,9 @@ export const make = (value: string | string[] | QueryPath): QueryPath => {
   if (!Array.isArray(value)) {
     path = value.split(".");
   }
-  invariant(path.length != 0, "QueryPath could not be empty");
+  if (path.length == 0) {
+    throw new ConfigError("QueryPath could not be empty");
+  }
   return path;
 };
 

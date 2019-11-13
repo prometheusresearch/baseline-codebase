@@ -9,6 +9,7 @@ import { print } from "graphql/language/printer";
 import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
 import { capitalize } from "./helpers.js";
+import { ConfigError } from "./ErrorBoundary";
 
 export type TypeIntrospectionFieldType = {|
   kind: string,
@@ -77,8 +78,12 @@ const buildQueryAST = (
   }
 
   let rootType = typesMap.get(schema.queryType.name);
-  invariant(rootType != null, "Expected ObjectType at the root");
-  invariant(rootType.kind === "OBJECT", "Expected ObjectType at the root");
+  if (rootType == null) {
+    throw new ConfigError("Expected ObjectType at the root");
+  }
+  if (rootType.kind !== "OBJECT") {
+    throw new ConfigError("Expected ObjectType at the root");
+  }
 
   let [
     selectionSet,
@@ -222,7 +227,7 @@ const buildSelectionSet = (
         if (field.name === "id") {
           fieldSpec = { title: "ID", require: { field: "id" } };
         } else {
-          invariant(false, `Missing field spec for ${field.name}`);
+          throw new ConfigError(`Missing field spec for ${field.name}`);
         }
       }
 
@@ -395,7 +400,9 @@ const resolveField = (
   introspection.IntrospectionObjectType
 ] => {
   const field = type.fields.find(f => f.name === fieldName);
-  invariant(field, `No field "${type.name}.${fieldName}" found`);
+  if (field == null) {
+    throw new ConfigError(`No field "${type.name}.${fieldName}" found`);
+  }
 
   function resolveType(typeRef) {
     let nextType;
@@ -432,6 +439,8 @@ const resolveField = (
   }
 
   let nextType = resolveType(field.type);
-  invariant(nextType.kind === "OBJECT", "Expected object type");
+  if (nextType.kind !== "OBJECT") {
+    throw new ConfigError("Expected object type for nextType.kind");
+  }
   return [field, nextType];
 };

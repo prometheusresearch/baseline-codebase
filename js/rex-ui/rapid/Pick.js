@@ -3,7 +3,6 @@
  */
 
 import * as React from "react";
-import invariant from "invariant";
 
 import { useQuery, type Endpoint, type Result } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource";
@@ -13,6 +12,7 @@ import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import { buildQuery } from "./buildQuery";
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
 import * as Field from "./Field.js";
+import { ErrorBoundary } from "./ErrorBoundary.js";
 
 export type PickProps = {|
   endpoint: Endpoint,
@@ -21,7 +21,7 @@ export type PickProps = {|
   ...PickRendererConfigProps
 |};
 
-export let Pick = (props: PickProps) => {
+export let PickBase = (props: PickProps) => {
   let { endpoint, fields = null, fetch, ...rest } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
@@ -67,3 +67,9 @@ export let Pick = (props: PickProps) => {
     />
   );
 };
+
+export let Pick = (props: PickProps) => (
+  <ErrorBoundary>
+    <PickBase {...props} />
+  </ErrorBoundary>
+);

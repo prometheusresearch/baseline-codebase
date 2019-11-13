@@ -58,6 +58,7 @@ export type PickRendererConfigProps = {|
   fetch: string,
   title?: string,
   description?: string,
+  fieldDescription?: ?string,
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -139,7 +140,8 @@ export const PickRenderer = ({
   onRowClick,
   args,
   title,
-  description
+  description,
+  fieldDescription
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
 
@@ -254,7 +256,7 @@ export const PickRenderer = ({
       <div className={topPartClassNames.join(" ")}>
         <PickHeader
           title={title}
-          description={description}
+          description={description || fieldDescription}
           rightToolbar={
             <IconButton
               onClick={toggleFilters}

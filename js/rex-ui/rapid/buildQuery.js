@@ -44,7 +44,8 @@ export const buildQuery = ({
   ast: ast.DocumentNode,
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
-  fields: Field.FieldSpec[]
+  fields: Field.FieldSpec[],
+  fieldDescription?: ?string
 |} => {
   const info = buildQueryAST(schema, path, fields);
   const query = print(info.ast);
@@ -53,7 +54,8 @@ export const buildQuery = ({
     ast: info.ast,
     queryDefinition: info.queryDefinition,
     introspectionTypesMap: info.introspectionTypesMap,
-    fields: info.fields
+    fields: info.fields,
+    fieldDescription: info.description
   };
 };
 
@@ -66,7 +68,8 @@ const buildQueryAST = (
   columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
-  fields: Field.FieldSpec[]
+  fields: Field.FieldSpec[],
+  description: ?string
 |} => {
   let typesMap: Map<string, introspection.IntrospectionType> = new Map();
   for (let t of schema.types) {
@@ -77,7 +80,13 @@ const buildQueryAST = (
   invariant(rootType != null, "Expected ObjectType at the root");
   invariant(rootType.kind === "OBJECT", "Expected ObjectType at the root");
 
-  let [selectionSet, columns, inputValues, fields] = buildSelectionSet(
+  let [
+    selectionSet,
+    columns,
+    inputValues,
+    fields,
+    fieldDescription
+  ] = buildSelectionSet(
     typesMap,
     rootType,
     QueryPath.toArray(path),
@@ -101,7 +110,8 @@ const buildQueryAST = (
     columns,
     introspectionTypesMap: typesMap,
     queryDefinition: operationDefinition,
-    fields
+    fields,
+    description: fieldDescription
   };
 };
 
@@ -135,7 +145,8 @@ const buildSelectionSet = (
   ast.SelectionSetNode,
   ast.FieldNode[],
   introspection.IntrospectionInputValue[],
-  Field.FieldSpec[]
+  Field.FieldSpec[],
+  ?string
 ] => {
   // Break the recursion
   if (path.length === 0) {
@@ -232,7 +243,7 @@ const buildSelectionSet = (
       selections
     };
 
-    return [selectionSet, selections, inputValues, fieldSpecs];
+    return [selectionSet, selections, inputValues, fieldSpecs, null];
   } else {
     const [fieldName, ...restPath] = path;
     const [field, fieldType] = resolveField(typesMap, type, fieldName);
@@ -263,7 +274,13 @@ const buildSelectionSet = (
         }
       ]
     };
-    return [ast, selections, inputValues.concat(nextInputValues), fieldSpecs];
+    return [
+      ast,
+      selections,
+      inputValues.concat(nextInputValues),
+      fieldSpecs,
+      field.description
+    ];
   }
 };
 

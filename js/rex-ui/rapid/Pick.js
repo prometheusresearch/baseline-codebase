@@ -29,7 +29,8 @@ export let Pick = (props: PickProps) => {
     resource,
     fieldSpecs,
     introspectionTypesMap,
-    queryDefinition
+    queryDefinition,
+    fieldDescription
   } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
     let fieldSpecs = Field.configureFields(fields);
@@ -37,7 +38,8 @@ export let Pick = (props: PickProps) => {
       query,
       queryDefinition,
       introspectionTypesMap,
-      fields: nextFieldSpecs
+      fields: nextFieldSpecs,
+      fieldDescription
     } = buildQuery({
       schema,
       path,
@@ -48,7 +50,8 @@ export let Pick = (props: PickProps) => {
       resource,
       fieldSpecs: nextFieldSpecs,
       introspectionTypesMap,
-      queryDefinition
+      queryDefinition,
+      fieldDescription
     };
   }, [fetch, schema, endpoint]);
 
@@ -60,6 +63,7 @@ export let Pick = (props: PickProps) => {
       queryDefinition={queryDefinition}
       introspectionTypesMap={introspectionTypesMap}
       columns={fieldSpecs}
+      fieldDescription={fieldDescription}
     />
   );
 };

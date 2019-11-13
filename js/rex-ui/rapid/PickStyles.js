@@ -43,7 +43,9 @@ export const useStyles = makeStyles({
   },
   formControl: {
     minWidth: 120,
-    marginLeft: 16
+    marginBottom: 24,
+    width: "100%",
+    paddingRight: 16
   },
   tableHead: {
     background: "white",

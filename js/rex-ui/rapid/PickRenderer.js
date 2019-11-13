@@ -113,8 +113,8 @@ const PickHeader = ({ title, description, rightToolbar }) => {
   );
 };
 
-const LIMIT_MOBILE = 20;
-const LIMIT_DESKTOP = 50;
+const LIMIT_MOBILE = 21;
+const LIMIT_DESKTOP = 51;
 
 type SortDirection = {| field: string, desc: boolean |};
 
@@ -141,14 +141,25 @@ export const PickRenderer = ({
   title,
   description
 }: PickRendererProps) => {
+  const isTabletWidth = useMediaQuery("(min-width: 720px)");
+
   let [state, setState] = React.useState<PickState>({
     offset: 0,
-    limit: LIMIT_DESKTOP,
+    limit: isTabletWidth ? LIMIT_DESKTOP : LIMIT_MOBILE,
     search: null,
     searchText: null,
     sort: null,
     filter: {}
   });
+
+  React.useEffect(
+    () =>
+      setState(state => ({
+        ...state,
+        limit: isTabletWidth ? LIMIT_DESKTOP : LIMIT_MOBILE
+      })),
+    [isTabletWidth]
+  );
 
   const debouncedSetState = React.useMemo(() => debounce(setState, 256), []);
 
@@ -156,7 +167,6 @@ export const PickRenderer = ({
 
   const [viewData, setViewData] = React.useState<Array<any>>([]);
 
-  const isTabletWidth = useMediaQuery("(min-width: 720px)");
   const classes = useStyles();
 
   const setFilterState = (name: string, value: ?boolean) => {
@@ -191,7 +201,7 @@ export const PickRenderer = ({
 
   const decrementPage = () => {
     const offset =
-      state.offset - state.limit <= 0 ? 0 : state.offset - state.limit;
+      state.offset + 1 - state.limit <= 0 ? 0 : state.offset + 1 - state.limit;
     setState(state => ({
       ...state,
       offset
@@ -199,7 +209,7 @@ export const PickRenderer = ({
   };
 
   const incrementPage = () => {
-    const offset = state.offset + state.limit;
+    const offset = state.offset - 1 + state.limit;
     setState(state => ({
       ...state,
       offset
@@ -218,7 +228,8 @@ export const PickRenderer = ({
     ) {
       setState(state => ({
         ...state,
-        search: ""
+        search: "",
+        searchText: ""
       }));
     }
   }, [variableDefinitions]);

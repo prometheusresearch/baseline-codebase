@@ -55,54 +55,58 @@ export const PickFilterToolbar = ({
       alignItems="center"
       className={classNames.join(" ")}
     >
-      <Grid item>
+      <Grid item xs={12}>
         <FormGroup row>
           {hasSearch ? (
-            <FormControl className={classes.formControl}>
-              <TextField
-                label="Search"
-                value={state.searchText}
-                onChange={ev => {
-                  setSearchState(ev.target.value);
-                }}
-                margin={"none"}
-                InputLabelProps={{
-                  shrink: true
-                }}
-              />
-            </FormControl>
+            <Grid item xs={6} sm={4} md={3} lg={2}>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  label="Search"
+                  value={state.searchText}
+                  onChange={ev => {
+                    setSearchState(ev.target.value);
+                  }}
+                  margin={"none"}
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                />
+              </FormControl>
+            </Grid>
           ) : null}
 
           {hasSorting ? (
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
-              <Select
-                value={
-                  state.sort
-                    ? JSON.stringify(state.sort)
-                    : Field.FILTER_NO_VALUE
-                }
-                onChange={ev => {
-                  setSortingState(ev.target.value);
-                }}
-                inputProps={{
-                  name: `sorting`
-                }}
-              >
-                <MenuItem
-                  key={Field.FILTER_NO_VALUE}
-                  value={Field.FILTER_NO_VALUE}
-                />
-                {sortingConfig.map((obj, index) => {
-                  const value = JSON.stringify(obj);
-                  return (
-                    <MenuItem key={index} value={value}>
-                      {`${obj.field}, ${obj.desc ? "desc" : "asc"}`}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
+            <Grid item xs={6} sm={4} md={3} lg={2}>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
+                <Select
+                  value={
+                    state.sort
+                      ? JSON.stringify(state.sort)
+                      : Field.FILTER_NO_VALUE
+                  }
+                  onChange={ev => {
+                    setSortingState(ev.target.value);
+                  }}
+                  inputProps={{
+                    name: `sorting`
+                  }}
+                >
+                  <MenuItem
+                    key={Field.FILTER_NO_VALUE}
+                    value={Field.FILTER_NO_VALUE}
+                  />
+                  {sortingConfig.map((obj, index) => {
+                    const value = JSON.stringify(obj);
+                    return (
+                      <MenuItem key={index} value={value}>
+                        {`${obj.field}, ${obj.desc ? "desc" : "asc"}`}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </Grid>
           ) : null}
 
           {variableDefinitions
@@ -118,12 +122,14 @@ export const PickFilterToolbar = ({
               const booleanFilterName = varDef.variable.name.value;
 
               return (
-                <BooleanFilter
-                  key={booleanFilterName}
-                  value={state.filter[booleanFilterName]}
-                  onValue={value => setFilterState(booleanFilterName, value)}
-                  name={booleanFilterName}
-                />
+                <Grid item xs={6} sm={4} md={3} lg={2}>
+                  <BooleanFilter
+                    key={booleanFilterName}
+                    value={state.filter[booleanFilterName]}
+                    onValue={value => setFilterState(booleanFilterName, value)}
+                    name={booleanFilterName}
+                  />
+                </Grid>
               );
             })}
         </FormGroup>

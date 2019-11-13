@@ -125,7 +125,8 @@ const PickTableBody = ({
   const data = React.useMemo(() => {
     const data = _get(resourceData, fetch);
     onDataReceive(data);
-    return data;
+    const dataTrimmed = data.slice(0, data.length - 1);
+    return dataTrimmed;
   }, [resourceData, fetch, onDataReceive]);
 
   if (data.length === 0) {

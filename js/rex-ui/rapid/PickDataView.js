@@ -179,6 +179,7 @@ const PickTableBody = ({
               align="left"
               variant={"head"}
               className={classes.tableCell}
+              title={value}
             >
               {column.render ? (
                 <column.render value={value} />
@@ -323,6 +324,7 @@ export const PickDataView = ({
         className={cellClasses}
         variant={"head"}
         style={columnStyle}
+        title={title}
       >
         {RendererColumnCell ? (
           <RendererColumnCell column={column} index={index} key={index} />

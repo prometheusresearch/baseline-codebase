@@ -51,7 +51,10 @@ export const useStyles = makeStyles({
     background: "white",
     position: "sticky",
     top: 0,
-    color: DEFAULT_TEXT_COLOR
+    color: DEFAULT_TEXT_COLOR,
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    overflow: "hidden"
   },
   tableHeadSortable: {
     cursor: "pointer",
@@ -86,12 +89,16 @@ export const useStyles = makeStyles({
     boxShadow: "0 0 10px -8px"
   },
   tableCell: {
-    wordBreak: "break-word",
-    color: DEFAULT_TEXT_COLOR
+    color: DEFAULT_TEXT_COLOR,
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    overflow: "hidden"
   },
   tableCellContentWrapper: {
-    display: "relative",
-    paddingRight: 24
+    paddingRight: 24,
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    overflow: "hidden"
   },
   tableCellSortIcon: {
     position: "absolute",

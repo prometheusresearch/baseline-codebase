@@ -51,7 +51,7 @@ function App() {
         description={"List of users"}
         sortableColumns={["remote_user"]}
         columnsWidth={{
-          remote_user: "50%",
+          remote_user: "25%",
           phone: 200
         }}
       />

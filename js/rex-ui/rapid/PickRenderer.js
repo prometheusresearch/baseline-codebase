@@ -171,8 +171,6 @@ export const PickRenderer = ({
 
   const debouncedSetState = React.useMemo(() => debounce(setState, 256), []);
 
-  const [showFilters, _setShowFilters] = React.useState(false);
-
   const [viewData, setViewData] = React.useState<Array<any>>([]);
 
   const classes = useStyles();
@@ -191,10 +189,6 @@ export const PickRenderer = ({
       offset: 0,
       sort: value === Field.FILTER_NO_VALUE ? null : JSON.parse(value)
     }));
-  };
-
-  const toggleFilters = () => {
-    _setShowFilters(v => !v);
   };
 
   const setSearchState = (searchText: string) => {
@@ -249,6 +243,27 @@ export const PickRenderer = ({
     variableDefinitionName: SORTING_VAR_NAME,
     sortableColumns
   });
+
+  // Decide if filters block is opened including state from localStorage
+  const filtersLocalStorageKey = queryDefinition.variableDefinitions
+    ? `rapidFilterOpened_${queryDefinition.variableDefinitions
+        .map(obj => obj.variable.name.value)
+        .join("_")}`
+    : null;
+  let filtersLocalStorageOpened = false;
+  if (filtersLocalStorageKey != null) {
+    filtersLocalStorageOpened = localStorage.getItem(filtersLocalStorageKey);
+  }
+  const [showFilters, _setShowFilters] = React.useState(
+    filtersLocalStorageOpened === "true" ? true : false
+  );
+
+  const toggleFilters = () => {
+    _setShowFilters(v => !v);
+    filtersLocalStorageKey
+      ? localStorage.setItem(filtersLocalStorageKey, String(!showFilters))
+      : null;
+  };
 
   const className = showFilters ? classes.filterIconButtonActive : undefined;
 

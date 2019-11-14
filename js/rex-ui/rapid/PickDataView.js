@@ -179,12 +179,12 @@ const PickTableBody = ({
               align="left"
               variant={"head"}
               className={classes.tableCell}
-              title={value}
+              title={RenderValue({ value })}
             >
               {column.render ? (
                 <column.render value={value} />
               ) : (
-                <RenderValue value={value} />
+                <span>{RenderValue({ value })}</span>
               )}
             </TableCell>
           );

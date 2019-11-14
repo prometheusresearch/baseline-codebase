@@ -8,15 +8,15 @@ export let RenderValue = ({ value }: {| value: any |}) => {
   switch (value) {
     case undefined:
     case null: {
-      return <span>—</span>;
+      return "—";
     }
     case true: {
-      return <span>Yes</span>;
+      return "Yes";
     }
     case false: {
-      return <span>No</span>;
+      return "No";
     }
     default:
-      return <span>{String(value)}</span>;
+      return String(value);
   }
 };

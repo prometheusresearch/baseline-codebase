@@ -50,6 +50,10 @@ function App() {
         title={"Users"}
         description={"List of users"}
         sortableColumns={["remote_user"]}
+        columnsWidth={{
+          remote_user: "50%",
+          phone: 200
+        }}
       />
     );
   }, []);

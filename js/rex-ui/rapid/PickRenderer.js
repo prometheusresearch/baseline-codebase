@@ -61,6 +61,7 @@ export type PickRendererConfigProps = {|
   fieldDescription?: ?string,
   showAs?: PickMode,
   sortableColumns?: string[],
+  columnsWidth?: { [key: string]: string | number },
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -145,7 +146,8 @@ export const PickRenderer = ({
   description,
   fieldDescription,
   showAs,
-  sortableColumns
+  sortableColumns,
+  columnsWidth
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
 
@@ -305,6 +307,7 @@ export const PickRenderer = ({
         resource={resource}
         onRowClick={onRowClick}
         showAs={showAs}
+        columnsWidth={columnsWidth}
       />
 
       <PickPagination

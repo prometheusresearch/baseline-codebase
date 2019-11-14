@@ -227,7 +227,8 @@ export const PickDataView = ({
   RendererRowCell,
   onRowClick,
   state,
-  showAs
+  showAs,
+  columnsWidth
 }: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
@@ -309,6 +310,11 @@ export const PickDataView = ({
 
     const title = column.title || capitalize(columnName);
 
+    const columnStyle =
+      columnsWidth && columnsWidth[columnName]
+        ? { width: columnsWidth[columnName] }
+        : undefined;
+
     return (
       <TableCell
         onClick={onTableHeadClick}
@@ -316,6 +322,7 @@ export const PickDataView = ({
         key={columnName}
         className={cellClasses}
         variant={"head"}
+        style={columnStyle}
       >
         {RendererColumnCell ? (
           <RendererColumnCell column={column} index={index} key={index} />

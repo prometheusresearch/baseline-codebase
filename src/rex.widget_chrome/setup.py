@@ -11,7 +11,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
     maintainer_email='contact@prometheusresearch.com',
-    license='AGPLv3',
+    license='Apache-2.0',
     url='https://bitbucket.org/rexdb/rex.widget_chrome',
     package_dir={'': 'src'},
     include_package_data=True,

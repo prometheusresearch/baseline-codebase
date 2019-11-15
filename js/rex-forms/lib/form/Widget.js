@@ -22,8 +22,8 @@ let WidgetRoot = style(Block, {
   border: css.border(1, "transparent"),
   focus: {
     outline: css.none,
-    border: css.border(1, "#ccc")
-  }
+    border: css.border(1, "#ccc"),
+  },
 });
 
 type Props = {|
@@ -42,7 +42,7 @@ type Props = {|
    * TODO(andreypopp): get rid of children prop eventually as it's hard to type
    */
   renderInput?: WidgetInputProps => React.Node,
-  children?: React.Node
+  children?: React.Node,
 |};
 
 const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
@@ -50,11 +50,11 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
     static propTypes = {
       formValue: PropTypes.object.isRequired,
       disabled: PropTypes.bool.isRequired,
-      question: PropTypes.object.isRequired
+      question: PropTypes.object.isRequired,
     };
 
     static defaultProps = {
-      question: {}
+      question: {},
     };
 
     isUnmounted: boolean;
@@ -93,7 +93,7 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
           variant: { error: hasError && showErrorList },
           onBlur: () => this.onToggleShowErrorList(true),
           instrument,
-          formValue
+          formValue,
         });
       } else if (children != null) {
         children = React.Children.only(children);
@@ -102,12 +102,12 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
           value: formValue.value,
           onChange: this.onChange,
           variant: { error: hasError && showErrorList },
-          onBlur: () => this.onToggleShowErrorList(true)
+          onBlur: () => this.onToggleShowErrorList(true),
         });
       } else {
         invariant(
           false,
-          "Widget: missing either renderInput or children props"
+          "Widget: missing either renderInput or children props",
         );
       }
       return (
@@ -149,9 +149,9 @@ const Widget: React.AbstractComponent<Props> = ReactForms.reactive(
         });
       },
       200,
-      { leading: false, trailing: true }
+      { leading: false, trailing: true },
     );
-  }
+  },
 );
 
 export default Widget;

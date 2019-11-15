@@ -2,6 +2,10 @@
   "name": "rex-webpack-config",
   "version": "1.0.0",
   "description": "webpack config for rex applicatons",
+  "bin": {
+    "rex-webpack-build": "./bin/build.js",
+    "rex-webpack-watch": "./bin/watch.js"
+  },
   "dependencies": {
     "@babel/core": "7.1.6",
     "@svgr/webpack": "2.4.1",

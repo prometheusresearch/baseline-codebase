@@ -7,7 +7,7 @@ Overview
 ========
 The RexDB |R| platform is a framework for building web applications around
 medical research data management. RexDB is free software created by Prometheus
-Research, LLC and is released under the AGPLv3 license with a commensurate
+Research, LLC and is released under the Apache v2 license with a commensurate
 attribution clause. For more information, please visit http://rexdb.org/.
 
 The development of this product was supported by the National Institute of
@@ -51,6 +51,7 @@ Components
    REX.SENDMAIL <rex.sendmail/index>
    REX.SETUP <rex.setup/index>
    REX.SMS <rex.sms/index>
+   REX.STORAGE <rex.storage/index>
    REX.TABULAR_IMPORT <rex.tabular_import/index>
    REX.URLMAP <rex.urlmap/index>
    REX.WEB <rex.web/index>

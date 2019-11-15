@@ -18,7 +18,7 @@ import { style } from "react-stylesheet";
 import type {
   WidgetProps,
   WidgetInputProps,
-  InstrumentDateTime
+  InstrumentDateTime,
 } from "../WidgetConfig.js";
 import { getDatesFromRange } from "../WidgetConfig";
 import MaskedInput from "../MaskedInput";
@@ -33,28 +33,31 @@ import {
   InputWrapper,
   Toggler,
   TogglerIconStyle,
-  ButtonsWrapper
+  ButtonsWrapper,
 } from "./styled.components";
 import ErrorList from "../ErrorList";
 
-const DATE_FORMAT = "YYYY-MM-DD";
+const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
+const DEFAULT_INPUT_MASK = "9999-99-99";
 
 const theme = createMuiTheme();
 
 const InputDate = (props: WidgetInputProps) => {
+  const { schema } = props.formValue;
+
   const [viewDate, setViewDate] = React.useState(Moment());
   const [mode, setMode] = React.useState("days");
   const [showModal, setShowModal] = React.useState(false);
 
-  const { instrument, formValue, ...rest } = props;
+  const { instrument, formValue, value, ...rest } = props;
+  const dateFormat = schema.dateFormat || DEFAULT_DATE_FORMAT;
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    DATE_FORMAT
+    DEFAULT_DATE_FORMAT,
   );
 
-  let selectedDate =
-    props.value != null ? Moment(props.value, DATE_FORMAT) : Moment();
+  let selectedDate = value != null ? Moment(value, dateFormat) : Moment();
 
   if (!selectedDate.isValid()) {
     selectedDate = null;
@@ -66,12 +69,13 @@ const InputDate = (props: WidgetInputProps) => {
 
   const onSelectedDate = (date: ?moment$Moment) => {
     setShowModal(false);
-    const dateString = date != null ? date.format(DATE_FORMAT) : "";
+    const dateString = date != null ? date.format(dateFormat) : "";
     props.onChange(dateString);
   };
 
   const onChange = value => {
-    let viewDate = value != null ? Moment(value, DATE_FORMAT) : Moment();
+    let momentFormatted = Moment(value, dateFormat);
+    let viewDate = value != null ? momentFormatted : Moment();
 
     if (!viewDate.isValid()) {
       viewDate = Moment();
@@ -99,6 +103,7 @@ const InputDate = (props: WidgetInputProps) => {
         <InputWrapper>
           <ReactUI.Input
             {...rest}
+            value={value}
             onChange={onChange}
             Component={MaskedInput}
           />
@@ -144,16 +149,24 @@ function DatePicker(props: WidgetProps) {
     options: props.options
       ? {
           ...props.options,
-          width: props.options.width || "small"
+          width: props.options.width || "small",
         }
       : {
-          width: "small"
-        }
+          width: "small",
+        },
   };
+  const { schema } = updatedProps.formValue;
 
-  let renderInput = (props: WidgetInputProps) => (
-    <ReactForms.Input {...props} Component={InputDate} mask="9999-99-99" />
-  );
+  let renderInput = (props: WidgetInputProps) => {
+    const { schema } = props.formValue;
+    return (
+      <ReactForms.Input
+        {...props}
+        Component={InputDate}
+        mask={schema.dateInputMask || DEFAULT_INPUT_MASK}
+      />
+    );
+  };
 
   return <InputText {...updatedProps} renderInput={renderInput} />;
 }

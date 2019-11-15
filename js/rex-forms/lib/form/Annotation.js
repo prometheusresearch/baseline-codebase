@@ -49,7 +49,7 @@ export default InjectI18N(
                 <ReactUI.Block>
                   <QuestionLabel
                     text={this._(
-                      "Please explain why you can't or won't respond to this question:"
+                      "Please explain why you can't or won't respond to this question:",
                     )}
                     required={required}
                   />
@@ -84,6 +84,6 @@ export default InjectI18N(
           );
         }
       }
-    }
-  )
+    },
+  ),
 );

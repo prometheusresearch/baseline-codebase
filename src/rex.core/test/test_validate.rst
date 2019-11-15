@@ -1637,6 +1637,14 @@ Cloned records inherit their location from the original record::
     >>> locate(p1.__clone__(age=p1.age+1))
     Location('<unicode string>', 0)
 
+Records can be serialized as JSON objects using a custom JSON encoder::
+
+    >>> import json
+    >>> from rex.core import RexJSONEncoder
+
+    >>> print(json.dumps(p1, cls=RexJSONEncoder))
+    {"name": "Alice", "age": 33}
+
 
 ``!include``
 ============

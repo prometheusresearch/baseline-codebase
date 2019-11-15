@@ -41,5 +41,5 @@ export default InjectI18N(
 
       return <AudioPlayerBase {...this.props} source={source} />;
     }
-  }
+  },
 );

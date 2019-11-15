@@ -2,95 +2,119 @@ import pytest
 import util
 
 from rex.core import Rex
-from rex.storage import get_storage, StorageError, File
+from rex.storage import get_storage, StorageError
+
+
+def setup_function():
+    util.reset_storage()
 
 
 @pytest.fixture(scope="module")
 def rex():
     return Rex(
         "rex.storage_test",
-        storage_credentials={"local": {"key": util.storage_path}},
+        storage_credentials={
+            "local": {
+                "key": util.storage_path,
+            }
+        },
     )
 
 
 @pytest.fixture(autouse=True)
 def with_rex(rex):
-    # Wrap each test case with `with rex: ...`
     with rex:
         yield
 
 
-def test_add():
-    with pytest.raises(NotImplementedError):
-        get_storage().add("/rst/newfile", "foobar")
+def test_object_list():
+    objects = sorted([
+        obj.name
+        for obj in get_storage().object_list('/rst/stuff')
+    ])
+    assert objects == [
+        'bar',
+        'foo',
+        'subdir/baz',
+    ]
+
+    objects = sorted([
+        obj.name
+        for obj in get_storage().object_list('/rst')
+    ])
+    assert objects == [
+        'settings.yaml',
+        'stuff/bar',
+        'stuff/foo',
+        'stuff/subdir/baz',
+    ]
 
 
-def test_get_blob():
-    blob = get_storage().get_blob("/rst/stuff/foo")
-    assert blob is not None
-    assert blob.name == "stuff/foo"
+def test_mount_iter():
+    objects = sorted([
+        obj.name
+        for obj in get_storage().mounts['/rst/']
+    ])
+    assert objects == [
+        'settings.yaml',
+        'stuff/bar',
+        'stuff/foo',
+        'stuff/subdir/baz',
+    ]
 
 
-def test_download():
-    buf = get_storage().download("/rst/stuff/foo")
-    assert buf.read() == b"hello\n"
+def test_object_tree():
+    tree = util.flatten_object_tree(
+        get_storage().object_tree('/rst/stuff')
+    )
+    assert tree == {
+        'bar': 'bar',
+        'foo': 'foo',
+        'subdir/': {
+            'baz': 'subdir/baz',
+        },
+    }
 
-
-def test_open():
-    file = get_storage().open("/rst/stuff/foo")
-    assert isinstance(file, File)
+    tree = util.flatten_object_tree(
+        get_storage().object_tree('/rst')
+    )
+    assert tree == {
+        'settings.yaml': 'settings.yaml',
+        'stuff/': {
+            'bar': 'stuff/bar',
+            'foo': 'stuff/foo',
+            'subdir/': {
+                'baz': 'stuff/subdir/baz',
+            },
+        },
+    }
 
 
 def test_exists():
-    assert get_storage().exists("/rst/stuff/foo") is True
-    assert get_storage().exists("/rst/doesntexist") is False
+    assert get_storage().exists('/rst/stuff/bar') is True
+    assert get_storage().exists('/rst/doesntexist') is False
 
 
-def test_is_file():
-    assert get_storage().is_file("/rst/stuff/foo") is True
-    assert get_storage().is_file("/rst/stuff") is False
+def test_put():
+    with pytest.raises(NotImplementedError):
+        get_storage().put("/rst/newfile", "foobar")
 
 
-def test_is_dir():
-    assert get_storage().is_dir("/rst/stuff/foo") is False
-    assert get_storage().is_dir("/rst/stuff") is True
+def test_get():
+    file = get_storage().get('/rst/stuff/foo')
+    assert file.path.name == 'stuff/foo'
+    content = file.read()
+    assert content == b"hello\n"
 
-
-def test_get_target():
-    target = get_storage().get_target("/rst/stuff/foo")
-    assert target == ("rex://rex.storage_test/", "stuff/foo")
-
-
-def test_list_objects():
-    objects = dict(get_storage().list_objects("/rst/stuff"))
-    assert "foo" in objects
-    assert "bar" in objects
-    assert "subdir/baz" in objects
-    assert len(objects) == 3
-
-    objects = dict(get_storage().list_objects("/rst"))
-    assert "settings.yaml" in objects
-    assert "stuff/foo" in objects
-    assert "stuff/bar" in objects
-    assert "stuff/subdir/baz" in objects
-    assert len(objects) == 4
-
-
-def test_ls():
-    objects = dict(get_storage().ls("/rst/stuff"))
-    assert objects["foo"] is not None
-    assert objects["bar"] is not None
-    assert objects["subdir/"] is None
-    assert len(objects) == 3
-
-    objects = dict(get_storage().ls("/rst"))
-    assert objects["settings.yaml"] is not None
-    assert objects["stuff/"] is None
-    assert len(objects) == 2
+    file = get_storage().get('/rst/stuff/foo', encoding='utf8')
+    assert file.path.name == 'stuff/foo'
+    content = file.read()
+    assert isinstance(content, str)
+    assert content == "hello\n"
 
 
 def test_driver_iter():
-    driver = get_storage().get_container("rex://rex.storage_test/").driver
+    driver = get_storage().mounts['/rst/'].container.driver
     containers = list(driver)
     assert len(containers) == 1
     assert containers[0].name == "rex.storage_test"
@@ -98,28 +122,29 @@ def test_driver_iter():
 
 
 def test_driver_regions():
-    driver = get_storage().get_container("rex://rex.storage_test/").driver
+    driver = get_storage().mounts['/rst/'].container.driver
     assert driver.regions == []
 
 
 def test_container_cdn():
-    container = get_storage().get_container("rex://rex.storage_test/")
+    container = get_storage().mounts['/rst/'].container
     assert container.enable_cdn() == False
     assert container.disable_cdn() == False
 
 
 def test_container_cdn_url():
-    container = get_storage().get_container("rex://rex.storage_test/")
+    container = get_storage().mounts['/rst/'].container
     assert container.cdn_url.endswith("share/rex/rex.storage_test")
 
 
 def test_container_contains():
-    container = get_storage().get_container("rex://rex.storage_test/")
+    container = get_storage().mounts['/rst/'].container
     assert "stuff/foo" in container
     assert "doesntexist" not in container
 
 
 def test_blob_cdn_url():
-    container = get_storage().get_container("rex://rex.storage_test/")
+    container = get_storage().mounts['/rst/'].container
     blob = container.get_blob("stuff/foo")
     assert blob.cdn_url.endswith("share/rex/rex.storage_test/stuff/foo")
+

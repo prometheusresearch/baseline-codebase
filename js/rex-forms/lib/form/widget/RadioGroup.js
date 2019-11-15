@@ -4,7 +4,7 @@
 
 import invariant from "invariant";
 import * as React from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import * as ReactForms from "react-forms/reactive";
 import * as ReactDOM from "react-dom";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
@@ -25,16 +25,16 @@ let RadioInput = style(ReactUI.Radio, {
   Label: {
     fontSize: null,
     disabled: {
-      color: "#aaa"
-    }
+      color: "#aaa",
+    },
   },
   LabelWrapper: {
-    maxWidth: "90%"
-  }
+    maxWidth: "90%",
+  },
 });
 
 let RadioGroupInput = style(ReactUI.RadioGroup, {
-  Radio: props => <RadioInput {...props} />
+  Radio: props => <RadioInput {...props} />,
 });
 
 export default InjectI18N(
@@ -51,11 +51,11 @@ export default InjectI18N(
         /**
          * Show an option which clears the current value.
          */
-        showEmptyOption: PropTypes.bool
+        showEmptyOption: PropTypes.bool,
       };
 
       static contextTypes = {
-        ...FormContext.contextTypes
+        ...FormContext.contextTypes,
       };
 
       componentDidUpdate() {
@@ -90,7 +90,7 @@ export default InjectI18N(
         if (type.base === "boolean") {
           options = [
             { value: true, label: this._("Yes") },
-            { value: false, label: this._("No") }
+            { value: false, label: this._("No") },
           ];
         } else if (type.base === "enumeration") {
           // If question.options.enumerations is available then use them, otherwise
@@ -104,7 +104,7 @@ export default InjectI18N(
                   audio={enumeration.audio}
                 />
               ),
-              hint: enumeration.help && <Help>{enumeration.help}</Help>
+              hint: enumeration.help && <Help>{enumeration.help}</Help>,
             }));
           } else {
             options = Object.keys(type.enumerations)
@@ -112,7 +112,7 @@ export default InjectI18N(
               .map(enumeration => {
                 return {
                   value: enumeration,
-                  label: enumeration
+                  label: enumeration,
                 };
               });
           }
@@ -120,14 +120,14 @@ export default InjectI18N(
           if (event) {
             let hidden = event.hiddenEnumerations(eventKey);
             options = options.filter(
-              enumeration => hidden.indexOf(enumeration.value) === -1
+              enumeration => hidden.indexOf(enumeration.value) === -1,
             );
           }
         } else {
           invariant(
             false,
             "<RadioGroup /> is incompatible with field of type %s",
-            type.base
+            type.base,
           );
         }
 
@@ -136,7 +136,7 @@ export default InjectI18N(
             value: null,
             label: (
               <ReactUI.Text color="#AAAAAA">{this._("No Value")}</ReactUI.Text>
-            )
+            ),
           });
         }
 
@@ -157,7 +157,7 @@ export default InjectI18N(
                 );
                 return {
                   ...option,
-                  label
+                  label,
                 };
               } else {
                 return option;
@@ -184,17 +184,16 @@ export default InjectI18N(
                 </Widget>
               </Hotkey.HotkeyHandler>
             </Hotkey.EditHotKeyHandler>
-            {!noClearButton &&
-              formValue.value != null && (
-                <ReactUI.QuietButton
-                  tabIndex={-1}
-                  disabled={disabled}
-                  size="small"
-                  onClick={this.onClearValue}
-                >
-                  {this._("Clear My Selection")}
-                </ReactUI.QuietButton>
-              )}
+            {!noClearButton && formValue.value != null && (
+              <ReactUI.QuietButton
+                tabIndex={-1}
+                disabled={disabled}
+                size="small"
+                onClick={this.onClearValue}
+              >
+                {this._("Clear My Selection")}
+              </ReactUI.QuietButton>
+            )}
           </ReactUI.Block>
         );
       }
@@ -216,6 +215,6 @@ export default InjectI18N(
           this.focusNext();
         }
       };
-    }
-  )
+    },
+  ),
 );

@@ -24,14 +24,14 @@ export type Locator = (value: mixed) => Array<Array<string | number>>;
 // Pages can be targets
 export type PageTargetIndexItem = {
   type: "page",
-  target: Array<string>
+  target: Array<string>,
 };
 
 // Tags can be targets.
 export type TagTargetIndexItem = {
   type: "tag",
   target: Array<string>,
-  elements: Array<RIOSElement>
+  elements: Array<RIOSElement>,
 };
 
 // Fields can be targets and some of the fields are scoped (within matrix row or
@@ -40,7 +40,7 @@ export type FieldTargetIndexItem = {
   type: "field",
   target: Array<string>,
   locate: Locator,
-  index: { [targetID: string]: FieldTargetIndexItem }
+  index: { [targetID: string]: FieldTargetIndexItem },
 };
 
 export type TargetIndexItem =
@@ -49,12 +49,12 @@ export type TargetIndexItem =
   | TagTargetIndexItem;
 
 export type TargetIndex = {
-  [targetID: string]: TargetIndexItem
+  [targetID: string]: TargetIndexItem,
 };
 
 export function getLocalTargetIndex(
   index: TargetIndex,
-  id: string
+  id: string,
 ): { [targetID: string]: FieldTargetIndexItem } {
   let item = index[id];
 
@@ -72,7 +72,7 @@ export function createTargetIndex(form: RIOSForm): TargetIndex {
     // register page
     index[page.id] = {
       type: "page",
-      target: [page.id]
+      target: [page.id],
     };
 
     if (parent == null) {
@@ -83,7 +83,7 @@ export function createTargetIndex(form: RIOSForm): TargetIndex {
         locate: function locate(_value) {
           return [[question.fieldId, "value"]];
         },
-        index: {}
+        index: {},
       };
 
       // register row-level questions
@@ -101,7 +101,7 @@ export function createTargetIndex(form: RIOSForm): TargetIndex {
         locate: function locateColumn(_value) {
           return [[parent.fieldId, "value", row.id, question.fieldId, "value"]];
         },
-        index: {}
+        index: {},
       };
 
       // column reference
@@ -113,7 +113,7 @@ export function createTargetIndex(form: RIOSForm): TargetIndex {
           locate: function locateColumnWithinRow(_value) {
             return [[question.fieldId, "value"]];
           },
-          index: {}
+          index: {},
         };
       }
       localIndex[question.fieldId].target.push(id);
@@ -134,10 +134,10 @@ export function createTargetIndex(form: RIOSForm): TargetIndex {
             "value",
             index,
             question.fieldId,
-            "value"
+            "value",
           ]);
         },
-        index: {}
+        index: {},
       };
 
       // local reference
@@ -148,7 +148,7 @@ export function createTargetIndex(form: RIOSForm): TargetIndex {
         locate: function locateWithinRecordListItem(_value) {
           return [[question.fieldId, "value"]];
         },
-        index: {}
+        index: {},
       };
     }
   });
@@ -159,7 +159,7 @@ export function createTargetIndex(form: RIOSForm): TargetIndex {
       item = {
         type: "tag",
         target: [id],
-        elements: []
+        elements: [],
       };
       index[id] = item;
     }

@@ -36,7 +36,7 @@
     ]
   },
   "author": "Prometheus Research, LLC",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/prometheusresearch/react-stylesheet/issues"
   },

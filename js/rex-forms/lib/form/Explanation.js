@@ -71,7 +71,7 @@ export default InjectI18N(
                   onClick={this.onShow}
                 >
                   {this._(
-                    "I would like to explain my response to this question."
+                    "I would like to explain my response to this question.",
                   )}
                 </ReactUI.QuietButton>
               )}
@@ -79,6 +79,6 @@ export default InjectI18N(
           );
         }
       }
-    }
-  )
+    },
+  ),
 );

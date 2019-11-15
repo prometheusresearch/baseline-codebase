@@ -8,12 +8,12 @@ import type {
   RIOSPage,
   RIOSElement,
   RIOSQuestion,
-  RIOSTag
-} from '../types';
+  RIOSTag,
+} from "../types";
 
 export function forEachPage(
   form: RIOSForm,
-  onPage: (page: RIOSPage, context: Object) => void
+  onPage: (page: RIOSPage, context: Object) => void,
 ): void {
   for (let i = 0; i < form.pages.length; i++) {
     let page = form.pages[i];
@@ -29,24 +29,27 @@ export function forEachPage(
  */
 export function forEachElement(
   form: RIOSForm,
-  onElement: (element: RIOSElement, context: {page: RIOSPage}) => void
+  onElement: (element: RIOSElement, context: { page: RIOSPage }) => void,
 ): void {
   forEachPage(form, (page, context) => {
     for (let j = 0; j < page.elements.length; j++) {
       let element = page.elements[j];
-      onElement(element, {...context, page});
+      onElement(element, { ...context, page });
     }
   });
 }
 
 export function forEachTag(
   form: RIOSForm,
-  onTag: (tag: RIOSTag, context: {page: RIOSPage; element: RIOSElement}) => void
+  onTag: (
+    tag: RIOSTag,
+    context: { page: RIOSPage, element: RIOSElement },
+  ) => void,
 ): void {
   forEachElement(form, (element, context) => {
     if (element.tags) {
       element.tags.forEach(tag => {
-        onTag(tag, {...context, element});
+        onTag(tag, { ...context, element });
       });
     }
   });
@@ -63,16 +66,24 @@ export function forEachQuestion(
   onQuestion: (
     question: RIOSQuestion,
     context: {
-      page: RIOSPage;
-      element: RIOSElement;
-      parent: ?RIOSQuestion;
-      row: ?Object;
-    }
+      page: RIOSPage,
+      element: RIOSElement,
+      parent: ?RIOSQuestion,
+      row: ?Object,
+    },
   ) => void,
 ) {
-  forEachElement(form, (element, {page}) => {
-    if (element.type === 'question') {
-      _forEachQuestion(element.options, page, element, null, null, onQuestion, false);
+  forEachElement(form, (element, { page }) => {
+    if (element.type === "question") {
+      _forEachQuestion(
+        element.options,
+        page,
+        element,
+        null,
+        null,
+        onQuestion,
+        false,
+      );
     }
   });
 }
@@ -90,22 +101,38 @@ export function forEachQuestionOnce(
   onQuestion: (
     question: RIOSQuestion,
     context: {
-      page: RIOSPage;
-      element: RIOSElement;
-      parent: ?RIOSQuestion;
-      row: ?Object;
-    }
+      page: RIOSPage,
+      element: RIOSElement,
+      parent: ?RIOSQuestion,
+      row: ?Object,
+    },
   ) => void,
 ) {
-  forEachElement(form, (element, {page}) => {
-    if (element.type === 'question') {
-      _forEachQuestion(element.options, page, element, null, null, onQuestion, true);
+  forEachElement(form, (element, { page }) => {
+    if (element.type === "question") {
+      _forEachQuestion(
+        element.options,
+        page,
+        element,
+        null,
+        null,
+        onQuestion,
+        true,
+      );
     }
   });
 }
 
-function _forEachQuestion(question, page, element, parent, row, onQuestion, onceForCell) {
-  onQuestion(question, {page, element, parent, row});
+function _forEachQuestion(
+  question,
+  page,
+  element,
+  parent,
+  row,
+  onQuestion,
+  onceForCell,
+) {
+  onQuestion(question, { page, element, parent, row });
 
   if (question.questions) {
     if (question.rows) {

@@ -5,15 +5,20 @@ from rex.core import (
     RecordVal, UnionVal, PathVal, MapVal, OnScalar, OnMap, StrVal, AnyVal
 )
 from .errors import StorageError
-from .driver import DRIVERS
+from .driver import DRIVERS, is_url
 
-RE_URL = r'^(?P<service>.+?)://(?P<container>[^/]+)/(?P<path>.*)$'
-re_url = re.compile(RE_URL)
+
+RE_URL = re.compile(
+    r'^(?P<service>.+?)://(?P<container>[^/]+)/(?P<path>.*)$',
+)
+
 
 def parse_url(url):
-    match = re.match(RE_URL, url)
+    match = RE_URL.match(url)
     if match is None:
-        raise StorageError(f'URL `{url}` does not match the regexp: `{RE_URL}`')
+        raise StorageError(
+            f'URL `{url}` does not match the regexp: `{RE_URL.pattern}`'
+        )
     service = match.group('service')
     if service not in DRIVERS:
         drivers = ", ".join(DRIVERS.keys())
@@ -21,27 +26,27 @@ def parse_url(url):
     return (service, match.group('container'), match.group('path'))
 
 
-novalue = object()
+NO_VALUE = object()
+
 
 class ServiceConfigVal(Validate):
 
     _validate = RecordVal(
-        ('key', PathVal(), novalue),
-        ('secret', StrVal(), novalue),
-        ('salt', StrVal(), novalue),
+        ('key', PathVal(), NO_VALUE),
+        ('secret', StrVal(), NO_VALUE),
+        ('salt', StrVal(), NO_VALUE),
     )
 
     def __call__(self, value):
         value = self._validate(value)
         value = value._asdict()
-        for k, v in list(value.items()):
-            if v is novalue:
-                del value[k]
+        for key, val in list(value.items()):
+            if val is NO_VALUE:
+                del value[key]
         return value
 
 
 class StorageVal(Validate):
-
     storage_val_pre = UnionVal(
         (OnMap, MapVal(StrVal(), AnyVal())),
         (OnScalar, StrVal()),
@@ -65,6 +70,7 @@ class StorageVal(Validate):
             config = ServiceConfigVal()(config)
         return {**config, 'url': url}
 
+
 def normalize_path(path):
     path = path.strip()
     if not path.startswith("/"):
@@ -79,4 +85,25 @@ def normalize_mount_point(path):
     return path if path.endswith("/") else path + "/"
 
 
+def join(*args):
+    res = []
+    for arg in args:
+        arg = arg.strip()
+        if arg.startswith('/') or is_url(arg):
+            res = []  # abs path remove all previous parts
+        parts = (arg[:-1] if arg.endswith('/') else arg).split('/')
+        for part in parts:
+            if part == '.':
+                continue
+            if part == '..':
+                if res and res[-1]:
+                    res.pop(-1)
+                else:
+                    raise StorageError(
+                        'Cannot use relative paths to access files outside the'
+                        ' container'
+                    )
+            else:
+                res.append(part)
+    return '/'.join(res)
 

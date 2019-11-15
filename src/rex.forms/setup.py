@@ -14,11 +14,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
     author_email='contact@prometheusresearch.com',
-    license='AGPLv3',
-    classifiers=[
-        'Programming Language :: Python :: 2.7',
-        'License :: OSI Approved :: GNU Affero General Public License v3',
-    ],
+    license='Apache-2.0',
     url='https://bitbucket.org/rexdb/rex.forms',
     package_dir={'': 'src'},
     packages=find_packages('src'),

@@ -126,31 +126,25 @@ export default InjectI18N(
         </Focus.FocusableList>
       );
     }
-  }
+  },
 );
 
-let PageButton = React.forwardRef(({
-  onPage,
-  pageNumber,
-  active,
-  hidden,
-  style,
-  children,
-  ...props
-}, ref) => {
-  let display = hidden ? "none" : "inline-block";
-  return (
-    <ReactUI.Button
-      {...props}
-      ref={ref}
-      variant={{ active }}
-      style={{ ...style, display }}
-      onClick={onPage && onPage.bind(null, { pageNumber })}
-    >
-      {children}
-    </ReactUI.Button>
-  );
-})
+let PageButton = React.forwardRef(
+  ({ onPage, pageNumber, active, hidden, style, children, ...props }, ref) => {
+    let display = hidden ? "none" : "inline-block";
+    return (
+      <ReactUI.Button
+        {...props}
+        ref={ref}
+        variant={{ active }}
+        style={{ ...style, display }}
+        onClick={onPage && onPage.bind(null, { pageNumber })}
+      >
+        {children}
+      </ReactUI.Button>
+    );
+  },
+);
 
 function EllipsisButton(props) {
   return (

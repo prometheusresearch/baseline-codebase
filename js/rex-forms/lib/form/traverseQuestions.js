@@ -3,7 +3,7 @@
  * @flow
  */
 
-import type {RIOSForm, RIOSQuestion} from '../types';
+import type { RIOSForm, RIOSQuestion } from "../types";
 
 type Callback = (question: RIOSQuestion, page: string, deep: boolean) => mixed;
 
@@ -14,17 +14,15 @@ type Callback = (question: RIOSQuestion, page: string, deep: boolean) => mixed;
  * @param {Function<Question, PageId, isDeep>}
  */
 export default function traverseQuestions(form: RIOSForm, cb: Callback) {
-
   for (let i = 0; i < form.pages.length; i++) {
     let page = form.pages[i];
     for (let j = 0; j < page.elements.length; j++) {
       let element = page.elements[j];
-      if (element.type === 'question') {
+      if (element.type === "question") {
         _traverseQuestions(element.options, page.id, cb, false);
       }
     }
   }
-
 }
 
 function _traverseQuestions(question, page, cb, isDeep) {

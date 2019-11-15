@@ -4,7 +4,7 @@
 
 import * as ReactForms from "react-forms";
 import * as React from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import isArray from "lodash/isArray";
 import isString from "lodash/isString";
@@ -94,14 +94,14 @@ export default InjectI18N(
        *   reconcile: { [widgetType: string]: React.Component },
        * }
        */
-      widgetConfig: PropTypes.object
+      widgetConfig: PropTypes.object,
     };
 
     static defaultProps = {
       parameters: {},
       onComplete: noop,
       onChange: noop,
-      apiUrls: {}
+      apiUrls: {},
     };
 
     constructor(props, context) {
@@ -115,9 +115,9 @@ export default InjectI18N(
           onChange: this.onChange,
           validate: (schema, value) => {
             return ReactForms.Schema.validate(schema, value, { messages });
-          }
+          },
         }),
-        isComplete: false
+        isComplete: false,
       };
     }
 
@@ -128,7 +128,7 @@ export default InjectI18N(
         discrepancies,
         entries,
         apiUrls,
-        widgetConfig
+        widgetConfig,
       } = this.props;
       let { formValue } = this.state;
       let showComplete = !this.state.isComplete;
@@ -162,25 +162,25 @@ export default InjectI18N(
       if (form !== this.props.form) {
         console.warn(
           // eslint-disable-line no-console
-          '<Reconciler /> does not handle updating "form" prop'
+          '<Reconciler /> does not handle updating "form" prop',
         );
       }
       if (instrument !== this.props.instrument) {
         console.warn(
           // eslint-disable-line no-console
-          '<Reconciler /> does not handle updating "instrument" prop'
+          '<Reconciler /> does not handle updating "instrument" prop',
         );
       }
       if (parameters !== this.props.parameters) {
         console.warn(
           // eslint-disable-line no-console
-          '<Reconciler /> does not handle updating "parameters" prop'
+          '<Reconciler /> does not handle updating "parameters" prop',
         );
       }
       if (discrepancies !== this.props.discrepancies) {
         console.warn(
           // eslint-disable-line no-console
-          '<Reconciler /> does not handle updating "discrepancies" prop'
+          '<Reconciler /> does not handle updating "discrepancies" prop',
         );
       }
     }
@@ -188,21 +188,21 @@ export default InjectI18N(
     onComplete = () => {
       this.setState(
         {
-          isComplete: true
+          isComplete: true,
         },
         () => {
           this.props.onComplete({
-            solution: makeSolution(this.state.formValue.value)
+            solution: makeSolution(this.state.formValue.value),
           });
-        }
+        },
       );
     };
 
     onChange = formValue => {
       this.props.onChange({
-        solution: makeSolution(formValue.value)
+        solution: makeSolution(formValue.value),
       });
       this.setState({ formValue });
     };
-  }
+  },
 );

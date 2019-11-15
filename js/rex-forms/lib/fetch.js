@@ -20,8 +20,8 @@ export function getJson(url) {
   return fetch(url, {
     credentials: "same-origin",
     headers: {
-      Accept: "application/json"
-    }
+      Accept: "application/json",
+    },
   })
     .then(checkStatus)
     .then(parseJSON);
@@ -37,9 +37,9 @@ export function post(url, data) {
     method: "POST",
     credentials: "same-origin",
     headers: {
-      Accept: "application/json"
+      Accept: "application/json",
     },
-    body
+    body,
   })
     .then(checkStatus)
     .then(parseJSON);

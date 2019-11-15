@@ -14,4 +14,5 @@ appropriate tools (:doc:`as documented here
    new_project
    work_existing
    update_dependency
+   add_javascript_bundle
 

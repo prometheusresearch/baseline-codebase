@@ -14,13 +14,13 @@ import type { WidgetProps, WidgetInputProps } from "../WidgetConfig.js";
 const WIDTH = {
   small: "25%",
   medium: "50%",
-  large: "100%"
+  large: "100%",
 };
 
 type Props = {|
   ...WidgetProps,
   renderInput?: WidgetInputProps => React.Node,
-  children?: React.Node
+  children?: React.Node,
 |};
 
 export default function InputText({

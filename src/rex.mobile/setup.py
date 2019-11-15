@@ -14,7 +14,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
     author_email='contact@prometheusresearch.com',
-    license='AGPLv3',
+    license='Apache-2.0',
     classifiers=[
         'Programming Language :: Python :: 2.7',
     ],

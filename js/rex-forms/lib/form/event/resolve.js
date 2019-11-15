@@ -2,30 +2,30 @@
  * @copyright 2016-present, Prometheus Research, LLC
  */
 
-import REXL from 'rex-expression';
-import {Schema} from 'react-forms/reactive';
-import invariant from 'invariant';
-import isArray from 'lodash/isArray';
-import some from 'lodash/some';
+import REXL from "rex-expression";
+import { Schema } from "react-forms/reactive";
+import invariant from "invariant";
+import isArray from "lodash/isArray";
+import some from "lodash/some";
 
 const INSTRUMENT_REXL_TYPE_MAP = {
-  'float': REXL.Number,
-  'integer': REXL.Number,
-  'text': REXL.String,
-  'enumeration': REXL.String,
-  'boolean': REXL.Boolean,
-  'date': REXL.Date,
-  'time': REXL.Time,
-  'dateTime': REXL.DateTime,
-  'enumerationSet': REXL.List,
-  'recordList': REXL.List
+  float: REXL.Number,
+  integer: REXL.Number,
+  text: REXL.String,
+  enumeration: REXL.String,
+  boolean: REXL.Boolean,
+  date: REXL.Date,
+  time: REXL.Time,
+  dateTime: REXL.DateTime,
+  enumerationSet: REXL.List,
+  recordList: REXL.List,
 };
 
 export default function resolve(
   identifier: string,
   schema: mixed,
   value: mixed,
-  parameters: Object = {}
+  parameters: Object = {},
 ) {
   // See if it's a Field in our Form.
   let result = resolveField(identifier, schema, value);
@@ -47,17 +47,11 @@ function resolveField(identifier, schema, value) {
   }
 
   for (let i = 0; i < identifier.length; i++) {
-
     // only check for scoped identifiers if we are within some field
-    if (schema &&
-        schema.instrument &&
-        schema.instrument.type) {
-
+    if (schema && schema.instrument && schema.instrument.type) {
       let instrumentType = schema.instrument.type;
 
-      if (
-        instrumentType.base === 'enumerationSet'
-      ) {
+      if (instrumentType.base === "enumerationSet") {
         // The parent token was an enumerationSet, so treat this token as
         // an attempt to access one of the enumerations.
 
@@ -65,17 +59,14 @@ function resolveField(identifier, schema, value) {
         // whether or not it was selected.
         if (identifier[i] in instrumentType.enumerations) {
           let choices = value || [];
-          return REXL.Boolean.value(
-            choices.indexOf(identifier[i]) > -1
-          );
+          return REXL.Boolean.value(choices.indexOf(identifier[i]) > -1);
         }
 
         // It's not an enumeration.
         return undefined;
-
       } else if (
-        schema.instrument.context === 'recordList' &&
-        instrumentType.base === 'recordList'
+        schema.instrument.context === "recordList" &&
+        instrumentType.base === "recordList"
       ) {
         // The parent token was a recordList, so look for this token as a
         // sub-field and return a List of this field's value across all
@@ -109,9 +100,9 @@ function resolveField(identifier, schema, value) {
     if (schema != null) {
       value = selectValue(value, identifier[i]);
 
-      if (schema.instrument && schema.instrument.context === 'field') {
-        schema = selectSchema(schema, 'value');
-        value = selectValue(value, 'value');
+      if (schema.instrument && schema.instrument.context === "field") {
+        schema = selectSchema(schema, "value");
+        value = selectValue(value, "value");
       }
     } else {
       // Token doesn't exist.
@@ -120,7 +111,7 @@ function resolveField(identifier, schema, value) {
   }
 
   if (schema.instrument && schema.instrument.type) {
-    if (schema.instrument.type.base  === 'recordList') {
+    if (schema.instrument.type.base === "recordList") {
       // Not a fully addressed field.
       return undefined;
     }
@@ -138,7 +129,7 @@ function resolveField(identifier, schema, value) {
 function resolveParameter(identifier, parameters) {
   let name;
   if (isArray(identifier)) {
-    name = identifier.join('.');
+    name = identifier.join(".");
   } else {
     name = identifier.toString();
   }
@@ -179,11 +170,11 @@ function convertInstrumentValueToREXL(value, instrumentType) {
 function convertValueToREXL(value) {
   let type = REXL.Untyped;
 
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     type = REXL.String;
-  } else if (typeof value === 'number') {
+  } else if (typeof value === "number") {
     type = REXL.Number;
-  } else if (typeof value === 'boolean') {
+  } else if (typeof value === "boolean") {
     type = REXL.Boolean;
   } else if (value instanceof Date) {
     type = REXL.DateTime;
@@ -191,7 +182,6 @@ function convertValueToREXL(value) {
 
   return type.value(value);
 }
-
 
 function selectSchema(schema, key) {
   try {
@@ -202,9 +192,6 @@ function selectSchema(schema, key) {
 }
 
 function selectValue(value, key) {
-  invariant(
-    value == null || typeof value === 'object',
-    'Expected an object'
-  );
+  invariant(value == null || typeof value === "object", "Expected an object");
   return value ? value[key] : null;
 }

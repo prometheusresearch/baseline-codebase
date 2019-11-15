@@ -12,7 +12,7 @@ const textStyle = {
   width: "100%",
   display: "inline-block",
   wordWrap: "break-word",
-  whiteSpace: "normal"
+  whiteSpace: "normal",
 };
 
 export default InjectI18N(
@@ -22,8 +22,8 @@ export default InjectI18N(
         Root: props => <ReactUI.Block marginStart="small" {...props} />,
         Text: props => (
           <ReactUI.Text style={{ ...textStyle, ...props.style }} {...props} />
-        )
-      }
+        ),
+      },
     };
 
     getValueString() {
@@ -48,5 +48,5 @@ export default InjectI18N(
         </Root>
       );
     }
-  }
+  },
 );

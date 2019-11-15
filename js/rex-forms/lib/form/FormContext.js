@@ -3,8 +3,8 @@
  * @flow
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 export let contextTypes = {
   self: PropTypes.object.isRequired,
@@ -17,7 +17,6 @@ export let contextTypes = {
 };
 
 export default class FormContext extends React.Component<any> {
-
   static childContextTypes = contextTypes;
 
   render() {
@@ -25,7 +24,7 @@ export default class FormContext extends React.Component<any> {
   }
 
   getChildContext() {
-    let {form, self, parameters, event, apiUrls, widgetConfig} = this.props;
+    let { form, self, parameters, event, apiUrls, widgetConfig } = this.props;
     return {
       self,
       widgetConfig,
@@ -37,4 +36,3 @@ export default class FormContext extends React.Component<any> {
     };
   }
 }
-

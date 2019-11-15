@@ -3,7 +3,7 @@
  */
 
 import * as React from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import { style } from "@prometheusresearch/react-ui-0.21/stylesheet";
 
@@ -20,7 +20,7 @@ function Value(props, context) {
     context.widgetConfig,
     instrument,
     question,
-    "view"
+    "view",
   );
   return (
     <div style={{ textAlign: "initial", lineHeight: "initial" }}>
@@ -37,7 +37,7 @@ function Value(props, context) {
 Value.contextTypes = FormContext.contextTypes;
 
 let ValueButton = style(ReactUI.QuietButton, {
-  Caption: props => <div style={{ maxWidth: "100%" }} {...props} />
+  Caption: props => <div style={{ maxWidth: "100%" }} {...props} />,
 });
 
 export default InjectI18N(
@@ -46,13 +46,13 @@ export default InjectI18N(
       discrepancy: PropTypes.object.isRequired,
       question: PropTypes.object.isRequired,
       instrument: PropTypes.object.isRequired,
-      formValue: PropTypes.object.isRequired
+      formValue: PropTypes.object.isRequired,
     };
 
     constructor(props) {
       super(props);
       this.state = {
-        manualOverride: false
+        manualOverride: false,
       };
     }
 
@@ -74,7 +74,7 @@ export default InjectI18N(
       let values = this.renderValues(discrepancy);
       let widgetProps = {
         noClearButton: true,
-        showEmptyOption: true
+        showEmptyOption: true,
       };
       return (
         <div>
@@ -116,7 +116,7 @@ export default InjectI18N(
         schema: formValue.schema,
         params: {},
         errorList: [],
-        completeErrorList: []
+        completeErrorList: [],
       };
 
       return (
@@ -145,7 +145,7 @@ export default InjectI18N(
           return (
             <td
               style={{
-                verticalAlign: "top"
+                verticalAlign: "top",
               }}
               key={key}
             >
@@ -156,7 +156,7 @@ export default InjectI18N(
         .concat(
           <td
             style={{
-              verticalAlign: "top"
+              verticalAlign: "top",
             }}
             key="_final_value"
           >
@@ -168,7 +168,7 @@ export default InjectI18N(
                 noValueText="-"
               />
             </ReactUI.Block>
-          </td>
+          </td>,
         );
 
       return (
@@ -180,5 +180,5 @@ export default InjectI18N(
         </table>
       );
     }
-  }
+  },
 );

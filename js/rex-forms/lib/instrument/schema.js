@@ -3,9 +3,7 @@
  * @flow
  */
 
-import type {
-  I18N
-} from 'rex-i18n';
+import type { I18N } from "rex-i18n";
 
 import type {
   RIOSInstrument,
@@ -18,18 +16,18 @@ import type {
   JSONSchemaExt,
   JSONSchemaExtension,
   JSONObjectSchema,
-} from '../types';
+} from "../types";
 
-import invariant from 'invariant';
-import Validate, {isEmptyValue} from './validate';
+import invariant from "invariant";
+import Validate, { isEmptyValue } from "./validate";
 
 type Env = {
-  i18n: I18N;
-  types: RIOSTypeCatalog;
+  i18n: I18N,
+  types: RIOSTypeCatalog,
 };
 
 type ConfiguredEnv = Env & {
-  validate: Validate;
+  validate: Validate,
 };
 
 /**
@@ -37,31 +35,31 @@ type ConfiguredEnv = Env & {
  */
 export function fromInstrument(
   instrument: RIOSInstrument,
-  env: Env
+  env: Env,
 ): JSONSchemaExt {
   env = {
     ...env,
     types: instrument.types,
-    validate: new Validate({i18n: env.i18n}),
+    validate: new Validate({ i18n: env.i18n }),
   };
   let schema = {
-    ...generateRecordSchema(instrument.record, 'instrument', [], env),
+    ...generateRecordSchema(instrument.record, "instrument", [], env),
     format(value, schema) {
       let errorList = [];
       if (schema.event) {
         errorList = schema.event.validate(value);
       }
       return errorList.length === 0 ? true : errorList;
-    }
+    },
   };
-  return (schema: (JSONSchemaExtension & JSONObjectSchema<JSONSchemaExt>));
+  return (schema: JSONSchemaExtension & JSONObjectSchema<JSONSchemaExt>);
 }
 
 function generateRecordSchema(
   record: Array<RIOSField>,
   context,
   eventKey: Array<string>,
-  env: ConfiguredEnv
+  env: ConfiguredEnv,
 ) {
   let properties = {};
   for (let i = 0; i < record.length; i++) {
@@ -69,12 +67,12 @@ function generateRecordSchema(
     properties[field.id] = generateFieldSchema(field, eventKey, env);
   }
   return {
-    type: 'object',
+    type: "object",
     properties: properties,
     instrument: {
       context,
       type: {
-        base: 'recordList',
+        base: "recordList",
         record,
       },
     },
@@ -84,89 +82,75 @@ function generateRecordSchema(
 function generateFieldSchema(
   field: RIOSField,
   eventKey: Array<string>,
-  env: ConfiguredEnv
+  env: ConfiguredEnv,
 ): JSONSchemaExt {
-
   const _env = env;
 
   eventKey = eventKey.concat(field.id);
 
-  let annotationNeeded = (
-    !field.required &&
-    field.annotation &&
-    field.annotation !== 'none'
-  );
+  let annotationNeeded =
+    !field.required && field.annotation && field.annotation !== "none";
 
-  let explanationNeeded = (
-    field.explanation &&
-    field.explanation !== 'none'
-  );
+  let explanationNeeded = field.explanation && field.explanation !== "none";
 
-  let explanationRequired = field.explanation === 'required';
+  let explanationRequired = field.explanation === "required";
 
-  let annotationRequired = (
-    annotationNeeded &&
-    field.annotation === 'required'
-  );
+  let annotationRequired = annotationNeeded && field.annotation === "required";
 
   let type = resolveType(field.type, _env.types);
 
   let schema = {
-    type: 'object',
+    type: "object",
     properties: {},
     required: [],
     form: {
-      eventKey: eventKey.join('.'),
+      eventKey: eventKey.join("."),
     },
     instrument: {
-      context: 'field',
+      context: "field",
       field,
       type,
     },
     format(value, _node) {
       if (annotationRequired) {
-        if (
-          isEmptyValue(value.value) &&
-          isEmptyValue(value.annotation)
-        ) {
+        if (isEmptyValue(value.value) && isEmptyValue(value.annotation)) {
           return {
-            field: 'annotation',
-            message: _env.i18n.gettext('You must provide a response for this field.')
+            field: "annotation",
+            message: _env.i18n.gettext(
+              "You must provide a response for this field.",
+            ),
           };
         }
       }
       return true;
     },
-    onUpdate(value, {key}) {
-      if (key === 'value' && !isEmptyValue(value)) {
-        value = {...value, annotation: null};
+    onUpdate(value, { key }) {
+      if (key === "value" && !isEmptyValue(value)) {
+        value = { ...value, annotation: null };
       }
       return value;
-    }
+    },
   };
 
   if (annotationNeeded) {
-    schema.properties.annotation = {type: 'string'};
+    schema.properties.annotation = { type: "string" };
   }
 
   if (explanationNeeded) {
-    schema.properties.explanation = {type: 'string'};
+    schema.properties.explanation = { type: "string" };
   }
 
   if (explanationRequired) {
     schema.required = schema.required || [];
-    schema.required.push('explanation');
+    schema.required.push("explanation");
   }
 
   schema.properties.value = generateValueSchema(type, eventKey, env);
-  if (field.required && (['recordList', 'matrix'].indexOf(type.base) < 0)) {
+  if (field.required && ["recordList", "matrix"].indexOf(type.base) < 0) {
     schema.required = schema.required || [];
-    schema.required.push('value');
+    schema.required.push("value");
   }
-  invariant(
-    schema.properties.value.instrument != null,
-    'Incomplete schema'
-  );
+  invariant(schema.properties.value.instrument != null, "Incomplete schema");
   schema.properties.value.instrument.required = field.required;
 
   return schema;
@@ -178,130 +162,136 @@ export function generateValueSchema(
   env: ConfiguredEnv,
 ): JSONSchemaExt {
   switch (type.base) {
-    case 'float':
+    case "float":
       return {
-        type: 'any',
+        type: "any",
         format: env.validate.number,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'integer':
+    case "integer":
       return {
-        type: 'any',
+        type: "any",
         format: env.validate.integer,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'text':
+    case "text":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.text,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'boolean':
+    case "boolean":
       return {
-        type: 'boolean',
-        instrument: {type},
+        type: "boolean",
+        instrument: { type },
       };
-    case 'date':
+    case "date":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.date,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'time':
+    case "time":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.time,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'dateTime':
+    case "dateTime":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.dateTime,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'recordList':
-      invariant(
-        type.record != null,
-        'Invalid recordList type'
-      );
+    case "recordList":
+      invariant(type.record != null, "Invalid recordList type");
       return {
-        type: 'array',
-        items: generateRecordSchema(type.record, 'recordListRecord', eventKey, env),
+        type: "array",
+        items: generateRecordSchema(
+          type.record,
+          "recordListRecord",
+          eventKey,
+          env,
+        ),
         format: env.validate.recordList,
         instrument: {
           type,
-          context: 'recordList'
-        }
+          context: "recordList",
+        },
       };
-    case 'enumeration':
+    case "enumeration":
       invariant(
-        typeof type.enumerations === 'object',
-        'Invalid enumeration type'
+        typeof type.enumerations === "object",
+        "Invalid enumeration type",
       );
       return {
         enum: Object.keys(type.enumerations),
-        instrument: {type},
+        instrument: { type },
       };
-    case 'enumerationSet':
+    case "enumerationSet":
       invariant(
-        typeof type.enumerations === 'object',
-        'Invalid enumerationSet type'
+        typeof type.enumerations === "object",
+        "Invalid enumerationSet type",
       );
       return {
-        type: 'array',
+        type: "array",
         format: env.validate.enumerationSet,
-        instrument: {type},
-        items: {enum: Object.keys(type.enumerations), instrument: {type}}
+        instrument: { type },
+        items: { enum: Object.keys(type.enumerations), instrument: { type } },
       };
-    case 'matrix': {
-      const {rows, columns} = type;
-      invariant(
-        rows,
-        'Missing rows specification for matrix field'
-      );
-      invariant(
-        columns,
-        'Missing columns specification for matrix field'
-      );
+    case "matrix": {
+      const { rows, columns } = type;
+      invariant(rows, "Missing rows specification for matrix field");
+      invariant(columns, "Missing columns specification for matrix field");
       let properties = {};
       rows.forEach(row => {
-        properties[row.id] = generateMatrixRowSchema(row, columns, eventKey, env);
+        properties[row.id] = generateMatrixRowSchema(
+          row,
+          columns,
+          eventKey,
+          env,
+        );
       });
       return {
-        type: 'object',
+        type: "object",
         format: env.validate.matrix,
         instrument: {
           type,
-          context: 'matrix',
+          context: "matrix",
         },
         properties,
       };
     }
     default:
-      throw new Error('unknown type: ' + JSON.stringify(type));
+      throw new Error("unknown type: " + JSON.stringify(type));
   }
 }
 
 function generateMatrixRowSchema(
   row: RIOSRow,
   columns: Array<RIOSColumn>,
-  eventKey: Array<string>, env: ConfiguredEnv
+  eventKey: Array<string>,
+  env: ConfiguredEnv,
 ) {
   eventKey = eventKey.concat(row.id);
   let node = {
-    type: 'object',
+    type: "object",
     format: env.validate.matrixRow,
     properties: {},
     required: [],
     instrument: {
       ...row,
-      context: 'matrixRow',
+      context: "matrixRow",
       required: row.required,
-      requiredColumns: []
-    }
+      requiredColumns: [],
+    },
   };
   columns.forEach(column => {
-    node.properties[column.id] = generateMatrixColumnSchema(column, eventKey, env);
+    node.properties[column.id] = generateMatrixColumnSchema(
+      column,
+      eventKey,
+      env,
+    );
     if (column.required) {
       node.instrument.requiredColumns.push(column.id);
     }
@@ -312,7 +302,7 @@ function generateMatrixRowSchema(
 function generateMatrixColumnSchema(column, eventKey, env) {
   column = {
     ...column,
-    required: false
+    required: false,
   };
   return generateFieldSchema(column, eventKey, env);
 }
@@ -322,13 +312,13 @@ function generateMatrixColumnSchema(column, eventKey, env) {
  */
 function isSimpleFieldType(type) {
   return (
-       type === 'float'
-    || type === 'integer'
-    || type === 'text'
-    || type === 'boolean'
-    || type === 'date'
-    || type === 'time'
-    || type === 'dateTime'
+    type === "float" ||
+    type === "integer" ||
+    type === "text" ||
+    type === "boolean" ||
+    type === "date" ||
+    type === "time" ||
+    type === "dateTime"
   );
 }
 
@@ -337,11 +327,11 @@ function isSimpleFieldType(type) {
  */
 function isBaseFieldType(type) {
   return (
-    isSimpleFieldType(type)
-    || type === 'enumeration'
-    || type === 'enumerationSet'
-    || type === 'matrix'
-    || type === 'recordList'
+    isSimpleFieldType(type) ||
+    type === "enumeration" ||
+    type === "enumerationSet" ||
+    type === "matrix" ||
+    type === "recordList"
   );
 }
 
@@ -353,13 +343,13 @@ function isBaseFieldType(type) {
 export function resolveType(
   type: RIOSType,
   types: RIOSTypeCatalog,
-  asBase: boolean = false
+  asBase: boolean = false,
 ): RIOSExtendedType {
   if (isSimpleFieldType(type)) {
-    return {base: type};
+    return { base: type };
   } else if (asBase && isBaseFieldType(type)) {
-    return {base: type};
-  } else if (typeof type === 'string') {
+    return { base: type };
+  } else if (typeof type === "string") {
     return resolveType(types[type], types);
   } else {
     let resolvedType = resolveType(type.base, types, true);

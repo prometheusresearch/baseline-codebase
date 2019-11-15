@@ -31,7 +31,7 @@ const RecordListItem = ReactForms.reactive(
     getChildContext() {
       return {
         ...this.context,
-        event: this.event
+        event: this.event,
       };
     }
 
@@ -41,7 +41,7 @@ const RecordListItem = ReactForms.reactive(
         readOnly,
         questions,
         onRemove,
-        removeLabel
+        removeLabel,
       } = this.props;
       let hasError = formValue.completeErrorList.length > 0;
       return (
@@ -67,12 +67,11 @@ const RecordListItem = ReactForms.reactive(
               );
             })}
           </div>
-          {!readOnly &&
-            hasError && (
-              <ReactUI.Block marginStart={20} marginBottom={10}>
-                <ErrorList formValue={formValue} />
-              </ReactUI.Block>
-            )}
+          {!readOnly && hasError && (
+            <ReactUI.Block marginStart={20} marginBottom={10}>
+              <ErrorList formValue={formValue} />
+            </ReactUI.Block>
+          )}
           {!readOnly && (
             <ReactUI.Block position="absolute" top={10} positionEnd={10}>
               <ReactUI.FlatDangerButton
@@ -96,7 +95,7 @@ const RecordListItem = ReactForms.reactive(
     onRoot = _root => {
       this._root = _root;
     };
-  }
+  },
 );
 
 export default InjectI18N(
@@ -107,7 +106,7 @@ export default InjectI18N(
           formValue,
           question,
           readOnly,
-          options: { addLabel = this._("Add"), removeLabel = this._("Remove") }
+          options: { addLabel = this._("Add"), removeLabel = this._("Remove") },
         } = this.props;
         let value = formValue.value || [];
         let hasError = formValue.completeErrorList.length > 0;
@@ -129,9 +128,9 @@ export default InjectI18N(
                 />
               ))}
             </div>
-            {!readOnly &&
-              hasError &&
-              showErrorList && <ErrorList formValue={formValue} />}
+            {!readOnly && hasError && showErrorList && (
+              <ErrorList formValue={formValue} />
+            )}
             {!readOnly && (
               <ReactUI.Block marginTop="small">
                 <ReactUI.Button
@@ -163,8 +162,8 @@ export default InjectI18N(
           return value;
         });
       };
-    }
-  )
+    },
+  ),
 );
 
 function transformFormValue(formValue, transform) {

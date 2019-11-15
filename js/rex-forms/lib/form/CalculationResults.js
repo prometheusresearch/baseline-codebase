@@ -5,7 +5,7 @@
 import * as React from "react";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import { style } from "@prometheusresearch/react-ui-0.21/stylesheet";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 import { InjectI18N } from "rex-i18n";
 
@@ -13,7 +13,7 @@ export default InjectI18N(
   class CalculationResults extends React.Component {
     static propTypes = {
       results: PropTypes.object,
-      onClose: PropTypes.func
+      onClose: PropTypes.func,
     };
 
     static stylesheet = {
@@ -22,20 +22,20 @@ export default InjectI18N(
         bottom: 0,
         right: 0,
         maxWidth: "30%",
-        zIndex: 100
+        zIndex: 100,
       }),
       Title: ReactUI.Text,
       Content: style("div", {
         overflow: "auto",
-        maxHeight: "400px"
+        maxHeight: "400px",
       }),
       Key: style("td", {
         fontWeight: "bold",
-        padding: "5px"
+        padding: "5px",
       }),
       Value: style("td", {
         padding: "5px",
-        whiteSpace: "nowrap"
+        whiteSpace: "nowrap",
       }),
       Button: ReactUI.Button,
       Message: props => {
@@ -44,7 +44,7 @@ export default InjectI18N(
             <ReactUI.Text {...props} />
           </ReactUI.Block>
         );
-      }
+      },
     };
 
     render() {
@@ -55,7 +55,7 @@ export default InjectI18N(
         Button,
         Key,
         Value,
-        Message
+        Message,
       } = this.constructor.stylesheet;
 
       let results;
@@ -107,5 +107,5 @@ export default InjectI18N(
         </Root>
       );
     }
-  }
+  },
 );

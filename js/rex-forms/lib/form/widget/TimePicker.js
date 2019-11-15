@@ -28,7 +28,7 @@ import {
   InputWrapper,
   Toggler,
   TogglerIconStyle,
-  ButtonsWrapper
+  ButtonsWrapper,
 } from "./styled.components";
 import ErrorList from "../ErrorList";
 
@@ -149,11 +149,11 @@ function TimePicker(props: WidgetProps) {
     options: props.options
       ? {
           ...props.options,
-          width: props.options.width || "small"
+          width: props.options.width || "small",
         }
       : {
-          width: "small"
-        }
+          width: "small",
+        },
   };
 
   let renderInput = (props: WidgetInputProps) => (

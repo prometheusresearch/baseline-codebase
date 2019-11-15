@@ -17,24 +17,24 @@ const AUDIO_SUPPORTED = !!document.createElement("audio").canPlayType;
 const MIME_TYPES = [
   {
     pattern: /\.mp3$/,
-    mimeType: "audio/mpeg"
+    mimeType: "audio/mpeg",
   },
   {
     pattern: /\.ogg$/,
-    mimeType: "audio/ogg"
+    mimeType: "audio/ogg",
   },
   {
     pattern: /\.wav$/,
-    mimeType: "audio/x-wav"
+    mimeType: "audio/x-wav",
   },
   {
     pattern: /\.(au|snd)$/,
-    mimeType: "audio/basic"
+    mimeType: "audio/basic",
   },
   {
     pattern: /\.aif(c|f)?$/,
-    mimeType: "audio/x-aiff"
-  }
+    mimeType: "audio/x-aiff",
+  },
 ];
 
 export default InjectI18N(
@@ -43,13 +43,13 @@ export default InjectI18N(
       source: PropTypes.array.isRequired,
       showDuration: PropTypes.bool,
       showRestart: PropTypes.bool,
-      durationUpdateInterval: PropTypes.number
+      durationUpdateInterval: PropTypes.number,
     };
 
     static defaultProps = {
       showDuration: false,
       showRestart: true,
-      durationUpdateInterval: 333
+      durationUpdateInterval: 333,
     };
 
     constructor(props) {
@@ -59,7 +59,7 @@ export default InjectI18N(
       this.state = {
         playing: false,
         position: null,
-        duration: null
+        duration: null,
       };
     }
 
@@ -189,7 +189,7 @@ export default InjectI18N(
 
       this._updaterInterval = setInterval(
         this.onAudioDuration,
-        this.props.durationUpdateInterval
+        this.props.durationUpdateInterval,
       );
       this._audio.addEventListener("playing", this.onAudioPlaying);
       this._audio.addEventListener("pause", this.onAudioPause);
@@ -209,7 +209,7 @@ export default InjectI18N(
       this._audio.removeEventListener("ended", this.onAudioEnded);
       this._audio.removeEventListener("loadedmetadata", this.onAudioMetadata);
     }
-  }
+  },
 );
 
 function getMimeTypeForName(fileName) {

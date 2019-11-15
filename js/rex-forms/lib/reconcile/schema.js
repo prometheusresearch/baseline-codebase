@@ -2,26 +2,25 @@
  * @copyright 2014-present, Prometheus Research, LLC
  */
 
-import mapValues from 'lodash/mapValues';
-import map from 'lodash/map';
-import keys from 'lodash/keys';
-import uniq from 'lodash/uniq';
+import mapValues from "lodash/mapValues";
+import map from "lodash/map";
+import keys from "lodash/keys";
+import uniq from "lodash/uniq";
 
-import {resolveType} from '../instrument/schema';
-import Validate from '../instrument/validate';
-import {isEmptyValue} from '../instrument/validate';
-
+import { resolveType } from "../instrument/schema";
+import Validate from "../instrument/validate";
+import { isEmptyValue } from "../instrument/validate";
 
 export function fromDiscrepancies(discrepancies = {}, instrument, form, env) {
   env = {
     ...env,
-    validate: new Validate({i18n: env.i18n}),
+    validate: new Validate({ i18n: env.i18n }),
     types: instrument.types,
   };
   let required = [];
   let properties = mapValues(discrepancies, (discrepancy, fieldId) => {
     let field = findField(instrument, fieldId);
-    let {question, position} = findPageQuestion(form, fieldId);
+    let { question, position } = findPageQuestion(form, fieldId);
     let type = resolveType(field.type, env.types);
     if (field.required) {
       required.push(fieldId);
@@ -29,12 +28,12 @@ export function fromDiscrepancies(discrepancies = {}, instrument, form, env) {
     return {
       ...generateValueSchema(type, question, discrepancy, env),
       discrepancy,
-      form: {question, position},
-      instrument: {field, type},
+      form: { question, position },
+      instrument: { field, type },
     };
   });
   let schema = {
-    type: 'object',
+    type: "object",
     properties,
     required,
   };
@@ -43,73 +42,78 @@ export function fromDiscrepancies(discrepancies = {}, instrument, form, env) {
 
 function generateValueSchema(type, question, discrepancy, env) {
   switch (type.base) {
-    case 'float':
+    case "float":
       return {
-        type: 'any',
+        type: "any",
         format: env.validate.number,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'integer':
+    case "integer":
       return {
-        type: 'any',
+        type: "any",
         format: env.validate.integer,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'text':
+    case "text":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.text,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'boolean':
+    case "boolean":
       return {
-        type: 'boolean',
-        instrument: {type},
+        type: "boolean",
+        instrument: { type },
       };
-    case 'date':
+    case "date":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.date,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'time':
+    case "time":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.time,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'dateTime':
+    case "dateTime":
       return {
-        type: 'string',
+        type: "string",
         format: env.validate.dateTime,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'recordList':
+    case "recordList":
       let items = [];
       let maxIndex = Math.max.apply(null, Object.keys(discrepancy).map(Number));
       for (let i = 0; i <= maxIndex; i++) {
         items.push(
-          generateRecordSchema(type.record, question, discrepancy[i] || {}, env)
+          generateRecordSchema(
+            type.record,
+            question,
+            discrepancy[i] || {},
+            env,
+          ),
         );
       }
       return {
-        type: 'array',
+        type: "array",
         items,
-        instrument: {type},
+        instrument: { type },
       };
-    case 'enumeration':
+    case "enumeration":
       return {
         enum: Object.keys(type.enumerations),
-        instrument: {type},
+        instrument: { type },
       };
-    case 'enumerationSet':
+    case "enumerationSet":
       return {
-        type: 'array',
+        type: "array",
         format: env.validate.enumerationSet,
-        instrument: {type},
-        items: {enum: Object.keys(type.enumerations)}
+        instrument: { type },
+        items: { enum: Object.keys(type.enumerations) },
       };
-    case 'matrix': {
+    case "matrix": {
       let properties = {};
       type.rows.forEach(row => {
         if (!discrepancy[row.id]) {
@@ -120,25 +124,24 @@ function generateValueSchema(type, question, discrepancy, env) {
           type.columns,
           question,
           discrepancy[row.id],
-          env
+          env,
         );
       });
       return {
-        type: 'object',
-        instrument: {type},
+        type: "object",
+        instrument: { type },
         properties,
       };
     }
     default:
-      throw new Error('unknown type: ' + JSON.stringify(type));
+      throw new Error("unknown type: " + JSON.stringify(type));
   }
 }
-
 
 function recordValidator(needsValue, value, node) {
   if (needsValue) {
     if (isEmptyValue(value)) {
-      return 'At least one field in this record must have a value.';
+      return "At least one field in this record must have a value.";
     }
   }
 
@@ -160,28 +163,27 @@ function generateRecordSchema(record, question, discrepancy, env) {
     }
     properties[field.id] = {
       ...generateValueSchema(type, recordQuestion, discrepancy, env),
-      form: {question: recordQuestion.question},
-      instrument: {field, type},
+      form: { question: recordQuestion.question },
+      instrument: { field, type },
     };
   }
   return {
-    type: 'object',
+    type: "object",
     properties: properties,
     required: required,
     format: recordValidator.bind(null, !!discrepancy._NEEDS_VALUE_),
     instrument: {
       type: {
-        base: 'recordList',
+        base: "recordList",
         record,
       },
     },
   };
 }
 
-
 function generateMatrixRowSchema(row, columns, question, discrepancy, env) {
   let node = {
-    type: 'object',
+    type: "object",
     properties: {},
     required: [],
   };
@@ -194,7 +196,7 @@ function generateMatrixRowSchema(row, columns, question, discrepancy, env) {
       row,
       question,
       discrepancy[column.id],
-      env
+      env,
     );
     if (column.required) {
       node.required.push(column.id);
@@ -212,11 +214,11 @@ function generateMatrixColumnSchema(column, row, question, discrepancy, env) {
   let type = resolveType(column.type, env.types);
   return {
     ...generateValueSchema(type, columnQuestion, discrepancy, env),
-    instrument: {type, field: column, row},
+    instrument: { type, field: column, row },
     form: {
       ...columnQuestion,
       row: rowQuestion,
-    }
+    },
   };
 }
 
@@ -234,7 +236,7 @@ function findPageQuestion(form, fieldId) {
     let page = form.pages[i];
     for (let j = 0; j < page.elements.length; j++) {
       let element = page.elements[j];
-      if (element.type !== 'question') {
+      if (element.type !== "question") {
         continue;
       }
       if (element.options.fieldId !== fieldId) {
@@ -248,7 +250,7 @@ function findPageQuestion(form, fieldId) {
           pageNumber: i,
           elementNumber: j,
           elementCount: page.elements.length,
-        }
+        },
       };
     }
   }
@@ -268,11 +270,11 @@ function findQuestion(question, fieldId) {
     if (recordQuestion.fieldId !== fieldId) {
       continue;
     }
-    return {question: recordQuestion};
+    return { question: recordQuestion };
   }
 
   return {
-    question: {fieldId, text: fieldId}
+    question: { fieldId, text: fieldId },
   };
 }
 

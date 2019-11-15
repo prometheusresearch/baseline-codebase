@@ -49,7 +49,7 @@ export type WidgetProps = {|
   onCancelEdit: () => void,
 
   /** Widget-specific options (passed through form configuration). */
-  options: Object
+  options: Object,
 |};
 
 export type WidgetInputProps = {|
@@ -59,18 +59,18 @@ export type WidgetInputProps = {|
   variant: {| error: boolean |},
   onBlur: () => void,
   instrument: any,
-  formValue: FormValue
+  formValue: FormValue,
 |};
 
 export type InstrumentDateTime = {|
   context: string,
   field: types.RIOSField,
-  type: types.RIOSExtendedType
+  type: types.RIOSExtendedType,
 |};
 
 /** A registry of widget components. */
 export type WidgetConfig = {
-  [widgetType: string]: React.AbstractComponent<WidgetProps>
+  [widgetType: string]: React.AbstractComponent<WidgetProps>,
 };
 
 export const defaultWidgetComponentConfig: WidgetConfig = {
@@ -85,7 +85,7 @@ export const defaultWidgetComponentConfig: WidgetConfig = {
   dateTimePicker: DateTimePicker,
   recordList: RecordList,
   matrix: Matrix,
-  lookupText: LookupText
+  lookupText: LookupText,
 };
 
 const standardWidgets = [
@@ -100,7 +100,7 @@ const standardWidgets = [
   DateTimePicker,
   RecordList,
   Matrix,
-  LookupText
+  LookupText,
 ];
 
 export const defaultWidgetConfig = {
@@ -114,7 +114,7 @@ export const defaultWidgetConfig = {
   time: defaultWidgetComponentConfig.timePicker,
   dateTime: defaultWidgetComponentConfig.dateTimePicker,
   recordList: defaultWidgetComponentConfig.recordList,
-  matrix: defaultWidgetComponentConfig.matrix
+  matrix: defaultWidgetComponentConfig.matrix,
 };
 
 export const defaultViewWidgetConfig = {
@@ -128,14 +128,14 @@ export const defaultViewWidgetConfig = {
   time: ViewValue,
   dateTime: ViewValue,
   recordList: RecordList,
-  matrix: Matrix
+  matrix: Matrix,
 };
 
 export function resolveWidget(
   widgetConfig: ?WidgetConfig,
   field: types.RIOSField,
   question: types.RIOSQuestion,
-  interactionType: "view" | "edit"
+  interactionType: "view" | "edit",
 ) {
   widgetConfig = { ...defaultWidgetComponentConfig, ...widgetConfig };
   if (
@@ -167,7 +167,7 @@ function baseFieldType(type: types.RIOSType): string {
 
 export function getDatesFromRange(
   range?: types.RIOSRange,
-  momentPattern: string
+  momentPattern: string,
 ): { minDate?: Moment, maxDate?: Moment } {
   if (!range) {
     return {};

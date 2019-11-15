@@ -21,7 +21,7 @@ import Paper from "@material-ui/core/Paper";
 import type {
   WidgetProps,
   WidgetInputProps,
-  InstrumentDateTime
+  InstrumentDateTime,
 } from "../WidgetConfig.js";
 import MaskedInput from "../MaskedInput";
 import InputText from "./InputText";
@@ -32,7 +32,7 @@ import {
   InputWrapper,
   Toggler,
   TogglerIconStyle,
-  ButtonsWrapper
+  ButtonsWrapper,
 } from "./styled.components";
 import { getDatesFromRange } from "../WidgetConfig";
 import ErrorList from "../ErrorList";
@@ -43,7 +43,7 @@ const DATE_FORMAT_BASE = "YYYY-MM-DDTHH:mm";
 const theme = createMuiTheme();
 
 const InputDateTime = (
-  props: WidgetInputProps & { instrument: InstrumentDateTime }
+  props: WidgetInputProps & { instrument: InstrumentDateTime },
 ) => {
   const { instrument, formValue, ...rest } = props;
 
@@ -63,7 +63,7 @@ const InputDateTime = (
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    `${DATE_FORMAT_BASE}:ss`
+    `${DATE_FORMAT_BASE}:ss`,
   );
 
   const onModalClose = () => setShowModal(false);
@@ -166,11 +166,11 @@ function DateTimePicker(props: WidgetProps) {
     options: props.options
       ? {
           ...props.options,
-          width: props.options.width || "medium"
+          width: props.options.width || "medium",
         }
       : {
-          width: "medium"
-        }
+          width: "medium",
+        },
   };
 
   let renderInput = (props: WidgetInputProps) => (

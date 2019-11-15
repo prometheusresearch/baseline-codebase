@@ -3,7 +3,7 @@
  */
 
 import * as React from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import * as ReactDOM from "react-dom";
 import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
@@ -17,7 +17,7 @@ import { InjectI18N } from "rex-i18n";
 import * as InstrumentSchema from "../instrument/schema";
 import {
   isFieldCompleted,
-  createReactFormsMessages
+  createReactFormsMessages,
 } from "../instrument/validate";
 import { makeAssessment } from "../instrument/assessment";
 import FormPage from "./FormPage";
@@ -30,7 +30,7 @@ function createFormState({
   form,
   parameters,
   initialValue = {},
-  i18n
+  i18n,
 }) {
   let schema = InstrumentSchema.fromInstrument(instrument, { i18n });
   let original = atom(initialValue);
@@ -51,13 +51,13 @@ function createFormState({
     value: observed,
     schema,
     onChange,
-    validate
+    validate,
   });
   return {
     original,
     observed,
     value,
-    event
+    event,
   };
 }
 
@@ -77,10 +77,10 @@ const FormProgressBar = InjectI18N(
       );
     }
 
-    formatLabel = (state) => {
+    formatLabel = state => {
       return this.getI18N().formatPercent(state.progress);
-    }
-  }
+    };
+  },
 );
 
 export default InjectI18N(
@@ -153,7 +153,7 @@ export default InjectI18N(
          *   reconcile: { [widgetType: string]: React.Component },
          * }
          */
-        widgetConfig: PropTypes.object
+        widgetConfig: PropTypes.object,
       };
 
       static defaultProps = {
@@ -163,7 +163,7 @@ export default InjectI18N(
         noPagination: false,
         onChange: noop,
         onPage: noop,
-        apiUrls: {}
+        apiUrls: {},
       };
 
       constructor(props, context) {
@@ -174,7 +174,7 @@ export default InjectI18N(
           form,
           parameters: parameters || {},
           initialValue: assessment ? assessment.values : {},
-          i18n: this.getI18N()
+          i18n: this.getI18N(),
         });
 
         this.formState.observed.react(this.onChange, { skipFirst: true });
@@ -182,13 +182,13 @@ export default InjectI18N(
 
         this.state = {
           pageNumber: this.getHiddenPageNumberList().indexOf(false),
-          editable: null
+          editable: null,
         };
       }
 
       getHiddenPageNumberList = () => {
         return this.props.form.pages.map(page =>
-          this.formState.event.isPageHidden(page.id)
+          this.formState.event.isPageHidden(page.id),
         );
       };
 
@@ -200,7 +200,7 @@ export default InjectI18N(
           mode,
           noPagination,
           apiUrls,
-          widgetConfig
+          widgetConfig,
         } = this.props;
         let { editable, pageNumber } = this.state;
         let formState = editable ? this.formStateEditable : this.formState;
@@ -208,7 +208,7 @@ export default InjectI18N(
           isDisabled,
           isPageDisabled,
           isPageHidden,
-          isHidden
+          isHidden,
         } = formState.event;
 
         let pages = form.pages;
@@ -221,12 +221,12 @@ export default InjectI18N(
                   return page.elements.map(element => {
                     return {
                       originalPageId: page.id,
-                      ...element
+                      ...element,
                     };
                   });
-                })
-              )
-            }
+                }),
+              ),
+            },
           ];
           pageNumber = 0;
         }
@@ -266,7 +266,7 @@ export default InjectI18N(
                 return (
                   isFieldCompleted(formState.value.select(fieldId)) ||
                   isHidden(fieldId, ...tags) || // TODO: check what this expects
-                  isDisabled(fieldId, ...tags)  // {} doesn't make any sense here
+                  isDisabled(fieldId, ...tags) // {} doesn't make any sense here
                 );
               } else {
                 return false;
@@ -316,11 +316,11 @@ export default InjectI18N(
         let warning;
         if (pageHasUnfinishedRequired) {
           warning = this._(
-            "Please complete all required fields before proceeding."
+            "Please complete all required fields before proceeding.",
           );
         } else if (pageHasErrors) {
           warning = this._(
-            "Please resolve the errors above before proceeding."
+            "Please resolve the errors above before proceeding.",
           );
         }
 
@@ -363,7 +363,7 @@ export default InjectI18N(
                 {warning && (
                   <div
                     style={{
-                      textAlign: "center"
+                      textAlign: "center",
                     }}
                   >
                     <ReactUI.ErrorText>{warning}</ReactUI.ErrorText>
@@ -389,25 +389,25 @@ export default InjectI18N(
         if (form !== this.props.form) {
           console.warn(
             // eslint-disable-line no-console
-            '<FormEntry /> does not handle updating "form" prop'
+            '<FormEntry /> does not handle updating "form" prop',
           );
         }
         if (instrument !== this.props.instrument) {
           console.warn(
             // eslint-disable-line no-console
-            '<FormEntry /> does not handle updating "instrument" prop'
+            '<FormEntry /> does not handle updating "instrument" prop',
           );
         }
         if (assessment !== this.props.assessment) {
           console.warn(
             // eslint-disable-line no-console
-            '<FormEntry /> does not handle updating "assessment" prop'
+            '<FormEntry /> does not handle updating "assessment" prop',
           );
         }
         if (parameters !== this.props.parameters) {
           console.warn(
             // eslint-disable-line no-console
-            '<FormEntry /> does not handle updating "parameters" prop'
+            '<FormEntry /> does not handle updating "parameters" prop',
           );
         }
       }
@@ -417,7 +417,7 @@ export default InjectI18N(
           this.formState.value.value,
           this.props.instrument,
           {},
-          { language: this.getI18N().config.locale }
+          { language: this.getI18N().config.locale },
         );
       }
 
@@ -425,7 +425,7 @@ export default InjectI18N(
         return this.formState.value.completeErrorList.map(error => {
           return {
             field: error.field.substring(5),
-            message: error.message
+            message: error.message,
           };
         });
       }
@@ -445,7 +445,7 @@ export default InjectI18N(
               formValue.value,
               instrument,
               {},
-              { language: locale }
+              { language: locale },
             );
           },
 
@@ -457,10 +457,10 @@ export default InjectI18N(
             return formValue.completeErrorList.map(error => {
               return {
                 field: error.field.substring(5),
-                message: error.message
+                message: error.message,
               };
             });
-          }
+          },
         };
       }
 
@@ -472,7 +472,7 @@ export default InjectI18N(
         this.setState({ pageNumber }, () => {
           this.props.onPage({
             ...this.snapshotState(),
-            pageNumber
+            pageNumber,
           });
         });
       };
@@ -489,11 +489,11 @@ export default InjectI18N(
             instrument: this.props.instrument,
             parameters: this.props.parameters,
             initialValue: this.formState.value.value,
-            i18n: this.getI18N()
+            i18n: this.getI18N(),
           });
         }
         this.setState({ editable });
       };
-    }
-  )
+    },
+  ),
 );

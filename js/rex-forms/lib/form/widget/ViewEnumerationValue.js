@@ -2,23 +2,22 @@
  * @copyright 2016-present, Prometheus Research, LLC
  */
 
-import * as React from 'react';
-import isArray from 'lodash/isArray';
+import * as React from "react";
+import isArray from "lodash/isArray";
 
-import ViewValue from './ViewValue';
-import MarkupString from '../MarkupString';
-import * as FormContext from './../FormContext';
-
+import ViewValue from "./ViewValue";
+import MarkupString from "../MarkupString";
+import * as FormContext from "./../FormContext";
 
 export default class ViewEnumerationValue extends ViewValue {
   static contextTypes = {
     ...ViewValue.contextTypes,
-    ...FormContext.contextTypes
+    ...FormContext.contextTypes,
   };
 
-  getEnumString = (id) => {
+  getEnumString = id => {
     let enumerations = this.props.question.enumerations || [];
-    enumerations = enumerations.filter((enumeration) => {
+    enumerations = enumerations.filter(enumeration => {
       return enumeration.id === id;
     });
 
@@ -34,15 +33,19 @@ export default class ViewEnumerationValue extends ViewValue {
         str = enumerations[0].text[this.context.defaultLocalization];
       }
 
-      return <MarkupString key={id} inline>{str}</MarkupString>;
+      return (
+        <MarkupString key={id} inline>
+          {str}
+        </MarkupString>
+      );
     } else {
       return <span key={id}>{id}</span>;
     }
-  }
+  };
 
   getValueString() {
     let value = this.props.formValue.value;
-    if ((value == null) || (value.length === 0)) {
+    if (value == null || value.length === 0) {
       return null;
     }
     if (!isArray(value)) {
@@ -52,11 +55,10 @@ export default class ViewEnumerationValue extends ViewValue {
     let ret = [];
     value.forEach((val, idx) => {
       if (idx) {
-        ret.push(<span key={idx + 'split'}>{', '}</span>);
+        ret.push(<span key={idx + "split"}>{", "}</span>);
       }
       ret.push(this.getEnumString(val));
     });
     return ret;
   }
 }
-

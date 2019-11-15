@@ -10,8 +10,8 @@
     "rex-webpack-config": "*"
   },
   "scripts": {
-    "watch": "node scripts/watch.js",
-    "build": "node --max-old-space-size=4096 scripts/build.js"
+    "build": "rex-webpack-build",
+    "watch": "rex-webpack-watch"
   },
   "eslintConfig": {
     "extends": "react-app"

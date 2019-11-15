@@ -1,10 +1,29 @@
+declare module "@material-ui/styles" {
+  import type { AbstractComponent, Node } from "react";
+
+  declare export type Theme = any;
+
+  declare export function makeStyles<Styles: {}>(
+    styles: (Theme) => Styles,
+  ): () => $ObjMap<Styles, <V>(V) => string>;
+
+  declare export function useTheme(): Theme;
+
+  declare export var ThemeProvider: AbstractComponent<{|
+    children: Node,
+    theme: Theme,
+  |}>;
+}
+
 declare module "@material-ui/core" {
   import type { AbstractComponent, Node, ElementType } from "react";
 
   declare export type TypographyProps = {|
-    align?: "inherit" | "left" | "center" | "right" | "justify",
     children: ?Node,
+    className?: string,
+    id?: string,
     classes?: Object,
+    align?: "inherit" | "left" | "center" | "right" | "justify",
     color?:
       | "initial"
       | "inherit"
@@ -53,6 +72,10 @@ declare module "@material-ui/core" {
 
   declare export type ButtonBaseProps = {|
     ...DOMProps,
+    "aria-label"?: string,
+    "aria-controls"?: string,
+    "aria-haspopup"?: string,
+    download?: string,
     href?: string,
     action?: Function,
     buttonRef?: Function,
@@ -124,7 +147,7 @@ declare module "@material-ui/core" {
   declare export type PopperProps = {|
     ...DOMProps,
     anchorEl: any,
-    children: Node,
+    children: Node | (any => Node),
     open: boolean,
     container?: any,
     disablePortal?: boolean,

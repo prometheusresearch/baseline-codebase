@@ -61,7 +61,6 @@ export let Input = React.forwardRef<InputProps, HTMLElement>((props, ref) => {
         ReactUtil.setReactRef(ref, node);
         ReactUtil.setReactRef(inputRef, node);
       }}
-      classes={{ root: classes.input }}
     />
   );
 });

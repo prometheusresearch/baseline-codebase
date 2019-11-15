@@ -22,7 +22,7 @@ let fontStack = [
   "sans-serif"
 ];
 
-let useStyles = styles.makeStyles({
+let useStyles = styles.makeStyles(theme => ({
   demo: {
     backgroundColor: "#ffffff",
     fontFamily: fontStack.join(",")
@@ -40,7 +40,7 @@ let useStyles = styles.makeStyles({
     fontFamily: "Menlo, Monaco, monospace",
     color: "#888"
   }
-});
+}));
 
 export let Demo = ({ children }: {| children: React.Node |}) => {
   let classes = useStyles();

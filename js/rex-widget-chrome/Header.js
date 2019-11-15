@@ -16,7 +16,7 @@ import * as History from 'rex-ui/History';
 
 import resolveURL from "rex-widget/resolveURL";
 
-let useStyles = styles.makeStyles({
+let useStyles = styles.makeStyles(theme => ({
   HeaderRoot: {},
   HeaderApplicationTitle: {
     paddingRight: 10
@@ -44,7 +44,7 @@ let useStyles = styles.makeStyles({
   UserProfileButtonRoot: {
     textTransform: "none !important"
   }
-});
+}));
 
 let ApplicationTitle = props => {
   let classes = useStyles();

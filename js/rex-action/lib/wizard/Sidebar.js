@@ -17,7 +17,7 @@ import ActionIcon from "../ActionIcon";
 
 const SIDEBAR_COLLAPSED_KEY = "rex.action.sidebar.collapsed";
 
-let useStyles = styles.makeStyles({
+let useStyles = styles.makeStyles(theme => ({
   SidebarRoot: {
     ...boxStyle,
     boxSizing: "border-box",
@@ -42,7 +42,7 @@ let useStyles = styles.makeStyles({
   SidebarButtonIconCollapsed: {
     marginRight: "0 !important"
   }
-});
+}));
 
 function getSidebarKey() {
   return SIDEBAR_COLLAPSED_KEY + "." + window.location.pathname;

@@ -14,7 +14,7 @@ import type {
   RIOSValueCollection,
   RIOSValueObject,
   RIOSValue,
-  RIOSExtendedType
+  RIOSExtendedType,
 } from "../types.js";
 import * as FormFormatConfig from "../form/FormFormatConfig";
 
@@ -59,7 +59,7 @@ function coerceEmptyValueToNull(value): null | Object {
 function localeFormatToFormat(
   value: string,
   fieldType: RIOSExtendedType,
-  format: FormFormatConfig.FieldConfig
+  format: FormFormatConfig.FieldConfig,
 ) {
   switch (fieldType.base) {
     case "date": {
@@ -93,7 +93,7 @@ function localeFormatToFormat(
 function formatToLocaleFormat(
   value: string,
   fieldType: RIOSExtendedType,
-  format: FormFormatConfig.FieldConfig
+  format: FormFormatConfig.FieldConfig,
 ) {
   switch (fieldType.base) {
     case "date": {
@@ -122,10 +122,10 @@ function makeAssessmentValue(
   value,
   key: string[],
   fieldType: RIOSExtendedType,
-  formatConfig: FormFormatConfig.Config
+  formatConfig: FormFormatConfig.Config,
 ) {
   let result: RIOSValueObject = {
-    value: null
+    value: null,
   };
   if (value) {
     result.value = coerceEmptyValueToNull(value.value);
@@ -151,7 +151,7 @@ function makeAssessmentRecord(
   record = [],
   valueOverlay,
   key: string[],
-  formatConfig: FormFormatConfig.Config
+  formatConfig: FormFormatConfig.Config,
 ) {
   let values = {};
 
@@ -170,7 +170,7 @@ function makeAssessmentRecord(
         value[recordId],
         updatedEventKey,
         fieldType,
-        formatConfig
+        formatConfig,
       );
       if (values[recordId].value) {
         values[recordId].value = values[recordId].value
@@ -181,7 +181,7 @@ function makeAssessmentRecord(
               fieldType.record,
               valueOverlay,
               updatedEventKey,
-              formatConfig
+              formatConfig,
             );
           })
           .filter(rec => {
@@ -202,7 +202,7 @@ function makeAssessmentRecord(
         value[recordId],
         updatedEventKey,
         fieldType,
-        formatConfig
+        formatConfig,
       );
       values[recordId].value = values[recordId].value || {};
 
@@ -220,7 +220,7 @@ function makeAssessmentRecord(
             values[recordId].value[row.id][column.id],
             columnEventKey,
             resolveType(column.type, types),
-            formatConfig
+            formatConfig,
           );
         });
       });
@@ -230,7 +230,7 @@ function makeAssessmentRecord(
         value[recordId],
         updatedEventKey,
         fieldType,
-        formatConfig
+        formatConfig,
       );
     }
   }
@@ -250,7 +250,7 @@ export function makeAssessment(
   value: Object,
   instrument: RIOSInstrument,
   valueOverlay: Object = {},
-  meta: { formatConfig: ?FormFormatConfig.Config } = {}
+  meta: { formatConfig: ?FormFormatConfig.Config } = {},
 ) {
   let values = makeAssessmentRecord(
     value,
@@ -258,15 +258,15 @@ export function makeAssessment(
     instrument.record,
     valueOverlay,
     [],
-    meta.formatConfig || FormFormatConfig.makeEmpty()
+    meta.formatConfig || FormFormatConfig.makeEmpty(),
   );
 
   let assessment: RIOSAssessment = {
     instrument: {
       id: instrument.id,
-      version: instrument.version
+      version: instrument.version,
     },
-    values: values
+    values: values,
   };
 
   if (meta) {
@@ -283,7 +283,7 @@ export function makeAssessment(
 export let mapValueCollection = (
   instrument: RIOSInstrument,
   values: RIOSValueCollection,
-  mapper: (RIOSValue, RIOSField, RIOSExtendedType, string[]) => RIOSValue
+  mapper: (RIOSValue, RIOSField, RIOSExtendedType, string[]) => RIOSValue,
 ): RIOSValueCollection => {
   function makeValue(value: ?RIOSValue, field: RIOSField, key: string[]) {
     let fieldType = resolveType(field.type, instrument.types);
@@ -324,11 +324,11 @@ export let mapValueCollection = (
               description: col.description,
               type: col.type,
               identifiable: col.identifiable,
-              required: col.required
+              required: col.required,
             }));
             let nextRowValues = makeValueCollection(rowValues, record, [
               ...key,
-              rowId
+              rowId,
             ]);
             nextValues[rowId] = nextRowValues;
           }
@@ -350,7 +350,7 @@ export let mapValueCollection = (
   function makeValueCollection(
     values: RIOSValueCollection,
     record: RIOSRecord,
-    key: string[]
+    key: string[],
   ): RIOSValueCollection {
     let nextValues = {};
     for (let fieldId in values) {
@@ -361,7 +361,7 @@ export let mapValueCollection = (
         value:
           field != null
             ? makeValue(value.value, field, [...key, field.id])
-            : value.value
+            : value.value,
       };
     }
     return nextValues;
@@ -373,7 +373,7 @@ export let mapValueCollection = (
 export function makeInitialValue(
   instrument: RIOSInstrument,
   values: RIOSValueCollection,
-  formatConfig: FormFormatConfig.Config
+  formatConfig: FormFormatConfig.Config,
 ): RIOSValueCollection {
   return mapValueCollection(instrument, values, (value, field, type, key) => {
     let format = FormFormatConfig.findFieldConfig(formatConfig, key);

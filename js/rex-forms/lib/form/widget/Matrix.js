@@ -27,7 +27,7 @@ const MatrixRow = ReactForms.reactive(
     getChildContext() {
       return {
         ...this.context,
-        event: this.event
+        event: this.event,
       };
     }
 
@@ -56,11 +56,11 @@ const MatrixRow = ReactForms.reactive(
               widget: {
                 options: {
                   width: "large",
-                  ...(question.widget && question.widget.options)
+                  ...(question.widget && question.widget.options),
                 },
-                ...question.widget
+                ...question.widget,
               },
-              ...question
+              ...question,
             };
 
             let { help, ...questionOptions } = question; // eslint-disable-line no-unused-vars
@@ -85,7 +85,7 @@ const MatrixRow = ReactForms.reactive(
         </tr>
       );
     }
-  }
+  },
 );
 
 export default function Matrix({ question, instrument, formValue, readOnly }) {
@@ -125,26 +125,23 @@ function ColumnLabelRow({ columns, readOnly }) {
       {columns.map(column => {
         let style = {
           width: columnWidth * 100 + "%",
-          verticalAlign: "top"
+          verticalAlign: "top",
         };
         return (
           <td key={column.fieldId} style={style}>
             <QuestionLabel text={column.text} />
             {column.help && !readOnly && <Help>{column.help}</Help>}
-            {column.audio &&
-              !readOnly && (
-                <ReactUI.Block marginTop="x-small">
-                  <AudioPlayer source={column.audio} />
-                </ReactUI.Block>
-              )}
+            {column.audio && !readOnly && (
+              <ReactUI.Block marginTop="x-small">
+                <AudioPlayer source={column.audio} />
+              </ReactUI.Block>
+            )}
           </td>
         );
       })}
     </tr>
   );
 }
-
-
 
 function RowLabel({ required, text, help, audio, ...props }) {
   return (

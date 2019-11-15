@@ -85,7 +85,7 @@ export function createReactFormsMessages({ i18n }: { i18n: I18N }) {
     HAS_LONGER_LENGTH_THAN_ALLOWED: "has longer length than allowed",
     HAS_LESS_LENGTH_THAN_ALLOWED: "has less length than allowed",
     IS_LESS_THAN_MINIMUM: "is less than minimum",
-    IS_MORE_THAN_MAXIMUM: "is more than maximum"
+    IS_MORE_THAN_MAXIMUM: "is more than maximum",
   };
 }
 
@@ -157,7 +157,7 @@ export default class Validate {
 
     if (!regex.exec(value)) {
       return this.i18n.gettext(
-        `This must be entered in the form: ${dateFormat}THH:MM[:SS]`
+        `This must be entered in the form: ${dateFormat}THH:MM[:SS]`,
       );
     }
 
@@ -213,8 +213,8 @@ export default class Validate {
           errors.push({
             field: "" + idx,
             message: this.i18n.gettext(
-              "You must respond to at least one question in this record."
-            )
+              "You must respond to at least one question in this record.",
+            ),
           });
         }
       });
@@ -239,17 +239,17 @@ export default class Validate {
           if (min !== undefined && max !== undefined) {
             error.message = this.i18n.gettext(
               "Must enter between %(min)s and %(max)s records.",
-              { min, max }
+              { min, max },
             );
           } else if (min !== undefined) {
             error.message = this.i18n.gettext(
               "Must enter at least %(min)s records.",
-              { min }
+              { min },
             );
           } else if (max !== undefined) {
             error.message = this.i18n.gettext(
               "Cannot enter more than %(max)s records.",
-              { max }
+              { max },
             );
           }
           return error;
@@ -285,9 +285,9 @@ export default class Validate {
           let error: error = {
             field: col + ".value",
             message: this.i18n.gettext(
-              "You must provide a response for this field."
+              "You must provide a response for this field.",
             ),
-            force: true
+            force: true,
           };
           return error;
         });
@@ -307,15 +307,15 @@ export default class Validate {
         if (min !== undefined && max !== undefined) {
           return this.i18n.gettext(
             "Must select between %(min)s and %(max)s choices.",
-            { min, max }
+            { min, max },
           );
         } else if (min !== undefined) {
           return this.i18n.gettext("Must select at least %(min)s choices.", {
-            min
+            min,
           });
         } else if (max !== undefined) {
           return this.i18n.gettext("Cannot select more than %(max)s choices.", {
-            max
+            max,
           });
         }
       }
@@ -334,15 +334,15 @@ export default class Validate {
         if (min !== undefined && max !== undefined) {
           return this.i18n.gettext(
             "Must be between %(min)s and %(max)s characters.",
-            { min, max }
+            { min, max },
           );
         } else if (min !== undefined) {
           return this.i18n.gettext("Must be at least %(min)s characters.", {
-            min
+            min,
           });
         } else if (max !== undefined) {
           return this.i18n.gettext("Cannot be more than %(max)s characters.", {
-            max
+            max,
           });
         }
       }
@@ -367,7 +367,7 @@ export default class Validate {
       if (min !== undefined && max !== undefined) {
         return this.i18n.gettext("Must be between %(min)s and %(max)s.", {
           min,
-          max
+          max,
         });
       } else if (min !== undefined) {
         return this.i18n.gettext("Must be at least %(min)s.", { min });

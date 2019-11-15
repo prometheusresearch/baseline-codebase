@@ -20,7 +20,7 @@ import * as types from "../types.js";
 import * as InstrumentSchema from "../instrument/schema";
 import {
   isFieldCompleted,
-  createReactFormsMessages
+  createReactFormsMessages,
 } from "../instrument/validate";
 import { makeAssessment, makeInitialValue } from "../instrument/assessment";
 import FormPage from "./FormPage";
@@ -34,7 +34,7 @@ type FormState = {|
   observed: any,
   value: formValue,
   event: any,
-  formatConfig: FormFormatConfig.Config
+  formatConfig: FormFormatConfig.Config,
 |};
 
 function createFormState({
@@ -42,18 +42,18 @@ function createFormState({
   form,
   parameters,
   initialValue = {},
-  i18n
+  i18n,
 }): FormState {
   const formatConfig = FormFormatConfig.make(form, i18n.config.locale);
 
   let schema = InstrumentSchema.fromInstrument(instrument, {
     i18n,
-    formatConfig
+    formatConfig,
   });
   let processedInitialValue = makeInitialValue(
     instrument,
     (initialValue: any),
-    formatConfig
+    formatConfig,
   );
   let original = atom(processedInitialValue);
   let event = EventExecutor.create(form, (schema: any), original, parameters);
@@ -73,20 +73,20 @@ function createFormState({
     value: observed,
     schema,
     onChange,
-    validate
+    validate,
   });
   return {
     original,
     observed,
     value,
     event,
-    formatConfig
+    formatConfig,
   };
 }
 
 type FormProgressBarProps = {|
   totalFields: number,
-  completeFields: number
+  completeFields: number,
 |};
 
 const FormProgressBar = InjectI18N(
@@ -109,13 +109,13 @@ const FormProgressBar = InjectI18N(
     formatLabel = state => {
       return this.getI18N().formatPercent(state.progress);
     };
-  }
+  },
 );
 
 type FormChange = {|
   getAssessment: () => types.RIOSAssessment,
   isValid: () => boolean,
-  getErrors: () => { message: string, field: string }[]
+  getErrors: () => { message: string, field: string }[],
 |};
 
 type FormEntryProps = {|
@@ -165,12 +165,12 @@ type FormEntryProps = {|
    *   reconcile: { [widgetType: string]: React.Component },
    * }
    */
-  widgetConfig?: Object
+  widgetConfig?: Object,
 |};
 
 type FormEntryState = {|
   pageNumber: number,
-  editable: any
+  editable: any,
 |};
 
 class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
@@ -181,7 +181,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
     noPagination: false,
     onChange: noop,
     onPage: noop,
-    apiUrls: {}
+    apiUrls: {},
   };
 
   _: (...any) => any;
@@ -197,7 +197,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
       form,
       parameters: parameters || {},
       initialValue: ((assessment ? assessment.values : {}): any),
-      i18n: this.getI18N()
+      i18n: this.getI18N(),
     });
 
     this.formState.observed.react(this.onChange, { skipFirst: true });
@@ -205,13 +205,13 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
 
     this.state = {
       pageNumber: this.getHiddenPageNumberList().indexOf(false),
-      editable: null
+      editable: null,
     };
   }
 
   getHiddenPageNumberList = () => {
     return this.props.form.pages.map(page =>
-      this.formState.event.isPageHidden(page.id)
+      this.formState.event.isPageHidden(page.id),
     );
   };
 
@@ -223,7 +223,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
       mode,
       noPagination,
       apiUrls,
-      widgetConfig
+      widgetConfig,
     } = this.props;
     let { editable, pageNumber } = this.state;
     let formState =
@@ -234,7 +234,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
       isDisabled,
       isPageDisabled,
       isPageHidden,
-      isHidden
+      isHidden,
     } = formState.event;
 
     let pages: any = form.pages;
@@ -247,12 +247,12 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
               return page.elements.map(element => {
                 return {
                   originalPageId: page.id,
-                  ...element
+                  ...element,
                 };
               });
-            })
-          )
-        }
+            }),
+          ),
+        },
       ];
       pageNumber = 0;
     }
@@ -342,7 +342,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
     let warning;
     if (pageHasUnfinishedRequired) {
       warning = this._(
-        "Please complete all required fields before proceeding."
+        "Please complete all required fields before proceeding.",
       );
     } else if (pageHasErrors) {
       warning = this._("Please resolve the errors above before proceeding.");
@@ -385,7 +385,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
             {warning && (
               <div
                 style={{
-                  textAlign: "center"
+                  textAlign: "center",
                 }}
               >
                 <ReactUI.ErrorText>{warning}</ReactUI.ErrorText>
@@ -411,25 +411,25 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
     if (form !== this.props.form) {
       console.warn(
         // eslint-disable-line no-console
-        '<FormEntry /> does not handle updating "form" prop'
+        '<FormEntry /> does not handle updating "form" prop',
       );
     }
     if (instrument !== this.props.instrument) {
       console.warn(
         // eslint-disable-line no-console
-        '<FormEntry /> does not handle updating "instrument" prop'
+        '<FormEntry /> does not handle updating "instrument" prop',
       );
     }
     if (assessment !== this.props.assessment) {
       console.warn(
         // eslint-disable-line no-console
-        '<FormEntry /> does not handle updating "assessment" prop'
+        '<FormEntry /> does not handle updating "assessment" prop',
       );
     }
     if (parameters !== this.props.parameters) {
       console.warn(
         // eslint-disable-line no-console
-        '<FormEntry /> does not handle updating "parameters" prop'
+        '<FormEntry /> does not handle updating "parameters" prop',
       );
     }
   }
@@ -441,8 +441,8 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
       {},
       {
         language: this.getI18N().config.locale,
-        formatConfig: this.formState.formatConfig
-      }
+        formatConfig: this.formState.formatConfig,
+      },
     );
   }
 
@@ -450,7 +450,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
     return this.formState.value.completeErrorList.map(error => {
       return {
         field: error.field.substring(5),
-        message: error.message
+        message: error.message,
       };
     });
   }
@@ -474,8 +474,8 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
           {},
           {
             language: locale,
-            formatConfig
-          }
+            formatConfig,
+          },
         );
       },
 
@@ -489,10 +489,10 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
         return formValue.completeErrorList.map(error => {
           return {
             field: error.field.substring(5),
-            message: error.message
+            message: error.message,
           };
         });
-      }
+      },
     };
   }
 
@@ -509,7 +509,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
       if (onPage != null) {
         onPage({
           ...this.snapshotState(),
-          pageNumber
+          pageNumber,
         });
       }
     });
@@ -527,7 +527,7 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
         instrument: this.props.instrument,
         parameters: this.props.parameters,
         initialValue: this.formState.value.value,
-        i18n: this.getI18N()
+        i18n: this.getI18N(),
       });
     }
     this.setState({ editable });
@@ -535,5 +535,5 @@ class FormEntry extends React.Component<FormEntryProps, FormEntryState> {
 }
 
 export default (InjectI18N(
-  ReactForms.reactive(FormEntry)
+  ReactForms.reactive(FormEntry),
 ): React.AbstractComponent<FormEntryProps>);

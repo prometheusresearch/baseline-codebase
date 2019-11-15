@@ -8,12 +8,12 @@ import type {
   RIOSPage,
   RIOSElement,
   RIOSQuestion,
-  RIOSTag
+  RIOSTag,
 } from "../types";
 
 export function forEachPage(
   form: RIOSForm,
-  onPage: (page: RIOSPage, context: Object) => void
+  onPage: (page: RIOSPage, context: Object) => void,
 ): void {
   for (let i = 0; i < form.pages.length; i++) {
     let page = form.pages[i];
@@ -29,7 +29,7 @@ export function forEachPage(
  */
 export function forEachElement(
   form: RIOSForm,
-  onElement: (element: RIOSElement, context: { page: RIOSPage }) => void
+  onElement: (element: RIOSElement, context: { page: RIOSPage }) => void,
 ): void {
   forEachPage(form, (page, context) => {
     for (let j = 0; j < page.elements.length; j++) {
@@ -43,8 +43,8 @@ export function forEachTag(
   form: RIOSForm,
   onTag: (
     tag: RIOSTag,
-    context: { page: RIOSPage, element: RIOSElement }
-  ) => void
+    context: { page: RIOSPage, element: RIOSElement },
+  ) => void,
 ): void {
   forEachElement(form, (element, context) => {
     if (element.tags) {
@@ -69,9 +69,9 @@ export function forEachQuestion(
       page: RIOSPage,
       element: RIOSElement,
       parent: ?RIOSQuestion,
-      row: ?Object
-    }
-  ) => void
+      row: ?Object,
+    },
+  ) => void,
 ) {
   forEachElement(form, (element, { page }) => {
     if (element.type === "question") {
@@ -82,7 +82,7 @@ export function forEachQuestion(
         null,
         null,
         onQuestion,
-        false
+        false,
       );
     }
   });
@@ -104,9 +104,9 @@ export function forEachQuestionOnce(
       page: RIOSPage,
       element: RIOSElement,
       parent: ?RIOSQuestion,
-      row: ?Object
-    }
-  ) => void
+      row: ?Object,
+    },
+  ) => void,
 ) {
   forEachElement(form, (element, { page }) => {
     if (element.type === "question") {
@@ -117,7 +117,7 @@ export function forEachQuestionOnce(
         null,
         null,
         onQuestion,
-        true
+        true,
       );
     }
   });
@@ -130,7 +130,7 @@ function _forEachQuestion(
   parent,
   row,
   onQuestion,
-  onceForCell
+  onceForCell,
 ) {
   onQuestion(question, { page, element, parent, row });
 
@@ -145,7 +145,7 @@ function _forEachQuestion(
             question,
             null,
             onQuestion,
-            onceForCell
+            onceForCell,
           );
         }
       } else {
@@ -159,7 +159,7 @@ function _forEachQuestion(
               question,
               question.rows[j],
               onQuestion,
-              onceForCell
+              onceForCell,
             );
           }
         }
@@ -173,7 +173,7 @@ function _forEachQuestion(
           question,
           null,
           onQuestion,
-          onceForCell
+          onceForCell,
         );
       }
     }

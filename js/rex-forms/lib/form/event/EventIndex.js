@@ -16,7 +16,7 @@ import type {
   RIOSFailEvent,
   RIOSLocalizedString,
   JSONSchema,
-  KeyPath
+  KeyPath,
 } from "../../types";
 
 import type { Locator } from "./TargetIndex";
@@ -38,43 +38,43 @@ import { forEachQuestion } from "../Traversal";
 export type EventComputation<T: RIOSEvent, R> = {
   event: T,
   compute: (globalScope: Scope, targetScope: ?Scope) => Derivable<R>,
-  locateScope: ?Locator
+  locateScope: ?Locator,
 };
 
 type ActionInfo<T, R> = {
   eventList: Array<EventComputation<T, R>>,
-  locate: ?Locator
+  locate: ?Locator,
 };
 
 export type ActionIndex = {
   fail: {
     // $FlowFixMe: ...
-    [eventID: string]: ActionInfo<RIOSFailEvent, RIOSLocalizedString[]>
+    [eventID: string]: ActionInfo<RIOSFailEvent, RIOSLocalizedString[]>,
   },
   disable: {
     // $FlowFixMe: ...
-    [eventID: string]: ActionInfo<RIOSDisableEvent, boolean>
+    [eventID: string]: ActionInfo<RIOSDisableEvent, boolean>,
   },
   hide: {
     // $FlowFixMe: ...
-    [eventID: string]: ActionInfo<RIOSHideEvent, boolean>
+    [eventID: string]: ActionInfo<RIOSHideEvent, boolean>,
   },
   hideEnumeration: {
     // $FlowFixMe: ...
-    [eventID: string]: ActionInfo<RIOSHideEnumerationEvent, Array<string>>
-  }
+    [eventID: string]: ActionInfo<RIOSHideEnumerationEvent, Array<string>>,
+  },
 };
 
 export type EventIndex = {
   tag: ActionIndex,
   page: ActionIndex,
-  field: ActionIndex
+  field: ActionIndex,
 };
 
 export type Scope = {
   node: JSONSchema,
   value: Derivable<mixed>,
-  keyPath: KeyPath
+  keyPath: KeyPath,
 };
 
 type NestedScope = Array<Scope>;
@@ -84,7 +84,7 @@ type NestedScope = Array<Scope>;
  */
 export function createEventIndex(
   form: RIOSForm,
-  parameters?: Object = {}
+  parameters?: Object = {},
 ): EventIndex {
   let targetIndex = TargetIndex.createTargetIndex(form);
 
@@ -99,11 +99,11 @@ export function createEventIndex(
     registry: { [id: string]: ActionInfo<T, R> },
     id: string,
     event: T,
-    locate: ?Locator
+    locate: ?Locator,
   ) {
     registry[id] = registry[id] || {
       eventList: [],
-      locate: null
+      locate: null,
     };
 
     if (locate) {
@@ -127,12 +127,12 @@ export function createEventIndex(
         compute = (globalScope: Scope, targetScope: ?Scope) => {
           invariant(
             targetScope != null,
-            "Cannot eval event without local scope"
+            "Cannot eval event without local scope",
           );
           return computationForEvent(
             event,
             [targetScope, globalScope],
-            parameters
+            parameters,
           );
         };
 
@@ -144,7 +144,7 @@ export function createEventIndex(
               let localScope = selectScope(globalScope, [
                 parent.fieldId,
                 "value",
-                row.id
+                row.id,
               ]);
               if (localScope == null) {
                 // $FlowFixMe: we filter it out later
@@ -166,12 +166,12 @@ export function createEventIndex(
         compute = (globalScope: Scope, targetScope: ?Scope) => {
           invariant(
             targetScope != null,
-            "Cannot eval event without local scope"
+            "Cannot eval event without local scope",
           );
           return computationForEvent(
             event,
             [targetScope, globalScope],
-            parameters
+            parameters,
           );
         };
 
@@ -192,7 +192,7 @@ export function createEventIndex(
               let localScope = selectScope(globalScope, [
                 fieldId,
                 "value",
-                idx
+                idx,
               ]);
               invariant(localScope != null, "Missing local scope");
               return [localScope, globalScope];
@@ -213,7 +213,7 @@ export function createEventIndex(
       event,
       // $FlowFixMe: ...
       compute,
-      locateScope
+      locateScope,
     });
   }
 
@@ -225,8 +225,8 @@ export function createEventIndex(
       isTargetScoped: boolean,
       event: RIOSEvent,
       locate?: ?Locator,
-      locateScope?: ?Locator
-    }
+      locateScope?: ?Locator,
+    },
   ) {
     const { isTargetScoped, event, locate, locateScope } = registration;
     switch (event.action) {
@@ -237,7 +237,7 @@ export function createEventIndex(
           index.fail,
           id,
           event,
-          locate
+          locate,
         );
         break;
       case "hide":
@@ -247,7 +247,7 @@ export function createEventIndex(
           index.hide,
           id,
           event,
-          locate
+          locate,
         );
         break;
       case "hideEnumeration":
@@ -257,7 +257,7 @@ export function createEventIndex(
           index.hideEnumeration,
           id,
           event,
-          locate
+          locate,
         );
         break;
       case "disable":
@@ -267,7 +267,7 @@ export function createEventIndex(
           index.disable,
           id,
           event,
-          locate
+          locate,
         );
         break;
       default:
@@ -292,7 +292,7 @@ export function createEventIndex(
         if (target == null && context.parent != null) {
           let localIndex = TargetIndex.getLocalTargetIndex(
             targetIndex,
-            context.parent.fieldId
+            context.parent.fieldId,
           );
           target = localIndex[targets[j]];
           isTargetScoped = true;
@@ -308,7 +308,7 @@ export function createEventIndex(
               const questionTarget = targetIndex[element.options.fieldId];
               invariant(
                 questionTarget.type === "field",
-                "Invalid target classification"
+                "Invalid target classification",
               );
               questionTarget.target.forEach(id => {
                 registerEvent(context, field, id, {
@@ -316,7 +316,7 @@ export function createEventIndex(
                   event,
                   locate: questionTarget.locate,
                   // $FlowFixMe: should not be here
-                  locateScope: questionTarget.locateScope
+                  locateScope: questionTarget.locateScope,
                 });
               });
             }
@@ -337,7 +337,7 @@ export function createEventIndex(
               isTargetScoped,
               event,
               locate,
-              locateScope
+              locateScope,
             });
           });
         } else {
@@ -359,7 +359,7 @@ export function selectScope(scope: Scope, keyPath: KeyPath): ?Scope {
   return {
     value: value.derive(value => get(value, keyPath)),
     node: nextNode,
-    keyPath: scope.keyPath.concat(keyPath)
+    keyPath: scope.keyPath.concat(keyPath),
   };
 }
 
@@ -368,7 +368,7 @@ function createEmptyActionIndex(): ActionIndex {
     fail: {},
     disable: {},
     hide: {},
-    hideEnumeration: {}
+    hideEnumeration: {},
   };
 }
 
@@ -382,7 +382,7 @@ function getExpression(event: RIOSEvent): REXLExpression {
       console.error(
         `Could not PARSE ${
           event.action
-        } Event Trigger "${event.trigger.trim()}": ${exc}`
+        } Event Trigger "${event.trigger.trim()}": ${exc}`,
       );
       event.triggerParsed = REXL_FALSE;
     }
@@ -406,7 +406,7 @@ function computationWithScope<R>(
   event: RIOSEvent,
   scope: NestedScope,
   parameters: Object,
-  process: (result: mixed) => R
+  process: (result: mixed) => R,
 ): Derivable<R> {
   let resolver = resolverForScope(scope, parameters);
   let expression = getExpression(event);
@@ -418,7 +418,7 @@ function computationWithScope<R>(
       console.error(
         `Could not EXECUTE ${
           event.action
-        } Event Trigger "${event.trigger.trim()}": ${exc}`
+        } Event Trigger "${event.trigger.trim()}": ${exc}`,
       );
       result = false;
     }
@@ -429,7 +429,7 @@ function computationWithScope<R>(
 function booleanComputation(
   event: RIOSHideEvent | RIOSDisableEvent,
   scope: NestedScope,
-  parameters: Object
+  parameters: Object,
 ): Derivable<boolean> {
   return computationWithScope(event, scope, parameters, result => !!result);
 }
@@ -437,27 +437,27 @@ function booleanComputation(
 function failComputation(
   event: RIOSFailEvent,
   scope: NestedScope,
-  parameters: Object
+  parameters: Object,
 ): Derivable<RIOSLocalizedString[]> {
   return computationWithScope(event, scope, parameters, result =>
-    result ? [event.options.text] : []
+    result ? [event.options.text] : [],
   );
 }
 
 function hideEnumerationComputation(
   event: RIOSHideEnumerationEvent,
   scope: NestedScope,
-  parameters: Object
+  parameters: Object,
 ): Derivable<Array<string>> {
   return computationWithScope(event, scope, parameters, result =>
-    result ? event.options.enumerations : []
+    result ? event.options.enumerations : [],
   );
 }
 
 function computationForEvent(
   event: RIOSEvent,
   scope: NestedScope,
-  parameters: Object
+  parameters: Object,
 ) {
   switch (event.action) {
     case "hide":
@@ -475,7 +475,7 @@ function computationForEvent(
 function aggregatedComputationForEvent(
   event: RIOSEvent,
   scopeList: Array<NestedScope>,
-  parameters: Object
+  parameters: Object,
 ) {
   const ev = event;
   return derivation(() => {
@@ -484,17 +484,17 @@ function aggregatedComputationForEvent(
       case "disable":
         // $FlowFixMe: ...
         return some(scopeList, scope =>
-          booleanComputation(ev, scope, parameters).get()
+          booleanComputation(ev, scope, parameters).get(),
         );
       case "fail":
         return flatten(
-          scopeList.map(scope => failComputation(ev, scope, parameters).get())
+          scopeList.map(scope => failComputation(ev, scope, parameters).get()),
         );
       case "hideEnumeration":
         return flatten(
           scopeList.map(scope =>
-            hideEnumerationComputation(ev, scope, parameters).get()
-          )
+            hideEnumerationComputation(ev, scope, parameters).get(),
+          ),
         );
       default:
         invariant(false, "Unknown event action: %s", ev.action);

@@ -11,16 +11,16 @@ describe("mapValueCollection", () => {
     record: [
       {
         id: "field",
-        type: "boolean"
+        type: "boolean",
       },
       {
         id: "list",
-        type: "myRecordList"
+        type: "myRecordList",
       },
       {
         id: "matrix",
-        type: "myMatrix"
-      }
+        type: "myMatrix",
+      },
     ],
     types: {
       myRecordList: {
@@ -28,19 +28,19 @@ describe("mapValueCollection", () => {
         record: [
           {
             id: "list_field",
-            type: "boolean"
-          }
-        ]
+            type: "boolean",
+          },
+        ],
       },
       myMatrix: {
         base: "matrix",
         rows: [{ id: "row1" }, { id: "row2" }],
         columns: [
           { id: "col1", type: "boolean" },
-          { id: "col2", type: "boolean" }
-        ]
-      }
-    }
+          { id: "col2", type: "boolean" },
+        ],
+      },
+    },
   };
 
   // Going to flip all booleans...
@@ -64,12 +64,12 @@ describe("mapValueCollection", () => {
     let nextValues = mapValueCollection(
       instrument,
       {
-        field: { value: true }
+        field: { value: true },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
-      field: { value: false }
+      field: { value: false },
     });
     expect(seen).toEqual(new Set(["field"]));
   });
@@ -79,13 +79,13 @@ describe("mapValueCollection", () => {
       instrument,
       {
         field: { value: true },
-        list: { value: ([]: RIOSValueCollection[]) }
+        list: { value: ([]: RIOSValueCollection[]) },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
       field: { value: false },
-      list: { value: [] }
+      list: { value: [] },
     });
     expect(seen).toEqual(new Set(["field"]));
   });
@@ -95,13 +95,13 @@ describe("mapValueCollection", () => {
       instrument,
       {
         field: { value: true },
-        list: { value: ([{}]: RIOSValueCollection[]) }
+        list: { value: ([{}]: RIOSValueCollection[]) },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
       field: { value: false },
-      list: { value: [{}] }
+      list: { value: [{}] },
     });
     expect(seen).toEqual(new Set(["field"]));
   });
@@ -113,19 +113,19 @@ describe("mapValueCollection", () => {
         list: {
           value: ([
             { list_field: { value: false } },
-            { list_field: { value: true } }
-          ]: RIOSValueCollection[])
-        }
+            { list_field: { value: true } },
+          ]: RIOSValueCollection[]),
+        },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
       list: {
         value: [
           { list_field: { value: true } },
-          { list_field: { value: false } }
-        ]
-      }
+          { list_field: { value: false } },
+        ],
+      },
     });
     expect(seen).toEqual(new Set(["list.list_field"]));
   });
@@ -134,12 +134,12 @@ describe("mapValueCollection", () => {
     let nextValues = mapValueCollection(
       instrument,
       {
-        matrix: { value: {} }
+        matrix: { value: {} },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
-      matrix: { value: {} }
+      matrix: { value: {} },
     });
     expect(seen).toEqual(new Set([]));
   });
@@ -148,12 +148,12 @@ describe("mapValueCollection", () => {
     let nextValues = mapValueCollection(
       instrument,
       {
-        matrix: { value: { row1: {} } }
+        matrix: { value: { row1: {} } },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
-      matrix: { value: { row1: {} } }
+      matrix: { value: { row1: {} } },
     });
     expect(seen).toEqual(new Set([]));
   });
@@ -162,12 +162,12 @@ describe("mapValueCollection", () => {
     let nextValues = mapValueCollection(
       instrument,
       {
-        matrix: { value: { row1: { col1: { value: null } } } }
+        matrix: { value: { row1: { col1: { value: null } } } },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
-      matrix: { value: { row1: { col1: { value: null } } } }
+      matrix: { value: { row1: { col1: { value: null } } } },
     });
     expect(seen).toEqual(new Set([]));
   });
@@ -180,38 +180,38 @@ describe("mapValueCollection", () => {
           value: {
             row1: {
               col1: { value: false },
-              col2: { value: true }
+              col2: { value: true },
             },
             row2: {
               col1: { value: true },
-              col2: { value: false }
-            }
-          }
-        }
+              col2: { value: false },
+            },
+          },
+        },
       },
-      flip
+      flip,
     );
     expect(nextValues).toEqual({
       matrix: {
         value: {
           row1: {
             col1: { value: true },
-            col2: { value: false }
+            col2: { value: false },
           },
           row2: {
             col1: { value: false },
-            col2: { value: true }
-          }
-        }
-      }
+            col2: { value: true },
+          },
+        },
+      },
     });
     expect(seen).toEqual(
       new Set([
         "matrix.row1.col1",
         "matrix.row1.col2",
         "matrix.row2.col1",
-        "matrix.row2.col2"
-      ])
+        "matrix.row2.col2",
+      ]),
     );
   });
 });

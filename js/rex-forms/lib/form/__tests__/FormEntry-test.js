@@ -14,7 +14,7 @@ jest.mock("../MarkupString.js", () => {
 
     default: function MarkupStringMock(props) {
       return <div>STRING</div>;
-    }
+    },
   };
 });
 
@@ -25,14 +25,14 @@ let instrument: types.RIOSInstrument = {
   record: [
     {
       id: "q_number",
-      type: "integer"
+      type: "integer",
     },
     {
       id: "q_text",
-      type: "text"
-    }
+      type: "text",
+    },
   ],
-  types: {}
+  types: {},
 };
 
 test("date field with useLocaleFormat", () => {
@@ -43,15 +43,15 @@ test("date field with useLocaleFormat", () => {
     record: [
       {
         id: "field1",
-        type: "date"
-      }
+        type: "date",
+      },
     ],
-    types: {}
+    types: {},
   };
   let form: types.RIOSForm = {
     instrument: {
       id: instrument.id,
-      version: instrument.version
+      version: instrument.version,
     },
     defaultLocalization: "en",
     pages: [
@@ -66,25 +66,25 @@ test("date field with useLocaleFormat", () => {
               widget: {
                 type: "datePicker",
                 options: {
-                  useLocaleFormat: true
-                }
-              }
-            }
-          }
-        ]
-      }
-    ]
+                  useLocaleFormat: true,
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
   };
   let assessment: types.RIOSAssessment = {
     instrument: {
       id: instrument.id,
-      version: instrument.version
+      version: instrument.version,
     },
     values: {
       field1: {
-        value: "2012-12-24"
-      }
-    }
+        value: "2012-12-24",
+      },
+    },
   };
 
   let currentAssessment: types.RIOSAssessment;
@@ -100,7 +100,7 @@ test("date field with useLocaleFormat", () => {
         assessment={assessment}
         onChange={onChange}
       />
-    </Provider>
+    </Provider>,
   );
   let formEntry = renderer.root.findByType(FormEntry);
 
@@ -108,7 +108,7 @@ test("date field with useLocaleFormat", () => {
 
   // It should reformat form value to a localized value
   expect(formState.value.value).toEqual({
-    field1: { value: "12-24-2012" }
+    field1: { value: "12-24-2012" },
   });
 });
 
@@ -120,15 +120,15 @@ test("dateTime field with useLocaleFormat", () => {
     record: [
       {
         id: "field1",
-        type: "dateTime"
-      }
+        type: "dateTime",
+      },
     ],
-    types: {}
+    types: {},
   };
   let form: types.RIOSForm = {
     instrument: {
       id: instrument.id,
-      version: instrument.version
+      version: instrument.version,
     },
     defaultLocalization: "en",
     pages: [
@@ -143,25 +143,25 @@ test("dateTime field with useLocaleFormat", () => {
               widget: {
                 type: "dateTimePicker",
                 options: {
-                  useLocaleFormat: true
-                }
-              }
-            }
-          }
-        ]
-      }
-    ]
+                  useLocaleFormat: true,
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
   };
   let assessment: types.RIOSAssessment = {
     instrument: {
       id: instrument.id,
-      version: instrument.version
+      version: instrument.version,
     },
     values: {
       field1: {
-        value: "2012-12-24T12:12:12"
-      }
-    }
+        value: "2012-12-24T12:12:12",
+      },
+    },
   };
 
   let currentAssessment: types.RIOSAssessment;
@@ -177,7 +177,7 @@ test("dateTime field with useLocaleFormat", () => {
         assessment={assessment}
         onChange={onChange}
       />
-    </Provider>
+    </Provider>,
   );
   let formEntry = renderer.root.findByType(FormEntry);
 
@@ -185,6 +185,6 @@ test("dateTime field with useLocaleFormat", () => {
 
   // It should reformat form value to a localized value
   expect(formState.value.value).toEqual({
-    field1: { value: "12-24-2012T12:12:12" }
+    field1: { value: "12-24-2012T12:12:12" },
   });
 });

@@ -14,19 +14,20 @@ import getLocalizedString from "../getLocalizedString";
 const textStyle = {
   width: "100%",
   wordWrap: "break-word",
-  whiteSpace: "normal"
+  whiteSpace: "normal",
 };
 
 export default InjectI18N(
   class LocalizedString extends React.Component {
     static propTypes = {
-      text: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired
+      text: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+        .isRequired,
     };
 
     static contextTypes = FormContext.contextTypes;
 
     static defaultProps = {
-      Component: "span"
+      Component: "span",
     };
 
     render() {
@@ -39,7 +40,7 @@ export default InjectI18N(
         localizedText = getLocalizedString(
           text,
           this.getI18N(),
-          this.context.defaultLocalization
+          this.context.defaultLocalization,
         );
       }
 
@@ -49,5 +50,5 @@ export default InjectI18N(
         </Component>
       );
     }
-  }
+  },
 );

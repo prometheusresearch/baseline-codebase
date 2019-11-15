@@ -3,7 +3,7 @@
  * @flow
  */
 
-import type {Derivable} from 'derivable';
+import type { Derivable } from "derivable";
 import type {
   JSONSchema,
   JSONObjectSchema,
@@ -11,29 +11,25 @@ import type {
   KeyPath,
   RIOSForm,
   RIOSEvent,
-} from '../../types';
+} from "../../types";
 
-import type {
-  EventIndex,
-  Scope,
-  EventComputation,
-} from './EventIndex';
+import type { EventIndex, Scope, EventComputation } from "./EventIndex";
 
-import {derivation} from 'derivable';
-import {update} from 'react-forms/reactive';
-import invariant from 'invariant';
-import get from 'lodash/get';
-import isArray from 'lodash/isArray';
-import pullAll from 'lodash/pullAll';
-import forEach from 'lodash/forEach';
-import some from 'lodash/some';
-import flatten from 'lodash/flatten';
-import mapValues from 'lodash/mapValues';
-import * as REXL from 'rex-expression';
-import resolve from './resolve';
+import { derivation } from "derivable";
+import { update } from "react-forms/reactive";
+import invariant from "invariant";
+import get from "lodash/get";
+import isArray from "lodash/isArray";
+import pullAll from "lodash/pullAll";
+import forEach from "lodash/forEach";
+import some from "lodash/some";
+import flatten from "lodash/flatten";
+import mapValues from "lodash/mapValues";
+import * as REXL from "rex-expression";
+import resolve from "./resolve";
 
-import cast from '../../cast';
-import {createEventIndex, selectScope} from './EventIndex';
+import cast from "../../cast";
+import { createEventIndex, selectScope } from "./EventIndex";
 
 export function create(
   form: RIOSForm,
@@ -42,43 +38,40 @@ export function create(
   parameters: Object,
 ) {
   let index = createEventIndex(form, parameters);
-  let scope = {node, value, keyPath: []};
+  let scope = { node, value, keyPath: [] };
 
   // HACK: Install a side-door for testing/debugging REXL expressions in the
   // context of the current form.
-  global.REX_FORMS_EVALUATOR = (expression) => {
-    return REXL.parse(expression).evaluate((id) => {
-      return resolve(id, node, value.get(), parameters) || REXL.Untyped.value(null);
+  global.REX_FORMS_EVALUATOR = expression => {
+    return REXL.parse(expression).evaluate(id => {
+      return (
+        resolve(id, node, value.get(), parameters) || REXL.Untyped.value(null)
+      );
     });
   };
 
   return new EventExecutor(index, scope);
 }
 
-function childrenScope(scope: Scope): {[keyPath: string] : Scope} {
+function childrenScope(scope: Scope): { [keyPath: string]: Scope } {
   let children = {};
   let scopeNode = scope.node;
-  invariant(
-    scopeNode.type === 'object',
-    'Invalid schema'
-  );
-  for (let k in (scopeNode : JSONObjectSchema).properties) {
+  invariant(scopeNode.type === "object", "Invalid schema");
+  for (let k in (scopeNode: JSONObjectSchema).properties) {
     let node = scopeNode.properties[k];
-    invariant(
-      node.instrument && node.instrument.type,
-      'Invalid schema'
-    );
-    if (node.instrument.type.base === 'recordList') {
-      let value: Array<mixed> = cast(get(scope.value.get(), [k, 'value'])) || [];
+    invariant(node.instrument && node.instrument.type, "Invalid schema");
+    if (node.instrument.type.base === "recordList") {
+      let value: Array<mixed> =
+        cast(get(scope.value.get(), [k, "value"])) || [];
       value.forEach((_item, idx) => {
-        let keyPath = [k, 'value', idx];
-        children[keyPath.join('.')] = selectScope(scope, keyPath);
+        let keyPath = [k, "value", idx];
+        children[keyPath.join(".")] = selectScope(scope, keyPath);
       });
-    } else if (node.instrument.type.base === 'matrix') {
+    } else if (node.instrument.type.base === "matrix") {
       // $FlowFixMe: ...
       node.instrument.type.rows.forEach(row => {
-        let keyPath = [k, 'value', row.id];
-        children[keyPath.join('.')] = selectScope(scope, keyPath);
+        let keyPath = [k, "value", row.id];
+        children[keyPath.join(".")] = selectScope(scope, keyPath);
       });
     }
   }
@@ -86,22 +79,22 @@ function childrenScope(scope: Scope): {[keyPath: string] : Scope} {
 }
 
 export class EventExecutor {
-
   index: EventIndex;
   globalScope: Scope;
   localScope: ?Scope;
-  children: Derivable<{[keyPath: string]: EventExecutor}>;
+  children: Derivable<{ [keyPath: string]: EventExecutor }>;
 
-  constructor(
-    index: EventIndex,
-    globalScope: Scope,
-    localScope?: Scope,
-  ) {
+  constructor(index: EventIndex, globalScope: Scope, localScope?: Scope) {
     this.index = index;
-    this.children = localScope == null
-      ? derivation(() => mapValues(childrenScope(this.globalScope), scope =>
-          new EventExecutor(this.index, this.globalScope, scope)))
-      : derivation(() => ({}));
+    this.children =
+      localScope == null
+        ? derivation(() =>
+            mapValues(
+              childrenScope(this.globalScope),
+              scope => new EventExecutor(this.index, this.globalScope, scope),
+            ),
+          )
+        : derivation(() => ({}));
     this.globalScope = globalScope;
     this.localScope = localScope;
   }
@@ -111,12 +104,9 @@ export class EventExecutor {
   }
 
   select(keyPath: KeyPath) {
-    let key = keyPath.join('.');
+    let key = keyPath.join(".");
     let child = this.children.get()[key];
-    invariant(
-      child != null,
-      'Invalid event executor select: %s', key
-    );
+    invariant(child != null, "Invalid event executor select: %s", key);
     return child;
   }
 
@@ -130,7 +120,6 @@ export class EventExecutor {
       let info = index[k];
 
       info.eventList.forEach(event => {
-
         let executorList = event.locateScope
           ? event.locateScope(value).map(keyPath => this.select(keyPath))
           : [this];
@@ -141,7 +130,6 @@ export class EventExecutor {
             cb(executor.compute(event), executor.keyPath.concat(keyPath));
           });
         });
-
       });
     }
   };
@@ -153,7 +141,7 @@ export class EventExecutor {
     this.computeBatchFor(this.index.field.fail, value, (failure, keyPath) => {
       if (failure.length > 0) {
         let message = failure[0];
-        let field = keyPath.join('.');
+        let field = keyPath.join(".");
 
         // Because multiple events can produce the same message (eval'ed in
         // different scopes) we need to filter out dups.
@@ -163,7 +151,7 @@ export class EventExecutor {
         }
         seenByField[field].push(message);
 
-        let error = {field, message, force: true};
+        let error = { field, message, force: true };
         errorList.push(error);
       }
     });
@@ -177,23 +165,31 @@ export class EventExecutor {
         value = update(value, keyPath, null);
       }
     });
-    this.computeBatchFor(this.index.field.disable, value, (disabled, keyPath) => {
-      if (disabled) {
-        value = update(value, keyPath, null);
-      }
-    });
-    this.computeBatchFor(this.index.field.hideEnumeration, value, (hidden, keyPath) => {
-      if (hidden.length > 0) {
-        let v: Array<string> | string = get(value, keyPath);
-        // enumerationSet value
-        if (Array.isArray(v)) {
-          value = update(value, keyPath, pullAll(v, hidden));
-        /// enumeration value
-        } else if (hidden.indexOf((cast(v): string)) > -1) {
+    this.computeBatchFor(
+      this.index.field.disable,
+      value,
+      (disabled, keyPath) => {
+        if (disabled) {
           value = update(value, keyPath, null);
         }
-      }
-    });
+      },
+    );
+    this.computeBatchFor(
+      this.index.field.hideEnumeration,
+      value,
+      (hidden, keyPath) => {
+        if (hidden.length > 0) {
+          let v: Array<string> | string = get(value, keyPath);
+          // enumerationSet value
+          if (Array.isArray(v)) {
+            value = update(value, keyPath, pullAll(v, hidden));
+            /// enumeration value
+          } else if (hidden.indexOf((cast(v): string)) > -1) {
+            value = update(value, keyPath, null);
+          }
+        }
+      },
+    );
     return value;
   };
 
@@ -258,5 +254,4 @@ export class EventExecutor {
     let result = flatten(info.eventList.map(this.compute));
     return result;
   };
-
 }

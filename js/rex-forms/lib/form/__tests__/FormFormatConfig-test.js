@@ -11,7 +11,7 @@ import * as FormFormatConfig from "../FormFormatConfig";
 
 let i18n = {
   gettext: msg => msg,
-  config: { locale: "en" }
+  config: { locale: "en" },
 };
 
 function assertValid(schema, value) {
@@ -41,43 +41,43 @@ const matrix_instrument: RIOSInstrument = {
       rows: [
         {
           id: "row1",
-          required: false
+          required: false,
         },
         {
           id: "row2",
-          required: false
-        }
+          required: false,
+        },
       ],
       columns: [
         {
           id: "col1",
           type: "text",
           required: false,
-          identifiable: false
+          identifiable: false,
         },
         {
           id: "col2",
           type: "dateTime",
           required: false,
-          identifiable: false
-        }
-      ]
-    }
+          identifiable: false,
+        },
+      ],
+    },
   },
   record: [
     {
       id: "plain",
       type: "basic",
       required: false,
-      identifiable: false
-    }
-  ]
+      identifiable: false,
+    },
+  ],
 };
 
 const matrix_form_en: RIOSForm = {
   instrument: {
     id: "urn:matrix-fields",
-    version: "1.0"
+    version: "1.0",
   },
   defaultLocalization: "en",
   pages: [
@@ -89,9 +89,9 @@ const matrix_form_en: RIOSForm = {
           tags: [],
           options: {
             text: {
-              en: "Constraints"
-            }
-          }
+              en: "Constraints",
+            },
+          },
         },
         {
           type: "question",
@@ -99,53 +99,53 @@ const matrix_form_en: RIOSForm = {
           options: {
             fieldId: "plain",
             text: {
-              en: "No constraints."
+              en: "No constraints.",
             },
             rows: [
               {
                 id: "row2",
                 text: {
-                  en: 'The "Second" Row'
-                }
+                  en: 'The "Second" Row',
+                },
               },
               {
                 id: "row1",
                 text: {
-                  en: "Row1"
-                }
-              }
+                  en: "Row1",
+                },
+              },
             ],
             questions: [
               {
                 fieldId: "col1",
                 text: {
-                  en: "The first column"
-                }
+                  en: "The first column",
+                },
               },
               {
                 fieldId: "col2",
                 text: {
-                  en: "Another column"
+                  en: "Another column",
                 },
                 widget: {
                   type: "dateTimePicker",
                   options: {
-                    useLocaleFormat: "en"
-                  }
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
+                    useLocaleFormat: "en",
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ],
 };
 
 const matrix_form: RIOSForm = {
   instrument: {
     id: "urn:matrix-fields",
-    version: "1.0"
+    version: "1.0",
   },
   defaultLocalization: "en",
   pages: [
@@ -157,9 +157,9 @@ const matrix_form: RIOSForm = {
           tags: [],
           options: {
             text: {
-              en: "Constraints"
-            }
-          }
+              en: "Constraints",
+            },
+          },
         },
         {
           type: "question",
@@ -167,41 +167,41 @@ const matrix_form: RIOSForm = {
           options: {
             fieldId: "plain",
             text: {
-              en: "No constraints."
+              en: "No constraints.",
             },
             rows: [
               {
                 id: "row2",
                 text: {
-                  en: 'The "Second" Row'
-                }
+                  en: 'The "Second" Row',
+                },
               },
               {
                 id: "row1",
                 text: {
-                  en: "Row1"
-                }
-              }
+                  en: "Row1",
+                },
+              },
             ],
             questions: [
               {
                 fieldId: "col1",
                 text: {
-                  en: "The first column"
-                }
+                  en: "The first column",
+                },
               },
               {
                 fieldId: "col2",
                 text: {
-                  en: "Another column"
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
+                  en: "Another column",
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ],
 };
 
 /**
@@ -217,27 +217,27 @@ const records_instrument: any = {
       record: [
         {
           id: "subfield1",
-          type: "date"
+          type: "date",
         },
         {
           id: "subfield2",
-          type: "dateTime"
-        }
-      ]
-    }
+          type: "dateTime",
+        },
+      ],
+    },
   },
   record: [
     {
       id: "plain",
-      type: "basic"
-    }
-  ]
+      type: "basic",
+    },
+  ],
 };
 
 const records_form_en: RIOSForm = {
   instrument: {
     id: "urn:recordlist-fields",
-    version: "1.0"
+    version: "1.0",
   },
   pages: [
     {
@@ -248,9 +248,9 @@ const records_form_en: RIOSForm = {
           tags: [],
           options: {
             text: {
-              en: "Constraints"
-            }
-          }
+              en: "Constraints",
+            },
+          },
         },
         {
           type: "question",
@@ -258,39 +258,39 @@ const records_form_en: RIOSForm = {
           options: {
             fieldId: "plain",
             text: {
-              en: "No constraints."
+              en: "No constraints.",
             },
             questions: [
               {
                 fieldId: "subfield2",
                 text: {
-                  en: "First is 2."
-                }
+                  en: "First is 2.",
+                },
               },
               {
                 fieldId: "subfield1",
                 text: {
-                  en: "Second is 1."
+                  en: "Second is 1.",
                 },
                 widget: {
                   type: "date",
                   options: {
-                    useLocaleFormat: "en"
-                  }
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
+                    useLocaleFormat: "en",
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ],
 };
 
 const records_form: RIOSForm = {
   instrument: {
     id: "urn:recordlist-fields",
-    version: "1.0"
+    version: "1.0",
   },
   pages: [
     {
@@ -301,9 +301,9 @@ const records_form: RIOSForm = {
           tags: [],
           options: {
             text: {
-              en: "Constraints"
-            }
-          }
+              en: "Constraints",
+            },
+          },
         },
         {
           type: "question",
@@ -311,27 +311,27 @@ const records_form: RIOSForm = {
           options: {
             fieldId: "plain",
             text: {
-              en: "No constraints."
+              en: "No constraints.",
             },
             questions: [
               {
                 fieldId: "subfield2",
                 text: {
-                  en: "First is 2."
-                }
+                  en: "First is 2.",
+                },
               },
               {
                 fieldId: "subfield1",
                 text: {
-                  en: "Second is 1."
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
+                  en: "Second is 1.",
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ],
 };
 
 describe("Test matrix date/dateTime fields", function() {
@@ -339,25 +339,25 @@ describe("Test matrix date/dateTime fields", function() {
     it("Validate values", function() {
       let formatConfig = FormFormatConfig.make(
         (matrix_form: any),
-        i18n.config.locale
+        i18n.config.locale,
       );
 
       let schema = fromInstrument(matrix_instrument, {
         i18n,
-        formatConfig
+        formatConfig,
       });
 
       assertValid(schema, {
         plain: {
           value: {
             row1: {
-              col2: { value: "2012-12-12T12:12" }
+              col2: { value: "2012-12-12T12:12" },
             },
             row2: {
-              col2: { value: "2012-12-12T12:12:12" }
-            }
-          }
-        }
+              col2: { value: "2012-12-12T12:12:12" },
+            },
+          },
+        },
       });
       assertInvalid(
         schema,
@@ -365,24 +365,24 @@ describe("Test matrix date/dateTime fields", function() {
           plain: {
             value: {
               row1: {
-                col2: { value: 12345 }
+                col2: { value: 12345 },
               },
               row2: {
-                col2: { value: "string" }
-              }
-            }
-          }
+                col2: { value: "string" },
+              },
+            },
+          },
         },
         [
           {
             field: "data.plain.value.row1.col2.value",
-            message: "is the wrong type"
+            message: "is the wrong type",
           },
           {
             field: "data.plain.value.row2.col2.value",
-            message: "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]"
-          }
-        ]
+            message: "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]",
+          },
+        ],
       );
     });
   });
@@ -391,33 +391,33 @@ describe("Test matrix date/dateTime fields", function() {
     it("Validate values", function() {
       let formatConfig = FormFormatConfig.make(
         matrix_form_en,
-        i18n.config.locale
+        i18n.config.locale,
       );
 
       expect(
         FormFormatConfig.findFieldConfig(formatConfig, [
           "plain",
           "row2",
-          "col2"
-        ])
+          "col2",
+        ]),
       ).toBeTruthy();
 
       let schema = fromInstrument(matrix_instrument, {
         i18n,
-        formatConfig
+        formatConfig,
       });
 
       assertValid(schema, {
         plain: {
           value: {
             row1: {
-              col2: { value: "12-12-2012T12:12" }
+              col2: { value: "12-12-2012T12:12" },
             },
             row2: {
-              col2: { value: "12-12-2012T12:12:12" }
-            }
-          }
-        }
+              col2: { value: "12-12-2012T12:12:12" },
+            },
+          },
+        },
       });
       assertInvalid(
         schema,
@@ -425,24 +425,24 @@ describe("Test matrix date/dateTime fields", function() {
           plain: {
             value: {
               row1: {
-                col2: { value: 12345 }
+                col2: { value: 12345 },
               },
               row2: {
-                col2: { value: "string" }
-              }
-            }
-          }
+                col2: { value: "string" },
+              },
+            },
+          },
         },
         [
           {
             field: "data.plain.value.row1.col2.value",
-            message: "is the wrong type"
+            message: "is the wrong type",
           },
           {
             field: "data.plain.value.row2.col2.value",
-            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]"
-          }
-        ]
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+          },
+        ],
       );
     });
   });
@@ -453,12 +453,12 @@ describe("Test records date/dateTime fields", function() {
     it("Validate values", function() {
       let formatConfig = FormFormatConfig.make(
         records_form,
-        i18n.config.locale
+        i18n.config.locale,
       );
 
       let schema = fromInstrument(records_instrument, {
         i18n,
-        formatConfig
+        formatConfig,
       });
 
       assertValid(schema, {
@@ -466,16 +466,16 @@ describe("Test records date/dateTime fields", function() {
           value: [
             {
               subfield1: {
-                value: "2012-12-12"
-              }
+                value: "2012-12-12",
+              },
             },
             {
               subfield2: {
-                value: "2012-12-12T12:12"
-              }
-            }
-          ]
-        }
+                value: "2012-12-12T12:12",
+              },
+            },
+          ],
+        },
       });
     });
   });
@@ -484,16 +484,16 @@ describe("Test records date/dateTime fields", function() {
     it("Validate values", function() {
       let formatConfig = FormFormatConfig.make(
         records_form_en,
-        i18n.config.locale
+        i18n.config.locale,
       );
 
       expect(
-        FormFormatConfig.findFieldConfig(formatConfig, ["plain", "subfield1"])
+        FormFormatConfig.findFieldConfig(formatConfig, ["plain", "subfield1"]),
       ).toBeTruthy();
 
       let schema = fromInstrument(records_instrument, {
         i18n,
-        formatConfig
+        formatConfig,
       });
 
       assertValid(schema, {
@@ -501,16 +501,16 @@ describe("Test records date/dateTime fields", function() {
           value: [
             {
               subfield1: {
-                value: "12-12-2012"
-              }
+                value: "12-12-2012",
+              },
             },
             {
               subfield2: {
-                value: "2012-12-12T12:12"
-              }
-            }
-          ]
-        }
+                value: "2012-12-12T12:12",
+              },
+            },
+          ],
+        },
       });
 
       assertInvalid(
@@ -520,23 +520,23 @@ describe("Test records date/dateTime fields", function() {
             value: [
               {
                 subfield1: {
-                  value: "2012-12-12"
-                }
+                  value: "2012-12-12",
+                },
               },
               {
                 subfield2: {
-                  value: "2012-12-12T12:12"
-                }
-              }
-            ]
-          }
+                  value: "2012-12-12T12:12",
+                },
+              },
+            ],
+          },
         },
         [
           {
             field: "data.plain.value.0.subfield1.value",
-            message: "This must be entered in the form: MM-DD-YYYY"
-          }
-        ]
+            message: "This must be entered in the form: MM-DD-YYYY",
+          },
+        ],
       );
     });
   });

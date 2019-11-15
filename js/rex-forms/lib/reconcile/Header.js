@@ -29,12 +29,12 @@ export default InjectI18N(
             label={entry.uid}
             width={width}
             hint={this._("Entered By: %(username)s", {
-              username: entry.modified_by
+              username: entry.modified_by,
             })}
           />
         ))
         .concat(
-          <HeaderColumn key="_final_value" label={this._("Final Value")} />
+          <HeaderColumn key="_final_value" label={this._("Final Value")} />,
         );
 
       return (
@@ -43,5 +43,5 @@ export default InjectI18N(
         </thead>
       );
     }
-  }
+  },
 );

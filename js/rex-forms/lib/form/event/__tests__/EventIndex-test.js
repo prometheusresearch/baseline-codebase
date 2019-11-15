@@ -15,8 +15,8 @@ let MOCK_ENV = {
   i18n: {
     gettext: msg => {
       return msg;
-    }
-  }
+    },
+  },
 };
 
 describe("rex-froms/form/event", function() {
@@ -32,20 +32,20 @@ describe("rex-froms/form/event", function() {
             enumerations: {
               hidden: null,
               disabled: null,
-              failed: null
-            }
-          }
+              failed: null,
+            },
+          },
         },
         record: [
           {
             id: "single",
-            type: "action_enum"
+            type: "action_enum",
           },
           {
             id: "single_target",
-            type: "text"
-          }
-        ]
+            type: "text",
+          },
+        ],
       };
 
       let form = {
@@ -62,34 +62,34 @@ describe("rex-froms/form/event", function() {
                     {
                       trigger: "single=='hidden'",
                       action: "hide",
-                      targets: ["single_target"]
+                      targets: ["single_target"],
                     },
                     {
                       trigger: "single=='disabled'",
                       action: "disable",
-                      targets: ["single_target"]
+                      targets: ["single_target"],
                     },
                     {
                       trigger: "single=='failed'",
                       action: "fail",
                       targets: ["single_target"],
                       options: {
-                        text: { en: "This has been forcefully failed" }
-                      }
-                    }
-                  ]
-                }
+                        text: { en: "This has been forcefully failed" },
+                      },
+                    },
+                  ],
+                },
               },
               {
                 type: "question",
                 options: {
                   text: { en: "Single Target" },
-                  fieldId: "single_target"
-                }
-              }
-            ]
-          }
-        ]
+                  fieldId: "single_target",
+                },
+              },
+            ],
+          },
+        ],
       };
 
       let schema = Schema.fromInstrument(instrument, MOCK_ENV);
@@ -125,31 +125,31 @@ describe("rex-froms/form/event", function() {
 
     describe("events for recordList questions", function() {
       let instrument = {
-        id: 'instrument',
-        version: '1.0.0',
-        title: 'Instrument',
+        id: "instrument",
+        version: "1.0.0",
+        title: "Instrument",
         types: {
           action_enum: {
             base: "enumeration",
             enumerations: {
               hidden: null,
               disabled: null,
-              failed: null
-            }
+              failed: null,
+            },
           },
           basic_enum: {
             base: "enumeration",
             enumerations: {
               red: null,
               blue: null,
-              green: null
-            }
-          }
+              green: null,
+            },
+          },
         },
         record: [
           {
             id: "recordlist_subfield",
-            type: "action_enum"
+            type: "action_enum",
           },
           {
             id: "recordlist_target",
@@ -158,11 +158,11 @@ describe("rex-froms/form/event", function() {
               record: [
                 { id: "subfield1", type: "integer" },
                 { id: "subfield2", type: "text" },
-                { id: "subfield3", type: "basic_enum" }
-              ]
-            }
-          }
-        ]
+                { id: "subfield3", type: "basic_enum" },
+              ],
+            },
+          },
+        ],
       };
 
       let form = {
@@ -190,10 +190,10 @@ describe("rex-froms/form/event", function() {
                       trigger: "recordlist_subfield=='failed'",
                       action: "fail",
                       targets: ["recordlist_target.subfield1"],
-                      options: {text: {en: 'fail'}}
-                    }
-                  ]
-                }
+                      options: { text: { en: "fail" } },
+                    },
+                  ],
+                },
               },
               {
                 type: "question",
@@ -202,30 +202,30 @@ describe("rex-froms/form/event", function() {
                   fieldId: "recordlist_target",
                   questions: [
                     {
-                      text: {en: 'Subfield1'},
+                      text: { en: "Subfield1" },
                       fieldId: "subfield1",
                       events: [
                         {
                           trigger: "subfield1>5",
                           action: "disable",
-                          targets: ["subfield2"]
-                        }
-                      ]
+                          targets: ["subfield2"],
+                        },
+                      ],
                     },
                     {
-                      text: {en: 'Subfield2'},
-                      fieldId: "subfield2"
+                      text: { en: "Subfield2" },
+                      fieldId: "subfield2",
                     },
                     {
-                      text: {en: 'Subfield3'},
-                      fieldId: "subfield3"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
+                      text: { en: "Subfield3" },
+                      fieldId: "subfield3",
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
       };
 
       let schema = Schema.fromInstrument(instrument, MOCK_ENV);
@@ -246,25 +246,25 @@ describe("rex-froms/form/event", function() {
         assert(size(cat.field.fail) === 1);
         assert(cat.field.fail["recordlist_target.subfield1"]);
         assert(
-          cat.field.fail["recordlist_target.subfield1"].eventList.length === 1
+          cat.field.fail["recordlist_target.subfield1"].eventList.length === 1,
         );
 
         assert(size(cat.field.disable) === 2);
         assert(cat.field.disable["recordlist_target.subfield1"]);
         assert(
           cat.field.disable["recordlist_target.subfield1"].eventList.length ===
-            1
+            1,
         );
         assert(cat.field.disable["recordlist_target.subfield2"]);
         assert(
           cat.field.disable["recordlist_target.subfield2"].eventList.length ===
-            1
+            1,
         );
 
         assert(size(cat.field.hide) === 1);
         assert(cat.field.hide["recordlist_target.subfield1"]);
         assert(
-          cat.field.hide["recordlist_target.subfield1"].eventList.length === 1
+          cat.field.hide["recordlist_target.subfield1"].eventList.length === 1,
         );
 
         assert(size(cat.field.hideEnumeration) === 0);
@@ -285,27 +285,27 @@ describe("rex-froms/form/event", function() {
                   enumerations: [
                     {
                       id: "hidden",
-                      text: { en: "Hidden" }
+                      text: { en: "Hidden" },
                     },
                     {
                       id: "disabled",
-                      text: { en: "Disabled" }
+                      text: { en: "Disabled" },
                     },
                     {
                       id: "failed",
-                      text: { en: "Failed" }
-                    }
+                      text: { en: "Failed" },
+                    },
                   ],
                   events: [
                     {
                       trigger: "matrix_cell=='hidden'",
                       action: "hide",
-                      targets: ["matrix_target.row1.col1"]
+                      targets: ["matrix_target.row1.col1"],
                     },
                     {
                       trigger: "matrix_cell=='disabled'",
                       action: "disable",
-                      targets: ["matrix_target.row1.col1"]
+                      targets: ["matrix_target.row1.col1"],
                     },
                     {
                       trigger: "matrix_cell=='failed'",
@@ -313,12 +313,12 @@ describe("rex-froms/form/event", function() {
                       targets: ["matrix_target.row1.col1"],
                       options: {
                         text: {
-                          en: "This has been forcefully failed."
-                        }
-                      }
-                    }
-                  ]
-                }
+                          en: "This has been forcefully failed.",
+                        },
+                      },
+                    },
+                  ],
+                },
               },
               {
                 type: "question",
@@ -328,12 +328,12 @@ describe("rex-froms/form/event", function() {
                   rows: [
                     {
                       id: "row1",
-                      text: { en: "Row 1" }
+                      text: { en: "Row 1" },
                     },
                     {
                       id: "row2",
-                      text: { en: "Row 2" }
-                    }
+                      text: { en: "Row 2" },
+                    },
                   ],
                   questions: [
                     {
@@ -343,9 +343,9 @@ describe("rex-froms/form/event", function() {
                         {
                           trigger:
                             "matrix_target.row1.col2=='foo'|matrix_target.row2.col2=='foo'",
-                          action: "disable"
-                        }
-                      ]
+                          action: "disable",
+                        },
+                      ],
                     },
                     {
                       fieldId: "col2",
@@ -355,25 +355,25 @@ describe("rex-froms/form/event", function() {
                           trigger:
                             "!(matrix_target.row1.col2=='hello'|matrix_target.row2.col2=='hello')",
                           action: "hide",
-                          targets: ["hello"]
-                        }
-                      ]
-                    }
-                  ]
-                }
+                          targets: ["hello"],
+                        },
+                      ],
+                    },
+                  ],
+                },
               },
               {
                 type: "text",
                 options: {
                   text: {
-                    en: "Hello to you too!"
-                  }
+                    en: "Hello to you too!",
+                  },
                 },
-                tags: ["hello"]
-              }
-            ]
-          }
-        ]
+                tags: ["hello"],
+              },
+            ],
+          },
+        ],
       };
 
       it("discovers the events from form", function() {
@@ -395,23 +395,23 @@ describe("rex-froms/form/event", function() {
         assert(size(cat.field.fail) === 1);
         assert(cat.field.fail["matrix_target.row1.col1"]);
         assert(
-          cat.field.fail["matrix_target.row1.col1"].eventList.length === 1
+          cat.field.fail["matrix_target.row1.col1"].eventList.length === 1,
         );
 
         assert(size(cat.field.disable) === 2);
         assert(cat.field.disable["matrix_target.row1.col1"]);
         assert(
-          cat.field.disable["matrix_target.row1.col1"].eventList.length === 5
+          cat.field.disable["matrix_target.row1.col1"].eventList.length === 5,
         );
         assert(cat.field.disable["matrix_target.row2.col1"]);
         assert(
-          cat.field.disable["matrix_target.row2.col1"].eventList.length === 2
+          cat.field.disable["matrix_target.row2.col1"].eventList.length === 2,
         );
 
         assert(size(cat.field.hide) === 1);
         assert(cat.field.hide["matrix_target.row1.col1"]);
         assert(
-          cat.field.hide["matrix_target.row1.col1"].eventList.length === 1
+          cat.field.hide["matrix_target.row1.col1"].eventList.length === 1,
         );
 
         assert(size(cat.field.hideEnumeration) === 0);

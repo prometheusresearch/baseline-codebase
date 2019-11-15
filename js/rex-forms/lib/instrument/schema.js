@@ -15,7 +15,7 @@ import type {
   RIOSTypeCatalog,
   JSONSchema,
   JSONSchemaExtension,
-  JSONObjectSchema
+  JSONObjectSchema,
 } from "../types";
 
 import invariant from "invariant";
@@ -24,13 +24,13 @@ import * as FormFormatConfig from "../form/FormFormatConfig.js";
 
 type Env = {|
   i18n: I18N,
-  formatConfig: FormFormatConfig.Config
+  formatConfig: FormFormatConfig.Config,
 |};
 
 type Context = {|
   ...Env,
   types: RIOSTypeCatalog,
-  validate: Validate
+  validate: Validate,
 |};
 
 /**
@@ -38,12 +38,12 @@ type Context = {|
  */
 export function fromInstrument(
   instrument: RIOSInstrument,
-  env: Env
+  env: Env,
 ): JSONSchema {
   let ctx = {
     ...env,
     types: instrument.types,
-    validate: new Validate({ i18n: env.i18n })
+    validate: new Validate({ i18n: env.i18n }),
   };
   let schema = {
     ...generateRecordSchema(instrument.record, "instrument", [], ctx),
@@ -53,7 +53,7 @@ export function fromInstrument(
         errorList = schema.event.validate(value);
       }
       return errorList.length === 0 ? true : errorList;
-    }
+    },
   };
 
   return (schema: JSONObjectSchema);
@@ -63,7 +63,7 @@ export function generateRecordSchema(
   record: Array<RIOSField>,
   context: string,
   eventKey: Array<string>,
-  ctx: Context
+  ctx: Context,
 ) {
   let properties = {};
   for (let i = 0; i < record.length; i++) {
@@ -77,16 +77,16 @@ export function generateRecordSchema(
       context,
       type: {
         base: "recordList",
-        record
-      }
-    }
+        record,
+      },
+    },
   };
 }
 
 function generateFieldSchema(
   field: RIOSField,
   eventKey: Array<string>,
-  ctx: Context
+  ctx: Context,
 ): JSONSchema {
   const _env = ctx;
 
@@ -108,12 +108,12 @@ function generateFieldSchema(
     properties: {},
     required: [],
     form: {
-      eventKey: eventKey.join(".")
+      eventKey: eventKey.join("."),
     },
     instrument: {
       context: "field",
       field,
-      type
+      type,
     },
     format(value, _node) {
       if (annotationRequired) {
@@ -121,8 +121,8 @@ function generateFieldSchema(
           return {
             field: "annotation",
             message: _env.i18n.gettext(
-              "You must provide a response for this field."
-            )
+              "You must provide a response for this field.",
+            ),
           };
         }
       }
@@ -133,7 +133,7 @@ function generateFieldSchema(
         value = { ...value, annotation: null };
       }
       return value;
-    }
+    },
   };
 
   if (annotationNeeded) {
@@ -164,7 +164,7 @@ function generateFieldSchema(
 export function generateValueSchema(
   type: RIOSExtendedType,
   eventKey: Array<string>,
-  ctx: Context
+  ctx: Context,
 ): JSONSchema {
   let { formatConfig } = ctx;
   let format = FormFormatConfig.findFieldConfig(formatConfig, eventKey) || {};
@@ -176,7 +176,7 @@ export function generateValueSchema(
     dateTimeRegex,
     dateTimeRegexBase,
     dateTimeFormatBase,
-    dateTimeInputMaskBase
+    dateTimeInputMaskBase,
   } = format;
 
   switch (type.base) {
@@ -184,24 +184,24 @@ export function generateValueSchema(
       return {
         type: "any",
         format: ctx.validate.number,
-        instrument: { type }
+        instrument: { type },
       };
     case "integer":
       return {
         type: "any",
         format: ctx.validate.integer,
-        instrument: { type }
+        instrument: { type },
       };
     case "text":
       return {
         type: "string",
         format: ctx.validate.text,
-        instrument: { type }
+        instrument: { type },
       };
     case "boolean":
       return {
         type: "boolean",
-        instrument: { type }
+        instrument: { type },
       };
     case "date":
       return {
@@ -210,13 +210,13 @@ export function generateValueSchema(
         instrument: { type },
         dateFormat,
         dateRegex,
-        dateInputMask
+        dateInputMask,
       };
     case "time":
       return {
         type: "string",
         format: ctx.validate.time,
-        instrument: { type }
+        instrument: { type },
       };
     case "dateTime":
       return {
@@ -229,7 +229,7 @@ export function generateValueSchema(
         dateTimeRegex,
         dateTimeRegexBase,
         dateTimeFormatBase,
-        dateTimeInputMaskBase
+        dateTimeInputMaskBase,
       };
     case "recordList":
       invariant(type.record != null, "Invalid recordList type");
@@ -239,28 +239,28 @@ export function generateValueSchema(
           type.record,
           "recordListRecord",
           eventKey,
-          ctx
+          ctx,
         ),
         format: ctx.validate.recordList,
         instrument: {
           type,
-          context: "recordList"
-        }
+          context: "recordList",
+        },
       };
     case "enumeration":
       invariant(
         typeof type.enumerations === "object",
-        "Invalid enumeration type"
+        "Invalid enumeration type",
       );
       return {
-        type: 'enum',
+        type: "enum",
         enum: Object.keys(type.enumerations),
-        instrument: { type }
+        instrument: { type },
       };
     case "enumerationSet":
       invariant(
         typeof type.enumerations === "object",
-        "Invalid enumerationSet type"
+        "Invalid enumerationSet type",
       );
       return {
         type: "array",
@@ -269,8 +269,8 @@ export function generateValueSchema(
         items: {
           type: "enum",
           enum: Object.keys(type.enumerations),
-          instrument: { type }
-        }
+          instrument: { type },
+        },
       };
     case "matrix": {
       const { rows, columns } = type;
@@ -282,7 +282,7 @@ export function generateValueSchema(
           row,
           columns,
           eventKey,
-          ctx
+          ctx,
         );
       });
       return {
@@ -290,9 +290,9 @@ export function generateValueSchema(
         format: ctx.validate.matrix,
         instrument: {
           type,
-          context: "matrix"
+          context: "matrix",
         },
-        properties
+        properties,
       };
     }
     default:
@@ -304,7 +304,7 @@ function generateMatrixRowSchema(
   row: RIOSRow,
   columns: Array<RIOSColumn>,
   eventKey: Array<string>,
-  ctx: Context
+  ctx: Context,
 ) {
   eventKey = eventKey.concat(row.id);
   let node = {
@@ -316,14 +316,14 @@ function generateMatrixRowSchema(
       ...row,
       context: "matrixRow",
       required: row.required,
-      requiredColumns: []
-    }
+      requiredColumns: [],
+    },
   };
   columns.forEach(column => {
     node.properties[column.id] = generateMatrixColumnSchema(
       column,
       eventKey,
-      ctx
+      ctx,
     );
     if (column.required) {
       node.instrument.requiredColumns.push(column.id);
@@ -335,7 +335,7 @@ function generateMatrixRowSchema(
 function generateMatrixColumnSchema(column, eventKey, env) {
   column = {
     ...column,
-    required: false
+    required: false,
   };
   return generateFieldSchema(column, eventKey, env);
 }
@@ -376,7 +376,7 @@ function isBaseFieldType(type) {
 export function resolveType(
   type: RIOSType,
   types: RIOSTypeCatalog,
-  asBase: boolean = false
+  asBase: boolean = false,
 ): RIOSExtendedType {
   if (isSimpleFieldType(type)) {
     return { base: type };
@@ -389,7 +389,7 @@ export function resolveType(
     return {
       ...resolvedType,
       ...type,
-      base: resolvedType.base
+      base: resolvedType.base,
     };
   }
 }

@@ -18,7 +18,7 @@ import { style } from "react-stylesheet";
 import type {
   WidgetProps,
   WidgetInputProps,
-  InstrumentDateTime
+  InstrumentDateTime,
 } from "../WidgetConfig.js";
 import { getDatesFromRange } from "../WidgetConfig";
 import MaskedInput from "../MaskedInput";
@@ -33,7 +33,7 @@ import {
   InputWrapper,
   Toggler,
   TogglerIconStyle,
-  ButtonsWrapper
+  ButtonsWrapper,
 } from "./styled.components";
 import ErrorList from "../ErrorList";
 
@@ -54,7 +54,7 @@ const InputDate = (props: WidgetInputProps) => {
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    DEFAULT_DATE_FORMAT
+    DEFAULT_DATE_FORMAT,
   );
 
   let selectedDate = value != null ? Moment(value, dateFormat) : Moment();
@@ -149,11 +149,11 @@ function DatePicker(props: WidgetProps) {
     options: props.options
       ? {
           ...props.options,
-          width: props.options.width || "small"
+          width: props.options.width || "small",
         }
       : {
-          width: "small"
-        }
+          width: "small",
+        },
   };
   const { schema } = updatedProps.formValue;
 

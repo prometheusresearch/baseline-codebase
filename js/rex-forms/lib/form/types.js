@@ -4,37 +4,37 @@
  */
 
 export type Form = {
-  pages: Array<FormPage>;
+  pages: Array<FormPage>,
 };
 
-export type FormPage =  {
-  id: string;
-  elements: Array<FormElement>;
-}
+export type FormPage = {
+  id: string,
+  elements: Array<FormElement>,
+};
 
 export type FormElement = Question | Divider | Header | Text | Audio;
 
 export type Question = {
-  type: 'question';
-  options: QuestionOptions;
+  type: "question",
+  options: QuestionOptions,
 };
 
 export type QuestionOptions = {
-  fieldId: string;
+  fieldId: string,
 };
 
 export type Divider = {
-  type: 'divider';
+  type: "divider",
 };
 
 export type Header = {
-  type: 'header';
+  type: "header",
 };
 
 export type Text = {
-  type: 'text';
+  type: "text",
 };
 
 export type Audio = {
-  type: 'audio';
-}
+  type: "audio",
+};

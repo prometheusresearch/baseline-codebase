@@ -12,9 +12,9 @@ export const RexUIPickerWrapper = style(
       position: "absolute",
       top: "50%",
       left: "50%",
-      transform: "translate(-50%, -50%)"
-    }
-  }
+      transform: "translate(-50%, -50%)",
+    },
+  },
 );
 
 export const InputWrapper = style(
@@ -26,9 +26,9 @@ export const InputWrapper = style(
       // So far it's the height value from ReactUI.Input
       paddingRight: 34,
       position: "relative",
-      marginBottom: 16
-    }
-  }
+      marginBottom: 16,
+    },
+  },
 );
 
 export const Toggler = style(
@@ -48,14 +48,14 @@ export const Toggler = style(
       right: 0,
       transition: "opacity 0.3s",
       hover: {
-        opacity: 1
-      }
-    }
-  }
+        opacity: 1,
+      },
+    },
+  },
 );
 
 export const TogglerIconStyle = { width: "100%", height: "100%" };
 
 export const ButtonsWrapper = style(props => <div {...props} />, {
-  base: { textAlign: "right", paddingTop: 24, marginBottom: 12 }
+  base: { textAlign: "right", paddingTop: 24, marginBottom: 12 },
 });

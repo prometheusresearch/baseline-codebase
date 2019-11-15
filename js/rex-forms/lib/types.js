@@ -11,7 +11,7 @@ export type JSONSchemaExtension = {|
   instrument?: {
     type: RIOSExtendedType,
     required?: boolean,
-    requiredColumns?: Array<string>
+    requiredColumns?: Array<string>,
   },
   format?: any,
   onUpdate?: any,
@@ -23,46 +23,46 @@ export type JSONSchemaExtension = {|
   dateTimeRegex?: RegExp,
   dateTimeRegexBase?: RegExp,
   dateTimeFormatBase?: string,
-  dateTimeInputMaskBase?: string
+  dateTimeInputMaskBase?: string,
 |};
 
 export type JSONObjectSchema = {|
   ...JSONSchemaExtension,
   type: "object",
   properties: { [key: string]: JSONSchema },
-  required?: Array<string>
+  required?: Array<string>,
 |};
 
 export type JSONEnumSchema = {|
   ...JSONSchemaExtension,
   enum: Array<mixed>,
-  type: 'enum',
+  type: "enum",
 |};
 
 export type JSONStringSchema = {|
   ...JSONSchemaExtension,
-  type: "string"
+  type: "string",
 |};
 
 export type JSONNumberSchema = {|
   ...JSONSchemaExtension,
-  type: "number"
+  type: "number",
 |};
 
 export type JSONBooleanSchema = {|
   ...JSONSchemaExtension,
-  type: "boolean"
+  type: "boolean",
 |};
 
 export type JSONAnySchema = {|
   ...JSONSchemaExtension,
-  type: "any"
+  type: "any",
 |};
 
 export type JSONArraySchema = {|
   ...JSONSchemaExtension,
   type: "array",
-  items: JSONSchema
+  items: JSONSchema,
 |};
 
 export type JSONSchema =
@@ -75,11 +75,11 @@ export type JSONSchema =
   | JSONAnySchema;
 
 export type RIOSLocalizedString = {
-  [lang: string]: string
+  [lang: string]: string,
 };
 
 export type RIOSAudioSource = {
-  [lang: string]: Array<string>
+  [lang: string]: Array<string>,
 };
 
 export type RIOSTag = string;
@@ -88,7 +88,7 @@ export type RIOSDescriptor = {|
   id: string,
   text: RIOSLocalizedString,
   audio?: RIOSAudioSource,
-  help?: RIOSLocalizedString
+  help?: RIOSLocalizedString,
 |};
 
 export type RIOSFailEvent = {|
@@ -97,8 +97,8 @@ export type RIOSFailEvent = {|
   triggerParsed?: REXLExpression,
   targets?: Array<string>,
   options: {|
-    text: RIOSLocalizedString
-  |}
+    text: RIOSLocalizedString,
+  |},
 |};
 
 export type RIOSHideEnumerationEvent = {|
@@ -107,22 +107,22 @@ export type RIOSHideEnumerationEvent = {|
   triggerParsed?: REXLExpression,
   targets?: Array<string>,
   options: {|
-    enumerations: Array<string>
-  |}
+    enumerations: Array<string>,
+  |},
 |};
 
 export type RIOSHideEvent = {|
   action: "hide",
   trigger: string,
   triggerParsed?: REXLExpression,
-  targets?: Array<string>
+  targets?: Array<string>,
 |};
 
 export type RIOSDisableEvent = {|
   action: "disable",
   trigger: string,
   triggerParsed?: REXLExpression,
-  targets?: Array<string>
+  targets?: Array<string>,
 |};
 
 export type RIOSEvent =
@@ -141,41 +141,41 @@ export type RIOSQuestion = {|
   questions?: Array<RIOSQuestion>,
   rows?: Array<RIOSDescriptor>,
   events?: Array<RIOSEvent>,
-  widget?: RIOSWidgetConfig
+  widget?: RIOSWidgetConfig,
 |};
 
 export type RIOSWidgetConfig = {|
   type: string,
-  options?: Object
+  options?: Object,
 |};
 
 export type RIOSTextElement = {|
   type: "text",
   options: {| text: RIOSLocalizedString |},
-  tags?: Array<RIOSTag>
+  tags?: Array<RIOSTag>,
 |};
 
 export type RIOSHeaderElement = {
   type: "header",
   options: {| text: RIOSLocalizedString |},
-  tags?: Array<RIOSTag>
+  tags?: Array<RIOSTag>,
 };
 
 export type RIOSDividerElement = {|
   type: "divider",
-  tags?: Array<RIOSTag>
+  tags?: Array<RIOSTag>,
 |};
 
 export type RIOSAudioElement = {|
   type: "audio",
   options: RIOSAudioSource,
-  tags?: Array<RIOSTag>
+  tags?: Array<RIOSTag>,
 |};
 
 export type RIOSQuestionElement = {|
   type: "question",
   options: RIOSQuestion,
-  tags?: Array<RIOSTag>
+  tags?: Array<RIOSTag>,
 |};
 
 export type RIOSElement =
@@ -187,22 +187,22 @@ export type RIOSElement =
 
 export type RIOSPage = {|
   id: string,
-  elements: Array<RIOSElement>
+  elements: Array<RIOSElement>,
 |};
 
 export type RIOSForm = {|
   instrument?: RIOSInstrumentRef,
   defaultLocalization?: string,
-  pages: Array<RIOSPage>
+  pages: Array<RIOSPage>,
 |};
 
 export type RIOSRange = {|
   min?: number,
-  max?: number
+  max?: number,
 |};
 
 export type RIOSEnumerationCollection = {
-  [name: string]: ?{ description: string }
+  [name: string]: ?{ description: string },
 };
 
 export type RIOSColumn = {|
@@ -210,13 +210,13 @@ export type RIOSColumn = {|
   description?: string,
   type: RIOSType,
   required?: boolean,
-  identifiable?: boolean
+  identifiable?: boolean,
 |};
 
 export type RIOSRow = {|
   id: string,
   description?: string,
-  required?: boolean
+  required?: boolean,
 |};
 
 export type RIOSExtendedType = {|
@@ -227,13 +227,13 @@ export type RIOSExtendedType = {|
   enumerations?: RIOSEnumerationCollection,
   record?: Array<RIOSField>,
   columns?: Array<RIOSColumn>,
-  rows?: Array<RIOSRow>
+  rows?: Array<RIOSRow>,
 |};
 
 export type RIOSType = RIOSExtendedType | string;
 
 export type RIOSTypeCatalog = {
-  [name: string]: RIOSType
+  [name: string]: RIOSType,
 };
 
 export type RIOSField = {|
@@ -243,12 +243,12 @@ export type RIOSField = {|
   explanation?: "required" | "optional" | "none",
   annotation?: "required" | "optional" | "none",
   required?: boolean,
-  identifiable?: boolean
+  identifiable?: boolean,
 |};
 
 export type RIOSInstrumentRef = {|
   id: string,
-  version: string
+  version: string,
 |};
 
 export type RIOSInstrument = {|
@@ -257,7 +257,7 @@ export type RIOSInstrument = {|
   title: string,
   description?: string,
   record: RIOSRecord,
-  types: RIOSTypeCatalog
+  types: RIOSTypeCatalog,
 |};
 
 export type RIOSRecord = RIOSField[];
@@ -265,18 +265,18 @@ export type RIOSRecord = RIOSField[];
 export type RIOSAssessment = {|
   instrument: RIOSInstrumentRef,
   values: RIOSValueCollection,
-  meta?: Object
+  meta?: Object,
 |};
 
 export type RIOSValueCollection = {
-  [fieldId: string]: RIOSValueObject
+  [fieldId: string]: RIOSValueObject,
 };
 
 export type RIOSValueObject = {|
   value: ?RIOSValue,
   explanation?: ?string,
   annotation?: ?string,
-  meta?: Object
+  meta?: Object,
 |};
 
 export type RIOSValue =
@@ -288,5 +288,5 @@ export type RIOSValue =
   | RIOSValueMapping; // matrix
 
 export type RIOSValueMapping = {
-  [rowId: string]: RIOSValueCollection
+  [rowId: string]: RIOSValueCollection,
 };

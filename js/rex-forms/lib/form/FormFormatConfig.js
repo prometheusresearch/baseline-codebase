@@ -9,7 +9,7 @@ import type {
   RIOSQuestion,
   RIOSQuestionElement,
   RIOSWidgetConfig,
-  RIOSInstrument
+  RIOSInstrument,
 } from "../types";
 
 export type FieldConfig = {|
@@ -116,7 +116,7 @@ export function makeFieldConfig(locale: string): FieldConfig {
   let dateFormat = format.join("");
   let dateInputMask = dateFormat.replace(/[MDY]/g, "9");
   let dateTimeRegex = new RegExp(
-    `^${patterns.join("-")}T\\d\\d:\\d\\d(:\\d\\d)?$`
+    `^${patterns.join("-")}T\\d\\d:\\d\\d(:\\d\\d)?$`,
   );
   let dateTimeRegexBase = new RegExp(`^${patterns.join("-")}T\\d\\d:\\d\\d$`);
   let dateTimeFormatBase = `${dateFormat}THH:mm`;

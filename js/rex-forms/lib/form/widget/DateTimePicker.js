@@ -21,7 +21,7 @@ import { DateTimePicker as RexUIDateTimePicker } from "rex-ui/datepicker";
 import type {
   WidgetProps,
   WidgetInputProps,
-  InstrumentDateTime
+  InstrumentDateTime,
 } from "../WidgetConfig.js";
 import MaskedInput from "../MaskedInput";
 import InputText from "./InputText";
@@ -32,7 +32,7 @@ import {
   InputWrapper,
   Toggler,
   TogglerIconStyle,
-  ButtonsWrapper
+  ButtonsWrapper,
 } from "./styled.components";
 import { getDatesFromRange } from "../WidgetConfig";
 import ErrorList from "../ErrorList";
@@ -44,7 +44,7 @@ const DATE_FORMAT_BASE = "YYYY-MM-DDTHH:mm";
 const theme = createMuiTheme();
 
 const InputDateTime = (
-  props: WidgetInputProps & { instrument: InstrumentDateTime }
+  props: WidgetInputProps & { instrument: InstrumentDateTime },
 ) => {
   const { instrument, formValue, value, ...rest } = props;
   const { schema } = formValue;
@@ -55,7 +55,7 @@ const InputDateTime = (
     dateTimeRegex,
     dateTimeRegexBase,
     dateTimeFormatBase,
-    dateTimeInputMaskBase
+    dateTimeInputMaskBase,
   } = schema;
 
   const [viewDate, setViewDate] = React.useState(Moment());
@@ -78,7 +78,7 @@ const InputDateTime = (
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
-    `${dateFormatBase}:ss`
+    `${dateFormatBase}:ss`,
   );
 
   const onModalClose = () => setShowModal(false);
@@ -182,11 +182,11 @@ function DateTimePicker(props: WidgetProps) {
     options: props.options
       ? {
           ...props.options,
-          width: props.options.width || "medium"
+          width: props.options.width || "medium",
         }
       : {
-          width: "medium"
-        }
+          width: "medium",
+        },
   };
 
   let renderInput = (props: WidgetInputProps) => (

@@ -14,17 +14,17 @@ let MOCK_ENV = {
   i18n: {
     gettext: msg => {
       return msg;
-    }
+    },
   },
-  formatConfig: FormFormatConfig.makeEmpty()
+  formatConfig: FormFormatConfig.makeEmpty(),
 };
 
 describe("rex-forms/form/event", function() {
   describe("resolve(identifier, schema, value, parameters)", function() {
     let instrument = {
-      id: 'id',
-      version: '1.0.0',
-      title: 'Instrument',
+      id: "id",
+      version: "1.0.0",
+      title: "Instrument",
       record: [
         { id: "simpleField", type: "text" },
         { id: "simpleFieldInteger", type: "integer" },
@@ -39,9 +39,9 @@ describe("rex-forms/form/event", function() {
             base: "enumeration",
             enumerations: {
               red: { description: "Red" },
-              blue: { description: "Blue" }
-            }
-          }
+              blue: { description: "Blue" },
+            },
+          },
         },
         {
           id: "simpleFieldEnumSet",
@@ -49,27 +49,27 @@ describe("rex-forms/form/event", function() {
             base: "enumerationSet",
             enumerations: {
               red: { description: "Red" },
-              blue: { description: "Blue" }
-            }
-          }
+              blue: { description: "Blue" },
+            },
+          },
         },
         {
           id: "recordList",
           type: {
             base: "recordList",
-            record: [{ id: "item", type: "text" }]
-          }
+            record: [{ id: "item", type: "text" }],
+          },
         },
         {
           id: "matrix",
           type: {
             base: "matrix",
             rows: [{ id: "row" }],
-            columns: [{ id: "col", type: "text" }]
-          }
-        }
+            columns: [{ id: "col", type: "text" }],
+          },
+        },
       ],
-      types: {}
+      types: {},
     };
 
     let schema = fromInstrument(instrument, MOCK_ENV);
@@ -81,7 +81,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values", function() {
       let ret = resolve("simpleField", schema, {
-        simpleField: { value: "ok" }
+        simpleField: { value: "ok" },
       });
       assert(ret.getTypeClass() === REXL.String);
       assert(ret.value === "ok");
@@ -89,7 +89,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (integer)", function() {
       let ret = resolve("simpleFieldInteger", schema, {
-        simpleFieldInteger: { value: 42 }
+        simpleFieldInteger: { value: 42 },
       });
       assert(ret.getTypeClass() === REXL.Number);
       assert(ret.value === 42);
@@ -97,7 +97,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (float)", function() {
       let ret = resolve("simpleFieldFloat", schema, {
-        simpleFieldFloat: { value: 42.4 }
+        simpleFieldFloat: { value: 42.4 },
       });
       assert(ret.getTypeClass() === REXL.Number);
       assert(ret.value === 42.4);
@@ -105,7 +105,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (enumeration)", function() {
       let ret = resolve("simpleFieldEnum", schema, {
-        simpleFieldEnum: { value: "red" }
+        simpleFieldEnum: { value: "red" },
       });
       assert(ret.getTypeClass() === REXL.String);
       assert(ret.value === "red");
@@ -113,7 +113,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (enumerationSet)", function() {
       let ret = resolve("simpleFieldEnumSet", schema, {
-        simpleFieldEnumSet: { value: ["red"] }
+        simpleFieldEnumSet: { value: ["red"] },
       });
       assert(ret.getTypeClass() === REXL.List);
       assert(ret.value.length === 1);
@@ -122,7 +122,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (boolean)", function() {
       let ret = resolve("simpleFieldBool", schema, {
-        simpleFieldBool: { value: true }
+        simpleFieldBool: { value: true },
       });
       assert(ret.getTypeClass() === REXL.Boolean);
       assert(ret.value === true);
@@ -130,7 +130,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (date)", function() {
       let ret = resolve("simpleFieldDate", schema, {
-        simpleFieldDate: { value: "ok" }
+        simpleFieldDate: { value: "ok" },
       });
       assert(ret.getTypeClass() === REXL.Date);
       assert(ret.value === "ok");
@@ -138,7 +138,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (time)", function() {
       let ret = resolve("simpleFieldTime", schema, {
-        simpleFieldTime: { value: "ok" }
+        simpleFieldTime: { value: "ok" },
       });
       assert(ret.getTypeClass() === REXL.Time);
       assert(ret.value === "ok");
@@ -146,7 +146,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from simple form values (dateTime)", function() {
       let ret = resolve("simpleFieldDateTime", schema, {
-        simpleFieldDateTime: { value: "ok" }
+        simpleFieldDateTime: { value: "ok" },
       });
       assert(ret.getTypeClass() === REXL.DateTime);
       assert(ret.value === "ok");
@@ -155,8 +155,8 @@ describe("rex-forms/form/event", function() {
     it("resolves from recordList form values", function() {
       let ret = resolve(["recordList", "item"], schema, {
         recordList: {
-          value: [{ item: { value: "x" } }, { item: { value: "y" } }]
-        }
+          value: [{ item: { value: "x" } }, { item: { value: "y" } }],
+        },
       });
       assert(ret.getTypeClass() === REXL.List);
       assert(ret.value.length === 2);
@@ -166,7 +166,7 @@ describe("rex-forms/form/event", function() {
 
     it("resolves from matrix form values", function() {
       let ret = resolve(["matrix", "row", "col"], schema, {
-        matrix: { value: { row: { col: { value: "ok" } } } }
+        matrix: { value: { row: { col: { value: "ok" } } } },
       });
       assert(ret.getTypeClass() === REXL.String);
       assert(ret.value === "ok");

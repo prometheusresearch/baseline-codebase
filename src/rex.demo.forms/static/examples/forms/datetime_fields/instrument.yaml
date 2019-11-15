@@ -7,8 +7,6 @@ record:
   - id: required
     type: dateTime
     required: true
-  - id: use_locale
-    type: dateTime
 
   - id: min_value
     type:
@@ -77,19 +75,3 @@ record:
     type: dateTime
   - id: q2
     type: dateTime
-
-  - id: inside_matrix
-    type:
-      base: matrix
-      rows:
-        - id: row1
-      columns:
-        - id: col1
-          type: dateTime
-
-  - id: inside_record_list
-    type:
-      base: recordList
-      record:
-        - id: item1
-          type: dateTime

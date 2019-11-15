@@ -21,8 +21,6 @@ export type FieldConfig = {|
   dateTimeFormatBase: string,
   dateTimeFormat: string,
   dateTimeInputMaskBase: string,
-  DEFAULT_DATE_FORMAT: string,
-  DEFAULT_DATETIME_FORMAT: string
 |};
 
 export opaque type Config = Map<string, FieldConfig>;
@@ -87,7 +85,7 @@ export function findFieldConfig(config: Config, key: string[]): ?FieldConfig {
 export const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
 export const DEFAULT_DATETIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
-export function makeFieldConfig(locale: string) {
+export function makeFieldConfig(locale: string): FieldConfig {
   let date = new Date(Date.UTC(2019, 12, 31, 0, 0, 0));
   let options = { year: "numeric", month: "2-digit", day: "2-digit" };
   let parts = new Intl.DateTimeFormat(locale, options).formatToParts(date);
@@ -134,7 +132,5 @@ export function makeFieldConfig(locale: string) {
     dateTimeFormat,
     dateTimeFormatBase,
     dateTimeInputMaskBase,
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_DATETIME_FORMAT
   };
 }

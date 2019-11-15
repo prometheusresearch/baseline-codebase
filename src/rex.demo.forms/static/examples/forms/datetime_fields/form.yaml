@@ -16,45 +16,6 @@ pages:
             en: No constraints.
       - type: question
         options:
-          fieldId: use_locale
-          text:
-            en: No constraints (useLocaleFormat).
-          widget:
-            type: dateTime
-            options:
-              useLocaleFormat: true
-      - type: question
-        options:
-          fieldId: inside_matrix
-          text:
-            en: Inside Matrix (useLocaleFormat)
-          rows:
-            - id: row1
-              text:
-                en: First Row
-          questions:
-            - fieldId: col1
-              text:
-                en: First Column
-              widget:
-                type: dateTimePicker
-                options:
-                  useLocaleFormat: true
-      - type: question
-        options:
-          fieldId: inside_record_list
-          text:
-            en: Inside RecordList (useLocaleFormat)
-          questions:
-            - fieldId: item1
-              text:
-                en: First Subfield
-              widget:
-                type: dateTimePicker
-                options:
-                  useLocaleFormat: true
-      - type: question
-        options:
           fieldId: required
           text:
             en: This is required.

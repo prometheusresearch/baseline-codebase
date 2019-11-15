@@ -132,14 +132,16 @@ export default class Validate {
       return this.i18n.gettext(`This must be entered in the form: ${format}`);
     }
 
-    const parsedMoment = moment(value, format);
-    if (!parsedMoment.isValid()) {
+    let date = moment(value, format);
+    if (!date.isValid()) {
       return this.i18n.gettext("Not a valid date.");
     }
 
     invariant(node.instrument != null, "Incomplete schema");
-    if (node.instrument.type.range) {
-      let failure = this.checkValueRange(value, node.instrument.type.range);
+    let { range } = node.instrument.type;
+    if (range != null) {
+      let isoValue = date.format(ISO_DATE_FORMAT);
+      let failure = this.checkValueRange(isoValue, range);
       if (failure !== true) {
         return failure;
       }
@@ -159,23 +161,23 @@ export default class Validate {
       );
     }
 
-    let parts = value.split("T");
-    let partDate = parts[0];
-    let partTime = parts[1];
+    let [date, time] = value.split("T");
 
-    if (!moment(partDate, dateFormat).isValid()) {
+    if (!moment(date, dateFormat).isValid()) {
       return this.i18n.gettext("Not a valid date.");
     }
 
     let TIME_FORMAT = "HH:mm:ss";
-    if (!moment(partTime, TIME_FORMAT).isValid()) {
+    if (!moment(time, TIME_FORMAT).isValid()) {
       return this.i18n.gettext("Not a valid time.");
     }
 
     invariant(node.instrument != null, "Incomplete schema");
-    if (node.instrument.type.range) {
-      // let isoValue = moment(value, ISO_DATE_TIME_FORMAT).format(ISO_DATE_TIME_FORMAT);
-      let failure = this.checkValueRange(value, node.instrument.type.range);
+    let { range } = node.instrument.type;
+    if (range) {
+      let format = `${dateFormat}THH:mm:ss`;
+      let isoValue = moment(value, format).format(ISO_DATE_TIME_FORMAT);
+      let failure = this.checkValueRange(isoValue, range);
       if (failure !== true) {
         return failure;
       }

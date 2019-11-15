@@ -1,0 +1,52 @@
+id: urn:date-fields
+version: '1.0'
+title: 'Fields: Date (with useLocaleFormat)'
+record:
+  - id: plain
+    type: date
+  - id: required
+    type: date
+    required: true
+
+  - id: min_value
+    type:
+      base: date
+      range:
+        min: '2010-01-01'
+  - id: max_value
+    type:
+      base: date
+      range:
+        max: '2222-01-01'
+  - id: bounded_value
+    type:
+      base: date
+      range:
+        min: '2010-01-01'
+        max: '2222-01-01'
+  - id: required_bounded_value
+    type:
+      base: date
+      range:
+        min: '2010-01-01'
+        max: '2222-01-01'
+    required: true
+
+  - id: fixed_locale
+    type: date
+
+  - id: inside_matrix
+    type:
+      base: matrix
+      rows:
+        - id: row1
+      columns:
+        - id: col1
+          type: date
+
+  - id: inside_record_list
+    type:
+      base: recordList
+      record:
+        - id: item1
+          type: date

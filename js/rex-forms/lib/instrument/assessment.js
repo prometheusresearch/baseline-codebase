@@ -68,7 +68,7 @@ function localeFormatToFormat(
         if (!date.isValid()) {
           return value;
         }
-        return date.format(format.DEFAULT_DATE_FORMAT);
+        return date.format(FormFormatConfig.DEFAULT_DATE_FORMAT);
       } else {
         return value;
       }
@@ -79,7 +79,7 @@ function localeFormatToFormat(
         if (!date.isValid()) {
           return value;
         }
-        return date.format(format.DEFAULT_DATETIME_FORMAT);
+        return date.format(FormFormatConfig.DEFAULT_DATETIME_FORMAT);
       } else {
         return value;
       }

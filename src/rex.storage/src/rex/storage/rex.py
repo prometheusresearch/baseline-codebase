@@ -1,8 +1,7 @@
-import hashlib
 import os
 import shutil
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from stat import S_ISDIR
 from typing import Iterable, Dict, List
 
@@ -14,10 +13,7 @@ from cloudstorage.exceptions import (
     NotFoundError,
 )
 from cloudstorage.helpers import (
-    file_checksum,
-    file_content_type,
     read_in_chunks,
-    validate_file_or_path,
 )
 from cloudstorage.typed import (
     ContentLength,
@@ -107,7 +103,7 @@ class RexDriver(Driver):
         # Not supported.
         return False
 
-    def upload_blob(
+    def upload_blob(  # noqa: too-many-arguments
             self,
             container: Container,
             filename: FileLike,
@@ -128,7 +124,7 @@ class RexDriver(Driver):
     def get_blobs(self, container: Container) -> Iterable[Blob]:
         pkg = get_packages()[container.name]
         container_path = pkg.abspath('/')
-        for folder, sub_folders, files in pkg.walk('/'):
+        for folder, _, files in pkg.walk('/'):
             for name in files:
                 full_path = os.path.join(folder, name)
                 object_name = os.path.relpath(full_path, container_path)
@@ -180,7 +176,7 @@ class RexDriver(Driver):
     def blob_cdn_url(self, blob: Blob) -> str:
         return _get_file_path(blob.container.name, blob.name)
 
-    def generate_container_upload_url(
+    def generate_container_upload_url(  # noqa: too-many-arguments
             self, container: Container,
             blob_name: str,
             expires: int = 3600,
@@ -238,24 +234,13 @@ class RexDriver(Driver):
                     content_disposition = value_str
                 elif attr_key.endswith('cache_control'):
                     cache_control = value_str
-                else:
-                    logger.warning("Unknown file attribute '%s'", attr_key)
         except OSError:
-            logger.warning(messages.LOCAL_NO_ATTRIBUTES)
-
-        # TODO: QUESTION: Option to disable checksum for large files?
-        # TODO: QUESTION: Save a .hash file for each file?
-        file_hash = file_checksum(full_path, hash_type=self.hash_type)
-        checksum = file_hash.hexdigest()
-
-        etag = hashlib.sha1(full_path.encode('utf-8')).hexdigest()
-        created_at = datetime.fromtimestamp(stat.st_ctime, timezone.utc)
-        modified_at = datetime.fromtimestamp(stat.st_mtime, timezone.utc)
+            pass
 
         return Blob(
             name=object_name,
-            checksum=checksum,
-            etag=etag,
+            checksum=None,
+            etag=None,
             size=stat.st_size,
             container=container,
             driver=self,
@@ -264,7 +249,9 @@ class RexDriver(Driver):
             content_disposition=content_disposition,
             content_type=content_type,
             cache_control=cache_control,
-            created_at=created_at,
-            modified_at=modified_at,
+            created_at=datetime.fromtimestamp(stat.st_ctime, timezone.utc),
+            modified_at=datetime.fromtimestamp(stat.st_mtime, timezone.utc),
         )
+
+    _OBJECT_META_PREFIX = 'user.'
 

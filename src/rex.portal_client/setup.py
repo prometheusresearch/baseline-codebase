@@ -6,7 +6,7 @@ setup(
     description='Study configuration utilities',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
-    license='AGPLv3',
+    license='Apache-2.0',
     url='https://bitbucket.org/rexdb/rex.portal_client',
     package_dir={'': 'src'},
     include_package_data=True,

@@ -393,6 +393,21 @@ ValidatingLoader.add_implicit_resolver(
         list('0123456789'))
 
 
+class RexJSONEncoder(json.JSONEncoder):
+    """
+    Customizable JSON encoder.
+
+    To make an object serializable with :class:`RexJSONEncoder`, define the
+    method ``__json__()``, which should return a regular JSON-serializable
+    value (e.g., a ``dict``).
+    """
+
+    def default(self, o):
+        if hasattr(o, '__json__'):
+            return o.__json__()
+        return super(RexJSONEncoder, self).default(o)
+
+
 class Validate:
     """
     Validates and normalizes input values.
@@ -1144,6 +1159,8 @@ class Record:
     def _asdict(self):
         return collections.OrderedDict((field, getattr(self, field))
                                        for field in self._fields)
+
+    __json__ = _asdict
 
     __dict__ = property(_asdict)
 

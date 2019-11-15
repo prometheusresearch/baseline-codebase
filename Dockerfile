@@ -1,4 +1,4 @@
-ARG REXDB_TAG=2019.06.25
+ARG REXDB_TAG=2019.11.12
 
 FROM rexdb/build:$REXDB_TAG AS build
 
@@ -20,6 +20,8 @@ WORKDIR /app
 CMD ["/app/bin/rex"]
 
 COPY --from=build app /app/
+
+RUN /app/bin/rex
 
 ENV PATH "/app/bin:${PATH}"
 

@@ -14,7 +14,7 @@ import FormControl from "@material-ui/core/FormControl";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
 import { type PickState } from "./PickRenderer";
-import { useStyles } from "./PickStyles.js";
+import { usePickStyles } from "./styles.js";
 import * as Field from "./Field.js";
 
 export const PickFilterToolbar = ({
@@ -38,7 +38,7 @@ export const PickFilterToolbar = ({
     return null;
   }
 
-  const classes = useStyles();
+  const classes = usePickStyles();
   const hasSorting = sortingConfig.length > 0;
   const hasSearch = state.search != null;
 
@@ -149,7 +149,7 @@ function BooleanFilter({
   label?: string,
   name: string
 |}) {
-  const classes = useStyles();
+  const classes = usePickStyles();
 
   return (
     <FormControl key={`boolean-filter-${name}`} className={classes.formControl}>

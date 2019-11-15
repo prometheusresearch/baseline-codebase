@@ -10,7 +10,7 @@ import IconButton from "@material-ui/core/IconButton";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
-import { useStyles } from "./PickStyles.js";
+import { usePickStyles } from "./styles";
 
 export const PickPagination = ({
   hasNext,
@@ -23,7 +23,7 @@ export const PickPagination = ({
   onNextPage: () => void,
   onPrevPage: () => void
 |}) => {
-  const classes = useStyles();
+  const classes = usePickStyles();
 
   return (
     <Grid

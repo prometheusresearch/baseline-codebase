@@ -30,7 +30,7 @@ import _get from "lodash/get";
 
 import { capitalize } from "./helpers";
 import { ShowCard } from "./ShowRenderer.js";
-import { useStyles } from "./PickStyles.js";
+import { usePickStyles } from "./styles.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
 import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
@@ -38,7 +38,7 @@ import { type PickState } from "./PickRenderer";
 import { LoadingIndicator } from "./LoadingIndicator";
 
 const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
-  let classes = useStyles();
+  let classes = usePickStyles();
   return (
     <TableBody>
       <TableRow>
@@ -61,7 +61,7 @@ const PickCardListView = ({
   columns: Field.FieldSpec[],
   onCardClick?: (row: any) => void
 |}) => {
-  const classes = useStyles();
+  const classes = usePickStyles();
 
   return (
     <Grid container>
@@ -115,7 +115,7 @@ const PickTableBody = ({
 
   ...PickRendererConfigProps
 |}) => {
-  const classes = useStyles();
+  const classes = usePickStyles();
   const params = buildParams(pickState);
 
   setTableFullHeight(true);
@@ -158,12 +158,20 @@ const PickTableBody = ({
   }
 
   const TableBodyRows = data.map((row, index) => {
+    const isClickable = onRowClick != null;
+
+    let classNames = [classes.tableRow];
+    if (isClickable) {
+      classNames.push(classes.tableRowClickable);
+    }
+
     return (
       <TableRow
         key={index}
-        hover={onRowClick != null}
-        style={{ cursor: onRowClick != null ? "pointer" : "default" }}
+        hover={isClickable}
+        style={{ cursor: isClickable ? "pointer" : "default" }}
         onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
+        className={classNames.join(" ")}
       >
         {columnsNames.map((columnName, index) => {
           const column = columnsMap.get(columnName);
@@ -242,7 +250,7 @@ export const PickDataView = ({
   state: PickState,
   ...PickRendererConfigProps
 |}) => {
-  const classes = useStyles();
+  const classes = usePickStyles();
 
   const wrapperRef = React.useMemo(() => React.createRef(), []);
 

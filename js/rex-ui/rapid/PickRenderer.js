@@ -20,7 +20,8 @@ import {
 
 import debounce from "lodash/debounce";
 
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles, useTheme, ThemeProvider } from "@material-ui/styles";
+import { createMuiTheme, type Theme } from "@material-ui/core/styles";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
 
 import Grid from "@material-ui/core/Grid";
@@ -36,7 +37,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-
 import {
   type Resource,
   unstable_useResource as useResource
@@ -45,7 +45,7 @@ import {
 import { LoadingIndicator } from "./LoadingIndicator.js";
 
 import { buildSortingConfig } from "./buildSortingConfig";
-import { useStyles } from "./PickStyles.js";
+import { usePickStyles } from "./styles";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
@@ -86,6 +86,7 @@ export type PickRendererProps = {|
   queryDefinition: OperationDefinitionNode,
   introspectionTypesMap: Map<string, IntrospectionType>,
   args?: { [key: string]: any },
+  theme?: Theme,
 
   ...PickRendererConfigProps
 |};
@@ -95,7 +96,8 @@ const SORTING_VAR_NAME = "sort";
 const SEARCH_VAR_NAME = "search";
 
 const PickHeader = ({ title, description, rightToolbar }) => {
-  const classes = useStyles();
+  const classes = usePickStyles();
+
   return (
     <>
       <div className={classes.topPart}>
@@ -173,7 +175,7 @@ export const PickRenderer = ({
 
   const [viewData, setViewData] = React.useState<Array<any>>([]);
 
-  const classes = useStyles();
+  const classes = usePickStyles();
 
   const setFilterState = (name: string, value: ?boolean) => {
     setState(state => ({
@@ -254,18 +256,20 @@ export const PickRenderer = ({
   if (filtersLocalStorageKey != null) {
     filtersLocalStorageOpened = localStorage.getItem(filtersLocalStorageKey);
   }
-  const [showFilters, _setShowFilters] = React.useState(
-    filtersLocalStorageOpened === "true" ? true : false
-  );
+  const initialShowFilterValue =
+    filtersLocalStorageOpened === "true" ? true : false;
+  const [showFilters, _setShowFilters] = React.useState(initialShowFilterValue);
 
   const toggleFilters = () => {
     _setShowFilters(v => !v);
-    filtersLocalStorageKey
-      ? localStorage.setItem(filtersLocalStorageKey, String(!showFilters))
-      : null;
+    if (filtersLocalStorageKey != null) {
+      localStorage.setItem(filtersLocalStorageKey, String(!showFilters));
+    }
   };
 
-  const className = showFilters ? classes.filterIconButtonActive : undefined;
+  const iconButtonClassNames = showFilters
+    ? classes.filterIconButtonActive
+    : classes.filterIconButton;
 
   const topPartClassNames = [classes.topPartWrapper];
   if (!isTabletWidth) {
@@ -282,7 +286,7 @@ export const PickRenderer = ({
           rightToolbar={
             <IconButton
               onClick={toggleFilters}
-              className={className}
+              className={iconButtonClassNames}
               aria-label="Filter list"
             >
               <FilterListIcon />

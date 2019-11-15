@@ -16,6 +16,7 @@ export type JSONSchemaExtension = {|
   format?: any,
   onUpdate?: any,
   form?: any,
+  event?: any,
   dateRegex?: RegExp,
   dateFormat?: string,
   dateInputMask?: string,

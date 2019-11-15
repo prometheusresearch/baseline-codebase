@@ -97,26 +97,19 @@ function formatToLocaleFormat(
 ) {
   switch (fieldType.base) {
     case "date": {
-      if (value.match(format.dateRegex)) {
-        const date = moment(value, format.dateFormat);
-        if (!date.isValid()) {
-          return value;
-        }
-        return date.format(format.DEFAULT_DATE_FORMAT);
-      } else {
+      let date = moment(value, FormFormatConfig.DEFAULT_DATE_FORMAT);
+      if (!date.isValid()) {
         return value;
+      } else {
+        return date.format(format.dateFormat);
       }
     }
-
     case "dateTime": {
-      if (value.match(format.dateTimeRegex)) {
-        const date = moment(value, format.dateTimeFormat);
-        if (!date.isValid()) {
-          return value;
-        }
-        return date.format(format.DEFAULT_DATETIME_FORMAT);
-      } else {
+      let date = moment(value, FormFormatConfig.DEFAULT_DATETIME_FORMAT);
+      if (!date.isValid()) {
         return value;
+      } else {
+        return date.format(format.dateTimeFormat);
       }
     }
     default: {
@@ -385,7 +378,8 @@ export function makeInitialValue(
   return mapValueCollection(instrument, values, (value, field, type, key) => {
     let format = FormFormatConfig.findFieldConfig(formatConfig, key);
     if (format != null && typeof value === "string") {
-      return formatToLocaleFormat(value, type, format);
+      value = formatToLocaleFormat(value, type, format);
+      return value;
     } else {
       return value;
     }

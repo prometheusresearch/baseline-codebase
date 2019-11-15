@@ -84,8 +84,8 @@ export function findFieldConfig(config: Config, key: string[]): ?FieldConfig {
   return config.get(key.join("."));
 }
 
-const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
-const DEFAULT_DATETIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
+export const DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
+export const DEFAULT_DATETIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
 export function makeFieldConfig(locale: string) {
   let date = new Date(Date.UTC(2019, 12, 31, 0, 0, 0));

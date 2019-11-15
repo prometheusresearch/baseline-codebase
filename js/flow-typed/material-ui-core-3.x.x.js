@@ -1,7 +1,61 @@
 declare module "@material-ui/styles" {
   import type { AbstractComponent, Node } from "react";
 
-  declare export type Theme = any;
+  declare type color = string;
+  declare export opaque type Theme: {|
+    accent: {
+      success: Accent,
+    },
+    spacing: {
+      unit: number,
+    },
+    definitonList: {
+      verticalSpacing: number,
+      horizontalSpacing: number,
+    },
+    breakpoints: {
+      up: (string) => string,
+      between: (string, string) => string,
+      values: {
+        xs: number,
+        sm: number,
+        md: number,
+        lg: number,
+        xl: number,
+      },
+    },
+    palette: {
+      type: string,
+      common: { black: color, white: color },
+      error: Palette,
+      success: Palette,
+      primary: Palette,
+      secondary: Palette,
+      action: {
+        hoverOpacity: number,
+      },
+      text: {
+        primary: color,
+        secondary: color,
+        disabled: color,
+        hint: color,
+      },
+    },
+  |};
+
+  declare type Palette = {
+    light: color,
+    main: color,
+    dark: color,
+    contrastText: color,
+  };
+
+  declare type Accent = {
+    color: color,
+    colorDisabled: color,
+    colorHover: color,
+    colorBackground: color,
+  };
 
   declare export function makeStyles<Styles: {}>(
     styles: (Theme) => Styles,
@@ -16,6 +70,7 @@ declare module "@material-ui/styles" {
 }
 
 declare module "@material-ui/core" {
+  import type { Theme } from "@material-ui/styles";
   import type { AbstractComponent, Node, ElementType } from "react";
 
   declare export type TypographyProps = {|
@@ -210,7 +265,7 @@ declare module "@material-ui/core" {
     AbstractComponent<P>,
   ) => AbstractComponent<P>;
 
-  declare export var createMuiTheme: any;
+  declare export var createMuiTheme: any => Theme;
   declare export var makeStyles: any;
   declare export var MuiThemeProvider: any;
   declare export var styled: any;

@@ -12,60 +12,7 @@ import * as React from "react";
 import * as mui from "@material-ui/core";
 import * as styles from "@material-ui/styles";
 
-type color = string;
-
-export type Theme = {
-  accent: {
-    success: Accent
-  },
-  spacing: {
-    unit: number
-  },
-  definitonList: {
-    verticalSpacing: number,
-    horizontalSpacing: number
-  },
-  breakpoints: {
-    values: {
-      xs: number,
-      sm: number,
-      md: number,
-      lg: number,
-      xl: number
-    }
-  },
-  palette: {
-    type: string,
-    common: { black: color, white: color },
-    error: Palette,
-    success: Palette,
-    primary: Palette,
-    secondary: Palette,
-    action: {
-      hoverOpacity: number
-    },
-    text: {
-      primary: color,
-      secondary: color,
-      disabled: color,
-      hint: color
-    }
-  }
-};
-
-type Palette = {
-  light: color,
-  main: color,
-  dark: color,
-  contrastText: color
-};
-
-type Accent = {
-  color: color,
-  colorDisabled: color,
-  colorHover: color,
-  colorBackground: color
-};
+export type Theme = styles.Theme;
 
 let defaultTheme: Theme = mui.createMuiTheme({
   typography: {

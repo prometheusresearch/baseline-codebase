@@ -23,11 +23,11 @@ type Screen =
       options: { [key: string]: any }
     |};
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   buttonActive: {
     background: "rgba(0,0,0,0.15)"
   }
-});
+}));
 
 function App() {
   const classes = useStyles();

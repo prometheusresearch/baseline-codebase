@@ -108,7 +108,7 @@ const PickHeader = ({ title, description, rightToolbar }) => {
             </Typography>
           ) : null}
           {description ? (
-            <Typography variant={"caption"} className={classes.description}>
+            <Typography variant={"caption"}>
               {description}
             </Typography>
           ) : null}

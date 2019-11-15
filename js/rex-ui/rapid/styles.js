@@ -146,5 +146,4 @@ export const usePickStyles = makeStyles(
       }
     };
   },
-  { withTheme: true }
 );

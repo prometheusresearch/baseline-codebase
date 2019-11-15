@@ -14,7 +14,7 @@ type Props = {
   onReload: () => void
 };
 
-let useStyles = styles.makeStyles({
+let useStyles = styles.makeStyles(theme => ({
   ErrorRoot: {
     display: "flex",
     backgroundColor: "#eceff1",
@@ -35,7 +35,7 @@ let useStyles = styles.makeStyles({
   Toolbar: {
     paddingTop: 30
   }
-});
+}));
 
 export default function ErrorMessage(props: Props) {
   let classes = useStyles();

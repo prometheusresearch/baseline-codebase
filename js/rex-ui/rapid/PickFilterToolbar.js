@@ -43,9 +43,6 @@ export const PickFilterToolbar = ({
   const hasSearch = state.search != null;
 
   const classNames = [classes.tableControl];
-  if (!isTabletWidth) {
-    classNames.push(classes.tableFiltersWrapperMobile);
-  }
 
   return (
     <Grid

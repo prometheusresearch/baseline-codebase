@@ -16,7 +16,7 @@ function isEmpty(value) {
   return value == null || value == "";
 }
 
-let useStyles = styles.makeStyles({
+let useStyles = styles.makeStyles(theme => ({
   root: {
     display: "flex !important",
     flexDirection: "row !important",
@@ -29,7 +29,7 @@ let useStyles = styles.makeStyles({
   iconButton: {
     padding: 10
   }
-});
+}));
 
 type Props = {|
   placeholder?: string,

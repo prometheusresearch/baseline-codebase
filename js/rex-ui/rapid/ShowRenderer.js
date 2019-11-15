@@ -45,7 +45,7 @@ export type ShowRendererProps = {|
   onCardClick?: (row: any) => void
 |};
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
     marginTop: "8px",
@@ -58,7 +58,7 @@ const useStyles = makeStyles({
       opacity: 0.9
     }
   }
-});
+}));
 
 export const ShowRenderer = (props: ShowRendererProps) => {
   const {

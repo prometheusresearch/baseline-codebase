@@ -18,11 +18,20 @@ pages:
         options:
           fieldId: use_locale
           text:
-            en: No constraints (useLocaleFormat).
+            en: No constraints (useLocaleFormat = current).
           widget:
             type: datePicker
             options:
               useLocaleFormat: true
+      - type: question
+        options:
+          fieldId: use_locale_ru
+          text:
+            en: No constraints (useLocaleFormat = ru).
+          widget:
+            type: datePicker
+            options:
+              useLocaleFormat: ru
       - type: question
         options:
           fieldId: inside_matrix

@@ -4,8 +4,6 @@ title: 'Fields: Date'
 record:
   - id: plain
     type: date
-  - id: use_locale
-    type: date
   - id: required
     type: date
     required: true
@@ -76,6 +74,12 @@ record:
   - id: q1
     type: date
   - id: q2
+    type: date
+
+  - id: use_locale
+    type: date
+
+  - id: use_locale_ru
     type: date
 
   - id: inside_matrix

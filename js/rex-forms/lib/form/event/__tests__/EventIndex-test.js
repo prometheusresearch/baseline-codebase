@@ -1,5 +1,6 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
 import assert from "assert";
@@ -7,8 +8,10 @@ import size from "lodash/size";
 import { atom } from "derivable";
 import * as Schema from "../../../instrument/schema";
 import * as EventIndex from "../EventIndex";
+import * as FormFormatConfig from "../../FormFormatConfig.js";
 
 let MOCK_ENV = {
+  formatConfig: FormFormatConfig.makeEmpty(),
   i18n: {
     gettext: msg => {
       return msg;
@@ -20,6 +23,9 @@ describe("rex-froms/form/event", function() {
   describe("EventIndex", function() {
     describe("events for simple questions", function() {
       let instrument = {
+        id: "instrument",
+        version: "1.0.0",
+        title: "Instrument",
         types: {
           action_enum: {
             base: "enumeration",
@@ -50,6 +56,7 @@ describe("rex-froms/form/event", function() {
               {
                 type: "question",
                 options: {
+                  text: { en: "Single" },
                   fieldId: "single",
                   events: [
                     {
@@ -76,6 +83,7 @@ describe("rex-froms/form/event", function() {
               {
                 type: "question",
                 options: {
+                  text: { en: "Single Target" },
                   fieldId: "single_target",
                 },
               },
@@ -117,6 +125,9 @@ describe("rex-froms/form/event", function() {
 
     describe("events for recordList questions", function() {
       let instrument = {
+        id: "instrument",
+        version: "1.0.0",
+        title: "Instrument",
         types: {
           action_enum: {
             base: "enumeration",
@@ -162,6 +173,7 @@ describe("rex-froms/form/event", function() {
               {
                 type: "question",
                 options: {
+                  text: { en: "Record List SubField" },
                   fieldId: "recordlist_subfield",
                   events: [
                     {
@@ -178,6 +190,7 @@ describe("rex-froms/form/event", function() {
                       trigger: "recordlist_subfield=='failed'",
                       action: "fail",
                       targets: ["recordlist_target.subfield1"],
+                      options: { text: { en: "fail" } },
                     },
                   ],
                 },
@@ -185,9 +198,11 @@ describe("rex-froms/form/event", function() {
               {
                 type: "question",
                 options: {
+                  text: { en: "Record List Target" },
                   fieldId: "recordlist_target",
                   questions: [
                     {
+                      text: { en: "Subfield1" },
                       fieldId: "subfield1",
                       events: [
                         {
@@ -198,9 +213,11 @@ describe("rex-froms/form/event", function() {
                       ],
                     },
                     {
+                      text: { en: "Subfield2" },
                       fieldId: "subfield2",
                     },
                     {
+                      text: { en: "Subfield3" },
                       fieldId: "subfield3",
                     },
                   ],
@@ -263,16 +280,20 @@ describe("rex-froms/form/event", function() {
               {
                 type: "question",
                 options: {
+                  text: { en: "Matrix Cell" },
                   fieldId: "matrix_cell",
                   enumerations: [
                     {
                       id: "hidden",
+                      text: { en: "Hidden" },
                     },
                     {
                       id: "disabled",
+                      text: { en: "Disabled" },
                     },
                     {
                       id: "failed",
+                      text: { en: "Failed" },
                     },
                   ],
                   events: [
@@ -302,21 +323,22 @@ describe("rex-froms/form/event", function() {
               {
                 type: "question",
                 options: {
+                  text: { en: "Matrix Target" },
                   fieldId: "matrix_target",
                   rows: [
                     {
                       id: "row1",
+                      text: { en: "Row 1" },
                     },
                     {
                       id: "row2",
+                      text: { en: "Row 2" },
                     },
                   ],
                   questions: [
                     {
                       fieldId: "col1",
-                      text: {
-                        en: "Column 1",
-                      },
+                      text: { en: "Column 1" },
                       events: [
                         {
                           trigger:
@@ -327,6 +349,7 @@ describe("rex-froms/form/event", function() {
                     },
                     {
                       fieldId: "col2",
+                      text: { en: "Column 2" },
                       events: [
                         {
                           trigger:

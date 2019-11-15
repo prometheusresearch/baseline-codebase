@@ -1,11 +1,14 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
+// $FlowFixMe: ...
 import REXL from "rex-expression";
 import assert from "assert";
 import { fromInstrument } from "../../../instrument/schema";
 import resolve from "../resolve";
+import * as FormFormatConfig from "../../FormFormatConfig.js";
 
 let MOCK_ENV = {
   i18n: {
@@ -13,11 +16,15 @@ let MOCK_ENV = {
       return msg;
     },
   },
+  formatConfig: FormFormatConfig.makeEmpty(),
 };
 
 describe("rex-forms/form/event", function() {
   describe("resolve(identifier, schema, value, parameters)", function() {
     let instrument = {
+      id: "id",
+      version: "1.0.0",
+      title: "Instrument",
       record: [
         { id: "simpleField", type: "text" },
         { id: "simpleFieldInteger", type: "integer" },
@@ -62,6 +69,7 @@ describe("rex-forms/form/event", function() {
           },
         },
       ],
+      types: {},
     };
 
     let schema = fromInstrument(instrument, MOCK_ENV);

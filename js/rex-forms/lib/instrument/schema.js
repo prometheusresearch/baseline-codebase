@@ -13,22 +13,25 @@ import type {
   RIOSColumn,
   RIOSExtendedType,
   RIOSTypeCatalog,
-  JSONSchemaExt,
+  JSONSchema,
   JSONSchemaExtension,
   JSONObjectSchema,
 } from "../types";
 
 import invariant from "invariant";
 import Validate, { isEmptyValue } from "./validate";
+import * as FormFormatConfig from "../form/FormFormatConfig.js";
 
-type Env = {
+type Env = {|
   i18n: I18N,
-  types: RIOSTypeCatalog,
-};
+  formatConfig: FormFormatConfig.Config,
+|};
 
-type ConfiguredEnv = Env & {
+type Context = {|
+  ...Env,
+  types: RIOSTypeCatalog,
   validate: Validate,
-};
+|};
 
 /**
  * Generate JSON schema for assessment document from instrument.
@@ -36,14 +39,14 @@ type ConfiguredEnv = Env & {
 export function fromInstrument(
   instrument: RIOSInstrument,
   env: Env,
-): JSONSchemaExt {
-  env = {
+): JSONSchema {
+  let ctx = {
     ...env,
     types: instrument.types,
     validate: new Validate({ i18n: env.i18n }),
   };
   let schema = {
-    ...generateRecordSchema(instrument.record, "instrument", [], env),
+    ...generateRecordSchema(instrument.record, "instrument", [], ctx),
     format(value, schema) {
       let errorList = [];
       if (schema.event) {
@@ -52,19 +55,20 @@ export function fromInstrument(
       return errorList.length === 0 ? true : errorList;
     },
   };
-  return (schema: JSONSchemaExtension & JSONObjectSchema<JSONSchemaExt>);
+
+  return (schema: JSONObjectSchema);
 }
 
-function generateRecordSchema(
+export function generateRecordSchema(
   record: Array<RIOSField>,
-  context,
+  context: string,
   eventKey: Array<string>,
-  env: ConfiguredEnv,
+  ctx: Context,
 ) {
   let properties = {};
   for (let i = 0; i < record.length; i++) {
     let field = record[i];
-    properties[field.id] = generateFieldSchema(field, eventKey, env);
+    properties[field.id] = generateFieldSchema(field, eventKey, ctx);
   }
   return {
     type: "object",
@@ -82,9 +86,9 @@ function generateRecordSchema(
 function generateFieldSchema(
   field: RIOSField,
   eventKey: Array<string>,
-  env: ConfiguredEnv,
-): JSONSchemaExt {
-  const _env = env;
+  ctx: Context,
+): JSONSchema {
+  const _env = ctx;
 
   eventKey = eventKey.concat(field.id);
 
@@ -99,7 +103,7 @@ function generateFieldSchema(
 
   let type = resolveType(field.type, _env.types);
 
-  let schema = {
+  let schema: JSONObjectSchema = {
     type: "object",
     properties: {},
     required: [],
@@ -145,7 +149,8 @@ function generateFieldSchema(
     schema.required.push("explanation");
   }
 
-  schema.properties.value = generateValueSchema(type, eventKey, env);
+  schema.properties.value = generateValueSchema(type, eventKey, ctx);
+
   if (field.required && ["recordList", "matrix"].indexOf(type.base) < 0) {
     schema.required = schema.required || [];
     schema.required.push("value");
@@ -159,25 +164,38 @@ function generateFieldSchema(
 export function generateValueSchema(
   type: RIOSExtendedType,
   eventKey: Array<string>,
-  env: ConfiguredEnv,
-): JSONSchemaExt {
+  ctx: Context,
+): JSONSchema {
+  let { formatConfig } = ctx;
+  let format = FormFormatConfig.findFieldConfig(formatConfig, eventKey) || {};
+
+  let {
+    dateRegex,
+    dateFormat,
+    dateInputMask,
+    dateTimeRegex,
+    dateTimeRegexBase,
+    dateTimeFormatBase,
+    dateTimeInputMaskBase,
+  } = format;
+
   switch (type.base) {
     case "float":
       return {
         type: "any",
-        format: env.validate.number,
+        format: ctx.validate.number,
         instrument: { type },
       };
     case "integer":
       return {
         type: "any",
-        format: env.validate.integer,
+        format: ctx.validate.integer,
         instrument: { type },
       };
     case "text":
       return {
         type: "string",
-        format: env.validate.text,
+        format: ctx.validate.text,
         instrument: { type },
       };
     case "boolean":
@@ -188,20 +206,30 @@ export function generateValueSchema(
     case "date":
       return {
         type: "string",
-        format: env.validate.date,
+        format: ctx.validate.date,
         instrument: { type },
+        dateFormat,
+        dateRegex,
+        dateInputMask,
       };
     case "time":
       return {
         type: "string",
-        format: env.validate.time,
+        format: ctx.validate.time,
         instrument: { type },
       };
     case "dateTime":
       return {
         type: "string",
-        format: env.validate.dateTime,
+        format: ctx.validate.dateTime,
         instrument: { type },
+        dateFormat,
+        dateRegex,
+        dateInputMask,
+        dateTimeRegex,
+        dateTimeRegexBase,
+        dateTimeFormatBase,
+        dateTimeInputMaskBase,
       };
     case "recordList":
       invariant(type.record != null, "Invalid recordList type");
@@ -211,9 +239,9 @@ export function generateValueSchema(
           type.record,
           "recordListRecord",
           eventKey,
-          env,
+          ctx,
         ),
-        format: env.validate.recordList,
+        format: ctx.validate.recordList,
         instrument: {
           type,
           context: "recordList",
@@ -225,6 +253,7 @@ export function generateValueSchema(
         "Invalid enumeration type",
       );
       return {
+        type: "enum",
         enum: Object.keys(type.enumerations),
         instrument: { type },
       };
@@ -235,9 +264,13 @@ export function generateValueSchema(
       );
       return {
         type: "array",
-        format: env.validate.enumerationSet,
+        format: ctx.validate.enumerationSet,
         instrument: { type },
-        items: { enum: Object.keys(type.enumerations), instrument: { type } },
+        items: {
+          type: "enum",
+          enum: Object.keys(type.enumerations),
+          instrument: { type },
+        },
       };
     case "matrix": {
       const { rows, columns } = type;
@@ -249,12 +282,12 @@ export function generateValueSchema(
           row,
           columns,
           eventKey,
-          env,
+          ctx,
         );
       });
       return {
         type: "object",
-        format: env.validate.matrix,
+        format: ctx.validate.matrix,
         instrument: {
           type,
           context: "matrix",
@@ -271,12 +304,12 @@ function generateMatrixRowSchema(
   row: RIOSRow,
   columns: Array<RIOSColumn>,
   eventKey: Array<string>,
-  env: ConfiguredEnv,
+  ctx: Context,
 ) {
   eventKey = eventKey.concat(row.id);
   let node = {
     type: "object",
-    format: env.validate.matrixRow,
+    format: ctx.validate.matrixRow,
     properties: {},
     required: [],
     instrument: {
@@ -290,7 +323,7 @@ function generateMatrixRowSchema(
     node.properties[column.id] = generateMatrixColumnSchema(
       column,
       eventKey,
-      env,
+      ctx,
     );
     if (column.required) {
       node.instrument.requiredColumns.push(column.id);

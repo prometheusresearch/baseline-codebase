@@ -1,17 +1,21 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @noflow
  */
 
+import invariant from "invariant";
 import assert from "assert";
 import { validate } from "react-forms";
 import { fromInstrument } from "../schema";
+import * as FormFormatConfig from "../../form/FormFormatConfig";
 
-let MOCK_ENV = {
+let defaultEnv = {
   i18n: {
     gettext: msg => {
       return msg;
     },
   },
+  formatConfig: FormFormatConfig.makeEmpty(),
 };
 
 function assertValid(schema, value) {
@@ -31,6 +35,10 @@ function assertInvalid(schema, value, expectedErrors) {
 describe("rex-forms/lib/instrument/schema", function() {
   describe("assigning event keys", function() {
     let instrument = {
+      id: "id",
+      version: "1.0.0",
+      title: "Title",
+      types: {},
       record: [
         { id: "simple", type: "text" },
         {
@@ -57,7 +65,7 @@ describe("rex-forms/lib/instrument/schema", function() {
       ],
     };
 
-    let schema = fromInstrument(instrument, MOCK_ENV);
+    let schema = fromInstrument(instrument, defaultEnv);
 
     it("assigns a correct event key for simple fields", function() {
       assert(schema.properties.simple.form);
@@ -127,7 +135,7 @@ describe("rex-forms/lib/instrument/schema", function() {
           { id: "lastName", type: "text" },
         ],
       };
-      let schema = fromInstrument(instrument, MOCK_ENV);
+      let schema = fromInstrument(instrument, defaultEnv);
       assertValid(schema, {});
       assertValid(schema, { firstName: { value: "ok" } });
       assertValid(schema, { lastName: { value: "ok" } });
@@ -150,7 +158,7 @@ describe("rex-forms/lib/instrument/schema", function() {
           { id: "lastName", type: "text" },
         ],
       };
-      let schema = fromInstrument(instrument, MOCK_ENV);
+      let schema = fromInstrument(instrument, defaultEnv);
       assertValid(schema, { firstName: { value: "ok" } });
       assertValid(schema, {
         firstName: { value: "ok" },
@@ -169,7 +177,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "firstName", type: "text", annotation: "none" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { firstName: { value: "ok" } });
       });
@@ -178,7 +186,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "firstName", type: "text", annotation: "optional" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { firstName: { annotation: "ann" } });
       });
 
@@ -193,7 +201,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertInvalid(schema, { firstName: {} }, [
           { message: "is required", field: "data.firstName.value" },
         ]);
@@ -203,7 +211,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "firstName", type: "text", annotation: "required" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { firstName: { value: "ok" } });
         assertValid(schema, { firstName: { annotation: "ann" } });
         assertInvalid(schema, {}, [
@@ -231,7 +239,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertInvalid(schema, { firstName: {} }, [
           { message: "is required", field: "data.firstName.value" },
         ]);
@@ -243,7 +251,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "firstName", type: "text", explanation: "none" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
       });
 
@@ -251,7 +259,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "firstName", type: "text", explanation: "optional" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { firstName: { explanation: "ok" } });
       });
@@ -260,7 +268,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "firstName", type: "text", explanation: "required" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { firstName: { explanation: "ok" } });
         assertInvalid(schema, { firstName: {} }, [
           { message: "is required", field: "data.firstName.explanation" },
@@ -273,7 +281,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: "text" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: {} });
         assertValid(schema, { key: { value: "" } });
@@ -287,7 +295,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: { base: "text", length: { min: 2 } } }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "nice" } });
         assertInvalid(schema, { key: { value: "x" } }, [
           {
@@ -304,7 +312,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: { base: "text", length: { max: 2 } } }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "xx" } });
         assertInvalid(schema, { key: { value: "nice" } }, [
           {
@@ -323,7 +331,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             { id: "key", type: { base: "text", length: { max: 4, min: 2 } } },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "xx" } });
         assertValid(schema, { key: { value: "xxx" } });
         assertValid(schema, { key: { value: "xxxx" } });
@@ -348,7 +356,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: { base: "text", pattern: "https?:" } }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "http:" } });
         assertValid(schema, { key: { value: "https:" } });
         assertInvalid(schema, { key: { value: "ftp:" } }, [
@@ -368,7 +376,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: "integer" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: {} });
         assertValid(schema, { key: { value: 0 } });
@@ -385,7 +393,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: { base: "integer", range: { min: 2 } } }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: 42 } });
         assertInvalid(schema, { key: { value: 1 } }, [
           { message: "Must be at least %(min)s.", field: "data.key.value" },
@@ -398,7 +406,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             { id: "key", type: { base: "integer", range: { max: 42 } } },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: 42 } });
         assertInvalid(schema, { key: { value: 43 } }, [
           { message: "Cannot be beyond %(max)s.", field: "data.key.value" },
@@ -414,7 +422,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: 42 } });
         assertInvalid(schema, { key: { value: 43 } }, [
           {
@@ -436,7 +444,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: "float" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: {} });
         assertValid(schema, { key: { value: 0 } });
@@ -451,7 +459,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: { base: "float", range: { min: 2 } } }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: 42 } });
         assertInvalid(schema, { key: { value: 1 } }, [
           { message: "Must be at least %(min)s.", field: "data.key.value" },
@@ -462,7 +470,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: { base: "float", range: { max: 42 } } }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: 42 } });
         assertInvalid(schema, { key: { value: 43 } }, [
           { message: "Cannot be beyond %(max)s.", field: "data.key.value" },
@@ -475,7 +483,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             { id: "key", type: { base: "float", range: { min: 10, max: 42 } } },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: 42 } });
         assertInvalid(schema, { key: { value: 43 } }, [
           {
@@ -496,7 +504,7 @@ describe("rex-forms/lib/instrument/schema", function() {
       let instrument = {
         record: [{ id: "key", type: "boolean" }],
       };
-      let schema = fromInstrument(instrument, MOCK_ENV);
+      let schema = fromInstrument(instrument, defaultEnv);
       assertValid(schema, {});
       assertValid(schema, { key: {} });
       assertValid(schema, { key: { value: true } });
@@ -511,7 +519,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: "date" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: {} });
         assertValid(schema, { key: { value: "2012-12-12" } });
@@ -524,6 +532,12 @@ describe("rex-forms/lib/instrument/schema", function() {
             field: "data.key.value",
           },
         ]);
+        assertInvalid(schema, { key: { value: "2012-13-12" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value",
+          },
+        ]);
       });
 
       it("validates with min range constraint", function() {
@@ -532,7 +546,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             { id: "key", type: { base: "date", range: { min: "1987-05-08" } } },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "2016-12-12" } });
         assertInvalid(schema, { key: { value: "1961-04-24" } }, [
           { message: "Must be at least %(min)s.", field: "data.key.value" },
@@ -545,7 +559,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             { id: "key", type: { base: "date", range: { max: "1987-05-08" } } },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "1961-04-24" } });
         assertInvalid(schema, { key: { value: "1991-05-22" } }, [
           { message: "Cannot be beyond %(max)s.", field: "data.key.value" },
@@ -564,7 +578,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "1988-04-24" } });
         assertInvalid(schema, { key: { value: "1992-05-22" } }, [
           {
@@ -579,6 +593,44 @@ describe("rex-forms/lib/instrument/schema", function() {
           },
         ]);
       });
+
+      it("validates with useLocaleFormat 'en'", function() {
+        let formatConfig = new Map();
+        let id = "key";
+        formatConfig.set(id, FormFormatConfig.makeFieldConfig("en"));
+        let instrument = {
+          record: [{ id, type: "date" }],
+        };
+        let schema = fromInstrument(instrument, {
+          ...defaultEnv,
+          formatConfig,
+        });
+
+        assertValid(schema, {});
+        assertValid(schema, { key: {} });
+        assertValid(schema, { key: { value: "12-12-2012" } });
+        assertInvalid(schema, { key: { value: "13-12-2012" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value",
+          },
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYY",
+            field: "data.key.value",
+          },
+        ]);
+        assertInvalid(schema, { key: { value: 42 } }, [
+          { message: "is the wrong type", field: "data.key.value" },
+        ]);
+        assertInvalid(schema, { key: { value: "oops" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYY",
+            field: "data.key.value",
+          },
+        ]);
+      });
     });
 
     describe('"dateTime" type', function() {
@@ -586,10 +638,16 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: "dateTime" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: {} });
         assertValid(schema, { key: { value: "2012-12-12T12:12:12" } });
+        assertInvalid(schema, { key: { value: "2012-13-12T12:12:12" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value",
+          },
+        ]);
         assertInvalid(schema, { key: { value: "2012-12-12" } }, [
           {
             message: "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]",
@@ -616,7 +674,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "2016-12-12T22:22:22" } });
         assertInvalid(schema, { key: { value: "1961-04-24T22:22:22" } }, [
           { message: "Must be at least %(min)s.", field: "data.key.value" },
@@ -635,7 +693,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "1961-04-24T22:22:22" } });
         assertInvalid(schema, { key: { value: "1991-05-22T22:22:22" } }, [
           { message: "Cannot be beyond %(max)s.", field: "data.key.value" },
@@ -660,7 +718,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "1988-04-24T22:22:22" } });
         assertInvalid(schema, { key: { value: "1992-05-22T22:22:22" } }, [
           {
@@ -687,6 +745,57 @@ describe("rex-forms/lib/instrument/schema", function() {
           },
         ]);
       });
+
+      it("validates with useLocaleFormat 'en'", function() {
+        let formatConfig = new Map();
+        let id = "key";
+        formatConfig.set(id, FormFormatConfig.makeFieldConfig("en"));
+        let instrument = {
+          record: [{ id, type: "dateTime" }],
+        };
+        let schema = fromInstrument(instrument, {
+          ...defaultEnv,
+          formatConfig,
+        });
+
+        assertValid(schema, {});
+        assertValid(schema, { key: {} });
+        assertValid(schema, { key: { value: "12-12-2012T12:12:12" } });
+        assertValid(schema, { key: { value: "12-12-2012T12:12" } });
+        assertInvalid(schema, { key: { value: "13-12-2012T12:12:12" } }, [
+          {
+            message: "Not a valid date.",
+            field: "data.key.value",
+          },
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            field: "data.key.value",
+          },
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12T12:12:12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            field: "data.key.value",
+          },
+        ]);
+        assertInvalid(schema, { key: { value: "2012-12-12" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            field: "data.key.value",
+          },
+        ]);
+        assertInvalid(schema, { key: { value: 42 } }, [
+          { message: "is the wrong type", field: "data.key.value" },
+        ]);
+        assertInvalid(schema, { key: { value: "oops" } }, [
+          {
+            message: "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            field: "data.key.value",
+          },
+        ]);
+      });
     });
 
     describe('"time" type', function() {
@@ -694,7 +803,7 @@ describe("rex-forms/lib/instrument/schema", function() {
         let instrument = {
           record: [{ id: "key", type: "time" }],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: {} });
         assertValid(schema, { key: { value: "12:12:12" } });
@@ -721,7 +830,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             { id: "key", type: { base: "time", range: { min: "22:22:22" } } },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "22:22:22" } });
         assertInvalid(schema, { key: { value: "19:22:22" } }, [
           { message: "Must be at least %(min)s.", field: "data.key.value" },
@@ -734,7 +843,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             { id: "key", type: { base: "time", range: { max: "22:22:22" } } },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "22:22:22" } });
         assertInvalid(schema, { key: { value: "23:22:22" } }, [
           { message: "Cannot be beyond %(max)s.", field: "data.key.value" },
@@ -753,7 +862,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: "21:22:22" } });
         assertInvalid(schema, { key: { value: "23:22:22" } }, [
           {
@@ -785,7 +894,7 @@ describe("rex-forms/lib/instrument/schema", function() {
           },
         ],
       };
-      let schema = fromInstrument(instrument, MOCK_ENV);
+      let schema = fromInstrument(instrument, defaultEnv);
       assertValid(schema, { key: { value: "a" } });
       assertValid(schema, { key: { value: "b" } });
       assertInvalid(schema, { key: { value: "c" } }, [
@@ -814,7 +923,7 @@ describe("rex-forms/lib/instrument/schema", function() {
           },
         },
       };
-      let schema = fromInstrument(instrument, MOCK_ENV);
+      let schema = fromInstrument(instrument, defaultEnv);
       assertValid(schema, { key: { value: "a" } });
       assertValid(schema, { key: { value: "b" } });
       assertInvalid(schema, { key: { value: "c" } }, [
@@ -841,7 +950,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: ["a"] } });
         assertValid(schema, { key: { value: ["b"] } });
         assertValid(schema, { key: { value: ["a", "b"] } });
@@ -873,7 +982,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: ["a", "b"] } });
         assertInvalid(schema, { key: { value: ["a"] } }, [
           {
@@ -900,7 +1009,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: ["a"] } });
         assertValid(schema, { key: { value: ["a", "b"] } });
         assertInvalid(schema, { key: { value: ["a", "b", "c"] } }, [
@@ -929,7 +1038,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: ["a", "b"] } });
         assertValid(schema, { key: { value: ["a", "b", "c"] } });
         assertInvalid(schema, { key: { value: ["a"] } }, [
@@ -963,7 +1072,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: { value: [] } });
         assertValid(schema, { key: { value: [{ a: { value: "a" } }] } });
@@ -999,7 +1108,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertInvalid(schema, { key: { value: [] } }, [
           {
             message: "You must provide a response for this field.",
@@ -1046,7 +1155,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: [] } });
         assertInvalid(schema, { key: { value: [{}, {}] } }, [
           {
@@ -1098,7 +1207,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: [] } });
         assertInvalid(schema, { key: { value: [{}] } }, [
           {
@@ -1191,7 +1300,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, { key: { value: [] } });
         assertInvalid(schema, { key: { value: [{}, {}] } }, [
           {
@@ -1296,7 +1405,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: { value: {} } });
         assertValid(schema, { key: { value: null } });
@@ -1331,6 +1440,99 @@ describe("rex-forms/lib/instrument/schema", function() {
         );
       });
 
+      it("validates with date and dateTime types using useLocaleFormat 'en'", function() {
+        let formatConfig = new Map();
+        formatConfig.set(
+          "key.row1.col1",
+          FormFormatConfig.makeFieldConfig("en"),
+        );
+        formatConfig.set(
+          "key.row2.col1",
+          FormFormatConfig.makeFieldConfig("en"),
+        );
+        formatConfig.set(
+          "key.row1.col2",
+          FormFormatConfig.makeFieldConfig("en"),
+        );
+        formatConfig.set(
+          "key.row2.col2",
+          FormFormatConfig.makeFieldConfig("en"),
+        );
+        let instrument = {
+          record: [
+            {
+              id: "key",
+              type: {
+                base: "matrix",
+                columns: [
+                  { id: "col1", type: "date" },
+                  { id: "col2", type: "dateTime" },
+                ],
+                rows: [{ id: "row1" }, { id: "row2" }],
+              },
+            },
+          ],
+        };
+
+        let schema = fromInstrument(instrument, {
+          ...defaultEnv,
+          formatConfig,
+        });
+
+        // assertValid(schema, {});
+        // assertValid(schema, { key: { value: {} } });
+        // assertValid(schema, { key: { value: null } });
+        // assertValid(schema, { key: { value: undefined } });
+        assertValid(schema, {
+          key: {
+            value: {
+              row1: {
+                col1: { value: "12-12-2012" },
+                col2: { value: "12-12-2012T12:12" },
+              },
+              row2: {
+                col1: { value: "12-12-2012" },
+                col2: { value: "12-12-2012T12:12:12" },
+              },
+            },
+          },
+        });
+        assertInvalid(schema, { key: { value: 12 } }, [
+          { message: "is the wrong type", field: "data.key.value" },
+        ]);
+        assertInvalid(
+          schema,
+          {
+            key: {
+              value: {
+                row1: { col1: { value: "a" }, col2: { value: 1 } },
+                row2: { col1: { value: "a" }, col2: { value: "foo" } },
+              },
+            },
+          },
+          [
+            {
+              field: "data.key.value.row1.col1.value",
+              message: "This must be entered in the form: MM-DD-YYYY",
+            },
+            {
+              field: "data.key.value.row1.col2.value",
+              message: "is the wrong type",
+            },
+            {
+              field: "data.key.value.row2.col1.value",
+              message: "This must be entered in the form: MM-DD-YYYY",
+            },
+            {
+              field: "data.key.value.row2.col2.value",
+              message: "Not a valid whole number.",
+              message:
+                "This must be entered in the form: MM-DD-YYYYTHH:MM[:SS]",
+            },
+          ],
+        );
+      });
+
       it("validates with required constraint", function() {
         let instrument = {
           record: [
@@ -1348,7 +1550,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertInvalid(schema, {}, [
           {
             message: "You must provide a response for this field.",
@@ -1416,7 +1618,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertInvalid(schema, {}, [
           {
             message: "You must provide a response for this row.",
@@ -1484,7 +1686,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertValid(schema, {});
         assertValid(schema, { key: { value: {} } });
         assertValid(schema, { key: { value: null } });
@@ -1540,7 +1742,7 @@ describe("rex-forms/lib/instrument/schema", function() {
             },
           ],
         };
-        let schema = fromInstrument(instrument, MOCK_ENV);
+        let schema = fromInstrument(instrument, defaultEnv);
         assertInvalid(schema, {}, [
           {
             message: "You must provide a response for this row.",

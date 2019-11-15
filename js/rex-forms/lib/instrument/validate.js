@@ -3,9 +3,10 @@
  * @flow
  */
 
+import moment from "moment";
 import type { Value, error } from "react-forms";
 import type { I18N } from "rex-i18n";
-import type { JSONSchemaExt } from "../types";
+import type { JSONSchema } from "../types";
 
 import invariant from "invariant";
 import isInteger from "lodash/isInteger";
@@ -15,9 +16,14 @@ import isPlainObject from "lodash/isPlainObject";
 
 import cast from "../cast";
 
+/**
+ * ISO8601-based default regexps
+ */
 const DATE_TIME_RE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/;
 const DATE_RE = /^\d\d\d\d-\d\d-\d\d$/;
 const TIME_RE = /^\d\d:\d\d(:\d\d)?$/;
+const ISO_DATE_FORMAT = "YYYY-MM-DD";
+const ISO_DATE_TIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
 /**
  * Determine if field value is empty.
@@ -90,7 +96,7 @@ export default class Validate {
     this.i18n = i18n;
   }
 
-  number = (value: number, node: JSONSchemaExt) => {
+  number = (value: number, node: JSONSchema) => {
     if (!isFinite(value)) {
       return this.i18n.gettext("Not a valid number.");
     }
@@ -104,7 +110,7 @@ export default class Validate {
     return true;
   };
 
-  integer = (value: number, node: JSONSchemaExt) => {
+  integer = (value: number, node: JSONSchema) => {
     if (!isInteger(value)) {
       return this.i18n.gettext("Not a valid whole number.");
     }
@@ -118,17 +124,24 @@ export default class Validate {
     return true;
   };
 
-  date = (value: string, node: JSONSchemaExt) => {
-    if (!DATE_RE.exec(value)) {
-      return this.i18n.gettext("This must be entered in the form: YYYY-MM-DD");
+  date = (value: string, node: JSONSchema) => {
+    const regex = node.dateRegex ? new RegExp(node.dateRegex) : DATE_RE;
+    const format = node.dateFormat || ISO_DATE_FORMAT;
+
+    if (!regex.exec(value)) {
+      return this.i18n.gettext(`This must be entered in the form: ${format}`);
     }
-    if (!this.checkLegalDate(value)) {
+
+    let date = moment(value, format);
+    if (!date.isValid()) {
       return this.i18n.gettext("Not a valid date.");
     }
 
     invariant(node.instrument != null, "Incomplete schema");
-    if (node.instrument.type.range) {
-      let failure = this.checkValueRange(value, node.instrument.type.range);
+    let { range } = node.instrument.type;
+    if (range != null) {
+      let isoValue = date.format(ISO_DATE_FORMAT);
+      let failure = this.checkValueRange(isoValue, range);
       if (failure !== true) {
         return failure;
       }
@@ -136,24 +149,35 @@ export default class Validate {
     return true;
   };
 
-  dateTime = (value: string, node: JSONSchemaExt) => {
-    if (!DATE_TIME_RE.exec(value)) {
+  dateTime = (value: string, node: JSONSchema) => {
+    const regex = node.dateTimeRegex
+      ? new RegExp(node.dateTimeRegex)
+      : DATE_TIME_RE;
+    const dateFormat = node.dateFormat || ISO_DATE_FORMAT;
+
+    if (!regex.exec(value)) {
       return this.i18n.gettext(
-        "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]",
+        `This must be entered in the form: ${dateFormat}THH:MM[:SS]`,
       );
     }
 
-    let parts = value.split("T");
-    if (!this.checkLegalDate(parts[0])) {
+    let [date, time] = value.split("T");
+
+    if (!moment(date, dateFormat).isValid()) {
       return this.i18n.gettext("Not a valid date.");
     }
-    if (!this.checkLegalTime(parts[1])) {
+
+    let TIME_FORMAT = "HH:mm:ss";
+    if (!moment(time, TIME_FORMAT).isValid()) {
       return this.i18n.gettext("Not a valid time.");
     }
 
     invariant(node.instrument != null, "Incomplete schema");
-    if (node.instrument.type.range) {
-      let failure = this.checkValueRange(value, node.instrument.type.range);
+    let { range } = node.instrument.type;
+    if (range) {
+      let format = `${dateFormat}THH:mm:ss`;
+      let isoValue = moment(value, format).format(ISO_DATE_TIME_FORMAT);
+      let failure = this.checkValueRange(isoValue, range);
       if (failure !== true) {
         return failure;
       }
@@ -161,7 +185,7 @@ export default class Validate {
     return true;
   };
 
-  time = (value: string, node: JSONSchemaExt) => {
+  time = (value: string, node: JSONSchema) => {
     if (!TIME_RE.exec(value)) {
       return this.i18n.gettext("This must be entered in the form: HH:MM[:SS]");
     }
@@ -179,7 +203,7 @@ export default class Validate {
     return true;
   };
 
-  recordList = (value: Array<Object>, node: JSONSchemaExt) => {
+  recordList = (value: Array<Object>, node: JSONSchema) => {
     value = value || [];
 
     if (value.length > 0) {
@@ -235,7 +259,7 @@ export default class Validate {
     return true;
   };
 
-  matrix = (value: Object, node: JSONSchemaExt) => {
+  matrix = (value: Object, node: JSONSchema) => {
     if (isEmptyValue(value)) {
       invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.required) {
@@ -245,7 +269,7 @@ export default class Validate {
     return true;
   };
 
-  matrixRow = (value: Object, node: JSONSchemaExt) => {
+  matrixRow = (value: Object, node: JSONSchema) => {
     if (isEmptyValue(value)) {
       invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.required) {
@@ -272,7 +296,7 @@ export default class Validate {
     return true;
   };
 
-  enumerationSet = (value: Array<string>, node: JSONSchemaExt) => {
+  enumerationSet = (value: Array<string>, node: JSONSchema) => {
     value = value || [];
     invariant(node.instrument != null, "Incomplete schema");
     if (value.length > 0 && node.instrument.type.length) {
@@ -299,7 +323,7 @@ export default class Validate {
     return true;
   };
 
-  text = (value: string, node: JSONSchemaExt) => {
+  text = (value: string, node: JSONSchema) => {
     value = value || "";
     invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.length) {
@@ -336,8 +360,9 @@ export default class Validate {
   };
 
   checkValueRange(value: any, { min, max }: { min?: any, max?: any }) {
-    let minFailure = min !== undefined && min > value;
-    let maxFailure = max !== undefined && max < value;
+    let minFailure = min != undefined && min > value;
+    let maxFailure = max != undefined && max < value;
+
     if (minFailure || maxFailure) {
       if (min !== undefined && max !== undefined) {
         return this.i18n.gettext("Must be between %(min)s and %(max)s.", {
@@ -354,20 +379,20 @@ export default class Validate {
     }
   }
 
-  checkLegalDate(dateStr: string): boolean {
-    let parts = dateStr.split("-").map(Number);
-    // $FlowIssue: fixme
-    let parsed = new Date(parts[0], parts[1] - 1, parts[2]);
-    if (
-      isNaN(parsed.getTime()) ||
-      parsed.getFullYear() !== parts[0] ||
-      parsed.getMonth() !== parts[1] - 1 ||
-      parsed.getDate() !== parts[2]
-    ) {
-      return false;
-    }
-    return true;
-  }
+  // checkLegalDate(dateStr: string): boolean {
+  //   let parts = dateStr.split("-").map(Number);
+  //   // $FlowIssue: fixme
+  //   let parsed = new Date(parts[0], parts[1] - 1, parts[2]);
+  //   if (
+  //     isNaN(parsed.getTime()) ||
+  //     parsed.getFullYear() !== parts[0] ||
+  //     parsed.getMonth() !== parts[1] - 1 ||
+  //     parsed.getDate() !== parts[2]
+  //   ) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   checkLegalTime(timeStr: string): boolean {
     let parts = timeStr.split(":").map(Number);

@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from "react";
-import { type FieldConfig } from "rex-ui/rapid";
+import { type FieldConfig, type FilterConfig } from "rex-ui/rapid";
 
 export type ShowScreen = {|
   type: "show",
@@ -16,6 +16,7 @@ export type PickScreen = {|
   title: string,
   description: string,
   fields?: ?(FieldConfig[]),
+  filters?: ?(FilterConfig[]),
   onSelect?: (id: string) => ShowScreen,
 |};
 

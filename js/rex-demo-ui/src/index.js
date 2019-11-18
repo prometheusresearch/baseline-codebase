@@ -14,6 +14,10 @@ import * as Router from "./Router";
 
 let endpoint = RexGraphQL.configure("/_api/graphql");
 
+const CustomSortRenderer = ({ value, values, onChange }) => {
+  return <FormLabel>{String(value)}</FormLabel>;
+};
+
 let phoneField = {
   title: "Phone",
   require: {
@@ -35,6 +39,21 @@ let pickUser: Router.PickScreen = {
     phoneField,
     "expired",
     { require: { field: "system_admin" } },
+  ],
+  filters: [
+    {
+      name: "search",
+      render: ({ value, onChange }) => {
+        return (
+          <input value={value} onChange={ev => onChange(ev.target.value)} />
+        );
+      },
+    },
+    "expired",
+    {
+      name: "sort",
+      render: CustomSortRenderer,
+    },
   ],
   onSelect: id => ({
     type: "show",
@@ -68,10 +87,6 @@ const useStyles = makeStyles(theme => ({
     background: "rgba(0,0,0,0.15)",
   },
 }));
-
-const CustomSortRenderer = ({ value, values, onChange }) => {
-  return <FormLabel>{String(value)}</FormLabel>;
-};
 
 function NavButton({ screen, nav, replace }) {
   const classes = useStyles();
@@ -112,39 +127,6 @@ function App() {
     }
   }, [appTheme]);
 
-  let [pickFiltersState, setPickFiltersState] = React.useState<
-    "default" | "custom",
-  >("default");
-
-  let pickFilters = React.useMemo(() => {
-    switch (pickFiltersState) {
-      case "custom": {
-        return [
-          {
-            name: "search",
-            render: ({ value, onChange }) => {
-              return (
-                <input
-                  value={value}
-                  onChange={ev => onChange(ev.target.value)}
-                />
-              );
-            },
-          },
-          "expired",
-          {
-            name: "sort",
-            render: CustomSortRenderer,
-          },
-        ];
-      }
-      case "default":
-      default: {
-        return undefined;
-      }
-    }
-  }, [pickFiltersState, setPickFiltersState]);
-
   let renderPickView = React.useCallback(
     (screen: Router.PickScreen) => {
       let onRowClick;
@@ -159,12 +141,13 @@ function App() {
           fetch={screen.fetch}
           onRowClick={onRowClick}
           fields={screen.fields}
+          filters={screen.filters}
           title={screen.title}
           description={screen.description}
         />
       );
     },
-    [pickFilters],
+    [],
   );
 
   let renderShowView = React.useCallback((screen: Router.ShowScreen) => {
@@ -234,29 +217,6 @@ function App() {
           </div>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <div>
-            <Typography style={{ padding: 8 }}>Renderers:</Typography>
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            <Button
-              className={
-                pickFiltersState === "default" ? classes.buttonActive : null
-              }
-              onClick={() => setPickFiltersState("default")}
-            >
-              Default
-            </Button>
-            <Button
-              className={
-                pickFiltersState === "custom" ? classes.buttonActive : null
-              }
-              onClick={() => setPickFiltersState("custom")}
-            >
-              Custom
-            </Button>
-          </div>
-        </Grid>
       </Grid>
       <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>,
     </ThemeProvider>

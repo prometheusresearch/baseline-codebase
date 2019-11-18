@@ -16,7 +16,7 @@ import { ErrorBoundary } from "./ErrorBoundary.js";
 
 export type PickProps = {|
   endpoint: Endpoint,
-  fields?: Field.FieldConfig[],
+  fields?: ?Field.FieldConfig[],
   args?: { [key: string]: any },
   ...PickRendererConfigProps
 |};

@@ -54,17 +54,18 @@ import * as Field from "./Field.js";
 type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
 
-export type FiltersConfig = Array<
+export type FilterConfig =
   | string
   | {
       name: string,
-      render?: React.ComponentType<{
+      render?: React.AbstractComponent<{
         value: any,
         values?: Array<any>,
         onChange: (newValue: any) => void,
       }>,
-    },
->;
+    };
+
+export type FiltersConfig = FilterConfig[];
 
 export type FilterSpec = {|
   render: ?React.ComponentType<{
@@ -84,7 +85,7 @@ export type PickRendererConfigProps = {|
   showAs?: PickMode,
   sortableColumns?: string[],
   columnsWidth?: { [key: string]: string | number },
-  filters?: FiltersConfig,
+  filters?: ?FiltersConfig,
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,

@@ -7,15 +7,16 @@ import * as RexGraphQL from "rex-graphql";
 import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { Grid, Typography, FormLabel } from "@material-ui/core";
+import * as mui from "@material-ui/core";
 import { ThemeProvider, makeStyles } from "@material-ui/styles";
-import { DEFAULT_THEME, DARK_THEME } from "rex-ui/rapid/themes";
-import * as Router from "./Router";
+import { DEFAULT_THEME } from "rex-ui/rapid/themes";
+import * as Router from "./Router.js";
+import AppChrome from "./AppChrome.js";
 
 let endpoint = RexGraphQL.configure("/_api/graphql");
 
 const CustomSortRenderer = ({ value, values, onChange }) => {
-  return <FormLabel>{String(value)}</FormLabel>;
+  return <mui.FormLabel>{String(value)}</mui.FormLabel>;
 };
 
 let phoneField = {
@@ -82,9 +83,60 @@ let pickPatient: Router.PickScreen = {
   description: "List of patients",
 };
 
-const useStyles = makeStyles(theme => ({
+const drawerWidth = 240;
+
+const useStyles = makeStyles(theme => (console.log(theme),{
   buttonActive: {
     background: "rgba(0,0,0,0.15)",
+  },
+  appBar: {
+    backgroundColor: "#FFFFFF",
+  },
+  appBarShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    flexWrap: "nowrap",
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.default,
+    minWidth: 0, // So the Typography noWrap works
+    transition: theme.transitions.create(["margin"], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: 0,
+  },
+  contentShift: {
+    transition: theme.transitions.create(["margin"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: `${drawerWidth}px !important`,
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: drawerWidth,
+    paddingTop: theme.spacing.unit,
+  },
+  drawerMenuButton: {
+    display: "flex",
+    justifyContent: "flex-start",
+    padding: theme.spacing.unit,
+    ...theme.mixins.toolbar,
+  },
+  menuButton: {
+    marginLeft: 0,
+    marginRight: 12,
   },
 }));
 
@@ -110,53 +162,35 @@ function NavButton({ screen, nav, replace }) {
 }
 
 function App() {
-  const classes = useStyles();
-
   let nav = Router.useNavigation(pickUser);
 
-  let [appTheme, setTheme] = React.useState<"default" | "dark">("default");
-  let theme = React.useMemo(() => {
-    switch (appTheme) {
-      case "dark": {
-        return DARK_THEME;
-      }
-      case "default":
-      default: {
-        return DEFAULT_THEME;
-      }
+  let renderPickView = React.useCallback((screen: Router.PickScreen) => {
+    let onRowClick;
+    if (screen.onSelect != null) {
+      let onSelect = screen.onSelect;
+      onRowClick = (row: any) => nav.push(onSelect(row.id));
     }
-  }, [appTheme]);
 
-  let renderPickView = React.useCallback(
-    (screen: Router.PickScreen) => {
-      let onRowClick;
-      if (screen.onSelect != null) {
-        let onSelect = screen.onSelect;
-        onRowClick = (row: any) => nav.push(onSelect(row.id));
-      }
-
-      return (
-        <Pick
-          endpoint={endpoint}
-          fetch={screen.fetch}
-          onRowClick={onRowClick}
-          fields={screen.fields}
-          filters={screen.filters}
-          title={screen.title}
-          description={screen.description}
-        />
-      );
-    },
-    [],
-  );
+    return (
+      <Pick
+        endpoint={endpoint}
+        fetch={screen.fetch}
+        onRowClick={onRowClick}
+        fields={screen.fields}
+        filters={screen.filters}
+        title={screen.title}
+        description={screen.description}
+      />
+    );
+  }, []);
 
   let renderShowView = React.useCallback((screen: Router.ShowScreen) => {
     let onBack = () => {
       nav.pop();
     };
     return (
-      <Grid container style={{ padding: 8 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <mui.Grid container style={{ padding: 8 }}>
+        <mui.Grid item xs={12} sm={6} md={3}>
           <div>
             <Button onClick={onBack}>Back</Button>
           </div>
@@ -166,8 +200,8 @@ function App() {
             args={{ id: screen.id }}
             fields={screen.fields}
           />
-        </Grid>
-      </Grid>
+        </mui.Grid>
+      </mui.Grid>
     );
   }, []);
 
@@ -185,41 +219,20 @@ function App() {
   }, [nav.screen]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Grid container style={{ padding: 8 }}>
-        <Grid item xs={12} sm={6} md={3}>
+    <AppChrome title="Rex Rapid Demo">
+      <mui.Grid container style={{ padding: 8 }}>
+        <mui.Grid item xs={12} sm={6} md={3}>
           <div>
-            <Typography style={{ padding: 8 }}>Views:</Typography>
+            <mui.Typography style={{ padding: 8 }}>Views:</mui.Typography>
           </div>
           <div style={{ marginBottom: 8 }}>
             <NavButton screen={pickUser} nav={nav} replace />
             <NavButton screen={pickPatient} nav={nav} replace />
           </div>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <div>
-            <Typography style={{ padding: 8 }}>Themes:</Typography>
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            <Button
-              className={appTheme === "default" ? classes.buttonActive : null}
-              onClick={() => setTheme("default")}
-            >
-              Default
-            </Button>
-            <Button
-              className={appTheme === "dark" ? classes.buttonActive : null}
-              onClick={() => setTheme("dark")}
-            >
-              Dark
-            </Button>
-          </div>
-        </Grid>
-
-      </Grid>
+        </mui.Grid>
+      </mui.Grid>
       <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>,
-    </ThemeProvider>
+    </AppChrome>
   );
 }
 
@@ -228,8 +241,10 @@ invariant(root != null, "DOM is not avaialble: missing #root");
 
 ReactDOM.render(
   <>
-    <CssBaseline />
-    <App />
+    <ThemeProvider theme={DEFAULT_THEME}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </>,
   root,
 );

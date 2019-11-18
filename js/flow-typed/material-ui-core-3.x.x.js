@@ -14,7 +14,7 @@ declare module "@material-ui/styles" {
       horizontalSpacing: number,
     },
     breakpoints: {
-      up: (string) => string,
+      up: string => string,
       between: (string, string) => string,
       values: {
         xs: number,
@@ -31,6 +31,10 @@ declare module "@material-ui/styles" {
       success: Palette,
       primary: Palette,
       secondary: Palette,
+      background: {|
+        paper: color,
+        default: color,
+      |},
       action: {
         hoverOpacity: number,
       },
@@ -41,6 +45,27 @@ declare module "@material-ui/styles" {
         hint: color,
       },
     },
+    transitions: {|
+      create(string[], {| easing?: string, duration?: number |}): string,
+      duration: {|
+        complex: number,
+        enteringScreen: number,
+        leavingScreen: number,
+        short: number,
+        shorter: number,
+        shortest: number,
+        standard: number,
+      |},
+      easing: {|
+        easeIn: string,
+        easeInOut: string,
+        easeOut: string,
+        sharp: string,
+      |},
+    |},
+    mixins: {|
+      toolbar: any,
+    |},
   |};
 
   declare type Palette = {

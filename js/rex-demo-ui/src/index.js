@@ -8,7 +8,7 @@ import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import * as mui from "@material-ui/core";
-import { ThemeProvider, makeStyles } from "@material-ui/styles";
+import { ThemeProvider } from "@material-ui/styles";
 import { DEFAULT_THEME } from "rex-ui/rapid/themes";
 import * as Router from "./Router.js";
 import AppChrome from "./AppChrome.js";
@@ -83,89 +83,6 @@ let pickPatient: Router.PickScreen = {
   title: "Patients",
   description: "List of patients",
 };
-
-const drawerWidth = 240;
-
-const useStyles = makeStyles(
-  theme => (
-    console.log(theme),
-    {
-      buttonActive: {
-        background: "rgba(0,0,0,0.15)",
-      },
-      appBar: {
-        backgroundColor: "#FFFFFF",
-      },
-      appBarShift: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: drawerWidth,
-        transition: theme.transitions.create(["margin", "width"], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      },
-      content: {
-        display: "flex",
-        flexDirection: "column",
-        flexWrap: "nowrap",
-        flexGrow: 1,
-        backgroundColor: theme.palette.background.default,
-        minWidth: 0, // So the Typography noWrap works
-        transition: theme.transitions.create(["margin"], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        marginLeft: 0,
-      },
-      contentShift: {
-        transition: theme.transitions.create(["margin"], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: `${drawerWidth}px !important`,
-      },
-      drawer: {
-        width: drawerWidth,
-        flexShrink: 0,
-      },
-      drawerPaper: {
-        width: drawerWidth,
-        paddingTop: theme.spacing.unit,
-      },
-      drawerMenuButton: {
-        display: "flex",
-        justifyContent: "flex-start",
-        padding: theme.spacing.unit,
-        ...theme.mixins.toolbar,
-      },
-      menuButton: {
-        marginLeft: 0,
-        marginRight: 12,
-      },
-    }
-  ),
-);
-
-function NavButton({ screen, nav, replace }) {
-  const classes = useStyles();
-  let onClick = () => {
-    if (replace) {
-      nav.replace(screen);
-    } else {
-      nav.push(screen);
-    }
-  };
-  return (
-    <Button
-      className={
-        Router.eqScreen(screen, nav.screen) ? classes.buttonActive : null
-      }
-      onClick={onClick}
-    >
-      {screen.title}
-    </Button>
-  );
-}
 
 function App() {
   let nav = Router.useNavigation(pickUser);

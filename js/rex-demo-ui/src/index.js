@@ -10,18 +10,58 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { Grid, Typography, FormLabel } from "@material-ui/core";
 import { ThemeProvider, makeStyles } from "@material-ui/styles";
 import { DEFAULT_THEME, DARK_THEME } from "rex-ui/rapid/themes";
+import * as Router from "./Router";
 
 let endpoint = RexGraphQL.configure("/_api/graphql");
 
-type Screen =
-  | {|
-      type: "pick",
-      options: { [key: string]: any },
-    |}
-  | {|
-      type: "show",
-      options: { [key: string]: any },
-    |};
+let phoneField = {
+  title: "Phone",
+  require: {
+    field: "phone",
+    require: [{ field: "value" }],
+  },
+  render({ value }) {
+    return value != null ? <div>tel: {value.value}</div> : "—";
+  },
+};
+
+let pickUser: Router.PickScreen = {
+  type: "pick",
+  fetch: "user.paginated",
+  title: "Users",
+  description: "List of users",
+  fields: [
+    { require: { field: "remote_user" } },
+    phoneField,
+    "expired",
+    { require: { field: "system_admin" } },
+  ],
+  onSelect: id => ({
+    type: "show",
+    fetch: "user.get",
+    id: id,
+    fields: [
+      { title: "Remote User", require: { field: "remote_user" } },
+      "system_admin",
+      "expired",
+      {
+        title: "Contact Info",
+        require: {
+          field: "contact_info",
+          require: [{ field: "id" }, { field: "type" }, { field: "value" }],
+        },
+        render: ({ value }) => JSON.stringify(value),
+      },
+    ],
+  }),
+};
+
+let pickPatient: Router.PickScreen = {
+  type: "pick",
+  fetch: "patient.paginated",
+  title: "Patients",
+  description: "List of patients",
+};
 
 const useStyles = makeStyles(theme => ({
   buttonActive: {
@@ -33,18 +73,34 @@ const CustomSortRenderer = ({ value, values, onChange }) => {
   return <FormLabel>{String(value)}</FormLabel>;
 };
 
+function NavButton({ screen, nav, replace }) {
+  const classes = useStyles();
+  let onClick = () => {
+    if (replace) {
+      nav.replace(screen);
+    } else {
+      nav.push(screen);
+    }
+  };
+  return (
+    <Button
+      className={
+        Router.eqScreen(screen, nav.screen) ? classes.buttonActive : null
+      }
+      onClick={onClick}
+    >
+      {screen.title}
+    </Button>
+  );
+}
+
 function App() {
   const classes = useStyles();
 
-  let [screen, setScreen] = React.useState<Screen>({
-    type: "pick",
-    options: {
-      showUsers: true,
-    },
-  });
+  let nav = Router.useNavigation(pickUser);
 
   let [appTheme, setTheme] = React.useState<"default" | "dark">("default");
-  const theme = React.useMemo(() => {
+  let theme = React.useMemo(() => {
     switch (appTheme) {
       case "dark": {
         return DARK_THEME;
@@ -89,71 +145,32 @@ function App() {
     }
   }, [pickFiltersState, setPickFiltersState]);
 
-  let onBack = () => {
-    setScreen({ type: "pick", options: {} });
-  };
-
   let renderPickView = React.useCallback(
-    (screen: Screen) => {
-      invariant(screen.options != null, "screen.options should be object");
-
-      const { showUsers, showPatients } = screen.options;
-
-      let onRowClick = (row: any) => {
-        setScreen({ type: "show", options: { id: row.id } });
-      };
-
-      let phoneField = {
-        title: "Phone",
-        require: {
-          field: "phone",
-          require: [{ field: "value" }],
-        },
-        render({ value }) {
-          return value != null ? <div>tel: {value.value}</div> : "—";
-        },
-      };
+    (screen: Router.PickScreen) => {
+      let onRowClick;
+      if (screen.onSelect != null) {
+        let onSelect = screen.onSelect;
+        onRowClick = (row: any) => nav.push(onSelect(row.id));
+      }
 
       return (
-        <>
-          {showUsers ? (
-            <Pick
-              endpoint={endpoint}
-              fetch={"user.paginated"}
-              onRowClick={onRowClick}
-              fields={[
-                { require: { field: "remote_user" } },
-                phoneField,
-                "expired",
-                { require: { field: "system_admin" } },
-              ]}
-              title={"Users"}
-              description={"List of users"}
-              sortableColumns={["remote_user"]}
-              columnsWidth={{
-                remote_user: "25%",
-                phone: 200,
-              }}
-              filters={pickFilters}
-            />
-          ) : null}
-          {showPatients ? (
-            <Pick
-              endpoint={endpoint}
-              fetch={"patient.paginated"}
-              title={"Patients"}
-            />
-          ) : null}
-        </>
+        <Pick
+          endpoint={endpoint}
+          fetch={screen.fetch}
+          onRowClick={onRowClick}
+          fields={screen.fields}
+          title={screen.title}
+          description={screen.description}
+        />
       );
     },
     [pickFilters],
   );
 
-  let renderShowView = React.useCallback((screen: Screen) => {
-    invariant(screen.options != null, "screen.options should be object");
-    invariant(screen.options.id != null, "screen.options.id should be string");
-
+  let renderShowView = React.useCallback((screen: Router.ShowScreen) => {
+    let onBack = () => {
+      nav.pop();
+    };
     return (
       <Grid container style={{ padding: 8 }}>
         <Grid item xs={12} sm={6} md={3}>
@@ -162,44 +179,27 @@ function App() {
           </div>
           <Show
             endpoint={endpoint}
-            fetch={"user.get"}
-            args={{ id: screen.options.id }}
-            fields={[
-              { title: "Remote User", require: { field: "remote_user" } },
-              "system_admin",
-              "expired",
-              {
-                title: "Contact Info",
-                require: {
-                  field: "contact_info",
-                  require: [
-                    { field: "id" },
-                    { field: "type" },
-                    { field: "value" },
-                  ],
-                },
-                render: ({ value }) => JSON.stringify(value),
-              },
-            ]}
+            fetch={screen.fetch}
+            args={{ id: screen.id }}
+            fields={screen.fields}
           />
         </Grid>
       </Grid>
     );
   }, []);
 
-  let whatToRender = (() => {
-    switch (screen.type) {
+  let ui = React.useMemo(() => {
+    switch (nav.screen.type) {
       case "show":
-        return renderShowView(screen);
-
+        return renderShowView(nav.screen);
       case "pick":
-        return renderPickView(screen);
+        return renderPickView(nav.screen);
       default: {
-        (screen.type: empty); // eslint-disable-line
-        throw new Error(`Unknown screen: ${screen.type}`);
+        (nav.screen.type: empty); // eslint-disable-line
+        throw new Error(`Unknown screen: ${nav.screen.type}`);
       }
     }
-  })();
+  }, [nav.screen]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -209,42 +209,8 @@ function App() {
             <Typography style={{ padding: 8 }}>Views:</Typography>
           </div>
           <div style={{ marginBottom: 8 }}>
-            <Button
-              className={
-                screen.type === "pick" && screen.options.showUsers
-                  ? classes.buttonActive
-                  : null
-              }
-              onClick={() =>
-                setScreen(state => ({
-                  type: "pick",
-                  options: {
-                    showUsers: true,
-                    showPatients: false,
-                  },
-                }))
-              }
-            >
-              Users
-            </Button>
-            <Button
-              className={
-                screen.type === "pick" && screen.options.showPatients
-                  ? classes.buttonActive
-                  : null
-              }
-              onClick={() =>
-                setScreen(state => ({
-                  type: "pick",
-                  options: {
-                    showUsers: false,
-                    showPatients: true,
-                  },
-                }))
-              }
-            >
-              Patients
-            </Button>
+            <NavButton screen={pickUser} nav={nav} replace />
+            <NavButton screen={pickPatient} nav={nav} replace />
           </div>
         </Grid>
 
@@ -292,8 +258,7 @@ function App() {
           </div>
         </Grid>
       </Grid>
-
-      {whatToRender}
+      <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>,
     </ThemeProvider>
   );
 }
@@ -302,9 +267,9 @@ let root = document.getElementById("root");
 invariant(root != null, "DOM is not avaialble: missing #root");
 
 ReactDOM.render(
-  <React.Suspense fallback={<LoadingIndicator />}>
+  <>
     <CssBaseline />
     <App />
-  </React.Suspense>,
+  </>,
   root,
 );

@@ -226,7 +226,7 @@ const PickTableBody = ({
         onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
         className={classNames.join(" ")}
       >
-        <TableCell padding="checkbox">
+        <TableCell padding="checkbox" style={{ width: 64 }}>
           <Checkbox
             onClick={onClick}
             onChange={onChecked}
@@ -415,7 +415,18 @@ export const PickDataView = ({
         {(isTabletWidth && showAs !== "card-list") || showAs === "table" ? (
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox"> </TableCell>
+              <TableCell
+                padding="checkbox"
+                style={{
+                  top: 0,
+                  position: "sticky",
+                  width: 64,
+                  backgroundColor: "white",
+                  zIndex: 1000,
+                }}
+              >
+                {" "}
+              </TableCell>
               {TableHeadRows}
             </TableRow>
           </TableHead>

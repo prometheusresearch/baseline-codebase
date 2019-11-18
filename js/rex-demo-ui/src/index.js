@@ -4,16 +4,27 @@ import invariant from "invariant";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as RexGraphQL from "rex-graphql";
+import * as Resource from "rex-graphql/Resource";
 import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import * as mui from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/styles";
 import { DEFAULT_THEME } from "rex-ui/rapid/themes";
+import DeleteIcon from "@material-ui/icons/Delete";
 import * as Router from "./Router.js";
 import AppChrome from "./AppChrome.js";
 
 let endpoint = RexGraphQL.configure("/_api/graphql");
+
+let removeUser = Resource.defineMutation<{ userIds: string[] }, void>({
+  endpoint,
+  mutation: `
+    mutation removeUser($userIds: [user_id]!) {
+      remove_user(user_ids: $userIds)
+    }
+  `,
+});
 
 const CustomSortRenderer = ({ value, values, onChange }) => {
   return <mui.FormLabel>{String(value)}</mui.FormLabel>;
@@ -56,6 +67,34 @@ let pickUser: Router.PickScreen = {
       render: CustomSortRenderer,
     },
   ],
+
+  renderToolbar: props => {
+    let caption = "No users selected";
+    if (props.selected.size > 0) {
+      caption = `Selected ${props.selected.size} users`;
+    }
+    let onRemove = () => {
+      let userIds = [...props.selected];
+      Resource.perform(removeUser, { userIds }).then(() => {
+        props.onSelected(new Set());
+      });
+    };
+    return (
+      <>
+        <mui.Typography variant="caption">{caption}</mui.Typography>
+        <mui.Button
+          size="small"
+          color="secondary"
+          disabled={props.selected.size === 0}
+          onClick={onRemove}
+        >
+          <DeleteIcon />
+          Remove
+        </mui.Button>
+      </>
+    );
+  },
+
   onSelect: id => ({
     type: "show",
     title: "User",
@@ -103,6 +142,7 @@ function App() {
         filters={screen.filters}
         title={screen.title}
         description={screen.description}
+        RendererToolbar={screen.renderToolbar}
       />
     );
   }, []);

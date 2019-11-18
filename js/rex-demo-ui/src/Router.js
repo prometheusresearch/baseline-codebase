@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from "react";
-import { type FieldConfig, type FilterConfig } from "rex-ui/rapid";
+import type { FieldConfig, FilterConfig, PickToolbarProps } from "rex-ui/rapid";
 
 export type ShowScreen = {|
   type: "show",
@@ -19,6 +19,7 @@ export type PickScreen = {|
   fields?: ?(FieldConfig[]),
   filters?: ?(FilterConfig[]),
   onSelect?: (id: string) => ShowScreen,
+  renderToolbar?: PickToolbarProps => React.Node,
 |};
 
 export type Screen = PickScreen | ShowScreen;

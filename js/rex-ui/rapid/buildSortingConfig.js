@@ -9,37 +9,39 @@ import {
   type IntrospectionType,
   type IntrospectionInputObjectType,
   type IntrospectionInputValue,
-  type IntrospectionEnumType
+  type IntrospectionEnumType,
 } from "graphql/utilities/introspectionQuery";
 import * as Field from "./Field";
 import { ConfigError } from "./ErrorBoundary";
+import { type FilterSpecMap, SORTING_VAR_NAME } from "./PickRenderer";
 
 const buildSortableFieldObjects = ({
   inputFields,
   fieldObjectExtensions,
   introspectionTypesMap,
   columns,
-  sortableColumns
+  sortableColumns,
 }: {|
   inputFields: $ReadOnlyArray<IntrospectionInputValue>,
   fieldObjectExtensions: Array<{ [key: string]: any }>,
   introspectionTypesMap: Map<string, IntrospectionType>,
   columns: Field.FieldSpec[],
-  sortableColumns?: string[]
+  sortableColumns?: string[],
 |}) => {
   const sortFieldsField = inputFields.find(
-    inputField => inputField.name === "field" && inputField.type.kind === "ENUM"
+    inputField =>
+      inputField.name === "field" && inputField.type.kind === "ENUM",
   );
 
   if (sortFieldsField == null) {
     throw new ConfigError(
-      "Could not find 'field' input field in buildSortableFieldObjects"
+      "Could not find 'field' input field in buildSortableFieldObjects",
     );
   }
 
   const enumType: IntrospectionEnumType = (sortFieldsField.type: any);
   const sortFieldsFieldType: IntrospectionEnumType = (introspectionTypesMap.get(
-    enumType.name
+    enumType.name,
   ): any);
 
   if (sortFieldsFieldType == null) {
@@ -47,7 +49,7 @@ const buildSortableFieldObjects = ({
   }
 
   const sortableFieldNames = sortFieldsFieldType.enumValues.map(
-    val => val.name
+    val => val.name,
   );
 
   let sortableFieldObjects = [];
@@ -70,16 +72,21 @@ export const buildSortingConfig = ({
   introspectionTypesMap,
   variableDefinitionName,
   columns,
-  sortableColumns
+  sortableColumns,
+  filtersSpecs,
 }: {|
   variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
   introspectionTypesMap: Map<string, IntrospectionType>,
   variableDefinitionName: string,
   columns: Field.FieldSpec[],
-  sortableColumns?: string[]
-|}): Array<{| field: string, desc: boolean |}> => {
-  if (!variableDefinitions) {
-    return [];
+  sortableColumns?: string[],
+  filtersSpecs: ?FilterSpecMap,
+|}): ?Array<{| field: string, desc: boolean |}> => {
+  if (
+    !variableDefinitions ||
+    (filtersSpecs != null && filtersSpecs.get(SORTING_VAR_NAME) == null)
+  ) {
+    return null;
   }
 
   const variableDefinition = variableDefinitions.find(def => {
@@ -87,16 +94,16 @@ export const buildSortingConfig = ({
   });
 
   if (variableDefinition == null) {
-    return [];
+    return null;
   }
 
   invariant(
     variableDefinition.type.name != null,
-    "Not a NamedTypeNode. variableDefinition.type.name is null."
+    "Not a NamedTypeNode. variableDefinition.type.name is null.",
   );
   invariant(
     variableDefinition.type.name.value != null,
-    "variableDefinition.type.name.value is null."
+    "variableDefinition.type.name.value is null.",
   );
 
   const definitionTypeName = (variableDefinition.type.name.value: any);
@@ -104,7 +111,7 @@ export const buildSortingConfig = ({
 
   if (variableType == null) {
     throw new ConfigError(
-      `Could not get variableType for: ${definitionTypeName}`
+      `Could not get variableType for: ${definitionTypeName}`,
     );
   }
 
@@ -119,7 +126,7 @@ export const buildSortingConfig = ({
 
   invariant(
     hasValidFields === true,
-    "Not valid inputFields of inputObjectType"
+    "Not valid inputFields of inputObjectType",
   );
 
   const sortableFieldObjects = buildSortableFieldObjects({
@@ -127,7 +134,7 @@ export const buildSortingConfig = ({
     columns,
     fieldObjectExtensions: [{ desc: true }, { desc: false }],
     introspectionTypesMap,
-    sortableColumns
+    sortableColumns,
   });
 
   return sortableFieldObjects;

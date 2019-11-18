@@ -13,7 +13,13 @@ import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
-import { type PickState } from "./PickRenderer";
+import {
+  type PickState,
+  type FiltersConfig,
+  type FilterSpecMap,
+  SORTING_VAR_NAME,
+  SEARCH_VAR_NAME,
+} from "./PickRenderer";
 import { usePickStyles } from "./styles.js";
 import * as Field from "./Field.js";
 
@@ -24,25 +30,114 @@ export const PickFilterToolbar = ({
   setFilterState,
   setSortingState,
   setSearchState,
-  isTabletWidth
+  isTabletWidth,
+  filtersSpecs,
 }: {|
   state: PickState,
   variableDefinitions: VariableDefinitionNode[] | void,
-  sortingConfig: Array<{| desc: boolean, field: string |}>,
+  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSearchState: (val: string) => void,
   setFilterState: (name: string, value: ?boolean) => void,
   setSortingState: (value: string) => void,
-  isTabletWidth?: boolean
+  isTabletWidth?: boolean,
+  filtersSpecs: ?FilterSpecMap,
 |}) => {
   if (variableDefinitions == null) {
     return null;
   }
 
   const classes = usePickStyles();
-  const hasSorting = sortingConfig.length > 0;
-  const hasSearch = state.search != null;
 
   const classNames = [classes.tableControl];
+
+  let CustomSearchRenderer: ?React.ComponentType<{
+    onChange: (newValue: any) => void,
+    value: any,
+    values?: Array<any>,
+  }> = null;
+  if (filtersSpecs != null) {
+    if (filtersSpecs.get(SEARCH_VAR_NAME) != null) {
+      // $FlowFixMe
+      if (filtersSpecs.get(SEARCH_VAR_NAME).render != null) {
+        // $FlowFixMe
+        CustomSearchRenderer = (filtersSpecs.get(SEARCH_VAR_NAME).render: any);
+      }
+    }
+  }
+
+  const SearchRenderer =
+    state.search == null ? null : CustomSearchRenderer ? (
+      <CustomSearchRenderer
+        onChange={(newValue: string) => {
+          setSearchState(newValue);
+        }}
+        value={state.searchText}
+      />
+    ) : (
+      <FormControl className={classes.formControl}>
+        <TextField
+          label="Search"
+          value={state.searchText}
+          onChange={ev => {
+            setSearchState(ev.target.value);
+          }}
+          margin={"none"}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      </FormControl>
+    );
+
+  let CustomSortRenderer: ?React.ComponentType<{
+    onChange: (newValue: any) => void,
+    value: any,
+    values?: Array<any>,
+  }> = null;
+  if (filtersSpecs != null) {
+    if (filtersSpecs.get(SORTING_VAR_NAME) != null) {
+      // $FlowFixMe
+      if (filtersSpecs.get(SORTING_VAR_NAME).render != null) {
+        // $FlowFixMe
+        CustomSortRenderer = (filtersSpecs.get(SORTING_VAR_NAME).render: any);
+      }
+    }
+  }
+  const SortRenderer =
+    sortingConfig == null ? null : CustomSortRenderer ? (
+      <CustomSortRenderer
+        onChange={(newValue: string) => {
+          setSortingState(newValue);
+        }}
+        value={state.sort ? JSON.stringify(state.sort) : Field.FILTER_NO_VALUE}
+        values={[Field.FILTER_NO_VALUE, ...(sortingConfig || [])]}
+      />
+    ) : (
+      <FormControl className={classes.formControl}>
+        <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
+        <Select
+          value={
+            state.sort ? JSON.stringify(state.sort) : Field.FILTER_NO_VALUE
+          }
+          onChange={ev => {
+            setSortingState(ev.target.value);
+          }}
+          inputProps={{
+            name: `sorting`,
+          }}
+        >
+          <MenuItem key={Field.FILTER_NO_VALUE} value={Field.FILTER_NO_VALUE} />
+          {sortingConfig.map((obj, index) => {
+            const value = JSON.stringify(obj);
+            return (
+              <MenuItem key={index} value={value}>
+                {`${obj.field}, ${obj.desc ? "desc" : "asc"}`}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    );
 
   return (
     <Grid
@@ -54,55 +149,15 @@ export const PickFilterToolbar = ({
     >
       <Grid item xs={12}>
         <FormGroup row>
-          {hasSearch ? (
+          {state.search != null ? (
             <Grid item xs={6} sm={4} md={3} lg={2}>
-              <FormControl className={classes.formControl}>
-                <TextField
-                  label="Search"
-                  value={state.searchText}
-                  onChange={ev => {
-                    setSearchState(ev.target.value);
-                  }}
-                  margin={"none"}
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                />
-              </FormControl>
+              {SearchRenderer}
             </Grid>
           ) : null}
 
-          {hasSorting ? (
+          {sortingConfig != null ? (
             <Grid item xs={6} sm={4} md={3} lg={2}>
-              <FormControl className={classes.formControl}>
-                <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
-                <Select
-                  value={
-                    state.sort
-                      ? JSON.stringify(state.sort)
-                      : Field.FILTER_NO_VALUE
-                  }
-                  onChange={ev => {
-                    setSortingState(ev.target.value);
-                  }}
-                  inputProps={{
-                    name: `sorting`
-                  }}
-                >
-                  <MenuItem
-                    key={Field.FILTER_NO_VALUE}
-                    value={Field.FILTER_NO_VALUE}
-                  />
-                  {sortingConfig.map((obj, index) => {
-                    const value = JSON.stringify(obj);
-                    return (
-                      <MenuItem key={index} value={value}>
-                        {`${obj.field}, ${obj.desc ? "desc" : "asc"}`}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
+              {SortRenderer}
             </Grid>
           ) : null}
 
@@ -139,12 +194,12 @@ function BooleanFilter({
   name,
   label,
   value,
-  onValue
+  onValue,
 }: {|
   value: ?boolean,
   onValue: (?boolean) => void,
   label?: string,
-  name: string
+  name: string,
 |}) {
   const classes = usePickStyles();
 
@@ -157,11 +212,11 @@ function BooleanFilter({
         value={value == null ? Field.FILTER_NO_VALUE : value}
         onChange={ev => {
           onValue(
-            ev.target.value === Field.FILTER_NO_VALUE ? null : ev.target.value
+            ev.target.value === Field.FILTER_NO_VALUE ? null : ev.target.value,
           );
         }}
         inputProps={{
-          name: `boolean-filter-${name}`
+          name: `boolean-filter-${name}`,
         }}
       >
         <MenuItem value={Field.FILTER_NO_VALUE} />

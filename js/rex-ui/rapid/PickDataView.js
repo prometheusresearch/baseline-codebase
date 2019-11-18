@@ -24,7 +24,7 @@ import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
 import {
   type Resource,
-  unstable_useResource as useResource
+  unstable_useResource as useResource,
 } from "rex-graphql/Resource";
 import _get from "lodash/get";
 
@@ -55,11 +55,11 @@ const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
 const PickCardListView = ({
   data,
   columns,
-  onCardClick
+  onCardClick,
 }: {|
   data: Array<any>,
   columns: Field.FieldSpec[],
-  onCardClick?: (row: any) => void
+  onCardClick?: (row: any) => void,
 |}) => {
   const classes = usePickStyles();
 
@@ -67,8 +67,15 @@ const PickCardListView = ({
     <Grid container>
       {data.map((row, index) => {
         return (
-          <Grid item xs={12} md={6} lg={4} style={{ padding: "0 8px" }}>
-            <div key={index}>
+          <Grid
+            key={index}
+            item
+            xs={12}
+            md={6}
+            lg={4}
+            style={{ padding: "0 8px" }}
+          >
+            <div>
               <ShowCard
                 onCardClick={onCardClick ? () => onCardClick(row) : undefined}
                 title={null}
@@ -99,10 +106,10 @@ const PickTableBody = ({
   fetch,
   onDataReceive,
   setTableFullHeight,
-  showAs
+  showAs,
 }: {|
   columns: Field.FieldSpec[],
-  sortingConfig: Array<{| desc: boolean, field: string |}>,
+  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
   isTabletWidth: boolean,
   columnsNames: string[],
@@ -113,7 +120,7 @@ const PickTableBody = ({
   onDataReceive: any => void,
   setTableFullHeight: (is: boolean) => void,
 
-  ...PickRendererConfigProps
+  ...PickRendererConfigProps,
 |}) => {
   const classes = usePickStyles();
   const params = buildParams(pickState);
@@ -211,7 +218,7 @@ const buildParams = (pickState: PickState) => {
   if (sort) {
     params = {
       ...params,
-      sort
+      sort,
     };
   }
   if (search) {
@@ -237,7 +244,7 @@ export const PickDataView = ({
   onRowClick,
   state,
   showAs,
-  columnsWidth
+  columnsWidth,
 }: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
@@ -245,10 +252,10 @@ export const PickDataView = ({
   args?: { [key: string]: any },
   variableDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
   isTabletWidth: boolean,
-  sortingConfig: Array<{| desc: boolean, field: string |}>,
+  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
   state: PickState,
-  ...PickRendererConfigProps
+  ...PickRendererConfigProps,
 |}) => {
   const classes = usePickStyles();
 
@@ -261,7 +268,7 @@ export const PickDataView = ({
       _onDataReceive(data);
       setData(data);
     },
-    [_onDataReceive]
+    [_onDataReceive],
   );
 
   React.useLayoutEffect(() => {
@@ -285,7 +292,9 @@ export const PickDataView = ({
     }
 
     let cellClasses = `${classes.tableHead} `;
-    const isSortable = sortingConfig.find(obj => obj.field === columnName);
+    const isSortable =
+      sortingConfig != null &&
+      sortingConfig.find(obj => obj.field === columnName);
 
     if (isSortable) {
       cellClasses = `${cellClasses} ${classes.tableHeadSortable}`;

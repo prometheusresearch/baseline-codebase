@@ -8,14 +8,14 @@ import {
   type DocumentNode,
   type FieldNode,
   type OperationDefinitionNode,
-  type VariableDefinitionNode
+  type VariableDefinitionNode,
 } from "graphql/language/ast";
 
 import {
   type IntrospectionType,
   type IntrospectionInputObjectType,
   type IntrospectionInputValue,
-  type IntrospectionEnumType
+  type IntrospectionEnumType,
 } from "graphql/utilities/introspectionQuery";
 
 import debounce from "lodash/debounce";
@@ -39,7 +39,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import {
   type Resource,
-  unstable_useResource as useResource
+  unstable_useResource as useResource,
 } from "rex-graphql/Resource";
 
 import { LoadingIndicator } from "./LoadingIndicator.js";
@@ -54,6 +54,28 @@ import * as Field from "./Field.js";
 type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
 
+export type FiltersConfig = Array<
+  | string
+  | {
+      name: string,
+      render?: React.ComponentType<{
+        value: any,
+        values?: Array<any>,
+        onChange: (newValue: any) => void,
+      }>,
+    },
+>;
+
+export type FilterSpec = {|
+  render: ?React.ComponentType<{
+    value: any,
+    values?: Array<any>,
+    onChange: (newValue: any) => void,
+  }>,
+|};
+
+export type FilterSpecMap = Map<string, FilterSpec>;
+
 export type PickRendererConfigProps = {|
   fetch: string,
   title?: string,
@@ -62,22 +84,23 @@ export type PickRendererConfigProps = {|
   showAs?: PickMode,
   sortableColumns?: string[],
   columnsWidth?: { [key: string]: string | number },
+  filters?: FiltersConfig,
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,
-    index: number
+    index: number,
   }) => React.Node,
   RendererRow?: (props: {
     columns?: Field.FieldSpec[],
     row?: any,
-    index: number
+    index: number,
   }) => React.Node,
   RendererRowCell?: (props: {
     column?: Field.FieldSpec,
     row?: any,
-    index: number
+    index: number,
   }) => React.Node,
-  onRowClick?: (row: any) => void
+  onRowClick?: (row: any) => void,
 |};
 
 export type PickRendererProps = {|
@@ -88,12 +111,12 @@ export type PickRendererProps = {|
   args?: { [key: string]: any },
   theme?: Theme,
 
-  ...PickRendererConfigProps
+  ...PickRendererConfigProps,
 |};
 
 // TODO: We can make those constants -> props passed from component user
-const SORTING_VAR_NAME = "sort";
-const SEARCH_VAR_NAME = "search";
+export const SORTING_VAR_NAME = "sort";
+export const SEARCH_VAR_NAME = "search";
 
 const PickHeader = ({ title, description, rightToolbar }) => {
   const classes = usePickStyles();
@@ -108,9 +131,7 @@ const PickHeader = ({ title, description, rightToolbar }) => {
             </Typography>
           ) : null}
           {description ? (
-            <Typography variant={"caption"}>
-              {description}
-            </Typography>
+            <Typography variant={"caption"}>{description}</Typography>
           ) : null}
         </div>
         {rightToolbar && <div>{rightToolbar}</div>}
@@ -130,8 +151,25 @@ export type PickState = {|
   search: ?string,
   searchText: ?string,
   sort: ?SortDirection,
-  filter: { [key: string]: ?boolean }
+  filter: { [key: string]: ?boolean },
 |};
+
+const filtersConfigToSpecs = (configs: ?FiltersConfig): ?FilterSpecMap => {
+  if (configs == null || configs.length === 0) {
+    return null;
+  }
+  let SpecMap: FilterSpecMap = new Map();
+
+  for (let config of configs) {
+    if (typeof config === "string") {
+      SpecMap.set(config, { render: null });
+    } else if (typeof config === "object") {
+      SpecMap.set(config.name, { render: config.render });
+    }
+  }
+
+  return SpecMap;
+};
 
 export const PickRenderer = ({
   resource,
@@ -149,7 +187,8 @@ export const PickRenderer = ({
   fieldDescription,
   showAs,
   sortableColumns,
-  columnsWidth
+  columnsWidth,
+  filters,
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
 
@@ -159,16 +198,16 @@ export const PickRenderer = ({
     search: null,
     searchText: null,
     sort: null,
-    filter: {}
+    filter: {},
   });
 
   React.useEffect(
     () =>
       setState(state => ({
         ...state,
-        limit: isTabletWidth ? LIMIT_DESKTOP : LIMIT_MOBILE
+        limit: isTabletWidth ? LIMIT_DESKTOP : LIMIT_MOBILE,
       })),
-    [isTabletWidth]
+    [isTabletWidth],
   );
 
   const debouncedSetState = React.useMemo(() => debounce(setState, 256), []);
@@ -181,7 +220,7 @@ export const PickRenderer = ({
     setState(state => ({
       ...state,
       offset: 0,
-      filter: { ...state.filter, [name]: value }
+      filter: { ...state.filter, [name]: value },
     }));
   };
 
@@ -189,7 +228,7 @@ export const PickRenderer = ({
     setState(state => ({
       ...state,
       offset: 0,
-      sort: value === Field.FILTER_NO_VALUE ? null : JSON.parse(value)
+      sort: value === Field.FILTER_NO_VALUE ? null : JSON.parse(value),
     }));
   };
 
@@ -197,7 +236,7 @@ export const PickRenderer = ({
     setState(state => ({
       ...state,
       offset: 0,
-      searchText
+      searchText,
     }));
 
     debouncedSetState(state => ({ ...state, search: searchText }));
@@ -208,7 +247,7 @@ export const PickRenderer = ({
       state.offset + 1 - state.limit <= 0 ? 0 : state.offset + 1 - state.limit;
     setState(state => ({
       ...state,
-      offset
+      offset,
     }));
   };
 
@@ -216,7 +255,7 @@ export const PickRenderer = ({
     const offset = state.offset - 1 + state.limit;
     setState(state => ({
       ...state,
-      offset
+      offset,
     }));
   };
 
@@ -227,28 +266,33 @@ export const PickRenderer = ({
     if (
       variableDefinitions != null &&
       variableDefinitions.find(
-        def => def.variable.name.value === SEARCH_VAR_NAME
+        def => def.variable.name.value === SEARCH_VAR_NAME,
       )
     ) {
       setState(state => ({
         ...state,
         search: "",
-        searchText: ""
+        searchText: "",
       }));
     }
   }, [variableDefinitions]);
+
+  const filtersSpecs = filtersConfigToSpecs(filters);
 
   const sortingConfig = buildSortingConfig({
     variableDefinitions,
     columns,
     introspectionTypesMap,
     variableDefinitionName: SORTING_VAR_NAME,
-    sortableColumns
+    sortableColumns,
+    filtersSpecs,
   });
 
-  // Decide if filters block is opened including state from localStorage
+  /**
+   * Decide if filters block is opened via state from localStorage
+   */
   const filtersLocalStorageKey = queryDefinition.variableDefinitions
-    ? `rapidFilterOpened_${queryDefinition.variableDefinitions
+    ? `rapidFiltersState__${queryDefinition.variableDefinitions
         .map(obj => obj.variable.name.value)
         .join("_")}`
     : null;
@@ -306,6 +350,7 @@ export const PickRenderer = ({
                 ? [...queryDefinition.variableDefinitions]
                 : queryDefinition.variableDefinitions
             }
+            filtersSpecs={filtersSpecs}
           />
         ) : null}
       </div>

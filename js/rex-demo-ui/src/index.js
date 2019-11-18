@@ -7,7 +7,7 @@ import * as RexGraphQL from "rex-graphql";
 import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { Grid, Typography } from "@material-ui/core";
+import { Grid, Typography, FormLabel } from "@material-ui/core";
 import { ThemeProvider, makeStyles } from "@material-ui/styles";
 import { DEFAULT_THEME, DARK_THEME } from "rex-ui/rapid/themes";
 
@@ -16,18 +16,22 @@ let endpoint = RexGraphQL.configure("/_api/graphql");
 type Screen =
   | {|
       type: "pick",
-      options: { [key: string]: any }
+      options: { [key: string]: any },
     |}
   | {|
       type: "show",
-      options: { [key: string]: any }
+      options: { [key: string]: any },
     |};
 
 const useStyles = makeStyles(theme => ({
   buttonActive: {
-    background: "rgba(0,0,0,0.15)"
-  }
+    background: "rgba(0,0,0,0.15)",
+  },
 }));
+
+const CustomSortRenderer = ({ value, values, onChange }) => {
+  return <FormLabel>{String(value)}</FormLabel>;
+};
 
 function App() {
   const classes = useStyles();
@@ -35,8 +39,8 @@ function App() {
   let [screen, setScreen] = React.useState<Screen>({
     type: "pick",
     options: {
-      showUsers: true
-    }
+      showUsers: true,
+    },
   });
 
   let [appTheme, setTheme] = React.useState<"default" | "dark">("default");
@@ -52,62 +56,99 @@ function App() {
     }
   }, [appTheme]);
 
+  let [pickFiltersState, setPickFiltersState] = React.useState<
+    "default" | "custom",
+  >("default");
+
+  let pickFilters = React.useMemo(() => {
+    switch (pickFiltersState) {
+      case "custom": {
+        return [
+          {
+            name: "search",
+            render: ({ value, onChange }) => {
+              return (
+                <input
+                  value={value}
+                  onChange={ev => onChange(ev.target.value)}
+                />
+              );
+            },
+          },
+          "expired",
+          {
+            name: "sort",
+            render: CustomSortRenderer,
+          },
+        ];
+      }
+      case "default":
+      default: {
+        return undefined;
+      }
+    }
+  }, [pickFiltersState, setPickFiltersState]);
+
   let onBack = () => {
     setScreen({ type: "pick", options: {} });
   };
 
-  let renderPickView = React.useCallback((screen: Screen) => {
-    invariant(screen.options != null, "screen.options should be object");
+  let renderPickView = React.useCallback(
+    (screen: Screen) => {
+      invariant(screen.options != null, "screen.options should be object");
 
-    const { showUsers, showPatients } = screen.options;
+      const { showUsers, showPatients } = screen.options;
 
-    let onRowClick = (row: any) => {
-      setScreen({ type: "show", options: { id: row.id } });
-    };
+      let onRowClick = (row: any) => {
+        setScreen({ type: "show", options: { id: row.id } });
+      };
 
-    let phoneField = {
-      title: "Phone",
-      require: {
-        field: "phone",
-        require: [{ field: "value" }]
-      },
-      render({ value }) {
-        return value != null ? <div>tel: {value.value}</div> : "—";
-      }
-    };
+      let phoneField = {
+        title: "Phone",
+        require: {
+          field: "phone",
+          require: [{ field: "value" }],
+        },
+        render({ value }) {
+          return value != null ? <div>tel: {value.value}</div> : "—";
+        },
+      };
 
-    return (
-      <>
-        {showUsers ? (
-          <Pick
-            endpoint={endpoint}
-            fetch={"user.paginated"}
-            onRowClick={onRowClick}
-            fields={[
-              { require: { field: "remote_user" } },
-              phoneField,
-              "expired",
-              { require: { field: "system_admin" } }
-            ]}
-            title={"Users"}
-            description={"List of users"}
-            sortableColumns={["remote_user"]}
-            columnsWidth={{
-              remote_user: "25%",
-              phone: 200
-            }}
-          />
-        ) : null}
-        {showPatients ? (
-          <Pick
-            endpoint={endpoint}
-            fetch={"patient.paginated"}
-            title={"Patients"}
-          />
-        ) : null}
-      </>
-    );
-  }, []);
+      return (
+        <>
+          {showUsers ? (
+            <Pick
+              endpoint={endpoint}
+              fetch={"user.paginated"}
+              onRowClick={onRowClick}
+              fields={[
+                { require: { field: "remote_user" } },
+                phoneField,
+                "expired",
+                { require: { field: "system_admin" } },
+              ]}
+              title={"Users"}
+              description={"List of users"}
+              sortableColumns={["remote_user"]}
+              columnsWidth={{
+                remote_user: "25%",
+                phone: 200,
+              }}
+              filters={pickFilters}
+            />
+          ) : null}
+          {showPatients ? (
+            <Pick
+              endpoint={endpoint}
+              fetch={"patient.paginated"}
+              title={"Patients"}
+            />
+          ) : null}
+        </>
+      );
+    },
+    [pickFilters],
+  );
 
   let renderShowView = React.useCallback((screen: Screen) => {
     invariant(screen.options != null, "screen.options should be object");
@@ -134,11 +175,11 @@ function App() {
                   require: [
                     { field: "id" },
                     { field: "type" },
-                    { field: "value" }
-                  ]
+                    { field: "value" },
+                  ],
                 },
-                render: ({ value }) => JSON.stringify(value)
-              }
+                render: ({ value }) => JSON.stringify(value),
+              },
             ]}
           />
         </Grid>
@@ -179,8 +220,8 @@ function App() {
                   type: "pick",
                   options: {
                     showUsers: true,
-                    showPatients: false
-                  }
+                    showPatients: false,
+                  },
                 }))
               }
             >
@@ -197,8 +238,8 @@ function App() {
                   type: "pick",
                   options: {
                     showUsers: false,
-                    showPatients: true
-                  }
+                    showPatients: true,
+                  },
                 }))
               }
             >
@@ -226,6 +267,30 @@ function App() {
             </Button>
           </div>
         </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <div>
+            <Typography style={{ padding: 8 }}>Renderers:</Typography>
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <Button
+              className={
+                pickFiltersState === "default" ? classes.buttonActive : null
+              }
+              onClick={() => setPickFiltersState("default")}
+            >
+              Default
+            </Button>
+            <Button
+              className={
+                pickFiltersState === "custom" ? classes.buttonActive : null
+              }
+              onClick={() => setPickFiltersState("custom")}
+            >
+              Custom
+            </Button>
+          </div>
+        </Grid>
       </Grid>
 
       {whatToRender}
@@ -241,5 +306,5 @@ ReactDOM.render(
     <CssBaseline />
     <App />
   </React.Suspense>,
-  root
+  root,
 );

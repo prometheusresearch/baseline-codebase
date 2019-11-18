@@ -5,6 +5,7 @@ import { type FieldConfig, type FilterConfig } from "rex-ui/rapid";
 
 export type ShowScreen = {|
   type: "show",
+  title: string,
   fetch: string,
   id: string,
   fields?: ?(FieldConfig[]),
@@ -12,8 +13,8 @@ export type ShowScreen = {|
 
 export type PickScreen = {|
   type: "pick",
-  fetch: string,
   title: string,
+  fetch: string,
   description: string,
   fields?: ?(FieldConfig[]),
   filters?: ?(FilterConfig[]),
@@ -26,8 +27,9 @@ export function eqScreen(a: Screen, b: Screen) {
   return a.type === b.type && a.fetch === b.fetch;
 }
 
-type Navigation = {|
+export type Navigation = {|
   screen: Screen,
+  isActive: Screen => boolean,
   push: Screen => void,
   replace: Screen => void,
   pop: () => void,
@@ -60,8 +62,11 @@ export function useNavigation(initialScreen: Screen): Navigation {
     });
 
   return React.useMemo(() => {
+    let screen = stack[0];
+    let isActive = otherScreen => eqScreen(screen, otherScreen);
     return {
-      screen: stack[0],
+      screen,
+      isActive,
       push,
       replace,
       pop,

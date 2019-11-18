@@ -58,6 +58,7 @@ let pickUser: Router.PickScreen = {
   ],
   onSelect: id => ({
     type: "show",
+    title: "User",
     fetch: "user.get",
     id: id,
     fields: [
@@ -85,60 +86,65 @@ let pickPatient: Router.PickScreen = {
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles(theme => (console.log(theme),{
-  buttonActive: {
-    background: "rgba(0,0,0,0.15)",
-  },
-  appBar: {
-    backgroundColor: "#FFFFFF",
-  },
-  appBarShift: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  content: {
-    display: "flex",
-    flexDirection: "column",
-    flexWrap: "nowrap",
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.default,
-    minWidth: 0, // So the Typography noWrap works
-    transition: theme.transitions.create(["margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: 0,
-  },
-  contentShift: {
-    transition: theme.transitions.create(["margin"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: `${drawerWidth}px !important`,
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    paddingTop: theme.spacing.unit,
-  },
-  drawerMenuButton: {
-    display: "flex",
-    justifyContent: "flex-start",
-    padding: theme.spacing.unit,
-    ...theme.mixins.toolbar,
-  },
-  menuButton: {
-    marginLeft: 0,
-    marginRight: 12,
-  },
-}));
+const useStyles = makeStyles(
+  theme => (
+    console.log(theme),
+    {
+      buttonActive: {
+        background: "rgba(0,0,0,0.15)",
+      },
+      appBar: {
+        backgroundColor: "#FFFFFF",
+      },
+      appBarShift: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: drawerWidth,
+        transition: theme.transitions.create(["margin", "width"], {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+      },
+      content: {
+        display: "flex",
+        flexDirection: "column",
+        flexWrap: "nowrap",
+        flexGrow: 1,
+        backgroundColor: theme.palette.background.default,
+        minWidth: 0, // So the Typography noWrap works
+        transition: theme.transitions.create(["margin"], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+        marginLeft: 0,
+      },
+      contentShift: {
+        transition: theme.transitions.create(["margin"], {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginLeft: `${drawerWidth}px !important`,
+      },
+      drawer: {
+        width: drawerWidth,
+        flexShrink: 0,
+      },
+      drawerPaper: {
+        width: drawerWidth,
+        paddingTop: theme.spacing.unit,
+      },
+      drawerMenuButton: {
+        display: "flex",
+        justifyContent: "flex-start",
+        padding: theme.spacing.unit,
+        ...theme.mixins.toolbar,
+      },
+      menuButton: {
+        marginLeft: 0,
+        marginRight: 12,
+      },
+    }
+  ),
+);
 
 function NavButton({ screen, nav, replace }) {
   const classes = useStyles();
@@ -219,18 +225,7 @@ function App() {
   }, [nav.screen]);
 
   return (
-    <AppChrome title="Rex Rapid Demo">
-      <mui.Grid container style={{ padding: 8 }}>
-        <mui.Grid item xs={12} sm={6} md={3}>
-          <div>
-            <mui.Typography style={{ padding: 8 }}>Views:</mui.Typography>
-          </div>
-          <div style={{ marginBottom: 8 }}>
-            <NavButton screen={pickUser} nav={nav} replace />
-            <NavButton screen={pickPatient} nav={nav} replace />
-          </div>
-        </mui.Grid>
-      </mui.Grid>
+    <AppChrome nav={nav} menu={[pickUser, pickPatient]} title="Rex Rapid Demo">
       <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>,
     </AppChrome>
   );

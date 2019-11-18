@@ -5,11 +5,14 @@ import classNames from "classnames";
 import * as mui from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
+import * as Router from "./Router.js";
 
 let drawerWidth = 240;
+let appBarHeight = 64;
 
 const useStyles = makeStyles(theme => ({
   appBar: {
+    height: appBarHeight,
     backgroundColor: "#FFFFFF",
   },
   appBarShift: {
@@ -31,6 +34,7 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    marginTop: appBarHeight,
     marginLeft: 0,
   },
   contentShift: {
@@ -61,11 +65,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 type AppChromeProps = {|
+  nav: Router.Navigation,
+  menu: Router.Screen[],
   title: string,
   children: React.Node,
 |};
 
-export default function AppChrome({ title, children }: AppChromeProps) {
+export default function AppChrome({
+  title,
+  children,
+  nav,
+  menu,
+}: AppChromeProps) {
   let classes = useStyles();
   let [drawerOpen, setDrawerOpen] = React.useState(false);
   let toggleDrawerOpen = () => {
@@ -80,13 +91,15 @@ export default function AppChrome({ title, children }: AppChromeProps) {
         })}
       >
         <mui.Toolbar>
-          <mui.IconButton
-            aria-label="Open drawer"
-            onClick={toggleDrawerOpen}
-            className={classNames(classes.menuButton)}
-          >
-            <MenuIcon color="primary" />
-          </mui.IconButton>
+          {!drawerOpen && (
+            <mui.IconButton
+              aria-label="Open drawer"
+              onClick={toggleDrawerOpen}
+              className={classNames(classes.menuButton)}
+            >
+              <MenuIcon color="primary" />
+            </mui.IconButton>
+          )}
           <mui.Typography
             variant="body1"
             color="primary"
@@ -115,6 +128,7 @@ export default function AppChrome({ title, children }: AppChromeProps) {
             <MenuIcon color="primary" />
           </mui.IconButton>
         </div>
+        <AppMenu nav={nav} menu={menu} />
       </mui.Drawer>
       <main
         className={classNames(classes.content, {
@@ -125,4 +139,28 @@ export default function AppChrome({ title, children }: AppChromeProps) {
       </main>
     </>
   );
+}
+
+type AppMenuProps = {|
+  nav: Router.Navigation,
+  menu: Router.Screen[],
+|};
+
+function AppMenu({ nav, menu }: AppMenuProps) {
+  let items = menu.map(screen => {
+    let key = `${screen.type}-${screen.fetch}`;
+    let selected = nav.isActive(screen);
+    let onClick = () => nav.replace(screen);
+    return (
+      <mui.ListItem
+        key={key}
+        button={true}
+        selected={selected}
+        onClick={onClick}
+      >
+        <mui.ListItemText primary={screen.title} />
+      </mui.ListItem>
+    );
+  });
+  return <mui.List>{items}</mui.List>;
 }

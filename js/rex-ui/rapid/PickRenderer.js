@@ -21,7 +21,11 @@ import {
 import debounce from "lodash/debounce";
 
 import { makeStyles, useTheme, ThemeProvider } from "@material-ui/styles";
-import { createMuiTheme, type Theme } from "@material-ui/core/styles";
+import {
+  createMuiTheme,
+  type Theme,
+  MuiThemeProvider,
+} from "@material-ui/core/styles";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
 
 import Grid from "@material-ui/core/Grid";
@@ -228,7 +232,7 @@ export const PickRenderer = ({
     setState(state => ({
       ...state,
       offset: 0,
-      sort: value === Field.FILTER_NO_VALUE ? null : JSON.parse(value),
+      sort: value === Field.FILTER_NO_VALUE ? undefined : JSON.parse(value),
     }));
   };
 

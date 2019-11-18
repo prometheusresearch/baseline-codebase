@@ -7,7 +7,15 @@ import * as RexGraphQL from "rex-graphql";
 import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { Grid, Typography, FormLabel } from "@material-ui/core";
+import {
+  Grid,
+  Typography,
+  FormLabel,
+  FormControl,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+} from "@material-ui/core";
 import { ThemeProvider, makeStyles } from "@material-ui/styles";
 import { DEFAULT_THEME, DARK_THEME } from "rex-ui/rapid/themes";
 
@@ -30,7 +38,38 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const CustomSortRenderer = ({ value, values, onChange }) => {
-  return <FormLabel>{String(value)}</FormLabel>;
+  const valueString =
+    typeof value === "string" || value === undefined
+      ? value
+      : JSON.stringify(value);
+
+  return (
+    <FormControl component="fieldset">
+      <FormLabel component="legend">Sorting</FormLabel>
+      <RadioGroup
+        aria-label="Sorting"
+        name="sorting"
+        value={valueString}
+        onChange={ev => onChange(ev.target.value)}
+      >
+        {(values || []).map(val => {
+          const valString =
+            typeof val === "string" || val === undefined
+              ? val
+              : JSON.stringify(val);
+
+          return (
+            <FormControlLabel
+              key={valString}
+              value={valString}
+              control={<Radio />}
+              label={valString}
+            />
+          );
+        })}
+      </RadioGroup>
+    </FormControl>
+  );
 };
 
 function App() {

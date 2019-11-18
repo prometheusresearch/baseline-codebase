@@ -12,7 +12,7 @@ export type FieldConfig =
       require: QueryFieldSpec,
       title?: string,
       render?: AbstractComponent<{ value: any }>,
-      width?: number
+      width?: number,
     |};
 
 export type FieldSpec = {
@@ -23,12 +23,12 @@ export type FieldSpec = {
   title: string,
   require: QueryFieldSpec,
   render?: AbstractComponent<{ value: any }>,
-  width?: number
+  width?: number,
 };
 
 export type QueryFieldSpec = {
   field: string,
-  require?: QueryFieldSpec[]
+  require?: QueryFieldSpec[],
 };
 
 export function configureField(config: FieldConfig): FieldSpec {
@@ -38,8 +38,8 @@ export function configureField(config: FieldConfig): FieldSpec {
         title: guessFieldTitle(config),
         require: {
           field: config,
-          require: []
-        }
+          require: [],
+        },
       };
     }
 
@@ -48,7 +48,7 @@ export function configureField(config: FieldConfig): FieldSpec {
         title: config.title || guessFieldTitle(config.require.field),
         require: config.require,
         render: config.render,
-        width: config.width
+        width: config.width,
       };
     }
   }
@@ -75,4 +75,4 @@ export function guessFieldTitle(field: string) {
   }
 }
 
-export const FILTER_NO_VALUE = "__undefined__";
+export const FILTER_NO_VALUE = "undefined";

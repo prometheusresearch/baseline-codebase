@@ -10,8 +10,6 @@ import { DEFAULT_THEME } from "rex-ui/rapid/themes";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import {
-  Grid,
-  Typography,
   FormLabel,
   FormControl,
   RadioGroup,
@@ -45,6 +43,29 @@ let phoneField = {
     return value != null ? <div>tel: {value.value}</div> : "—";
   },
 };
+
+let showUser = (id: string): Router.ShowScreen => ({
+  type: "show",
+  title: "User",
+  fetch: "user.get",
+  id: id,
+  fields: [
+    { title: "Remote User", require: { field: "remote_user" } },
+    "system_admin",
+    "expired",
+    {
+      title: "Contact Info",
+      require: {
+        field: "contact_info",
+        require: [{ field: "id" }, { field: "type" }, { field: "value" }],
+      },
+      render: ({ value }) => JSON.stringify(value),
+    },
+  ],
+  RenderTitle: props => {
+    return props.data.remote_user;
+  },
+});
 
 const CustomSortRenderer = ({ value, values, onChange }) => {
   const valueString =
@@ -108,7 +129,7 @@ let pickUser: Router.PickScreen = {
   ],
   filters: undefined,
 
-  renderToolbar: props => {
+  RenderToolbar: props => {
     let caption = "No users selected";
     if (props.selected.size > 0) {
       caption = `Selected ${props.selected.size} users`;
@@ -134,26 +155,7 @@ let pickUser: Router.PickScreen = {
       </>
     );
   },
-
-  onSelect: id => ({
-    type: "show",
-    title: "User",
-    fetch: "user.get",
-    id: id,
-    fields: [
-      { title: "Remote User", require: { field: "remote_user" } },
-      "system_admin",
-      "expired",
-      {
-        title: "Contact Info",
-        require: {
-          field: "contact_info",
-          require: [{ field: "id" }, { field: "type" }, { field: "value" }],
-        },
-        render: ({ value }) => JSON.stringify(value),
-      },
-    ],
-  }),
+  onSelect: id => showUser(id),
 };
 
 let pickPatient: Router.PickScreen = {
@@ -176,6 +178,7 @@ function App() {
 
       return (
         <Pick
+          key={JSON.stringify(screen)}
           endpoint={endpoint}
           fetch={screen.fetch}
           onRowClick={onRowClick}
@@ -183,7 +186,7 @@ function App() {
           filters={screen.filters}
           title={screen.title}
           description={screen.description}
-          RendererToolbar={screen.renderToolbar}
+          RenderToolbar={screen.RenderToolbar}
         />
       );
     },
@@ -206,12 +209,13 @@ function App() {
               fetch={screen.fetch}
               args={{ id: screen.id }}
               fields={screen.fields}
+              RenderTitle={screen.RenderTitle}
             />
           </mui.Grid>
         </mui.Grid>
       );
     },
-    [[nav.screen]],
+    [nav.screen],
   );
 
   let ui = React.useMemo(() => {

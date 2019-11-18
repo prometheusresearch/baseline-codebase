@@ -1,14 +1,15 @@
 // @flow
 
 import * as React from "react";
-import type { FieldConfig, FilterConfig, PickToolbarProps } from "rex-ui/rapid";
+import * as Rapid from "rex-ui/rapid";
 
 export type ShowScreen = {|
   type: "show",
   title: string,
   fetch: string,
   id: string,
-  fields?: ?(FieldConfig[]),
+  fields?: ?(Rapid.FieldConfig[]),
+  RenderTitle?: ?Rapid.ShowRenderTitle,
 |};
 
 export type PickScreen = {|
@@ -16,10 +17,10 @@ export type PickScreen = {|
   title: string,
   fetch: string,
   description: string,
-  fields?: ?(FieldConfig[]),
-  filters?: ?(FilterConfig[]),
+  fields?: ?(Rapid.FieldConfig[]),
+  filters?: ?(Rapid.PickFilterConfig[]),
   onSelect?: (id: string) => ShowScreen,
-  renderToolbar?: PickToolbarProps => React.Node,
+  RenderToolbar?: Rapid.PickRenderToolbar,
 |};
 
 export type Screen = PickScreen | ShowScreen;

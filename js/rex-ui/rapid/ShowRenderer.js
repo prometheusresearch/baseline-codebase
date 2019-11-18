@@ -8,7 +8,7 @@ import {
   type DocumentNode,
   type FieldNode,
   type OperationDefinitionNode,
-  type VariableDefinitionNode
+  type VariableDefinitionNode,
 } from "graphql/language/ast";
 
 import { useQuery, type Endpoint, type Result } from "rex-graphql";
@@ -26,7 +26,7 @@ import _get from "lodash/get";
 
 import {
   type Resource,
-  unstable_useResource as useResource
+  unstable_useResource as useResource,
 } from "rex-graphql/Resource";
 import { RenderValue } from "./RenderValue.js";
 
@@ -34,41 +34,45 @@ import * as Field from "./Field.js";
 
 type CustomRendererProps = { resource: Resource<any, any> };
 
+export type ShowRenderTitle = React.AbstractComponent<{| data: any |}>;
+
+export type ShowRendererConfigProps = {|
+  RenderTitle?: ?ShowRenderTitle,
+|};
+
 export type ShowRendererProps = {|
   resource: Resource<any, any>,
   fetch: string,
-  Renderer?: React.ComponentType<CustomRendererProps>,
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
-  renderTitle?: ({| data: any |}) => React.Node,
   columns: Field.FieldSpec[],
-  onCardClick?: (row: any) => void
+  onCardClick?: (row: any) => void,
+  ...ShowRendererConfigProps,
 |};
 
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
     marginTop: "8px",
-    overflowX: "auto"
+    overflowX: "auto",
   },
   card: {},
   cardClickable: {
     cursor: "pointer",
     "&:hover": {
-      opacity: 0.9
-    }
-  }
+      opacity: 0.9,
+    },
+  },
 }));
 
 export const ShowRenderer = (props: ShowRendererProps) => {
   const {
     resource,
-    Renderer,
     fetch,
     args = {},
-    renderTitle,
+    RenderTitle,
     columns,
-    onCardClick
+    onCardClick,
   } = props;
 
   const classes = useStyles();
@@ -82,8 +86,8 @@ export const ShowRenderer = (props: ShowRendererProps) => {
   const data = _get(resourceData, fetch);
 
   let title = null;
-  if (renderTitle != null) {
-    title = renderTitle({ data });
+  if (RenderTitle != null) {
+    title = <RenderTitle data={data} />;
   }
 
   return (
@@ -102,12 +106,12 @@ export const ShowCard = ({
   data,
   title,
   columns,
-  onCardClick
+  onCardClick,
 }: {|
   data: any,
   title: React.Node,
   columns: Field.FieldSpec[],
-  onCardClick?: () => void
+  onCardClick?: () => void,
 |}) => {
   const classes = useStyles();
 

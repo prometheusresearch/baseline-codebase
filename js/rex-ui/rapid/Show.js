@@ -11,16 +11,15 @@ import * as Resource from "rex-graphql/Resource";
 import { buildQuery } from "./buildQuery";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
-import { ShowRenderer } from "./ShowRenderer.js";
+import { ShowRenderer, type ShowRendererConfigProps } from "./ShowRenderer.js";
 import * as Field from "./Field.js";
 
 export type ShowProps = {|
   endpoint: Endpoint,
   fetch: string,
-  fields?: ?Field.FieldConfig[],
+  fields?: ?(Field.FieldConfig[]),
   args?: { [key: string]: any },
-  Renderer?: React.ComponentType<any>,
-  renderTitle?: ({| data: any |}) => React.Node
+  ...ShowRendererConfigProps,
 |};
 
 export let Show = (props: ShowProps) => {
@@ -33,7 +32,7 @@ export let Show = (props: ShowProps) => {
     let { query, ast, fields: nextFieldSpecs } = buildQuery({
       schema,
       path,
-      fields: fieldSpecs
+      fields: fieldSpecs,
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { resource, fieldSpecs: nextFieldSpecs };

@@ -77,10 +77,12 @@ export type FilterSpec = {|
 
 export type FilterSpecMap = Map<string, FilterSpec>;
 
-export type PickToolbarProps = {|
+export type RenderToolbarProps = {|
   selected: Set<string>,
   onSelected: (nextSelected: Set<string>) => void,
 |};
+
+export type RenderToolbar = React.AbstractComponent<RenderToolbarProps>;
 
 export type PickRendererConfigProps = {|
   fetch: string,
@@ -110,7 +112,7 @@ export type PickRendererConfigProps = {|
   /**
    * Render toolbar.
    */
-  RendererToolbar?: React.AbstractComponent<PickToolbarProps>,
+  RenderToolbar?: ?RenderToolbar,
 
   onRowClick?: (row: any) => void,
 |};
@@ -219,7 +221,7 @@ export const PickRenderer = ({
   RendererColumnCell,
   RendererRowCell,
   RendererRow,
-  RendererToolbar,
+  RenderToolbar,
   onRowClick,
   args,
   title,
@@ -370,8 +372,8 @@ export const PickRenderer = ({
           title={title}
           description={description || fieldDescription}
           bottomToolbar={
-            RendererToolbar != null ? (
-              <RendererToolbar selected={selected} onSelected={onSelected} />
+            RenderToolbar != null ? (
+              <RenderToolbar selected={selected} onSelected={onSelected} />
             ) : null
           }
           rightToolbar={

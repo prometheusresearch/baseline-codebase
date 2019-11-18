@@ -11,6 +11,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Table from "@material-ui/core/Table";
 import MenuItem from "@material-ui/core/MenuItem";
+import Checkbox from "@material-ui/core/Checkbox";
 import TableBody from "@material-ui/core/TableBody";
 import TableHead from "@material-ui/core/TableHead";
 import TextField from "@material-ui/core/TextField";
@@ -106,6 +107,8 @@ const PickTableBody = ({
   fetch,
   onDataReceive,
   setTableFullHeight,
+  selected,
+  onSelected,
   showAs,
 }: {|
   columns: Field.FieldSpec[],
@@ -119,6 +122,9 @@ const PickTableBody = ({
   fetch: string,
   onDataReceive: any => void,
   setTableFullHeight: (is: boolean) => void,
+
+  selected: Set<string>,
+  onSelected: (nextSelected: Set<string>) => void,
 
   ...PickRendererConfigProps,
 |}) => {
@@ -164,13 +170,53 @@ const PickTableBody = ({
     );
   }
 
-  const TableBodyRows = data.map((row, index) => {
+  let rows = data.map((row, index) => {
     const isClickable = onRowClick != null;
 
     let classNames = [classes.tableRow];
     if (isClickable) {
       classNames.push(classes.tableRowClickable);
     }
+
+    let cells = columnsNames.map((columnName, index) => {
+      const column = columnsMap.get(columnName);
+
+      if (!column) {
+        return null;
+      }
+      let value = row[columnName];
+
+      return (
+        <TableCell
+          key={columnName}
+          align="left"
+          variant={"head"}
+          className={classes.tableCell}
+          title={RenderValue({ value })}
+        >
+          {column.render != null ? (
+            <column.render value={value} />
+          ) : (
+            <span>{RenderValue({ value })}</span>
+          )}
+        </TableCell>
+      );
+    });
+
+    let onChecked = (ev: UIEvent) => {
+      let checked = (ev.target: any).checked;
+      let nextSelected = new Set(selected);
+      if (checked) {
+        nextSelected.add(row.id);
+      } else {
+        nextSelected.delete(row.id);
+      }
+      onSelected(nextSelected);
+    };
+
+    let onClick = (ev: UIEvent) => {
+      ev.stopPropagation();
+    };
 
     return (
       <TableRow
@@ -180,35 +226,19 @@ const PickTableBody = ({
         onClick={ev => (onRowClick != null ? onRowClick(row) : null)}
         className={classNames.join(" ")}
       >
-        {columnsNames.map((columnName, index) => {
-          const column = columnsMap.get(columnName);
-
-          if (!column) {
-            return null;
-          }
-          let value = row[columnName];
-
-          return (
-            <TableCell
-              key={columnName}
-              align="left"
-              variant={"head"}
-              className={classes.tableCell}
-              title={RenderValue({ value })}
-            >
-              {column.render ? (
-                <column.render value={value} />
-              ) : (
-                <span>{RenderValue({ value })}</span>
-              )}
-            </TableCell>
-          );
-        })}
+        <TableCell padding="checkbox">
+          <Checkbox
+            onClick={onClick}
+            onChange={onChecked}
+            checked={selected.has(row.id)}
+          />
+        </TableCell>
+        {cells}
       </TableRow>
     );
   });
 
-  return <TableBody>{TableBodyRows}</TableBody>;
+  return <TableBody>{rows}</TableBody>;
 };
 
 const buildParams = (pickState: PickState) => {
@@ -245,6 +275,8 @@ export const PickDataView = ({
   state,
   showAs,
   columnsWidth,
+  selected,
+  onSelected,
 }: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
@@ -255,6 +287,10 @@ export const PickDataView = ({
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
   state: PickState,
+
+  selected: Set<string>,
+  onSelected: (nextSelected: Set<string>) => void,
+
   ...PickRendererConfigProps,
 |}) => {
   const classes = usePickStyles();
@@ -378,7 +414,10 @@ export const PickDataView = ({
       >
         {(isTabletWidth && showAs !== "card-list") || showAs === "table" ? (
           <TableHead>
-            <TableRow>{TableHeadRows}</TableRow>
+            <TableRow>
+              <TableCell padding="checkbox"> </TableCell>
+              {TableHeadRows}
+            </TableRow>
           </TableHead>
         ) : null}
 
@@ -412,6 +451,8 @@ export const PickDataView = ({
             columnsNames={columnsNames}
             setTableFullHeight={setTableFullHeight}
             showAs={showAs}
+            selected={selected}
+            onSelected={onSelected}
           />
         </React.Suspense>
       </Table>

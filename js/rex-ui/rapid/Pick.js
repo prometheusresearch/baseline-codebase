@@ -55,9 +55,13 @@ export let PickBase = (props: PickProps) => {
     };
   }, [fetch, schema, endpoint]);
 
+  let [selected, setSelected] = React.useState(new Set());
+
   return (
     <PickRenderer
       {...rest}
+      selected={selected}
+      onSelected={setSelected}
       fetch={fetch}
       resource={resource}
       queryDefinition={queryDefinition}

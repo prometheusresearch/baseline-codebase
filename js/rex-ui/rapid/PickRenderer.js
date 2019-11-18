@@ -112,6 +112,9 @@ export type PickRendererProps = {|
   args?: { [key: string]: any },
   theme?: Theme,
 
+  selected: Set<string>,
+  onSelected: (nextSelected: Set<string>) => void,
+
   ...PickRendererConfigProps,
 |};
 
@@ -190,6 +193,8 @@ export const PickRenderer = ({
   sortableColumns,
   columnsWidth,
   filters,
+  selected,
+  onSelected,
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
 
@@ -373,6 +378,8 @@ export const PickRenderer = ({
         onRowClick={onRowClick}
         showAs={showAs}
         columnsWidth={columnsWidth}
+        selected={selected}
+        onSelected={onSelected}
       />
 
       <PickPagination

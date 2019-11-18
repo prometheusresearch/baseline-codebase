@@ -1,12 +1,11 @@
 /**
  * @flow
  */
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles, type Theme } from "@material-ui/styles";
 
 import {
   createMuiTheme,
   MuiThemeProvider,
-  type Theme
 } from "@material-ui/core/styles";
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject } from "./helpers";
@@ -108,15 +107,6 @@ export const usePickStyles = makeStyles(
       tableWrapper: {
         overflowY: "scroll",
         flex: "1 1 auto"
-      },
-      title: {
-        marginBottom: "8px"
-      },
-      topPart: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        padding: "16px"
       },
       topPartWrapper: {
         position: "relative",

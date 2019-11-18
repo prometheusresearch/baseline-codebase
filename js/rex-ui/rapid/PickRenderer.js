@@ -58,17 +58,18 @@ import * as Field from "./Field.js";
 type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
 
-export type FiltersConfig = Array<
+export type FilterConfig =
   | string
   | {
       name: string,
-      render?: React.ComponentType<{
+      render?: React.AbstractComponent<{
         value: any,
         values?: Array<any>,
         onChange: (newValue: any) => void,
       }>,
-    },
->;
+    };
+
+export type FiltersConfig = FilterConfig[];
 
 export type FilterSpec = {|
   render: ?React.ComponentType<{
@@ -80,6 +81,11 @@ export type FilterSpec = {|
 
 export type FilterSpecMap = Map<string, FilterSpec>;
 
+export type PickToolbarProps = {|
+  selected: Set<string>,
+  onSelected: (nextSelected: Set<string>) => void,
+|};
+
 export type PickRendererConfigProps = {|
   fetch: string,
   title?: string,
@@ -88,7 +94,7 @@ export type PickRendererConfigProps = {|
   showAs?: PickMode,
   sortableColumns?: string[],
   columnsWidth?: { [key: string]: string | number },
-  filters?: FiltersConfig,
+  filters?: ?FiltersConfig,
 
   RendererColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -104,6 +110,12 @@ export type PickRendererConfigProps = {|
     row?: any,
     index: number,
   }) => React.Node,
+
+  /**
+   * Render toolbar.
+   */
+  RendererToolbar?: React.AbstractComponent<PickToolbarProps>,
+
   onRowClick?: (row: any) => void,
 |};
 
@@ -115,6 +127,9 @@ export type PickRendererProps = {|
   args?: { [key: string]: any },
   theme?: Theme,
 
+  selected: Set<string>,
+  onSelected: (nextSelected: Set<string>) => void,
+
   ...PickRendererConfigProps,
 |};
 
@@ -122,12 +137,33 @@ export type PickRendererProps = {|
 export const SORTING_VAR_NAME = "sort";
 export const SEARCH_VAR_NAME = "search";
 
-const PickHeader = ({ title, description, rightToolbar }) => {
-  const classes = usePickStyles();
+let usePickHeaderStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing.unit * 2,
+  },
+  top: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  toolbar: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: theme.spacing.unit,
+  },
+  title: {
+    marginBottom: "8px",
+  },
+}));
+
+const PickHeader = ({ title, description, rightToolbar, bottomToolbar }) => {
+  const classes = usePickHeaderStyles();
 
   return (
-    <>
-      <div className={classes.topPart}>
+    <div className={classes.root}>
+      <div className={classes.top}>
         <div>
           {title ? (
             <Typography variant={"h5"} className={classes.title}>
@@ -140,7 +176,10 @@ const PickHeader = ({ title, description, rightToolbar }) => {
         </div>
         {rightToolbar && <div>{rightToolbar}</div>}
       </div>
-    </>
+      {bottomToolbar != null && (
+        <div className={classes.toolbar}>{bottomToolbar}</div>
+      )}
+    </div>
   );
 };
 
@@ -184,6 +223,7 @@ export const PickRenderer = ({
   RendererColumnCell,
   RendererRowCell,
   RendererRow,
+  RendererToolbar,
   onRowClick,
   args,
   title,
@@ -193,26 +233,31 @@ export const PickRenderer = ({
   sortableColumns,
   columnsWidth,
   filters,
+  selected,
+  onSelected,
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("(min-width: 720px)");
-
-  let [state, setState] = React.useState<PickState>({
+  const defaultPickState = {
     offset: 0,
     limit: isTabletWidth ? LIMIT_DESKTOP : LIMIT_MOBILE,
     search: null,
     searchText: null,
     sort: null,
     filter: {},
-  });
+  };
 
-  React.useEffect(
-    () =>
-      setState(state => ({
-        ...state,
-        limit: isTabletWidth ? LIMIT_DESKTOP : LIMIT_MOBILE,
-      })),
-    [isTabletWidth],
-  );
+  let [state, setState] = React.useState<PickState>(defaultPickState);
+
+  React.useEffect(() => {
+    setState(state => ({
+      ...state,
+      limit: isTabletWidth ? LIMIT_DESKTOP : LIMIT_MOBILE,
+    }));
+  }, [isTabletWidth]);
+
+  React.useEffect(() => {
+    setState(defaultPickState);
+  }, [fetch]);
 
   const debouncedSetState = React.useMemo(() => debounce(setState, 256), []);
 
@@ -331,6 +376,11 @@ export const PickRenderer = ({
         <PickHeader
           title={title}
           description={description || fieldDescription}
+          bottomToolbar={
+            RendererToolbar != null ? (
+              <RendererToolbar selected={selected} onSelected={onSelected} />
+            ) : null
+          }
           rightToolbar={
             <IconButton
               onClick={toggleFilters}
@@ -376,6 +426,8 @@ export const PickRenderer = ({
         onRowClick={onRowClick}
         showAs={showAs}
         columnsWidth={columnsWidth}
+        selected={selected}
+        onSelected={onSelected}
       />
 
       <PickPagination

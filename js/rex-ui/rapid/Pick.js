@@ -16,7 +16,7 @@ import { ErrorBoundary } from "./ErrorBoundary.js";
 
 export type PickProps = {|
   endpoint: Endpoint,
-  fields?: Field.FieldConfig[],
+  fields?: ?Field.FieldConfig[],
   args?: { [key: string]: any },
   ...PickRendererConfigProps
 |};
@@ -55,9 +55,13 @@ export let PickBase = (props: PickProps) => {
     };
   }, [fetch, schema, endpoint]);
 
+  let [selected, setSelected] = React.useState(new Set());
+
   return (
     <PickRenderer
       {...rest}
+      selected={selected}
+      onSelected={setSelected}
       fetch={fetch}
       resource={resource}
       queryDefinition={queryDefinition}

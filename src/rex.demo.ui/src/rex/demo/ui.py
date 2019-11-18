@@ -1,6 +1,7 @@
 from datetime import datetime
 from webob.exc import HTTPUnauthorized
 from rex.core import cached, Error
+from rex.db import get_db
 from rex.web import (
     HandleLocation,
     Command,
@@ -11,6 +12,7 @@ from rex.web import (
 from rex.graphql import (
     schema,
     Entity,
+    List,
     connect,
     query,
     q,
@@ -19,6 +21,7 @@ from rex.graphql import (
     entity_id,
     argument,
     filter_from_function,
+    mutation_from_function,
 )
 from rex.graphql.serve import serve
 
@@ -108,6 +111,14 @@ class API(HandleLocation):
 
         sort_user = sort(user, ("remote_user", "expires"))
 
+        @mutation_from_function()
+        def remove_user(user_ids: List(entity_id.user)) -> scalar.Boolean:
+            db = get_db()
+            db.produce("""
+            /user.filter(id()=$user_ids){id()}/:delete
+            """, user_ids=user_ids)
+            return True
+
         return schema(
             fields=lambda: {
                 "user": connect(
@@ -128,7 +139,8 @@ class API(HandleLocation):
                     filters=[filter_patient_by_caregiver, search_patient],
                     description="Patients",
                 ),
-            }
+            },
+            mutations=[remove_user]
         )
 
     def __call__(self, req):

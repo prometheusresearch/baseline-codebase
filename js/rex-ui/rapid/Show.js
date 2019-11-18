@@ -17,7 +17,7 @@ import * as Field from "./Field.js";
 export type ShowProps = {|
   endpoint: Endpoint,
   fetch: string,
-  fields?: Field.FieldConfig[],
+  fields?: ?Field.FieldConfig[],
   args?: { [key: string]: any },
   Renderer?: React.ComponentType<any>,
   renderTitle?: ({| data: any |}) => React.Node

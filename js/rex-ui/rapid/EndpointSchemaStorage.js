@@ -19,6 +19,7 @@ function getResource(endpoint: RexGraphQL.Endpoint) {
   let resource = cache.get(endpoint);
   if (resource == null) {
     resource = Resource.defineQuery<void, IntrospectionQuery>({
+      cachePolicy: 'no-clear',
       endpoint,
       query: getIntrospectionQuery()
     });

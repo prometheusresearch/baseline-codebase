@@ -77,6 +77,11 @@ export type FilterSpec = {|
 
 export type FilterSpecMap = Map<string, FilterSpec>;
 
+export type PickToolbarProps = {|
+  selected: Set<string>,
+  onSelected: (nextSelected: Set<string>) => void,
+|};
+
 export type PickRendererConfigProps = {|
   fetch: string,
   title?: string,
@@ -101,6 +106,12 @@ export type PickRendererConfigProps = {|
     row?: any,
     index: number,
   }) => React.Node,
+
+  /**
+   * Render toolbar.
+   */
+  RendererToolbar?: React.AbstractComponent<PickToolbarProps>,
+
   onRowClick?: (row: any) => void,
 |};
 
@@ -122,12 +133,33 @@ export type PickRendererProps = {|
 export const SORTING_VAR_NAME = "sort";
 export const SEARCH_VAR_NAME = "search";
 
-const PickHeader = ({ title, description, rightToolbar }) => {
-  const classes = usePickStyles();
+let usePickHeaderStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing.unit * 2,
+  },
+  top: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  toolbar: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: theme.spacing.unit,
+  },
+  title: {
+    marginBottom: "8px",
+  },
+}));
+
+const PickHeader = ({ title, description, rightToolbar, bottomToolbar }) => {
+  const classes = usePickHeaderStyles();
 
   return (
-    <>
-      <div className={classes.topPart}>
+    <div className={classes.root}>
+      <div className={classes.top}>
         <div>
           {title ? (
             <Typography variant={"h5"} className={classes.title}>
@@ -140,7 +172,10 @@ const PickHeader = ({ title, description, rightToolbar }) => {
         </div>
         {rightToolbar && <div>{rightToolbar}</div>}
       </div>
-    </>
+      {bottomToolbar != null && (
+        <div className={classes.toolbar}>{bottomToolbar}</div>
+      )}
+    </div>
   );
 };
 
@@ -184,6 +219,7 @@ export const PickRenderer = ({
   RendererColumnCell,
   RendererRowCell,
   RendererRow,
+  RendererToolbar,
   onRowClick,
   args,
   title,
@@ -333,6 +369,11 @@ export const PickRenderer = ({
         <PickHeader
           title={title}
           description={description || fieldDescription}
+          bottomToolbar={
+            RendererToolbar != null ? (
+              <RendererToolbar selected={selected} onSelected={onSelected} />
+            ) : null
+          }
           rightToolbar={
             <IconButton
               onClick={toggleFilters}

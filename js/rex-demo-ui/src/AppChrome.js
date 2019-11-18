@@ -100,12 +100,7 @@ export default function AppChrome({
               <MenuIcon color="primary" />
             </mui.IconButton>
           )}
-          <mui.Typography
-            variant="body1"
-            color="primary"
-            noWrap
-            style={{ fontWeight: "bold" }}
-          >
+          <mui.Typography variant="h6" color="primary" noWrap>
             {title}
           </mui.Typography>
         </mui.Toolbar>

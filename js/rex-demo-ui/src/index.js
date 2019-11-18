@@ -226,7 +226,7 @@ function App() {
 
   return (
     <AppChrome nav={nav} menu={[pickUser, pickPatient]} title="Rex Rapid Demo">
-      <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>,
+      <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>
     </AppChrome>
   );
 }

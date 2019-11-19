@@ -14,12 +14,14 @@ import {
   RadioGroup,
   Radio,
   FormControlLabel,
+  Checkbox,
 } from "@material-ui/core";
 import * as mui from "@material-ui/core";
-import * as Router from "./Router";
+import * as Screen from "./Screen.js";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AppChrome from "./AppChrome";
 import { makeStyles, type Theme } from "@material-ui/styles";
+import * as Router from "rex-ui/Router";
 
 let useStyles = makeStyles((theme: Theme) => {
   return {
@@ -51,29 +53,6 @@ let phoneField = {
   },
 };
 
-let showUser = (id: string): Router.ShowScreen => ({
-  type: "show",
-  title: "User",
-  fetch: "user.get",
-  id: id,
-  fields: [
-    { title: "Remote User", require: { field: "remote_user" } },
-    "system_admin",
-    "expired",
-    {
-      title: "Contact Info",
-      require: {
-        field: "contact_info",
-        require: [{ field: "id" }, { field: "type" }, { field: "value" }],
-      },
-      render: ({ value }) => JSON.stringify(value),
-    },
-  ],
-  RenderTitle: props => {
-    return props.data.remote_user;
-  },
-});
-
 const CustomSortRenderer = ({ value, values, onChange }) => {
   const classes = useStyles();
 
@@ -84,7 +63,7 @@ const CustomSortRenderer = ({ value, values, onChange }) => {
 
   return (
     <FormControl component="fieldset">
-      <FormLabel style={{ fontSize: 12 }} component="legend">
+      <FormLabel style={{ fontSize: 14 }} component="legend">
         Sorting
       </FormLabel>
       <RadioGroup
@@ -123,95 +102,145 @@ const CustomSortRenderer = ({ value, values, onChange }) => {
   );
 };
 
+function ShowOnlyAdmins(props) {
+  let checked = Boolean(props.value);
+  let handleOnChange = e => {
+    if (e.target.checked) {
+      props.onChange(true);
+    } else {
+      props.onChange(undefined);
+    }
+  };
+  return (
+    <FormControlLabel
+      control={<Checkbox checked={checked} onChange={handleOnChange} />}
+      label="Show admins only"
+    />
+  );
+}
+
 let customPickUserFilters = [
   {
-    name: "search",
-    render: ({ value, onChange }) => {
-      return (
-        <div>
-          <mui.Typography
-            variant={"body1"}
-            style={{ fontSize: 12, lineHeight: 1, marginBottom: 12 }}
-          >
-            Custom search input
-          </mui.Typography>
-          <input value={value} onChange={ev => onChange(ev.target.value)} />
-        </div>
-      );
-    },
+    name: "system_admin",
+    render: ShowOnlyAdmins,
   },
-  "expired",
-  {
-    name: "sort",
-    render: CustomSortRenderer,
-  },
-  "system_admin",
 ];
 
-let pickUser: Router.PickScreen = {
-  type: "pick",
-  fetch: "user.paginated",
-  title: "Users",
-  description: "List of users",
-  fields: [
-    { require: { field: "remote_user" } },
-    phoneField,
-    "expired",
-    { require: { field: "system_admin" } },
-  ],
-  filters: undefined,
+let pickUser: Router.Route<Screen.PickScreen> = {
+  path: "/users",
+  screen: {
+    type: "pick",
+    fetch: "user.paginated",
+    title: "Users",
+    description: "List of users",
+    fields: [
+      { require: { field: "remote_user" } },
+      phoneField,
+      "expired",
+      { require: { field: "system_admin" } },
+    ],
+    filters: undefined,
 
-  RenderToolbar: props => {
-    let caption = "No users selected";
-    if (props.selected.size > 0) {
-      caption = `Selected ${props.selected.size} users`;
-    }
-    let onRemove = () => {
-      let userIds = [...props.selected];
-      Resource.perform(removeUser, { userIds }).then(() => {
-        props.onSelected(new Set());
-      });
-    };
-    return (
-      <>
-        <mui.Typography variant="caption">{caption}</mui.Typography>
-        <mui.Button
-          size="small"
-          color="secondary"
-          disabled={props.selected.size === 0}
-          onClick={onRemove}
-        >
-          <DeleteIcon />
-          Remove
-        </mui.Button>
-      </>
-    );
+    RenderToolbar: props => {
+      let caption = "No users selected";
+      if (props.selected.size > 0) {
+        caption = `Selected ${props.selected.size} users`;
+      }
+      let onRemove = () => {
+        let userIds = [...props.selected];
+        Resource.perform(removeUser, { userIds }).then(() => {
+          props.onSelected(new Set());
+        });
+      };
+      return (
+        <>
+          <mui.Typography variant="caption">{caption}</mui.Typography>
+          <mui.Button
+            size="small"
+            color="secondary"
+            disabled={props.selected.size === 0}
+            onClick={onRemove}
+          >
+            <DeleteIcon />
+            Remove
+          </mui.Button>
+        </>
+      );
+    },
+    onSelect: id => [showUser, { id }],
   },
-  onSelect: id => showUser(id),
 };
 
-let pickUserWithCustomFilters: Router.PickScreen = {
-  ...pickUser,
-  title: "Users (with custom filters)",
-  filters: customPickUserFilters,
+let pickUserWithCustomFilters: Router.Route<Screen.PickScreen> = {
+  path: "/users-custom",
+  screen: {
+    ...pickUser.screen,
+    title: "Users (with custom filters)",
+    filters: customPickUserFilters,
+  },
 };
 
-let pickPatient: Router.PickScreen = {
-  type: "pick",
-  fetch: "patient.paginated",
-  title: "Patients",
-  description: "List of patients",
+let showUser = {
+  path: "/users/:id",
+  screen: {
+    type: "show",
+    title: "User",
+    fetch: "user.get",
+    fields: [
+      { title: "Remote User", require: { field: "remote_user" } },
+      "system_admin",
+      "expired",
+      {
+        title: "Contact Info",
+        require: {
+          field: "contact_info",
+          require: [{ field: "id" }, { field: "type" }, { field: "value" }],
+        },
+        render: ({ value }) => JSON.stringify(value),
+      },
+    ],
+    RenderTitle: props => {
+      return props.data.remote_user;
+    },
+  },
 };
+
+let pickPatient: Router.Route<Screen.PickScreen> = {
+  path: "/patients",
+  screen: {
+    type: "pick",
+    fetch: "patient.paginated",
+    title: "Patients",
+    description: "List of patients",
+  },
+};
+
+let router: Router.Router<Screen.Screen> = Router.make([
+  { ...pickUser, path: "/" },
+  pickUser,
+  showUser,
+  pickUserWithCustomFilters,
+  pickPatient,
+]);
+
+let menu = [
+  { route: pickUser },
+  { route: pickUserWithCustomFilters },
+  { route: pickPatient },
+];
 
 function App() {
-  let nav = Router.useNavigation(pickUser);
+  let match = Router.useMatch(router);
 
   let renderPickView = React.useCallback(
-    (screen: Router.PickScreen) => {
+    (screen: Screen.PickScreen, params) => {
       let onRowClick;
       if (screen.onSelect != null) {
         let onSelect = screen.onSelect;
-        onRowClick = (row: any) => nav.push(onSelect(row.id));
+        onRowClick = (row: any) => {
+          let [route, params] = onSelect(row.id);
+          router.push(route, params);
+        };
       }
 
       return (
@@ -228,13 +257,13 @@ function App() {
         />
       );
     },
-    [nav.screen],
+    [],
   );
 
   let renderShowView = React.useCallback(
-    (screen: Router.ShowScreen) => {
+    (screen: Screen.ShowScreen, params) => {
       let onBack = () => {
-        nav.pop();
+        router.pop();
       };
       return (
         <mui.Grid container style={{ padding: 8 }}>
@@ -245,7 +274,7 @@ function App() {
             <Show
               endpoint={endpoint}
               fetch={screen.fetch}
-              args={{ id: screen.id }}
+              args={{ id: params.id }}
               fields={screen.fields}
               RenderTitle={screen.RenderTitle}
             />
@@ -253,28 +282,27 @@ function App() {
         </mui.Grid>
       );
     },
-    [nav.screen],
+    [],
   );
 
   let ui = React.useMemo(() => {
-    switch (nav.screen.type) {
+    if (match == null) {
+      return null;
+    }
+    switch (match.screen.type) {
       case "show":
-        return renderShowView(nav.screen);
+        return renderShowView(match.screen, match.params);
       case "pick":
-        return renderPickView(nav.screen);
+        return renderPickView(match.screen, match.params);
       default: {
-        (nav.screen.type: empty); // eslint-disable-line
-        throw new Error(`Unknown screen: ${nav.screen.type}`);
+        (match.screen.type: empty); // eslint-disable-line
+        throw new Error(`Unknown screen: ${match.screen.type}`);
       }
     }
-  }, [nav.screen]);
+  }, [match]);
 
   return (
-    <AppChrome
-      nav={nav}
-      menu={[pickUser, pickUserWithCustomFilters, pickPatient]}
-      title="Rex Rapid Demo"
-    >
+    <AppChrome menu={menu} router={router} title="Rex Rapid Demo">
       <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>
     </AppChrome>
   );
@@ -290,3 +318,4 @@ ReactDOM.render(
   </>,
   root,
 );
+

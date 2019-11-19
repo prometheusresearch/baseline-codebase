@@ -10,7 +10,7 @@ import * as Resource from "rex-graphql/Resource";
 import {
   getIntrospectionQuery,
   type IntrospectionQuery,
-  type IntrospectionSchema
+  type IntrospectionSchema,
 } from "graphql";
 
 let cache = new Map();
@@ -19,9 +19,9 @@ function getResource(endpoint: RexGraphQL.Endpoint) {
   let resource = cache.get(endpoint);
   if (resource == null) {
     resource = Resource.defineQuery<void, IntrospectionQuery>({
-      cachePolicy: 'no-clear',
+      cachePolicy: "no-clear",
       endpoint,
-      query: getIntrospectionQuery()
+      query: getIntrospectionQuery(),
     });
     cache.set(endpoint, resource);
   }
@@ -32,7 +32,7 @@ function getResource(endpoint: RexGraphQL.Endpoint) {
  * Fetch IntrospectionSchema for an Endpoint.
  */
 export function useIntrospectionSchema(
-  endpoint: RexGraphQL.Endpoint
+  endpoint: RexGraphQL.Endpoint,
 ): IntrospectionSchema {
   let resource = getResource(endpoint);
   return Resource.unstable_useResource(resource).__schema;

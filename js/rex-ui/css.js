@@ -3,14 +3,14 @@
  * @flow
  */
 
-import invariant from 'invariant';
+import invariant from "invariant";
 
 export function boxShadow(
   offsetX: number,
   offsetY: number,
   blurRadius: number,
   spreadRadius: number,
-  color: string
+  color: string,
 ): string {
   if (color === none || color === null) {
     return none;
@@ -23,19 +23,25 @@ export function insetBoxShadow(
   offsetY: number,
   blurRadius: number,
   spreadRadius: number,
-  color: string
+  color: string,
 ): string {
   if (color === none || color === null) {
     return none;
   }
-  return `inset ${boxShadow(offsetX, offsetY, blurRadius, spreadRadius, color)}`;
+  return `inset ${boxShadow(
+    offsetX,
+    offsetY,
+    blurRadius,
+    spreadRadius,
+    color,
+  )}`;
 }
 
 export function textShadow(
   offsetX: number,
   offsetY: number,
   blurRadius: number,
-  color: string
+  color: string,
 ): string {
   if (color === none || color === null) {
     return none;
@@ -50,7 +56,7 @@ export function rgba(r: number, g: number, b?: number, a?: number): string {
     b = r;
   }
   if (b == null || a == null) {
-    invariant(false, 'Invalid color format: rgba(%s, %s, %s, %s)', r, g, b, a);
+    invariant(false, "Invalid color format: rgba(%s, %s, %s, %s)", r, g, b, a);
   }
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
@@ -61,7 +67,7 @@ export function rgb(r: number, g?: number, b?: number) {
     b = r;
   }
   if (g == null || b == null) {
-    invariant(false, 'Invalid color format: rgb(%s, %s, %s)', r, g, b);
+    invariant(false, "Invalid color format: rgb(%s, %s, %s)", r, g, b);
   }
   return `rgb(${r}, ${g}, ${b})`;
 }
@@ -77,15 +83,15 @@ export function border(width: number, style: string, color?: string): string {
   return `${width}px ${style} ${color}`;
 }
 
-border.solid = 'solid';
+border.solid = "solid";
 
 export function linearGradient(
   direction: string,
-  ...colorStops: Array<{color: string; value: string}>
+  ...colorStops: Array<{ color: string, value: string }>
 ): string {
   let colorStopsStr = colorStops
-    .map(p => typeof p === 'string' ? p : `${p.color} ${p.value}`)
-    .join(', ');
+    .map(p => (typeof p === "string" ? p : `${p.color} ${p.value}`))
+    .join(", ");
   return `linear-gradient(${direction}, ${colorStopsStr})`;
 }
 
@@ -99,91 +105,91 @@ export function translate3d(x: number, y: number, z: number): string {
 
 function sizeSeq(...args: Array<number | string>): string {
   return args
-    .map(arg => typeof arg === 'string' ? arg : `${arg}px`)
-    .join(' ');
+    .map(arg => (typeof arg === "string" ? arg : `${arg}px`))
+    .join(" ");
 }
 
 export function multi(...args: Array<string>): string {
-  return args.filter(item => item !== none).join(', ');
+  return args.filter(item => item !== none).join(", ");
 }
 
 export let padding = sizeSeq;
 export let margin = sizeSeq;
 
 export let position = {
-  absolute: 'absolute',
-  relative: 'relative',
-  fixed: 'fixed',
+  absolute: "absolute",
+  relative: "relative",
+  fixed: "fixed",
 };
 
 export let display = {
-  block: 'block',
-  inlineBlock: 'inline-block',
-  flex: 'flex',
-  inlineFlex: 'inline-flex',
-  inline: 'inline',
+  block: "block",
+  inlineBlock: "inline-block",
+  flex: "flex",
+  inlineFlex: "inline-flex",
+  inline: "inline",
 };
 
 export let cursor = {
-  pointer: 'pointer',
-  default: 'default',
+  pointer: "pointer",
+  default: "default",
 };
 
 export let overflow = {
-  auto: 'auto',
-  hidden: 'hidden',
-  scroll: 'scroll',
+  auto: "auto",
+  hidden: "hidden",
+  scroll: "scroll",
 };
 
 export let textAlign = {
-  center: 'center',
-  left: 'left',
-  right: 'right',
+  center: "center",
+  left: "left",
+  right: "right",
 };
 
 export let verticalAlign = {
-  middle: 'middle',
-  baseline: 'baseline',
-  sub: 'sub',
-  super: 'super',
-  top: 'top',
-  bottom: 'bottom',
+  middle: "middle",
+  baseline: "baseline",
+  sub: "sub",
+  super: "super",
+  top: "top",
+  bottom: "bottom",
 };
 
 export let fontWeight = {
-  bold: 'bold',
-  normal: 'normal',
+  bold: "bold",
+  normal: "normal",
 };
 
 export let touchAction = {
-  manipulation: 'manipulation',
+  manipulation: "manipulation",
 };
 
-export let none = 'none';
+export let none = "none";
 
-export let auto = 'auto';
+export let auto = "auto";
 
 export let whiteSpace = {
-  nowrap: 'nowrap',
+  nowrap: "nowrap",
 };
 
 export let textDecoration = {
-  none: 'none',
-  underline: 'underline',
+  none: "none",
+  underline: "underline",
 };
 
 export let textOverflow = {
-  ellipsis: 'ellipsis',
+  ellipsis: "ellipsis",
 };
 
 export let textTransform = {
-  none: 'none',
-  capitalize: 'capitalize',
-  uppercase: 'uppercase',
-  lowercase: 'lowercase',
-  fullWidth: 'full-width',
+  none: "none",
+  capitalize: "capitalize",
+  uppercase: "uppercase",
+  lowercase: "lowercase",
+  fullWidth: "full-width",
 };
 
 export let color = {
-  transparent: 'transparent',
+  transparent: "transparent",
 };

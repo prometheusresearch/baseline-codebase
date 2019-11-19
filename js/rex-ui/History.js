@@ -10,7 +10,7 @@ import {
   type BrowserHistory,
   type Location,
   type Action,
-  createLocation
+  createLocation,
 } from "history";
 
 export type { Location, Action };
@@ -21,7 +21,7 @@ let _hashHistory: ?HashHistory = null;
 export function getHashHistory(): HashHistory {
   if (_hashHistory == null) {
     _hashHistory = createHashHistory({
-      hashType: "noslash"
+      hashType: "noslash",
     });
   }
   return _hashHistory;
@@ -42,7 +42,7 @@ export function getCurrentLocation(): Location {
 
 export opaque type PreventReason = {|
   message: string,
-  allow: () => void
+  allow: () => void,
 |};
 
 export function preventNavigation(message: string): PreventReason {
@@ -53,7 +53,7 @@ export function preventNavigation(message: string): PreventReason {
     allow: () => {
       allowHash();
       allowBrowser();
-    }
+    },
   };
   REASONS.push(reason);
   if (REASONS.length === 1) {

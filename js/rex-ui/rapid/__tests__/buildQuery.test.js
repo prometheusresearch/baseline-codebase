@@ -8,7 +8,7 @@ import * as QueryPath from "../QueryPath.js";
 
 const testSchema: IntrospectionSchema = {
   queryType: ({
-    name: "Root"
+    name: "Root",
   }: any),
   mutationType: null,
   subscriptionType: null,
@@ -21,7 +21,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -31,7 +31,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -41,7 +41,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -51,7 +51,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -61,7 +61,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -71,7 +71,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -81,7 +81,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -91,7 +91,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -101,7 +101,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -111,7 +111,7 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "OBJECT",
@@ -128,17 +128,17 @@ const testSchema: IntrospectionSchema = {
             ofType: {
               kind: "OBJECT",
               name: "user_connection",
-              ofType: null
-            }
+              ofType: null,
+            },
           },
           isDeprecated: false,
-          deprecationReason: null
-        }
+          deprecationReason: null,
+        },
       ],
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "OBJECT",
@@ -158,19 +158,19 @@ const testSchema: IntrospectionSchema = {
                 ofType: {
                   kind: "SCALAR",
                   name: "user_id",
-                  ofType: null
-                }
+                  ofType: null,
+                },
               },
-              defaultValue: null
-            }
+              defaultValue: null,
+            },
           ],
           type: {
             kind: "OBJECT",
             name: "user",
-            ofType: null
+            ofType: null,
           },
           isDeprecated: false,
-          deprecationReason: null
+          deprecationReason: null,
         },
         {
           name: "all",
@@ -182,11 +182,11 @@ const testSchema: IntrospectionSchema = {
             ofType: {
               kind: "OBJECT",
               name: "user",
-              ofType: null
-            }
+              ofType: null,
+            },
           },
           isDeprecated: false,
-          deprecationReason: null
+          deprecationReason: null,
         },
         {
           name: "paginated",
@@ -198,9 +198,9 @@ const testSchema: IntrospectionSchema = {
               type: {
                 kind: "SCALAR",
                 name: "Int",
-                ofType: null
+                ofType: null,
               },
-              defaultValue: "0"
+              defaultValue: "0",
             },
             {
               name: "limit",
@@ -208,10 +208,10 @@ const testSchema: IntrospectionSchema = {
               type: {
                 kind: "SCALAR",
                 name: "Int",
-                ofType: null
+                ofType: null,
               },
-              defaultValue: "20"
-            }
+              defaultValue: "20",
+            },
           ],
           type: {
             kind: "LIST",
@@ -219,11 +219,11 @@ const testSchema: IntrospectionSchema = {
             ofType: {
               kind: "OBJECT",
               name: "user",
-              ofType: null
-            }
+              ofType: null,
+            },
           },
           isDeprecated: false,
-          deprecationReason: null
+          deprecationReason: null,
         },
         {
           name: "count",
@@ -235,17 +235,17 @@ const testSchema: IntrospectionSchema = {
             ofType: {
               kind: "SCALAR",
               name: "Int",
-              ofType: null
-            }
+              ofType: null,
+            },
           },
           isDeprecated: false,
-          deprecationReason: null
-        }
+          deprecationReason: null,
+        },
       ],
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "OBJECT",
@@ -262,11 +262,11 @@ const testSchema: IntrospectionSchema = {
             ofType: {
               kind: "SCALAR",
               name: "String",
-              ofType: null
-            }
+              ofType: null,
+            },
           },
           isDeprecated: false,
-          deprecationReason: null
+          deprecationReason: null,
         },
         {
           name: "expires",
@@ -275,10 +275,10 @@ const testSchema: IntrospectionSchema = {
           type: {
             kind: "SCALAR",
             name: "Datetime",
-            ofType: null
+            ofType: null,
           },
           isDeprecated: false,
-          deprecationReason: null
+          deprecationReason: null,
         },
         {
           name: "system_admin",
@@ -290,11 +290,11 @@ const testSchema: IntrospectionSchema = {
             ofType: {
               kind: "SCALAR",
               name: "Boolean",
-              ofType: null
-            }
+              ofType: null,
+            },
           },
           isDeprecated: false,
-          deprecationReason: null
+          deprecationReason: null,
         },
         {
           name: "id",
@@ -306,17 +306,17 @@ const testSchema: IntrospectionSchema = {
             ofType: {
               kind: "SCALAR",
               name: "user_id",
-              ofType: null
-            }
+              ofType: null,
+            },
           },
           isDeprecated: false,
-          deprecationReason: null
-        }
+          deprecationReason: null,
+        },
       ],
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
+      possibleTypes: [],
     },
     {
       kind: "SCALAR",
@@ -326,10 +326,10 @@ const testSchema: IntrospectionSchema = {
       inputFields: null,
       interfaces: [],
       enumValues: null,
-      possibleTypes: []
-    }
+      possibleTypes: [],
+    },
   ],
-  directives: []
+  directives: [],
 };
 
 const referenceQuery = `query ConstructedQuery($offset: Int, $limit: Int) {
@@ -351,7 +351,7 @@ describe("Testing constructQueryAST", function() {
         schema: testSchema,
         path: QueryPath.make(["user", "paginated"]),
         fields: null,
-      }).query
+      }).query,
     ).toEqual(referenceQuery);
   });
 });

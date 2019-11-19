@@ -7,5 +7,5 @@ import { SuccessButton } from "./SuccessButton";
 export default Fixture.fixture({
   component: SuccessButton,
   render: Fixture.renderButtonFixture,
-  props: {children: "Success"}
+  props: { children: "Success" },
 });

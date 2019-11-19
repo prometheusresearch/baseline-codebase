@@ -24,10 +24,10 @@ export function Hoverable<
   P: {
     hover: boolean,
     onMouseEnter?: ?(MouseEvent) => void,
-    onMouseLeave?: ?(MouseEvent) => void
-  }
+    onMouseLeave?: ?(MouseEvent) => void,
+  },
 >(
-  Component: React.AbstractComponent<P>
+  Component: React.AbstractComponent<P>,
 ): React.AbstractComponent<$Diff<P, { hover: boolean }>> {
   let HoverableComponent = React.forwardRef((props, ref) => {
     let { hover, onMouseEnter, onMouseLeave } = useHover();
@@ -67,10 +67,10 @@ export function Focusable<
   P: {
     focus: boolean,
     onFocus?: ?(UIEvent) => void,
-    onBlur?: ?(UIEvent) => void
-  }
+    onBlur?: ?(UIEvent) => void,
+  },
 >(
-  Component: React.AbstractComponent<P>
+  Component: React.AbstractComponent<P>,
 ): React.AbstractComponent<$Diff<P, { focus: boolean }>> {
   let displayName = Component.displayName || Component.name;
 

@@ -26,7 +26,7 @@ type DatePickerProps = {|
   onFocus?: UIEvent => void,
   onBlur?: UIEvent => void,
   minDate?: Moment,
-  maxDate?: Moment
+  maxDate?: Moment,
 |};
 
 export let DatePicker = (props: DatePickerProps) => {
@@ -43,7 +43,7 @@ export let DatePicker = (props: DatePickerProps) => {
     onFocus,
     onBlur,
     minDate,
-    maxDate
+    maxDate,
   } = props;
 
   let showMonths = () => {

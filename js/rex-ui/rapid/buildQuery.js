@@ -14,39 +14,39 @@ import { ConfigError } from "./ErrorBoundary";
 export type TypeIntrospectionFieldType = {|
   kind: string,
   name: ?string,
-  ofType: ?TypeIntrospectionFieldType
+  ofType: ?TypeIntrospectionFieldType,
 |};
 
 export type TypeIntrospectionTypesMap = {
-  [key: string]: introspection.IntrospectionType
+  [key: string]: introspection.IntrospectionType,
 };
 
 export type TypeSchemaDataObject = {|
   schema: introspection.IntrospectionSchema,
-  typesMap: Map<string, introspection.IntrospectionType>
+  typesMap: Map<string, introspection.IntrospectionType>,
 |};
 
 type QueryFieldSpec = {
   field: string,
-  require?: QueryFieldSpec[]
+  require?: QueryFieldSpec[],
 };
 
 /** Configure fields to fetch from GraphQL endpoint. */
 export const buildQuery = ({
   schema,
   path,
-  fields
+  fields,
 }: {|
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fields: ?Array<Field.FieldSpec>
+  fields: ?Array<Field.FieldSpec>,
 |}): {|
   query: string,
   ast: ast.DocumentNode,
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
   fields: Field.FieldSpec[],
-  fieldDescription?: ?string
+  fieldDescription?: ?string,
 |} => {
   const info = buildQueryAST(schema, path, fields);
   const query = print(info.ast);
@@ -56,21 +56,21 @@ export const buildQuery = ({
     queryDefinition: info.queryDefinition,
     introspectionTypesMap: info.introspectionTypesMap,
     fields: info.fields,
-    fieldDescription: info.description
+    fieldDescription: info.description,
   };
 };
 
 const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fieldSpecsRequested: ?(Field.FieldSpec[])
+  fieldSpecsRequested: ?(Field.FieldSpec[]),
 ): {|
   ast: ast.DocumentNode,
   columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
   fields: Field.FieldSpec[],
-  description: ?string
+  description: ?string,
 |} => {
   let typesMap: Map<string, introspection.IntrospectionType> = new Map();
   for (let t of schema.types) {
@@ -90,12 +90,12 @@ const buildQueryAST = (
     columns,
     inputValues,
     fields,
-    fieldDescription
+    fieldDescription,
   ] = buildSelectionSet(
     typesMap,
     rootType,
     QueryPath.toArray(path),
-    fieldSpecsRequested
+    fieldSpecsRequested,
   );
 
   const operationDefinition = {
@@ -104,24 +104,24 @@ const buildQueryAST = (
     name: { kind: "Name", value: "ConstructedQuery" },
     operation: "query",
     selectionSet,
-    variableDefinitions: inputValues.map(buildVariableDefinitionNode)
+    variableDefinitions: inputValues.map(buildVariableDefinitionNode),
   };
 
   return {
     ast: {
       kind: "Document",
-      definitions: [operationDefinition]
+      definitions: [operationDefinition],
     },
     columns,
     introspectionTypesMap: typesMap,
     queryDefinition: operationDefinition,
     fields,
-    description: fieldDescription
+    description: fieldDescription,
   };
 };
 
 const makeSelectionSetFromSpec = (
-  fieldSpec: Field.FieldSpec
+  fieldSpec: Field.FieldSpec,
 ): void | ast.SelectionSetNode => {
   if (!fieldSpec) return;
 
@@ -133,11 +133,11 @@ const makeSelectionSetFromSpec = (
             kind: "Field",
             name: {
               kind: "Name",
-              value: obj.field
-            }
+              value: obj.field,
+            },
           };
         })
-      : []
+      : [],
   };
 };
 
@@ -145,13 +145,13 @@ const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
   path: string[],
-  fieldSpecsRequested: ?(Field.FieldSpec[])
+  fieldSpecsRequested: ?(Field.FieldSpec[]),
 ): [
   ast.SelectionSetNode,
   ast.FieldNode[],
   introspection.IntrospectionInputValue[],
   Field.FieldSpec[],
-  ?string
+  ?string,
 ] => {
   // Break the recursion
   if (path.length === 0) {
@@ -177,7 +177,7 @@ const buildSelectionSet = (
         }
         const spec = {
           title: Field.guessFieldTitle(field.name),
-          require: { field: field.name }
+          require: { field: field.name },
         };
 
         fieldIntros.push(field);
@@ -192,7 +192,7 @@ const buildSelectionSet = (
         "title",
         "display_name",
         "gender",
-        "sex"
+        "sex",
       ];
 
       let seen = new Set();
@@ -239,13 +239,13 @@ const buildSelectionSet = (
         arguments: args,
         directives: [],
         name: { kind: "Name", value: field.name },
-        selectionSet
+        selectionSet,
       });
     }
 
     let selectionSet = {
       kind: "SelectionSet",
-      selections
+      selections,
     };
 
     return [selectionSet, selections, inputValues, fieldSpecs, null];
@@ -264,7 +264,7 @@ const buildSelectionSet = (
       selectionSet,
       selections,
       nextInputValues,
-      fieldSpecs
+      fieldSpecs,
     ] = buildSelectionSet(typesMap, fieldType, restPath, fieldSpecsRequested);
 
     const ast = {
@@ -275,45 +275,45 @@ const buildSelectionSet = (
           directives: [],
           kind: "Field",
           name: { kind: "Name", value: fieldName },
-          selectionSet
-        }
-      ]
+          selectionSet,
+        },
+      ],
     };
     return [
       ast,
       selections,
       inputValues.concat(nextInputValues),
       fieldSpecs,
-      field.description
+      field.description,
     ];
   }
 };
 
 const buildArgumentNode = (
-  introInputValue: introspection.IntrospectionInputValue
+  introInputValue: introspection.IntrospectionInputValue,
 ): ast.ArgumentNode => {
   let name: ast.NameNode = {
     kind: "Name",
-    value: introInputValue.name
+    value: introInputValue.name,
   };
 
   let value: ast.ValueNode = {
     kind: "Variable",
     name: {
       kind: "Name",
-      value: introInputValue.name
-    }
+      value: introInputValue.name,
+    },
   };
 
   return {
     kind: "Argument",
     name,
-    value
+    value,
   };
 };
 
 const buildVariableDefinitionNode = (
-  introInputValue: introspection.IntrospectionInputValue
+  introInputValue: introspection.IntrospectionInputValue,
 ): ast.VariableDefinitionNode => {
   return {
     kind: "VariableDefinition",
@@ -321,48 +321,48 @@ const buildVariableDefinitionNode = (
       kind: "Variable",
       name: {
         kind: "Name",
-        value: introInputValue.name
-      }
+        value: introInputValue.name,
+      },
     },
-    type: buildTypeNode(introInputValue.type)
+    type: buildTypeNode(introInputValue.type),
   };
 };
 
 const buildTypeNode = (
-  introType: introspection.IntrospectionInputTypeRef
+  introType: introspection.IntrospectionInputTypeRef,
 ): ast.TypeNode => {
   switch (introType.kind) {
     case "NON_NULL": {
       let type = buildTypeNode(introType.ofType);
       invariant(
         type.kind === "ListType" || type.kind === "NamedType",
-        "Nested NonNullType is not possible"
+        "Nested NonNullType is not possible",
       );
       return {
         kind: "NonNullType",
-        type
+        type,
       };
     }
     case "LIST": {
       return {
         kind: "ListType",
-        type: buildTypeNode(introType.ofType)
+        type: buildTypeNode(introType.ofType),
       };
     }
     case "INPUT_OBJECT":
       return {
         kind: "NamedType",
-        name: { kind: "Name", value: introType.name }
+        name: { kind: "Name", value: introType.name },
       };
     case "ENUM":
       return {
         kind: "NamedType",
-        name: { kind: "Name", value: introType.name }
+        name: { kind: "Name", value: introType.name },
       };
     case "SCALAR":
       return {
         kind: "NamedType",
-        name: { kind: "Name", value: introType.name }
+        name: { kind: "Name", value: introType.name },
       };
     default:
       (introType.kind: empty);
@@ -394,10 +394,10 @@ function isFieldNodeListLike(field) {
 const resolveField = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
-  fieldName: string
+  fieldName: string,
 ): [
   introspection.IntrospectionField,
-  introspection.IntrospectionObjectType
+  introspection.IntrospectionObjectType,
 ] => {
   const field = type.fields.find(f => f.name === fieldName);
   if (field == null) {
@@ -433,7 +433,7 @@ const resolveField = (
     }
     invariant(
       nextType != null,
-      `No type for field "${type.name}.${fieldName}" found`
+      `No type for field "${type.name}.${fieldName}" found`,
     );
     return nextType;
   }

@@ -33,7 +33,7 @@ class PromiseMock {
 
 export function mockPromise(): Promise<any> & {
   onComplete: any => void,
-  onError: any => void
+  onError: any => void,
 } {
   return (new PromiseMock(): any);
 }

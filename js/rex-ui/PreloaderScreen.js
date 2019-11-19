@@ -15,8 +15,8 @@ let useStyles = styles.makeStyles(theme => ({
     width: "100%",
     flexGrow: 1,
     alignItems: "center",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 }));
 
 let PreloaderScreen = (props: Props) => {

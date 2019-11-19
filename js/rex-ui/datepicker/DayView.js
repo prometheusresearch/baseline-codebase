@@ -17,19 +17,19 @@ type DayPropsBase = {|
   outOfRange?: boolean,
   showToday?: boolean,
   today: boolean,
-  onClick?: Moment => void
+  onClick?: Moment => void,
 |};
 
 type DayProps = {|
   ...DayPropsBase,
   minDate?: Moment,
-  maxDate?: Moment
+  maxDate?: Moment,
 |};
 
 export type RenderDay = ({|
   ...DayProps,
   key?: string | number,
-  disabled?: boolean
+  disabled?: boolean,
 |}) => React.Node;
 
 export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
@@ -48,17 +48,17 @@ export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
       ...Common.buttonStyle,
       backgroundColor: active ? activeStyle.backgroundColor : null,
       opacity: disabled ? 0.5 : 1,
-      cursor: disabled ? "not-allowed" : "pointer"
+      cursor: disabled ? "not-allowed" : "pointer",
     }),
-    [active]
+    [active],
   );
 
   let textStyle = React.useMemo(
     () => ({
       color: active ? activeStyle.color : outOfRange ? "#AAA" : "#222",
-      fontWeight: active || (showToday && today) ? "900" : undefined
+      fontWeight: active || (showToday && today) ? "900" : undefined,
     }),
-    [active, outOfRange, showToday, today]
+    [active, outOfRange, showToday, today],
   );
 
   return (
@@ -85,7 +85,7 @@ type DayViewProps = {|
   showMonths: () => void,
   renderDay?: RenderDay,
   minDate?: Moment,
-  maxDate?: Moment
+  maxDate?: Moment,
 |};
 
 export let DayView = (props: DayViewProps) => {
@@ -98,7 +98,7 @@ export let DayView = (props: DayViewProps) => {
     onSelectedDate,
     showMonths,
     minDate,
-    maxDate
+    maxDate,
   } = props;
 
   let onNextMonth = () => {
@@ -136,8 +136,8 @@ export let DayView = (props: DayViewProps) => {
           active: isActive,
           today: isToday,
           showToday: showToday,
-          disabled
-        })
+          disabled,
+        }),
       );
 
       if (
@@ -152,12 +152,12 @@ export let DayView = (props: DayViewProps) => {
             style={{
               display: "flex",
               flexDirection: "row",
-              justifyContent: "space-around"
+              justifyContent: "space-around",
             }}
             key={date.month() + "-" + date.date()}
           >
             {cells}
-          </div>
+          </div>,
         );
         cells = [];
       }
@@ -188,7 +188,7 @@ export let DayView = (props: DayViewProps) => {
     let weekDayStyle = {
       fontFamily: "inherit",
       textAlign: "center",
-      padding: 5
+      padding: 5,
     };
     let render = day => (
       <mui.Typography
@@ -199,7 +199,7 @@ export let DayView = (props: DayViewProps) => {
           textAlign: "center",
           fontWeight: "900",
           width: Common.buttonSize,
-          justifyContent: "center"
+          justifyContent: "center",
         }}
       >
         {day}
@@ -210,7 +210,7 @@ export let DayView = (props: DayViewProps) => {
         style={{
           display: "flex",
           flexDirection: "row",
-          justifyContent: "space-around"
+          justifyContent: "space-around",
         }}
       >
         {render("Su")}

@@ -27,7 +27,7 @@ let Hour = ({ hour, onClick }) => {
 type Props = {|
   onClose: () => void,
   selectedDate: Moment,
-  onSelectedDate: Moment => void
+  onSelectedDate: Moment => void,
 |};
 
 export let HourView = (props: Props) => {

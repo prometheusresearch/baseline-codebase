@@ -19,27 +19,27 @@ let fontStack = [
   "Ubuntu",
   "Cantarell",
   '"Helvetica Neue"',
-  "sans-serif"
+  "sans-serif",
 ];
 
 let useStyles = styles.makeStyles(theme => ({
   demo: {
     backgroundColor: "#ffffff",
-    fontFamily: fontStack.join(",")
+    fontFamily: fontStack.join(","),
   },
   demoItem: {
-    borderBottom: "1px solid #888888"
+    borderBottom: "1px solid #888888",
   },
   demoItemContent: {
-    padding: 20
+    padding: 20,
   },
   demoItemLabel: {
     padding: 5,
     paddingBottom: 20,
     fontSize: "10pt",
     fontFamily: "Menlo, Monaco, monospace",
-    color: "#888"
-  }
+    color: "#888",
+  },
 }));
 
 export let Demo = ({ children }: {| children: React.Node |}) => {
@@ -49,10 +49,10 @@ export let Demo = ({ children }: {| children: React.Node |}) => {
 
 export let DemoItem = ({
   children,
-  label
+  label,
 }: {|
   children: React.Node,
-  label?: string
+  label?: string,
 |}) => {
   let classes = useStyles();
   return (
@@ -70,13 +70,13 @@ export function fixture<SP, P: SP>({
   namespace,
   render,
   component: Component,
-  props
+  props,
 }: {|
   name?: string,
   namespace?: string,
   render?: (React.AbstractComponent<P>, SP) => React.Node,
   component: React.AbstractComponent<P>,
-  props?: SP
+  props?: SP,
 |}) {
   let fixture = (props: P) => {
     let children = null;
@@ -97,7 +97,7 @@ export function fixture<SP, P: SP>({
 
 export let renderButtonFixture = <P>(
   Component: React.AbstractComponent<P>,
-  props: P
+  props: P,
 ) => {
   return (
     <Demo>

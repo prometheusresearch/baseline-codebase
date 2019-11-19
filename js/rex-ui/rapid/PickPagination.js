@@ -16,12 +16,12 @@ export const PickPagination = ({
   hasNext,
   hasPrev,
   onNextPage,
-  onPrevPage
+  onPrevPage,
 }: {|
   hasNext: boolean,
   hasPrev: boolean,
   onNextPage: () => void,
-  onPrevPage: () => void
+  onPrevPage: () => void,
 |}) => {
   const classes = usePickStyles();
 

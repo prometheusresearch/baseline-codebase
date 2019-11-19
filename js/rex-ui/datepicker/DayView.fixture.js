@@ -37,6 +37,6 @@ export default Fixture.fixture({
   props: {
     viewDate: Moment(),
     onViewDate: date => console.log("onViewDate", date),
-    showMonths: () => console.log("show months")
-  }
+    showMonths: () => console.log("show months"),
+  },
 });

@@ -26,5 +26,5 @@ export default Fixture.fixture({
         </Fixture.DemoItem>
       </Fixture.Demo>
     );
-  }
+  },
 });

@@ -18,7 +18,6 @@ import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import InputLabel from "@material-ui/core/InputLabel";
 import Grid from "@material-ui/core/Grid";
-import { useTheme } from "@material-ui/styles";
 
 import SwapVertIcon from "@material-ui/icons/SwapVert";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
@@ -30,9 +29,7 @@ import {
 } from "rex-graphql/Resource";
 import _get from "lodash/get";
 
-import { capitalize } from "./helpers";
 import { ShowCard } from "./ShowRenderer.js";
-import { usePickStyles } from "./styles.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
 import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
@@ -40,8 +37,86 @@ import { type PickState } from "./PickRenderer";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { MuiThemeProvider } from "@material-ui/core";
 
+import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
+import { DEFAULT_THEME } from "./themes";
+import { isEmptyObject, capitalize } from "./helpers";
+
+const useDataViewStyles = makeStyles((theme: Theme) => {
+  if (theme.palette == null || isEmptyObject(theme)) {
+    theme = DEFAULT_THEME;
+  }
+
+  return {
+    center: {
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    table: {
+      minWidth: "100%",
+      tableLayout: "fixed",
+    },
+    tableFullHeight: {
+      minHeight: "100%",
+    },
+    tableCell: {
+      color: "inherit",
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+    },
+    tableCellContentWrapper: {
+      paddingRight: 24,
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+    },
+    tableCellSortIcon: {
+      position: "absolute",
+      top: 16,
+      right: 6,
+    },
+    tableHead: {
+      background: "white",
+      position: "sticky",
+      top: 0,
+      color: "inherit",
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+    },
+    tableHeadSortable: {
+      cursor: "pointer",
+      "&:hover": {
+        backgroundColor: theme.palette.primary.dark,
+        color: "white",
+      },
+    },
+    tableHeadSorted: {
+      backgroundColor: theme.palette.primary.main,
+      color: "white",
+    },
+    tableRow: {
+      color: theme.palette.text.primary,
+    },
+    tableRowClickable: {
+      "&&&:hover": {
+        background: theme.palette.primary.light,
+        color: theme.palette.primary.contrastText,
+      },
+    },
+    tableWrapper: {
+      overflowY: "scroll",
+      flex: "1 1 auto",
+    },
+  };
+});
+
 const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
-  let classes = usePickStyles();
+  let classes = useDataViewStyles();
+
   return (
     <TableBody>
       <TableRow>
@@ -64,7 +139,7 @@ const PickCardListView = ({
   columns: Field.FieldSpec[],
   onCardClick?: (row: any) => void,
 |}) => {
-  const classes = usePickStyles();
+  const classes = useDataViewStyles();
 
   return (
     <Grid container>
@@ -130,7 +205,7 @@ const PickTableBody = ({
 
   ...PickRendererConfigProps,
 |}) => {
-  const classes = usePickStyles();
+  const classes = useDataViewStyles();
 
   const params = buildParams(pickState);
 
@@ -296,7 +371,7 @@ export const PickDataView = ({
 
   ...PickRendererConfigProps,
 |}) => {
-  const classes = usePickStyles();
+  const classes = useDataViewStyles();
 
   const wrapperRef = React.useMemo(() => React.createRef(), []);
 

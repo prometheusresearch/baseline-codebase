@@ -20,10 +20,30 @@ import {
   SORTING_VAR_NAME,
   SEARCH_VAR_NAME,
 } from "./PickRenderer";
-import { usePickStyles } from "./styles.js";
 import * as Field from "./Field.js";
-import { useTheme } from "@material-ui/styles";
 import { MuiThemeProvider } from "@material-ui/core";
+
+import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
+import { DEFAULT_THEME } from "./themes";
+import { isEmptyObject, capitalize } from "./helpers";
+
+export const useFilterStyles = makeStyles((theme: Theme) => {
+  if (theme.palette == null || isEmptyObject(theme)) {
+    theme = DEFAULT_THEME;
+  }
+
+  return {
+    tableControl: {
+      padding: "16px",
+    },
+    formControl: {
+      minWidth: 120,
+      marginBottom: 24,
+      width: "100%",
+      paddingRight: 16,
+    },
+  };
+});
 
 type Props = {|
   state: PickState,
@@ -50,7 +70,7 @@ const PickFilterToolbarBase = ({
     return null;
   }
 
-  const classes = usePickStyles();
+  const classes = useFilterStyles();
 
   const classNames = [classes.tableControl];
 
@@ -232,7 +252,7 @@ function BooleanFilter({
   label?: string,
   name: string,
 |}) {
-  const classes = usePickStyles();
+  const classes = useFilterStyles();
 
   return (
     <FormControl key={`boolean-filter-${name}`} className={classes.formControl}>

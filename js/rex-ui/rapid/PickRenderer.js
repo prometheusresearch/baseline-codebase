@@ -20,12 +20,13 @@ import {
 
 import debounce from "lodash/debounce";
 
-import { makeStyles, useTheme, ThemeProvider } from "@material-ui/styles";
 import {
-  createMuiTheme,
+  makeStyles,
+  useTheme,
+  ThemeProvider,
   type Theme,
-  MuiThemeProvider,
-} from "@material-ui/core/styles";
+} from "@material-ui/styles";
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
 
 import Grid from "@material-ui/core/Grid";
@@ -49,11 +50,52 @@ import {
 import { LoadingIndicator } from "./LoadingIndicator.js";
 
 import { buildSortingConfig } from "./buildSortingConfig";
-import { usePickStyles } from "./styles";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
 import * as Field from "./Field.js";
+
+import { DEFAULT_THEME } from "./themes";
+import { isEmptyObject, capitalize } from "./helpers";
+
+export const useRendererStyles = makeStyles((theme: Theme) => {
+  if (theme.palette == null || isEmptyObject(theme)) {
+    theme = DEFAULT_THEME;
+  }
+
+  return {
+    root: {
+      width: "100%",
+      overflowX: "auto",
+      overflowY: "hidden",
+      display: "flex",
+      flexDirection: "column",
+      flex: "0 1 100%",
+    },
+    topPartWrapper: {
+      position: "relative",
+      zIndex: "10",
+    },
+    topPartWrapperMobile: {
+      boxShadow: "0 0 10px -8px",
+    },
+    filterIconButton: {
+      color: theme.palette.text.primary,
+      "&:hover": {
+        color: theme.palette.primary.contrastText,
+        background: theme.palette.primary.light,
+      },
+    },
+    filterIconButtonActive: {
+      background: theme.palette.primary.light,
+      color: theme.palette.primary.contrastText,
+      "&:hover": {
+        color: theme.palette.primary.contrastText,
+        background: theme.palette.primary.dark,
+      },
+    },
+  };
+});
 
 type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
@@ -266,7 +308,7 @@ export const PickRenderer = ({
 
   const [viewData, setViewData] = React.useState<Array<any>>([]);
 
-  const classes = usePickStyles();
+  const classes = useRendererStyles();
 
   const setFilterState = (name: string, value: ?boolean) => {
     setState(state => ({

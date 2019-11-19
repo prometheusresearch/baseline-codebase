@@ -151,7 +151,7 @@ class API(HandleLocation):
 
 class Index(Command):
     access = "authenticated"
-    path = "/"
+    path = "/**"
 
     def render(self, req):
         bundle = find_assets_bundle()

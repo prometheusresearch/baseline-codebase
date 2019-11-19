@@ -6,9 +6,9 @@ import * as mui from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
 import { DARK_THEME, DEFAULT_THEME } from "rex-ui/rapid/themes";
+import * as Screen from "./Screen.js";
+import * as Router from "rex-ui/Router";
 import { isEmptyObject } from "rex-ui/rapid/helpers";
-
-import * as Router from "./Router.js";
 
 let drawerWidth = 240;
 let appBarHeight = 64;
@@ -79,8 +79,8 @@ const useStyles = makeStyles(theme => {
 });
 
 type AppChromeProps = {|
-  nav: Router.Navigation,
-  menu: Router.Screen[],
+  router: Router.Router<Screen.Screen>,
+  menu: Menu,
   title: string,
   children: React.Node,
 |};
@@ -88,7 +88,7 @@ type AppChromeProps = {|
 export default function AppChrome({
   title,
   children,
-  nav,
+  router,
   menu,
 }: AppChromeProps) {
   let [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -152,7 +152,7 @@ export default function AppChrome({
               <MenuIcon color="primary" />
             </mui.IconButton>
           </div>
-          <AppMenu nav={nav} menu={menu} />
+          <AppMenu router={router} menu={menu} />
         </div>
         <AppTheme onChange={val => setAppTheme(val)} theme={appTheme} />
       </mui.Drawer>
@@ -167,16 +167,29 @@ export default function AppChrome({
   );
 }
 
-type AppMenuProps = {|
-  nav: Router.Navigation,
-  menu: Router.Screen[],
+export type MenuItem = {|
+  title?: ?string,
+  route: Router.Route<Screen.Screen>,
 |};
 
-function AppMenu({ nav, menu }: AppMenuProps) {
-  let items = menu.map((screen, index) => {
-    let key = `${screen.type}-${screen.fetch}-${index}`;
-    let selected = nav.isActive(screen);
-    let onClick = () => nav.replace(screen);
+export type Menu = MenuItem[];
+
+type AppMenuProps = {|
+  router: Router.Router<Screen.Screen>,
+  menu: Menu,
+|};
+
+function AppMenu({ router, menu }: AppMenuProps) {
+  let items = menu.map((item, index) => {
+    let key = item.route.path;
+    let title =
+      item.title != null
+        ? item.title
+        : item.route.screen != null
+        ? item.route.screen.title
+        : "Page";
+    let selected = router.isActive(item.route);
+    let onClick = () => router.replace(item.route);
     return (
       <mui.ListItem
         key={key}
@@ -184,16 +197,11 @@ function AppMenu({ nav, menu }: AppMenuProps) {
         selected={selected}
         onClick={onClick}
       >
-        <mui.ListItemText primary={screen.title} />
+        <mui.ListItemText primary={title} />
       </mui.ListItem>
     );
   });
-  return (
-    <mui.List>
-      <mui.ListSubheader>Pages</mui.ListSubheader>
-      {items}
-    </mui.List>
-  );
+  return <mui.List>{items}</mui.List>;
 }
 
 function AppTheme({

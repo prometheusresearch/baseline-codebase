@@ -4,7 +4,8 @@ import * as React from "react";
 import classNames from "classnames";
 import * as mui from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
-import { Menu as MenuIcon } from "@material-ui/icons";
+import MenuIcon from "@material-ui/icons/Menu";
+import ClearIcon from "@material-ui/icons/Clear";
 import { DARK_THEME, DEFAULT_THEME } from "rex-ui/rapid/themes";
 import * as Screen from "./Screen.js";
 import * as Router from "rex-ui/Router";
@@ -12,6 +13,13 @@ import { isEmptyObject } from "rex-ui/rapid/helpers";
 
 let drawerWidth = 240;
 let appBarHeight = 64;
+
+export type MenuItem = {|
+  title?: ?string,
+  route: Router.Route<Screen.Screen>,
+|};
+
+export type Menu = MenuItem[];
 
 const useStyles = makeStyles(theme => {
   if (isEmptyObject(theme)) {
@@ -26,10 +34,6 @@ const useStyles = makeStyles(theme => {
     appBarShift: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
-      transition: theme.transitions.create(["margin", "width"], {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
     },
     content: {
       display: "flex",
@@ -38,38 +42,13 @@ const useStyles = makeStyles(theme => {
       flexGrow: 1,
       backgroundColor: theme.palette.background.default,
       minWidth: 0, // So the Typography noWrap works
-      transition: theme.transitions.create(["margin"], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
       height: "100vh",
       maxHeight: "100vh",
       paddingTop: appBarHeight,
       marginLeft: 0,
     },
-    upperPartWrapper: {
-      flex: "1 1 auto",
-    },
     contentShift: {
-      transition: theme.transitions.create(["margin"], {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
       marginLeft: `${drawerWidth}px !important`,
-    },
-    drawer: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-    drawerPaper: {
-      width: drawerWidth,
-      paddingTop: theme.spacing.unit,
-    },
-    drawerMenuButton: {
-      display: "flex",
-      justifyContent: "flex-start",
-      padding: theme.spacing.unit,
-      ...theme.mixins.toolbar,
     },
     menuButton: {
       marginLeft: 0,
@@ -133,29 +112,14 @@ export default function AppChrome({
           </mui.Typography>
         </mui.Toolbar>
       </mui.AppBar>
-      <mui.Drawer
-        variant="persistent"
-        anchor="left"
+      <AppDrawer
         open={drawerOpen}
-        className={classes.drawer}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
-        <div className={classes.upperPartWrapper}>
-          <div className={classes.drawerMenuButton}>
-            <mui.IconButton
-              color="inherit"
-              aria-label="Open drawer"
-              onClick={toggleDrawerOpen}
-            >
-              <MenuIcon color="primary" />
-            </mui.IconButton>
-          </div>
-          <AppMenu router={router} menu={menu} />
-        </div>
-        <AppTheme onChange={val => setAppTheme(val)} theme={appTheme} />
-      </mui.Drawer>
+        onClose={toggleDrawerOpen}
+        menu={menu}
+        router={router}
+        theme={appTheme}
+        onTheme={setAppTheme}
+      />
       <main
         className={classNames(classes.content, {
           [classes.contentShift]: drawerOpen,
@@ -167,12 +131,69 @@ export default function AppChrome({
   );
 }
 
-export type MenuItem = {|
-  title?: ?string,
-  route: Router.Route<Screen.Screen>,
+let useAppDrawerStyles = makeStyles(theme => ({
+  root: {
+    width: drawerWidth,
+    flexShrink: 0,
+  },
+  paper: {
+    width: drawerWidth,
+  },
+  wrapper: {
+    flex: "1 1 auto",
+  },
+  toolbar: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    padding: theme.spacing.unit,
+    ...theme.mixins.toolbar,
+  },
+}));
+
+type AppDrawerProps = {|
+  open: boolean,
+  onClose: () => void,
+  menu: Menu,
+  theme: any,
+  onTheme: any => void,
+  router: Router.Router<Screen.Screen>,
 |};
 
-export type Menu = MenuItem[];
+function AppDrawer({
+  router,
+  open,
+  onClose,
+  menu,
+  theme,
+  onTheme,
+}: AppDrawerProps) {
+  let classes = useAppDrawerStyles();
+  return (
+    <mui.Drawer
+      variant="persistent"
+      anchor="left"
+      open={open}
+      transitionDuration={0}
+      className={classes.root}
+      classes={{ paper: classes.paper }}
+    >
+      <div className={classes.wrapper}>
+        <div className={classes.toolbar}>
+          <mui.IconButton
+            color="inherit"
+            aria-label="Close drawer"
+            onClick={onClose}
+          >
+            <ClearIcon color="primary" />
+          </mui.IconButton>
+        </div>
+        <AppMenu router={router} menu={menu} />
+      </div>
+      <AppTheme onChange={onTheme} theme={theme} />
+    </mui.Drawer>
+  );
+}
 
 type AppMenuProps = {|
   router: Router.Router<Screen.Screen>,

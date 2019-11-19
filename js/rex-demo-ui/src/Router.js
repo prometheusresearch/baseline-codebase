@@ -26,7 +26,7 @@ export type PickScreen = {|
 export type Screen = PickScreen | ShowScreen;
 
 export function eqScreen(a: Screen, b: Screen) {
-  return a.type === b.type && a.fetch === b.fetch;
+  return a.type === b.type && a.fetch === b.fetch && a.title === b.title;
 }
 
 export type Navigation = {|

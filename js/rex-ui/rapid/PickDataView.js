@@ -43,7 +43,7 @@ const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
   return (
     <TableBody>
       <TableRow>
-        <TableCell colSpan={columns.length}>
+        <TableCell colSpan={columns.length + 1}>
           <div className={classes.center}>
             <Typography variant={"caption"}>No data</Typography>
           </div>
@@ -437,7 +437,7 @@ export const PickDataView = ({
           fallback={
             <TableBody>
               <TableRow>
-                <TableCell colSpan={columns.length}>
+                <TableCell colSpan={columns.length + 1}>
                   <div className={classes.center}>
                     <LoadingIndicator />
                   </div>

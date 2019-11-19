@@ -6,7 +6,6 @@ import * as ReactDOM from "react-dom";
 import * as RexGraphQL from "rex-graphql";
 import * as Resource from "rex-graphql/Resource";
 import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
-import { DEFAULT_THEME } from "rex-ui/rapid/themes";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import {
@@ -20,8 +19,16 @@ import * as mui from "@material-ui/core";
 import * as Router from "./Router";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AppChrome from "./AppChrome";
-import { ThemeProvider } from "@material-ui/styles";
+import { makeStyles, type Theme } from "@material-ui/styles";
 
+let useStyles = makeStyles((theme: Theme) => {
+  return {
+    customFilterLabel: {
+      fontSize: 12,
+      marginBottom: 12,
+    },
+  };
+});
 let endpoint = RexGraphQL.configure("/_api/graphql");
 
 let removeUser = Resource.defineMutation<{ userIds: string[] }, void>({
@@ -68,6 +75,8 @@ let showUser = (id: string): Router.ShowScreen => ({
 });
 
 const CustomSortRenderer = ({ value, values, onChange }) => {
+  const classes = useStyles();
+
   const valueString =
     typeof value === "string" || value === undefined
       ? value
@@ -75,7 +84,9 @@ const CustomSortRenderer = ({ value, values, onChange }) => {
 
   return (
     <FormControl component="fieldset">
-      <FormLabel component="legend">Sorting</FormLabel>
+      <FormLabel style={{ fontSize: 14 }} component="legend">
+        Sorting
+      </FormLabel>
       <RadioGroup
         aria-label="Sorting"
         name="sorting"
@@ -88,12 +99,22 @@ const CustomSortRenderer = ({ value, values, onChange }) => {
               ? val
               : JSON.stringify(val);
 
+          const label =
+            typeof val === "string" && val !== "undefined"
+              ? val
+              : val === undefined || val === "undefined"
+              ? "None"
+              : `${val.field}, ${val.desc ? `desc` : `asc`}`;
+
           return (
             <FormControlLabel
               key={valString}
               value={valString}
               control={<Radio />}
-              label={valString}
+              label={label}
+              classes={{
+                label: classes.customFilterLabel,
+              }}
             />
           );
         })}
@@ -156,6 +177,12 @@ let pickUser: Router.PickScreen = {
     );
   },
   onSelect: id => showUser(id),
+};
+
+let pickUserWithCustomFilters: Router.PickScreen = {
+  ...pickUser,
+  title: "Users (with custom filters)",
+  filters: customPickUserFilters,
 };
 
 let pickPatient: Router.PickScreen = {
@@ -232,7 +259,11 @@ function App() {
   }, [nav.screen]);
 
   return (
-    <AppChrome nav={nav} menu={[pickUser, pickPatient]} title="Rex Rapid Demo">
+    <AppChrome
+      nav={nav}
+      menu={[pickUser, pickUserWithCustomFilters, pickPatient]}
+      title="Rex Rapid Demo"
+    >
       <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>
     </AppChrome>
   );
@@ -243,10 +274,8 @@ invariant(root != null, "DOM is not avaialble: missing #root");
 
 ReactDOM.render(
   <>
-    <ThemeProvider theme={DEFAULT_THEME}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
+    <CssBaseline />
+    <App />
   </>,
   root,
 );

@@ -372,6 +372,8 @@ export const PickRenderer = ({
     topPartClassNames.push(classes.topPartWrapperMobile);
   }
 
+  let theme = useTheme();
+
   return (
     <Paper className={classes.root}>
       {/* npm -> "classnames" would be handy here */}
@@ -381,7 +383,9 @@ export const PickRenderer = ({
           description={description || fieldDescription}
           bottomToolbar={
             RenderToolbar != null ? (
-              <RenderToolbar selected={selected} onSelected={onSelected} />
+              <MuiThemeProvider theme={theme}>
+                <RenderToolbar selected={selected} onSelected={onSelected} />
+              </MuiThemeProvider>
             ) : null
           }
           rightToolbar={

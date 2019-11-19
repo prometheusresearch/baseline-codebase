@@ -18,6 +18,7 @@ import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import InputLabel from "@material-ui/core/InputLabel";
 import Grid from "@material-ui/core/Grid";
+import { useTheme } from "@material-ui/styles";
 
 import SwapVertIcon from "@material-ui/icons/SwapVert";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
@@ -37,6 +38,7 @@ import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
 import { type PickState } from "./PickRenderer";
 import { LoadingIndicator } from "./LoadingIndicator";
+import { MuiThemeProvider } from "@material-ui/core";
 
 const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
   let classes = usePickStyles();
@@ -406,6 +408,8 @@ export const PickDataView = ({
     tableClassNames.push(classes.tableFullHeight);
   }
 
+  const theme = useTheme();
+
   return (
     <div className={classes.tableWrapper} ref={wrapperRef}>
       <Table
@@ -446,26 +450,28 @@ export const PickDataView = ({
             </TableBody>
           }
         >
-          <PickTableBody
-            pickState={state}
-            onDataReceive={onDataReceive}
-            resource={resource}
-            columns={columns}
-            sortingConfig={sortingConfig}
-            setSortingState={setSortingState}
-            RendererColumnCell={RendererColumnCell}
-            RendererRow={RendererRow}
-            RendererRowCell={RendererRowCell}
-            onRowClick={onRowClick}
-            fetch={fetch}
-            isTabletWidth={isTabletWidth}
-            columnsMap={columnsMap}
-            columnsNames={columnsNames}
-            setTableFullHeight={setTableFullHeight}
-            showAs={showAs}
-            selected={selected}
-            onSelected={onSelected}
-          />
+          <MuiThemeProvider theme={theme}>
+            <PickTableBody
+              pickState={state}
+              onDataReceive={onDataReceive}
+              resource={resource}
+              columns={columns}
+              sortingConfig={sortingConfig}
+              setSortingState={setSortingState}
+              RendererColumnCell={RendererColumnCell}
+              RendererRow={RendererRow}
+              RendererRowCell={RendererRowCell}
+              onRowClick={onRowClick}
+              fetch={fetch}
+              isTabletWidth={isTabletWidth}
+              columnsMap={columnsMap}
+              columnsNames={columnsNames}
+              setTableFullHeight={setTableFullHeight}
+              showAs={showAs}
+              selected={selected}
+              onSelected={onSelected}
+            />
+          </MuiThemeProvider>
         </React.Suspense>
       </Table>
     </div>

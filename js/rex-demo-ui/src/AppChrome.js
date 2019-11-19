@@ -6,14 +6,15 @@ import * as mui from "@material-ui/core";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
 import { DARK_THEME, DEFAULT_THEME } from "rex-ui/rapid/themes";
-import * as Router from "./Router.js";
 import { isEmptyObject } from "rex-ui/rapid/helpers";
+
+import * as Router from "./Router.js";
 
 let drawerWidth = 240;
 let appBarHeight = 64;
 
 const useStyles = makeStyles(theme => {
-  if (theme == null || isEmptyObject(theme)) {
+  if (isEmptyObject(theme)) {
     theme = DEFAULT_THEME;
   }
 

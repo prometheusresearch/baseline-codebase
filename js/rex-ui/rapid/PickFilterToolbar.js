@@ -195,7 +195,10 @@ export const PickFilterToolbar = ({
                   }
                 }
 
-                return filtersSpecs == null ? (
+                return filtersSpecs == null ||
+                  (filtersSpecs.get(booleanFilterName) != null &&
+                    //$FlowFixMe
+                    filtersSpecs.get(booleanFilterName).render == null) ? (
                   <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
                     <BooleanFilter
                       key={booleanFilterName}

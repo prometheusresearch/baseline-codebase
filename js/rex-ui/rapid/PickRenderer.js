@@ -238,7 +238,7 @@ export const PickRenderer = ({
   selected,
   onSelected,
 }: PickRendererProps) => {
-  const isTabletWidth = useMediaQuery("(min-width: 720px)");
+  const isTabletWidth = useMediaQuery("screen and (min-width: 720px)");
 
   const defaultPickState = {
     offset: 0,

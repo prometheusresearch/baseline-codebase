@@ -25,10 +25,10 @@ let useStyles = makeStyles((theme: Theme) => {
   return {
     customFilterLabel: {
       fontSize: 12,
-      marginBottom: 12,
     },
   };
 });
+
 let endpoint = RexGraphQL.configure("/_api/graphql");
 
 let removeUser = Resource.defineMutation<{ userIds: string[] }, void>({
@@ -84,7 +84,7 @@ const CustomSortRenderer = ({ value, values, onChange }) => {
 
   return (
     <FormControl component="fieldset">
-      <FormLabel style={{ fontSize: 14 }} component="legend">
+      <FormLabel style={{ fontSize: 12 }} component="legend">
         Sorting
       </FormLabel>
       <RadioGroup
@@ -127,7 +127,17 @@ let customPickUserFilters = [
   {
     name: "search",
     render: ({ value, onChange }) => {
-      return <input value={value} onChange={ev => onChange(ev.target.value)} />;
+      return (
+        <div>
+          <mui.Typography
+            variant={"body1"}
+            style={{ fontSize: 12, lineHeight: 1, marginBottom: 12 }}
+          >
+            Custom search input
+          </mui.Typography>
+          <input value={value} onChange={ev => onChange(ev.target.value)} />
+        </div>
+      );
     },
   },
   "expired",
@@ -135,6 +145,7 @@ let customPickUserFilters = [
     name: "sort",
     render: CustomSortRenderer,
   },
+  "system_admin",
 ];
 
 let pickUser: Router.PickScreen = {

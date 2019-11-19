@@ -13,7 +13,7 @@ import {
 } from "graphql/utilities/introspectionQuery";
 import * as Field from "./Field";
 import { ConfigError } from "./ErrorBoundary";
-import { type FilterSpecMap, SORTING_VAR_NAME } from "./PickRenderer";
+import { type FilterSpecMap, SORTING_VAR_NAME } from "./Pick";
 
 const buildSortableFieldObjects = ({
   inputFields,
@@ -26,7 +26,7 @@ const buildSortableFieldObjects = ({
   fieldObjectExtensions: Array<{ [key: string]: any }>,
   introspectionTypesMap: Map<string, IntrospectionType>,
   columns: Field.FieldSpec[],
-  sortableColumns?: string[],
+  sortableColumns?: ?Array<string>,
 |}) => {
   const sortFieldsField = inputFields.find(
     inputField =>
@@ -79,11 +79,11 @@ export const buildSortingConfig = ({
   introspectionTypesMap: Map<string, IntrospectionType>,
   variableDefinitionName: string,
   columns: Field.FieldSpec[],
-  sortableColumns?: string[],
+  sortableColumns?: ?Array<string>,
   filtersSpecs: ?FilterSpecMap,
 |}): ?Array<{| field: string, desc: boolean |}> => {
   if (
-    !variableDefinitions ||
+    variableDefinitions == null ||
     (filtersSpecs != null && filtersSpecs.get(SORTING_VAR_NAME) == null)
   ) {
     return null;

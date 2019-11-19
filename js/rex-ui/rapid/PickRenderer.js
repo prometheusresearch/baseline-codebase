@@ -57,6 +57,7 @@ import * as Field from "./Field.js";
 
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, capitalize } from "./helpers";
+import { type FilterSpecMap } from "./Pick";
 
 export const useRendererStyles = makeStyles((theme: Theme) => {
   if (theme.palette == null || isEmptyObject(theme)) {
@@ -100,29 +101,6 @@ export const useRendererStyles = makeStyles((theme: Theme) => {
 type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
 
-export type FilterConfig =
-  | string
-  | {
-      name: string,
-      render?: React.AbstractComponent<{
-        value: any,
-        values?: Array<any>,
-        onChange: (newValue: any) => void,
-      }>,
-    };
-
-export type FiltersConfig = FilterConfig[];
-
-export type FilterSpec = {|
-  render: ?React.ComponentType<{
-    value: any,
-    values?: Array<any>,
-    onChange: (newValue: any) => void,
-  }>,
-|};
-
-export type FilterSpecMap = Map<string, FilterSpec>;
-
 export type RenderToolbarProps = {|
   selected: Set<string>,
   onSelected: (nextSelected: Set<string>) => void,
@@ -136,9 +114,8 @@ export type PickRendererConfigProps = {|
   description?: string,
   fieldDescription?: ?string,
   showAs?: PickMode,
-  sortableColumns?: string[],
   columnsWidth?: { [key: string]: string | number },
-  filters?: ?FiltersConfig,
+  sortableColumns?: ?Array<string>,
 
   RenderColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -168,8 +145,10 @@ export type PickRendererProps = {|
   columns: Field.FieldSpec[],
   queryDefinition: OperationDefinitionNode,
   introspectionTypesMap: Map<string, IntrospectionType>,
+  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
   theme?: Theme,
+  filtersSpecs?: ?FilterSpecMap,
 
   selected: Set<string>,
   onSelected: (nextSelected: Set<string>) => void,
@@ -178,7 +157,6 @@ export type PickRendererProps = {|
 |};
 
 // TODO: We can make those constants -> props passed from component user
-export const SORTING_VAR_NAME = "sort";
 export const SEARCH_VAR_NAME = "search";
 
 let usePickHeaderStyles = makeStyles(theme => ({
@@ -241,23 +219,6 @@ export type PickState = {|
   filter: { [key: string]: ?boolean },
 |};
 
-const filtersConfigToSpecs = (configs: ?FiltersConfig): ?FilterSpecMap => {
-  if (configs == null || configs.length === 0) {
-    return null;
-  }
-  let SpecMap: FilterSpecMap = new Map();
-
-  for (let config of configs) {
-    if (typeof config === "string") {
-      SpecMap.set(config, { render: null });
-    } else if (typeof config === "object") {
-      SpecMap.set(config.name, { render: config.render });
-    }
-  }
-
-  return SpecMap;
-};
-
 export const PickRenderer = ({
   resource,
   columns,
@@ -274,11 +235,11 @@ export const PickRenderer = ({
   description,
   fieldDescription,
   showAs,
-  sortableColumns,
   columnsWidth,
-  filters,
   selected,
   onSelected,
+  sortingConfig,
+  filtersSpecs,
 }: PickRendererProps) => {
   const isTabletWidth = useMediaQuery("screen and (min-width: 720px)");
 
@@ -370,17 +331,6 @@ export const PickRenderer = ({
       }));
     }
   }, [variableDefinitions]);
-
-  const filtersSpecs = filtersConfigToSpecs(filters);
-
-  const sortingConfig = buildSortingConfig({
-    variableDefinitions,
-    columns,
-    introspectionTypesMap,
-    variableDefinitionName: SORTING_VAR_NAME,
-    sortableColumns,
-    filtersSpecs,
-  });
 
   /**
    * Decide if filters block is opened via state from localStorage

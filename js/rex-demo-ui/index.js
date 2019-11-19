@@ -318,4 +318,3 @@ ReactDOM.render(
   </>,
   root,
 );
-

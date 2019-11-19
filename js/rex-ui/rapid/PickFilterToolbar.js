@@ -13,13 +13,14 @@ import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
+import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
+
 import {
-  type PickState,
   type FiltersConfig,
   type FilterSpecMap,
   SORTING_VAR_NAME,
-  SEARCH_VAR_NAME,
-} from "./PickRenderer";
+} from "./Pick";
+
 import * as Field from "./Field.js";
 import { MuiThemeProvider } from "@material-ui/core";
 

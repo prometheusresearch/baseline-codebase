@@ -98,16 +98,16 @@ export type PickRendererConfigProps = {|
   columnsWidth?: { [key: string]: string | number },
   filters?: ?FiltersConfig,
 
-  RendererColumnCell?: (props: {
+  RenderColumnCell?: (props: {
     column?: Field.FieldSpec,
     index: number,
   }) => React.Node,
-  RendererRow?: (props: {
+  RenderRow?: (props: {
     columns?: Field.FieldSpec[],
     row?: any,
     index: number,
   }) => React.Node,
-  RendererRowCell?: (props: {
+  RenderRowCell?: (props: {
     column?: Field.FieldSpec,
     row?: any,
     index: number,
@@ -222,9 +222,9 @@ export const PickRenderer = ({
   fetch,
   queryDefinition,
   introspectionTypesMap,
-  RendererColumnCell,
-  RendererRowCell,
-  RendererRow,
+  RenderColumnCell,
+  RenderRowCell,
+  RenderRow,
   RenderToolbar,
   onRowClick,
   args,

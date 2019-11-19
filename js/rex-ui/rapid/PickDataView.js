@@ -97,9 +97,9 @@ const PickTableBody = ({
   columns,
   sortingConfig,
   setSortingState,
-  RendererColumnCell,
-  RendererRow,
-  RendererRowCell,
+  RenderColumnCell,
+  RenderRow,
+  RenderRowCell,
   onRowClick,
   isTabletWidth,
   columnsNames,
@@ -271,9 +271,9 @@ export const PickDataView = ({
   isTabletWidth,
   sortingConfig,
   setSortingState,
-  RendererColumnCell,
-  RendererRow,
-  RendererRowCell,
+  RenderColumnCell,
+  RenderRow,
+  RenderRowCell,
   onRowClick,
   state,
   showAs,
@@ -382,8 +382,8 @@ export const PickDataView = ({
         style={columnStyle}
         title={title}
       >
-        {RendererColumnCell ? (
-          <RendererColumnCell column={column} index={index} key={index} />
+        {RenderColumnCell ? (
+          <RenderColumnCell column={column} index={index} key={index} />
         ) : (
           <div className={classes.tableCellContentWrapper}>
             {title}
@@ -458,9 +458,9 @@ export const PickDataView = ({
               columns={columns}
               sortingConfig={sortingConfig}
               setSortingState={setSortingState}
-              RendererColumnCell={RendererColumnCell}
-              RendererRow={RendererRow}
-              RendererRowCell={RendererRowCell}
+              RenderColumnCell={RenderColumnCell}
+              RenderRow={RenderRow}
+              RenderRowCell={RenderRowCell}
               onRowClick={onRowClick}
               fetch={fetch}
               isTabletWidth={isTabletWidth}

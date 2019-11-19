@@ -18,17 +18,17 @@ export type Props = {|
   onClick?: (e: UIEvent) => void,
   style?: Object,
   title?: string,
-  href?: string
+  href?: string,
 |};
 
 export let ButtonIcon = ({
   size,
   icon,
-  hasChildren
+  hasChildren,
 }: {|
   size?: Size,
   icon?: React.Node,
-  hasChildren?: boolean
+  hasChildren?: boolean,
 |}) => {
   let theme = useTheme();
   let iconElement = null;
@@ -45,7 +45,7 @@ export let ButtonIcon = ({
       paddingRight,
       height: "1em",
       marginLeft: -theme.spacing.unit / 4,
-      transform: size === "small" ? "scale(0.75)" : null
+      transform: size === "small" ? "scale(0.75)" : null,
     };
     iconElement = <div style={iconStyle}>{icon}</div>;
   }
@@ -69,7 +69,7 @@ export let Button = (props: Props) => {
     let iconStyle = {
       paddingRight,
       height: "1em",
-      transform: size === "small" ? "scale(0.75)" : null
+      transform: size === "small" ? "scale(0.75)" : null,
     };
     iconElement = <div style={iconStyle}>{icon}</div>;
   }

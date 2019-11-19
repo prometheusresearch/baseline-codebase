@@ -23,6 +23,6 @@ export default Fixture.fixture({
     selectedDate: Moment(),
     viewDate: Moment(),
     onViewDate: date => console.log("onViewDate", date),
-    showYears: () => console.log("show years")
-  }
+    showYears: () => console.log("show years"),
+  },
 });

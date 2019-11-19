@@ -9,11 +9,11 @@ import * as History from "./History";
 let defaultMessage = "Changes that you made may not be saved.";
 
 type Props = {|
-  message?: string
+  message?: string,
 |};
 
 export type Instance = {|
-  allow: () => void
+  allow: () => void,
 |};
 
 /**
@@ -31,10 +31,10 @@ export let ConfirmNavigation = React.forwardRef<Props, Instance>(
     React.useImperativeHandle(ref, () => ({
       allow: () => {
         History.allowNavigation(reason.current);
-      }
+      },
     }));
     return null;
-  }
+  },
 );
 
 /**

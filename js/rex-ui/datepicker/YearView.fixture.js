@@ -23,5 +23,5 @@ export default Fixture.fixture({
     selectedDate: Moment(),
     viewDate: Moment(),
     onViewDate: date => console.log("onViewDate", date),
-  }
+  },
 });

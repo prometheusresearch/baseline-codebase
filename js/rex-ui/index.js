@@ -14,13 +14,13 @@ export type {
   SearchCallback as AutocompleteSearchCallback,
   Item as AutocompleteItem,
   RenderSuggestion as AutocompleteRenderSuggestion,
-  RenderInput as AutocompleteRenderInput
+  RenderInput as AutocompleteRenderInput,
 } from "./Autocomplete.js";
 export {
   Autocomplete,
   AutocompleteLoading,
   Suggestion as AutocompleteSuggestion,
-  Input as AutocompleteInput
+  Input as AutocompleteInput,
 } from "./Autocomplete.js";
 
 import { type Theme } from "./Theme";

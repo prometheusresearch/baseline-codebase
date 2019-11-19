@@ -9,7 +9,7 @@ export class ConfigError extends Error {}
 
 type Props = {| children?: React.Node |};
 type State = {|
-  error: ?ConfigError
+  error: ?ConfigError,
 |};
 
 export class ErrorBoundary extends React.Component<Props, State> {

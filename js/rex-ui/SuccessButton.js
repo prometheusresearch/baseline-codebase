@@ -16,22 +16,22 @@ let useStyles = styles.makeStyles((theme: Theme) => {
 
   let backgroundColorOnHover = fade(
     colors.main,
-    theme.palette.action.hoverOpacity
+    theme.palette.action.hoverOpacity,
   );
 
   return {
     root: {
-      alignItems: "unset !important"
+      alignItems: "unset !important",
     },
     text: {
       color: `${colors.main} !important`,
       "&$disabled": {
         color: `${colors.main} !important`,
-        opacity: 0.5
+        opacity: 0.5,
       },
       "&:hover": {
-        backgroundColor: `${backgroundColorOnHover} !important`
-      }
+        backgroundColor: `${backgroundColorOnHover} !important`,
+      },
     },
     disabled: {},
     contained: {
@@ -39,9 +39,9 @@ let useStyles = styles.makeStyles((theme: Theme) => {
       backgroundColor: `${colors.main} !important`,
       "&$disabled": {
         color: `${white} !important`,
-        opacity: 0.5
-      }
-    }
+        opacity: 0.5,
+      },
+    },
   };
 });
 

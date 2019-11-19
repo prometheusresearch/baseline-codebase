@@ -14,7 +14,7 @@ import {
   DatePicker as DatePickerBase,
   TimePicker as TimePickerBase,
   DateTimePicker as DateTimePickerBase,
-  Frame
+  Frame,
 } from "./datepicker";
 import { TextInput, type Props as TextInputProps } from "./TextInput";
 
@@ -27,7 +27,7 @@ export type DateTimePickerProps = {|
   onChange: (?string, ?Moment) => void,
   format?: string,
   minDate?: string,
-  maxDate?: string
+  maxDate?: string,
 |};
 
 export let DateTimePicker = ({
@@ -35,7 +35,7 @@ export let DateTimePicker = ({
   onChange,
   format = ISO_FORMAT_DATETIME,
   minDate,
-  maxDate
+  maxDate,
 }: DateTimePickerProps) => {
   let [datePickerMode, onDatePickerMode] = React.useState("days");
   let [timePickerMode, onTimePickerMode] = React.useState("time");
@@ -50,7 +50,7 @@ export let DateTimePicker = ({
   }
 
   let [viewDate, onViewDate] = React.useState(
-    selectedDate != null ? selectedDate : Moment()
+    selectedDate != null ? selectedDate : Moment(),
   );
 
   let onSelectedDate = date => {
@@ -86,7 +86,7 @@ export type DatePickerProps = {|
   onChange: (?string, ?Moment) => void,
   format?: string,
   minDate?: string,
-  maxDate?: string
+  maxDate?: string,
 |};
 
 export let DatePicker = ({
@@ -94,7 +94,7 @@ export let DatePicker = ({
   onChange,
   format = ISO_FORMAT_DATE,
   minDate,
-  maxDate
+  maxDate,
 }: DatePickerProps) => {
   let [mode, onMode] = React.useState("days");
 
@@ -108,7 +108,7 @@ export let DatePicker = ({
   }
 
   let [viewDate, onViewDate] = React.useState(
-    selectedDate != null ? selectedDate : Moment()
+    selectedDate != null ? selectedDate : Moment(),
   );
 
   let onSelectedDate = date => {
@@ -140,13 +140,13 @@ export let DatePicker = ({
 export type TimePickerProps = {|
   value: ?string,
   onChange: (?string, ?Moment) => void,
-  format?: string
+  format?: string,
 |};
 
 export let TimePicker = ({
   value,
   onChange,
-  format = ISO_FORMAT_TIME
+  format = ISO_FORMAT_TIME,
 }: TimePickerProps) => {
   let [mode, onMode] = React.useState("time");
 
@@ -160,7 +160,7 @@ export let TimePicker = ({
   }
 
   let [viewDate, onViewDate] = React.useState(
-    selectedDate != null ? selectedDate : Moment()
+    selectedDate != null ? selectedDate : Moment(),
   );
 
   let onSelectedDate = date => {
@@ -213,7 +213,7 @@ export type InputProps = {|
    */
   maxDate?: string,
 
-  mode?: Mode
+  mode?: Mode,
 |};
 
 export type Props = {|
@@ -236,7 +236,7 @@ export type Props = {|
    * The second argument is the parsed date value. It is null if current value
    * is invalid date.
    */
-  onChange: (?string, ?Moment) => void
+  onChange: (?string, ?Moment) => void,
 |};
 
 let defaultFormat = (mode: Mode) => {
@@ -282,7 +282,7 @@ export let DateInput = ({
       close();
       onChange(value, date);
     },
-    [close, onChange]
+    [close, onChange],
   );
 
   let onTextChange = React.useCallback(
@@ -294,7 +294,7 @@ export let DateInput = ({
         onChange(value, null);
       }
     },
-    [onChange, inputFormat]
+    [onChange, inputFormat],
   );
 
   let endAdornment = React.useMemo(() => {
@@ -354,7 +354,7 @@ export let DateInput = ({
           anchorEl={ref.current}
           anchorOrigin={{
             horizontal: "left",
-            vertical: "bottom"
+            vertical: "bottom",
           }}
         >
           <Frame>{picker}</Frame>

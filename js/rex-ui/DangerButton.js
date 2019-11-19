@@ -14,11 +14,11 @@ let useStyles = styles.makeStyles((theme: Theme) => {
   let colors = theme.palette.error;
   let backgroundColorOnHover = fade(
     colors.main,
-    theme.palette.action.hoverOpacity
+    theme.palette.action.hoverOpacity,
   );
   return {
     root: {
-      alignItems: "unset !important"
+      alignItems: "unset !important",
     },
     text: {
       color: `${theme.palette.error.main} !important`,
@@ -26,20 +26,20 @@ let useStyles = styles.makeStyles((theme: Theme) => {
 
       "&$disabled": {
         color: `${theme.palette.error.main} !important`,
-        opacity: 0.5
+        opacity: 0.5,
       },
       "&:hover": {
-        backgroundColor: `${backgroundColorOnHover} !important`
-      }
+        backgroundColor: `${backgroundColorOnHover} !important`,
+      },
     },
     disabled: {},
     contained: {
       color: `${theme.palette.common.white} !important`,
       backgroundColor: `${theme.palette.error.dark} !important`,
       "&$disabled": {
-        opacity: 0.5
-      }
-    }
+        opacity: 0.5,
+      },
+    },
   };
 });
 

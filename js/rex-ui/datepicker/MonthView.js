@@ -19,13 +19,13 @@ type MonthProps = {|
   year: number,
   value: string,
   onClick?: number => void,
-  disabled?: boolean
+  disabled?: boolean,
 |};
 
 export type RenderMonth = ({|
   ...MonthProps,
   key?: string | number,
-  disabled?: boolean
+  disabled?: boolean,
 |}) => React.Node;
 
 export let Month = (props: MonthProps) => {
@@ -44,12 +44,12 @@ export let Month = (props: MonthProps) => {
     flexGrow: 1,
     backgroundColor: active ? activeStyle.backgroundColor : null,
     cursor: disabled ? "not-allowed" : "pointer",
-    opacity: disabled ? 0.5 : 1
+    opacity: disabled ? 0.5 : 1,
   };
 
   let textStyle = {
     color: active ? activeStyle.color : null,
-    fontWeight: active ? "900" : null
+    fontWeight: active ? "900" : null,
   };
 
   return (
@@ -73,7 +73,7 @@ type MonthViewProps = {|
   onClose?: () => void,
   renderMonth?: RenderMonth,
   minDate?: Moment,
-  maxDate?: Moment
+  maxDate?: Moment,
 |};
 
 export let MonthView = (props: MonthViewProps) => {
@@ -85,7 +85,7 @@ export let MonthView = (props: MonthViewProps) => {
     showYears,
     onClose,
     minDate,
-    maxDate
+    maxDate,
   } = props;
   let viewYear = viewDate.year();
   let selectedMonth = selectedDate != null ? selectedDate.month() : null;
@@ -118,7 +118,7 @@ export let MonthView = (props: MonthViewProps) => {
       year: viewYear,
       value: MONTHS_SHORT[month],
       onClick: onMonthClick,
-      disabled
+      disabled,
     });
   });
   let rows = chunk(cells, 3).map((row, idx) => (

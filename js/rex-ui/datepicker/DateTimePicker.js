@@ -25,7 +25,7 @@ type Props = {|
   onBlur?: UIEvent => void,
 
   minDate?: Moment,
-  maxDate?: Moment
+  maxDate?: Moment,
 |};
 
 export let DateTimePicker = (props: Props) => {
@@ -41,7 +41,7 @@ export let DateTimePicker = (props: Props) => {
     onFocus,
     onBlur,
     minDate,
-    maxDate
+    maxDate,
   } = props;
 
   // TODO: That comparasion looks strange.

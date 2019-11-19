@@ -19,18 +19,18 @@ import * as ReactUtil from "./ReactUtil.js";
 export type RenderInput = ({
   item: Item,
   value: string,
-  onChange: string => void
+  onChange: string => void,
 }) => React.Node;
 
 export type RenderSuggestion = (
   item: Item,
-  { query: string, isHighlighted: boolean }
+  { query: string, isHighlighted: boolean },
 ) => React.Node;
 
 /** Params passed to search function. */
 export type SearchParams = {
   value: string,
-  reason: string
+  reason: string,
 };
 
 /** Callback used to return results (or an error) to a an Autocomplete. */
@@ -39,14 +39,14 @@ export type SearchCallback = (err: ?Error, items: ?(Item[])) => void;
 /** Autocomplete item. */
 export type Item = {
   id: string,
-  title: string
+  title: string,
 };
 
 let noopRef = _node => {};
 
 type InputProps = {
   ref: React.Ref<React.AbstractComponent<{}>>,
-  inputRef: React.Ref<React.AbstractComponent<{}>>
+  inputRef: React.Ref<React.AbstractComponent<{}>>,
 };
 
 export let Input = React.forwardRef<InputProps, HTMLElement>((props, ref) => {
@@ -74,7 +74,7 @@ export function Suggestion(props: {
   query: string,
   isHighlighted: boolean,
   endAdornment?: React.Node,
-  startAdornment?: React.Node
+  startAdornment?: React.Node,
 }) {
   const matches = match(props.item.title, props.query);
   const parts = parse(props.item.title, matches);
@@ -92,7 +92,7 @@ export function Suggestion(props: {
             <strong key={String(index)} style={{ fontWeight: 300 }}>
               {part.text}
             </strong>
-          )
+          ),
         )}
       </div>
       {props.endAdornment}
@@ -110,34 +110,34 @@ function getSuggestionValue(item: Item) {
 
 let useStyles = styles.makeStyles((theme: Theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   error: {
     fontSize: "10pt",
     color: theme.palette.error.main,
-    padding: theme.spacing.unit
+    padding: theme.spacing.unit,
   },
   container: {
-    position: "relative"
+    position: "relative",
   },
   suggestionsContainerOpen: {
     position: "absolute",
     zIndex: 1,
     marginTop: theme.spacing.unit,
     left: 0,
-    right: 0
+    right: 0,
   },
   suggestion: {
-    display: "block"
+    display: "block",
   },
   suggestionsList: {
     margin: 0,
     padding: 0,
-    listStyleType: "none"
+    listStyleType: "none",
   },
   divider: {
-    height: theme.spacing.unit * 2
-  }
+    height: theme.spacing.unit * 2,
+  },
 }));
 
 type Props = {
@@ -147,7 +147,7 @@ type Props = {
   placeholder?: string,
   search: (SearchParams, SearchCallback) => void,
   renderSuggestion?: RenderSuggestion,
-  renderInput?: RenderInput
+  renderInput?: RenderInput,
 };
 
 export let AutocompleteLoading = React.forwardRef<{}, {}>((props: {}, ref) => {
@@ -172,12 +172,12 @@ export let Autocomplete = React.forwardRef<Props, HTMLElement>(
       search,
       value,
       renderSuggestion = renderSuggestionDefault,
-      renderInput = renderInputDefault
+      renderInput = renderInputDefault,
     } = props;
     let [query, setQuery] = React.useState(value != null ? value.title : "");
     let [suggestions, setSuggestions] = React.useState<Suggestions>({
       type: "suggestions",
-      items: []
+      items: [],
     });
 
     let cb = (error, items) => {
@@ -263,11 +263,11 @@ export let Autocomplete = React.forwardRef<Props, HTMLElement>(
             onChange: onChange,
             onBlur: onBlur,
             endAdornment,
-            item: props.value
+            item: props.value,
           }}
           theme={{
             suggestionsList: classes.suggestionsList,
-            suggestion: classes.suggestion
+            suggestion: classes.suggestion,
           }}
           renderSuggestionsContainer={options => {
             return (
@@ -285,7 +285,7 @@ export let Autocomplete = React.forwardRef<Props, HTMLElement>(
                     maxHeight: 200,
                     width: popperNode.current
                       ? popperNode.current.clientWidth
-                      : undefined
+                      : undefined,
                   }}
                 >
                   {options.children}
@@ -301,5 +301,5 @@ export let Autocomplete = React.forwardRef<Props, HTMLElement>(
         ) : null}
       </div>
     );
-  }
+  },
 );

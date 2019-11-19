@@ -13,26 +13,26 @@ type Props = {|
   onClick?: (e: UIEvent) => void,
   onFocus?: (e: UIEvent) => void,
   onBlur?: (e: UIEvent) => void,
-  size?: "small" | "medium" | "large"
+  size?: "small" | "medium" | "large",
 |};
 
 export let IconButton = React.forwardRef<Props, HTMLElement>(
   (
     { icon, disabled, onClick, onFocus, onBlur, size = "medium" }: Props,
-    ref
+    ref,
   ) => {
     let style = {};
     switch (size) {
       case "small":
         style = {
-          transform: `scale(0.8)`
+          transform: `scale(0.8)`,
         };
         break;
       case "medium":
         break;
       case "large":
         style = {
-          transform: `scale(1.2)`
+          transform: `scale(1.2)`,
         };
         break;
       default:
@@ -50,5 +50,5 @@ export let IconButton = React.forwardRef<Props, HTMLElement>(
         {icon}
       </mui.IconButton>
     );
-  }
+  },
 );

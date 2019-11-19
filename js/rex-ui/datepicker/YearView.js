@@ -26,12 +26,12 @@ let Year = props => {
     flexGrow: 1,
     backgroundColor: active ? activeStyle.backgroundColor : null,
     cursor: disabled ? "not-allowed" : "pointer",
-    opacity: disabled ? 0.5 : 1
+    opacity: disabled ? 0.5 : 1,
   };
 
   let textStyle = {
     color: active ? activeStyle.color : null,
-    fontWeight: active ? "900" : null
+    fontWeight: active ? "900" : null,
   };
 
   return (
@@ -49,7 +49,7 @@ type YearViewProps = {|
   selectedDate: ?Moment,
   onClose?: () => void,
   minDate?: Moment,
-  maxDate?: Moment
+  maxDate?: Moment,
 |};
 
 export let YearView = (props: YearViewProps) => {

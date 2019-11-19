@@ -27,7 +27,7 @@ let Minute = props => {
 type Props = {
   onClose: () => void,
   selectedDate: Moment,
-  onSelectedDate: Moment => void
+  onSelectedDate: Moment => void,
 };
 
 export let MinuteView = (props: Props) => {

@@ -16,9 +16,9 @@ import { ErrorBoundary } from "./ErrorBoundary.js";
 
 export type PickProps = {|
   endpoint: Endpoint,
-  fields?: ?Field.FieldConfig[],
+  fields?: ?(Field.FieldConfig[]),
   args?: { [key: string]: any },
-  ...PickRendererConfigProps
+  ...PickRendererConfigProps,
 |};
 
 export let PickBase = (props: PickProps) => {
@@ -30,7 +30,7 @@ export let PickBase = (props: PickProps) => {
     fieldSpecs,
     introspectionTypesMap,
     queryDefinition,
-    fieldDescription
+    fieldDescription,
   } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
     let fieldSpecs = Field.configureFields(fields);
@@ -39,11 +39,11 @@ export let PickBase = (props: PickProps) => {
       queryDefinition,
       introspectionTypesMap,
       fields: nextFieldSpecs,
-      fieldDescription
+      fieldDescription,
     } = buildQuery({
       schema,
       path,
-      fields: fieldSpecs
+      fields: fieldSpecs,
     });
     let resource = Resource.defineQuery({ query, endpoint });
     return {
@@ -51,7 +51,7 @@ export let PickBase = (props: PickProps) => {
       fieldSpecs: nextFieldSpecs,
       introspectionTypesMap,
       queryDefinition,
-      fieldDescription
+      fieldDescription,
     };
   }, [fetch, schema, endpoint]);
 

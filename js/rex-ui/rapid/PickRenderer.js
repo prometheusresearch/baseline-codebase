@@ -3,6 +3,7 @@
  */
 
 import * as React from "react";
+import classNames from "classnames";
 import invariant from "invariant";
 import {
   type DocumentNode,
@@ -34,7 +35,6 @@ import Paper from "@material-ui/core/Paper";
 import Select from "@material-ui/core/Select";
 
 import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
 import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
@@ -46,6 +46,7 @@ import {
   type Resource,
   unstable_useResource as useResource,
 } from "rex-graphql/Resource";
+import { IconButton } from "rex-ui/IconButton";
 
 import { LoadingIndicator } from "./LoadingIndicator.js";
 
@@ -79,21 +80,6 @@ export const useRendererStyles = makeStyles((theme: Theme) => {
     },
     topPartWrapperMobile: {
       boxShadow: "0 0 10px -8px",
-    },
-    filterIconButton: {
-      color: theme.palette.text.primary,
-      "&:hover": {
-        color: theme.palette.primary.contrastText,
-        background: theme.palette.primary.light,
-      },
-    },
-    filterIconButtonActive: {
-      background: theme.palette.primary.light,
-      color: theme.palette.primary.contrastText,
-      "&:hover": {
-        color: theme.palette.primary.contrastText,
-        background: theme.palette.primary.dark,
-      },
     },
   };
 });
@@ -355,10 +341,6 @@ export const PickRenderer = ({
     }
   };
 
-  const iconButtonClassNames = showFilters
-    ? classes.filterIconButtonActive
-    : classes.filterIconButton;
-
   const topPartClassNames = [classes.topPartWrapper];
   if (!isTabletWidth) {
     topPartClassNames.push(classes.topPartWrapperMobile);
@@ -382,12 +364,12 @@ export const PickRenderer = ({
           }
           rightToolbar={
             <IconButton
+              size="small"
               onClick={toggleFilters}
-              className={iconButtonClassNames}
+              active={showFilters}
               aria-label="Filter list"
-            >
-              <FilterListIcon />
-            </IconButton>
+              icon={<FilterListIcon />}
+            />
           }
         />
         {showFilters ? (

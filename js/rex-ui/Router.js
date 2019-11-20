@@ -98,9 +98,14 @@ export function make<T>(
     history.goBack();
   };
 
-  let isActive = route => {
-    // TODO(andreypopp)
-    return false;
+  let isActive = (route, params) => {
+    let pattern = index.get(route);
+    if (pattern == null) {
+      console.error("Unknown route:", route);
+      invariant(false, "Unknown route: %s", route);
+    }
+    let pathname = RoutePattern.pathname(pattern, params || {});
+    return pathname === history.location.pathname;
   };
 
   return {

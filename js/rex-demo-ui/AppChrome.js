@@ -3,12 +3,14 @@
 import * as React from "react";
 import classNames from "classnames";
 import * as mui from "@material-ui/core";
-import { makeStyles, ThemeProvider } from "@material-ui/styles";
+import { ThemeProvider } from "@material-ui/styles";
 import MenuIcon from "@material-ui/icons/Menu";
 import ClearIcon from "@material-ui/icons/Clear";
 import { DARK_THEME, DEFAULT_THEME } from "rex-ui/rapid/themes";
 import * as Screen from "./Screen.js";
 import * as Router from "rex-ui/Router";
+import * as Layout from "rex-ui/Layout";
+import * as Theme from "rex-ui/Theme";
 import { isEmptyObject } from "rex-ui/rapid/helpers";
 
 let drawerWidth = 240;
@@ -21,41 +23,32 @@ export type MenuItem = {|
 
 export type Menu = MenuItem[];
 
-const useStyles = makeStyles(theme => {
-  if (isEmptyObject(theme)) {
-    theme = DEFAULT_THEME;
-  }
-
-  return {
-    appBar: {
-      height: appBarHeight,
-      backgroundColor: "#FFFFFF",
-    },
-    appBarShift: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
-    },
-    content: {
-      display: "flex",
-      flexDirection: "column",
-      flexWrap: "nowrap",
-      flexGrow: 1,
-      backgroundColor: theme.palette.background.default,
-      minWidth: 0, // So the Typography noWrap works
-      height: "100vh",
-      maxHeight: "100vh",
-      paddingTop: appBarHeight,
-      marginLeft: 0,
-    },
-    contentShift: {
-      marginLeft: `${drawerWidth}px !important`,
-    },
-    menuButton: {
-      marginLeft: 0,
-      marginRight: 12,
-    },
-  };
-});
+const useStyles = Theme.makeStyles(theme => ({
+  appBar: {
+    height: appBarHeight,
+    backgroundColor: "#FFFFFF",
+  },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    flexWrap: "nowrap",
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.default,
+    minWidth: 0, // So the Typography noWrap works
+    height: "100vh",
+    maxHeight: "100vh",
+    paddingTop: appBarHeight,
+    marginLeft: 0,
+  },
+  menuButton: {
+    marginLeft: 0,
+    marginRight: 12,
+  },
+  shift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+  },
+}));
 
 type AppChromeProps = {|
   router: Router.Router<Screen.Screen>,
@@ -75,6 +68,7 @@ export default function AppChrome({
   let toggleDrawerOpen = () => {
     setDrawerOpen(open => !open);
   };
+  let layout = Layout.useLayoutMode();
   let classes = useStyles();
 
   let theme = React.useMemo(() => {
@@ -94,7 +88,7 @@ export default function AppChrome({
       <mui.AppBar
         position="fixed"
         className={classNames(classes.appBar, {
-          [classes.appBarShift]: drawerOpen,
+          [classes.shift]: layout !== "phone" && drawerOpen,
         })}
       >
         <mui.Toolbar>
@@ -122,7 +116,7 @@ export default function AppChrome({
       />
       <main
         className={classNames(classes.content, {
-          [classes.contentShift]: drawerOpen,
+          [classes.shift]: layout !== "phone" && drawerOpen,
         })}
       >
         {children}
@@ -131,13 +125,9 @@ export default function AppChrome({
   );
 }
 
-let useAppDrawerStyles = makeStyles(theme => ({
+let useAppDrawerStyles = Theme.makeStyles(theme => ({
   root: {
-    width: drawerWidth,
     flexShrink: 0,
-  },
-  paper: {
-    width: drawerWidth,
   },
   wrapper: {
     flex: "1 1 auto",
@@ -168,15 +158,23 @@ function AppDrawer({
   theme,
   onTheme,
 }: AppDrawerProps) {
+  let layout = Layout.useLayoutMode();
   let classes = useAppDrawerStyles();
+  let style = { width: layout !== "phone" ? drawerWidth : "100%" };
+  let onNavigate = () => {
+    if (layout === "phone") {
+      onClose();
+    }
+  };
   return (
     <mui.Drawer
       variant="persistent"
       anchor="left"
       open={open}
       transitionDuration={0}
+      style={style}
+      PaperProps={{ style }}
       className={classes.root}
-      classes={{ paper: classes.paper }}
     >
       <div className={classes.wrapper}>
         <div className={classes.toolbar}>
@@ -188,7 +186,7 @@ function AppDrawer({
             <ClearIcon color="primary" />
           </mui.IconButton>
         </div>
-        <AppMenu router={router} menu={menu} />
+        <AppMenu router={router} menu={menu} onNavigate={onNavigate} />
       </div>
       <AppTheme onChange={onTheme} theme={theme} />
     </mui.Drawer>
@@ -198,9 +196,10 @@ function AppDrawer({
 type AppMenuProps = {|
   router: Router.Router<Screen.Screen>,
   menu: Menu,
+  onNavigate: () => void,
 |};
 
-function AppMenu({ router, menu }: AppMenuProps) {
+function AppMenu({ router, menu, onNavigate }: AppMenuProps) {
   let items = menu.map((item, index) => {
     let key = item.route.path;
     let title =
@@ -210,7 +209,10 @@ function AppMenu({ router, menu }: AppMenuProps) {
         ? item.route.screen.title
         : "Page";
     let selected = router.isActive(item.route);
-    let onClick = () => router.replace(item.route);
+    let onClick = () => {
+      router.replace(item.route);
+      onNavigate();
+    };
     return (
       <mui.ListItem
         key={key}

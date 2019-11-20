@@ -83,8 +83,8 @@ declare module "@material-ui/styles" {
   };
 
   declare export function makeStyles<Styles: {}>(
-    styles: (Theme) => Styles,
-  ): () => $ObjMap<Styles, <V>(V) => string>;
+    styles: (Theme) => Styles, Object
+  ): (any) => $ObjMap<Styles, <V>(V) => string>;
 
   declare export function useTheme(): Theme;
 

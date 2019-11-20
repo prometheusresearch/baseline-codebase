@@ -51,6 +51,12 @@ export let useTheme: void => Theme = () => {
   return styles.useTheme() || theme;
 };
 
+export function makeStyles<Styles: {}>(
+  spec: Theme => Styles,
+): any => $ObjMap<Styles, <V>(V) => string> {
+  return styles.makeStyles(spec, { defaultTheme: theme });
+}
+
 export let ThemeProvider = ({
   theme: themeCustom,
   children,

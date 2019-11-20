@@ -133,11 +133,11 @@ const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
 const PickCardListView = ({
   data,
   columns,
-  onCardClick,
+  onClick,
 }: {|
   data: Array<any>,
   columns: Field.FieldSpec[],
-  onCardClick?: (row: any) => void,
+  onClick?: (row: any) => void,
 |}) => {
   const classes = useDataViewStyles();
 
@@ -155,10 +155,10 @@ const PickCardListView = ({
           >
             <div>
               <ShowCard
-                onCardClick={onCardClick ? () => onCardClick(row) : undefined}
+                onClick={onClick ? () => onClick(row) : undefined}
                 title={null}
                 data={row}
-                columns={columns}
+                fieldSpecs={columns}
               />
             </div>
           </Grid>
@@ -238,7 +238,7 @@ const PickTableBody = ({
         <TableRow>
           <TableCell style={{ padding: 0 }}>
             <PickCardListView
-              onCardClick={onRowClick}
+              onClick={onRowClick}
               data={data}
               columns={columns}
             />

@@ -266,20 +266,13 @@ function App() {
         router.pop();
       };
       return (
-        <mui.Grid container style={{ padding: 8 }}>
-          <mui.Grid item xs={12} sm={6} md={3}>
-            <div>
-              <Button onClick={onBack}>Back</Button>
-            </div>
-            <Show
-              endpoint={endpoint}
-              fetch={screen.fetch}
-              args={{ id: params.id }}
-              fields={screen.fields}
-              RenderTitle={screen.RenderTitle}
-            />
-          </mui.Grid>
-        </mui.Grid>
+        <Show
+          endpoint={endpoint}
+          fetch={screen.fetch}
+          args={{ id: params.id }}
+          fields={screen.fields}
+          RenderTitle={screen.RenderTitle}
+        />
       );
     },
     [],

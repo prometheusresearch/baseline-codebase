@@ -11,7 +11,6 @@ import * as Screen from "./Screen.js";
 import * as Router from "rex-ui/Router";
 import * as Layout from "rex-ui/Layout";
 import * as Theme from "rex-ui/Theme";
-import { isEmptyObject } from "rex-ui/rapid/helpers";
 
 let drawerWidth = 240;
 let appBarHeight = 64;

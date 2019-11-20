@@ -26,7 +26,7 @@ export let Show = (props: ShowProps) => {
   let { fetch, endpoint, fields = null, ...rest } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
-  let { resource, fieldSpecs } = React.useMemo(() => {
+  let { resource, fieldSpecs, path } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
     let fieldSpecs = Field.configureFields(fields);
     let { query, ast, fields: nextFieldSpecs } = buildQuery({
@@ -35,15 +35,15 @@ export let Show = (props: ShowProps) => {
       fields: fieldSpecs,
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
-    return { resource, fieldSpecs: nextFieldSpecs };
+    return { path, resource, fieldSpecs: nextFieldSpecs };
   }, [fetch, fields, endpoint, schema]);
 
   return (
     <ShowRenderer
       {...rest}
-      fetch={fetch}
+      path={path}
       resource={resource}
-      columns={fieldSpecs}
+      fieldSpecs={fieldSpecs}
     />
   );
 };

@@ -4,17 +4,9 @@
 
 import * as React from "react";
 import invariant from "invariant";
-import {
-  type DocumentNode,
-  type FieldNode,
-  type OperationDefinitionNode,
-  type VariableDefinitionNode,
-} from "graphql/language/ast";
+import classNames from "classnames";
 
-import { useQuery, type Endpoint, type Result } from "rex-graphql";
-
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
+import { makeStyles, useTheme } from "../Theme.js";
 
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -22,17 +14,13 @@ import Typography from "@material-ui/core/Typography";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 
-import _get from "lodash/get";
-
 import {
   type Resource,
   unstable_useResource as useResource,
 } from "rex-graphql/Resource";
 import { RenderValue } from "./RenderValue.js";
-
 import * as Field from "./Field.js";
-
-type CustomRendererProps = { resource: Resource<any, any> };
+import * as QueryPath from "./QueryPath.js";
 
 export type ShowRenderTitle = React.AbstractComponent<{| data: any |}>;
 
@@ -42,48 +30,30 @@ export type ShowRendererConfigProps = {|
 
 export type ShowRendererProps = {|
   resource: Resource<any, any>,
-  fetch: string,
+  path: QueryPath.QueryPath,
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
-  columns: Field.FieldSpec[],
-  onCardClick?: (row: any) => void,
+  fieldSpecs: Field.FieldSpec[],
+  onClick?: (row: any) => void,
   ...ShowRendererConfigProps,
 |};
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: "100%",
-    marginTop: "8px",
-    overflowX: "auto",
-  },
-  card: {},
-  cardClickable: {
-    cursor: "pointer",
-    "&:hover": {
-      opacity: 0.9,
-    },
-  },
-}));
+export let ShowRenderer = (props: ShowRendererProps) => {
+  let { resource, path, args = {}, RenderTitle, fieldSpecs, onClick } = props;
 
-export const ShowRenderer = (props: ShowRendererProps) => {
-  const {
-    resource,
-    fetch,
-    args = {},
-    RenderTitle,
-    columns,
-    onCardClick,
-  } = props;
-
-  const classes = useStyles();
-
-  const resourceData = useResource(resource, { ...args });
+  let resourceData = useResource(resource, { ...args });
 
   if (resourceData == null) {
     return null;
   }
 
-  const data = _get(resourceData, fetch);
+  let data = resourceData;
+  for (let seg of QueryPath.toArray(path)) {
+    data = data[seg];
+    if (data == null) {
+      return null;
+    }
+  }
 
   let title = null;
   if (RenderTitle != null) {
@@ -92,39 +62,53 @@ export const ShowRenderer = (props: ShowRendererProps) => {
 
   return (
     <ShowCard
-      onCardClick={onCardClick}
+      onClick={onClick}
       title={title}
       data={data}
-      columns={columns}
+      fieldSpecs={fieldSpecs}
     />
   );
 };
 
-const commonWrapperStyle = { marginBottom: "16px", wordBreak: "break-word" };
+let useStyles = makeStyles(theme => ({
+  root: {
+    width: "100%",
+    marginTop: theme.spacing.unit,
+    overflowX: "auto",
+  },
+  cardClickable: {
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.9,
+    },
+  },
+  title: {
+    marginBottom: theme.spacing.unit * 2,
+  },
+  contentWrapper: {
+    marginBottom: "16px",
+    wordBreak: "break-word",
+  },
+}));
 
-export const ShowCard = ({
+export let ShowCard = ({
   data,
   title,
-  columns,
-  onCardClick,
+  fieldSpecs,
+  onClick,
 }: {|
   data: any,
   title: React.Node,
-  columns: Field.FieldSpec[],
-  onCardClick?: () => void,
+  fieldSpecs: Field.FieldSpec[],
+  onClick?: () => void,
 |}) => {
-  const classes = useStyles();
+  let classes = useStyles();
 
-  let cardClassNames = [classes.card];
-  if (onCardClick) {
-    cardClassNames = [...cardClassNames, classes.cardClickable];
-  }
-
-  const content = columns.map(spec => {
+  let content = fieldSpecs.map(spec => {
     let key = spec.require.field;
     let value = data[key];
     return (
-      <div key={key} style={commonWrapperStyle}>
+      <div key={key} className={classes.contentWrapper}>
         <Typography variant={"caption"}>
           {(spec && spec.title) || key}
         </Typography>
@@ -143,10 +127,16 @@ export const ShowCard = ({
     <Grid container spacing={8}>
       <Grid item xs={12}>
         <Paper className={classes.root}>
-          <Card onClick={onCardClick} className={cardClassNames.join(" ")}>
+          <Card
+            raised={false}
+            onClick={onClick}
+            className={classNames({
+              [classes.cardClickable]: onClick != null,
+            })}
+          >
             <CardContent>
               {title != null && (
-                <Typography variant="h5" gutterBottom>
+                <Typography variant="h5" gutterBottom className={classes.title}>
                   {title}
                 </Typography>
               )}

@@ -10,27 +10,18 @@ import IconButton from "@material-ui/core/IconButton";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
-import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
-import { DEFAULT_THEME } from "./themes";
-import { isEmptyObject, capitalize } from "./helpers";
+import { capitalize } from "./helpers";
+import { makeStyles, type Theme } from "../Theme.js";
 
-export const usePaginationStyles = makeStyles((theme: Theme) => {
-  if (theme.palette == null || isEmptyObject(theme)) {
-    theme = DEFAULT_THEME;
-  }
-
-  return {
-    paginationWrapper: {
-      position: "relative",
-      zIndex: "5",
-      padding: 8,
-      boxShadow: "0 0 10px -8px",
-      margin: 0,
-      width: "100%",
-      flex: "0 0 auto",
-    },
-  };
-});
+export const usePaginationStyles = makeStyles((theme: Theme) => ({
+  paginationWrapper: {
+    position: "relative",
+    boxShadow: "0 0 10px -8px",
+    margin: 0,
+    width: "100%",
+    flex: "0 0 auto",
+  },
+}));
 
 export const PickPagination = ({
   hasNext,

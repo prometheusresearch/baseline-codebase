@@ -824,7 +824,6 @@ def connectiontype_uncached(
             expr = q.id == ids[0]
             for id in ids[1:]:
                 expr = expr | (q.id == id)
-            print(expr.syn)
             yield expr
 
     return Record(

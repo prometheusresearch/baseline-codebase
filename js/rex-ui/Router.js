@@ -38,10 +38,22 @@ export type CustomScreen = {|
 
 export type Screen = PickScreen | ShowScreen | CustomScreen;
 
+export opaque type RouteGroup: {
+  +type: "route-group",
+  +path: RoutePattern.pattern,
+  +children: $ReadOnlyArray<Route>,
+} = {|
+  +type: "route-group",
+  +path: RoutePattern.pattern,
+  +children: $ReadOnlyArray<Route>,
+|};
+
 export opaque type Route: {
+  +type: "route",
   +path: RoutePattern.pattern,
   +screen: Screen,
 } = {|
+  +type: "route",
   +path: RoutePattern.pattern,
   +screen: Screen,
   +children?: $ReadOnlyArray<Route>,
@@ -79,14 +91,23 @@ export function route(
   ...children: Route[]
 ): Route {
   return {
+    type: "route",
     path,
     screen,
     children,
   };
 }
 
+export function group(path: string, ...children: Route[]): RouteGroup {
+  return {
+    type: "route-group",
+    path,
+    children,
+  };
+}
+
 export function make(
-  routes: Route[],
+  routes: Array<Route | RouteGroup>,
   options?: {| basename?: ?string |},
 ): Router {
   let pairs = [];
@@ -96,7 +117,7 @@ export function make(
   while (visit.length > 0) {
     let [prefix, route] = visit.shift();
     let segments = [...prefix, route.path];
-    if (route.screen != null) {
+    if (route.type === "route") {
       let screen = route.screen;
       let pattern = RoutePattern.concat(segments);
       let compiledPattern = RoutePattern.compile(pattern);
@@ -153,12 +174,17 @@ export function make(
     return pathname === history.location.pathname;
   };
 
+  let onlyRoutes: Route[] = [];
+  for (let [_1, _2, route, _screen] of pairs) {
+    onlyRoutes.push(route);
+  }
+
   return {
     push,
     replace,
     pop,
     isActive,
-    routes,
+    routes: onlyRoutes,
 
     pairs,
     index,

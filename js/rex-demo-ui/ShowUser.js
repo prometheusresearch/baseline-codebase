@@ -35,6 +35,14 @@ export let screen: Router.ShowScreen = {
       },
       render: SiteList,
     },
+    {
+      title: "Patients",
+      require: {
+        field: "patients",
+        require: [{ field: "id" }, { field: "name" }],
+      },
+      render: PatientList,
+    },
   ],
   RenderTitle: props => {
     return props.data.remote_user;
@@ -59,10 +67,21 @@ function SiteList(props) {
     };
     return (
       <mui.ListItem button={true} onClick={onClick}>
-        <mui.ListItemText
-          primary={item.site.title}
-          secondary={item.role}
-        />
+        <mui.ListItemText primary={item.site.title} secondary={item.role} />
+      </mui.ListItem>
+    );
+  });
+  return <mui.List>{items}</mui.List>;
+}
+
+function PatientList(props) {
+  let items = props.value.map(item => {
+    let onClick = () => {
+      routes.router.push(routes.showPatient, { id: item.id });
+    };
+    return (
+      <mui.ListItem button={true} onClick={onClick}>
+        <mui.ListItemText primary={item.name} />
       </mui.ListItem>
     );
   });

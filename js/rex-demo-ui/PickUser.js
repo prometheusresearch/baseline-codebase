@@ -61,36 +61,44 @@ export let screen: Router.PickScreen = {
     if (props.selected.size > 0) {
       caption = `Selected ${props.selected.size} users`;
     }
-    let onRemove = () => {
-      let userIds = [...props.selected];
-      Resource.perform(API.removeUser, { userIds }).then(() => {
-        props.onSelected(new Set());
-      });
-    };
     let disabled = props.selected.size === 0;
     return (
       <>
         <mui.Typography variant="caption">{caption}</mui.Typography>
         <div>
+          <RemoveAction
+            selected={props.selected}
+            onSelected={props.onSelected}
+          />
           <AddToSiteAction
             selected={props.selected}
             onSelected={props.onSelected}
-            disabled={disabled}
           />
-          <Button
-            size="small"
-            disabled={disabled}
-            onClick={onRemove}
-            icon={<DeleteIcon />}
-          >
-            Remove
-          </Button>
         </div>
       </>
     );
   },
   onSelect: id => [routes.showUser, { id }],
 };
+
+function RemoveAction({ selected, onSelected }) {
+  let onClick = () => {
+    let userIds = [...selected];
+    Resource.perform(API.removeUser, { userIds }).then(() => {
+      onSelected(new Set());
+    });
+  };
+  return (
+    <Button
+      size="small"
+      disabled={selected.size === 0}
+      onClick={onClick}
+      icon={<DeleteIcon />}
+    >
+      Remove
+    </Button>
+  );
+}
 
 function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
   let [selected, setSelected] = React.useState(initialSelected);
@@ -150,7 +158,7 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
   );
 }
 
-function AddToSiteAction({ selected, onSelected, disabled }) {
+function AddToSiteAction({ selected, onSelected }) {
   let [site, setSite] = React.useState(null);
   let [open, setOpen] = React.useState(false);
   let onClose = done => {
@@ -164,7 +172,7 @@ function AddToSiteAction({ selected, onSelected, disabled }) {
     <>
       <Button
         size="small"
-        disabled={disabled}
+        disabled={selected.size === 0}
         icon={<AddBoxIcon />}
         onClick={onOpen}
       >

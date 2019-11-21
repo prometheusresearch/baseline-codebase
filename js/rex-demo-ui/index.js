@@ -3,49 +3,19 @@
 import invariant from "invariant";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import * as RexGraphQL from "rex-graphql";
-import * as Resource from "rex-graphql/Resource";
 import { Pick, Show, List, Select, LoadingIndicator } from "rex-ui/rapid";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import {
-  FormLabel,
-  FormControl,
-  RadioGroup,
-  Radio,
-  FormControlLabel,
-  Checkbox,
-} from "@material-ui/core";
-import * as mui from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
-import AddBoxIcon from "@material-ui/icons/AddBox";
 import AppChrome from "./AppChrome";
-import { makeStyles, type Theme } from "@material-ui/styles";
-import { Button } from "rex-ui/Button";
 import * as Router from "rex-ui/Router";
-import { route, make as makeRouter } from "rex-ui/Router";
 import * as ShowSite from "./ShowSite.js";
 import * as ShowUser from "./ShowUser.js";
 import * as PickUser from "./PickUser.js";
 import * as API from "./API.js";
 
-let useStyles = makeStyles((theme: Theme) => {
-  return {
-    customFilterLabel: {
-      fontSize: 12,
-    },
-  };
-});
+export let pickUser = Router.route("/", PickUser.screen);
+export let showUser = Router.route("/:id", ShowUser.screen);
 
-export let pickUser = route("/users", PickUser.screen);
-
-export let pickPatient = route("/patients", {
-  type: "pick",
-  fetch: "patient.paginated",
-  title: "Patients",
-  description: "List of patients",
-});
-
-export let pickSite = route("/sites", {
+export let pickSite = Router.route("/", {
   type: "pick",
   fetch: "site.paginated",
   title: "Sites",
@@ -53,16 +23,33 @@ export let pickSite = route("/sites", {
   onSelect: id => [showSite, { id }],
 });
 
-export let showSite = route("/sites/:id", ShowSite.screen);
-export let showUser = route("/users/:id", ShowUser.screen);
+export let showSite = Router.route("/:id", ShowSite.screen);
+
+
+export let pickPatient = Router.route("/", {
+  type: "pick",
+  fetch: "patient.paginated",
+  title: "Patients",
+  description: "List of patients",
+  onSelect: id => [showPatient, { id }],
+});
+
+export let showPatient = Router.route("/:id", {
+  type: "show",
+  fetch: "patient.get",
+  title: "Patient",
+});
+
+let home = Router.route("/", PickUser.screen);
+let users = Router.group("/users", pickUser, showUser);
+let sites = Router.group("/sites", pickSite, showSite);
+let patients = Router.group("/patients", pickPatient, showPatient);
 
 export let router: Router.Router = Router.make([
-  route("/", pickUser.screen),
-  pickUser,
-  showUser,
-  pickSite,
-  showSite,
-  pickPatient,
+  home,
+  users,
+  sites,
+  patients,
 ]);
 
 let menu = [pickUser, pickPatient, pickSite];

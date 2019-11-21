@@ -5,8 +5,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as RexGraphQL from "rex-graphql";
 import * as Resource from "rex-graphql/Resource";
-import { Pick, Show, LoadingIndicator } from "rex-ui/rapid";
-import Button from "@material-ui/core/Button";
+import { Pick, Show, List, Select, LoadingIndicator } from "rex-ui/rapid";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import {
   FormLabel,
@@ -18,9 +17,12 @@ import {
 } from "@material-ui/core";
 import * as mui from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 import AppChrome from "./AppChrome";
 import { makeStyles, type Theme } from "@material-ui/styles";
+import { Button } from "rex-ui/Button";
 import * as Router from "rex-ui/Router";
+import { route, make as makeRouter } from "rex-ui/Router";
 
 let useStyles = makeStyles((theme: Theme) => {
   return {
@@ -32,11 +34,23 @@ let useStyles = makeStyles((theme: Theme) => {
 
 let endpoint = RexGraphQL.configure("/_api/graphql");
 
-let removeUser = Resource.defineMutation<{ userIds: string[] }, void>({
+let removeUser = Resource.defineMutation<{| userIds: string[] |}, void>({
   endpoint,
   mutation: `
     mutation removeUser($userIds: [user_id]!) {
       remove_user(user_ids: $userIds)
+    }
+  `,
+});
+
+let addUserToSite = Resource.defineMutation<
+  {| userIds: string[], siteId: string |},
+  void,
+>({
+  endpoint,
+  mutation: `
+    mutation addUserToSite($userIds: [user_id]!, $siteId: site_id!) {
+      add_user_to_site(user_ids: $userIds, site_id: $siteId)
     }
   `,
 });
@@ -125,109 +139,215 @@ let customPickUserFilters = [
   },
 ];
 
-let pickUser: Router.Route = {
-  path: "/users",
-  screen: {
-    type: "pick",
-    fetch: "user.paginated",
-    title: "Users",
-    description: "List of users",
-    fields: [
-      { require: { field: "remote_user" } },
-      phoneField,
-      "expired",
-      { require: { field: "system_admin" } },
-    ],
-    filters: undefined,
+function AddToSiteActionDialog({
+  initialSelected,
+  selected,
+  onSelected,
+  onSubmit,
+  onClose,
+  site,
+  onSite,
+}) {
+  return (
+    <React.Suspense fallback={<LoadingIndicator />}>
+      <mui.DialogTitle>Add users to a site</mui.DialogTitle>
+      <mui.DialogContent>
+        <mui.DialogContentText id="alert-dialog-description">
+          Please confirm that you are going to add the following users:
+        </mui.DialogContentText>
+        <List
+          endpoint={endpoint}
+          fetch="user.get_many"
+          id={[...initialSelected]}
+          primaryTextField="remote_user"
+          selected={selected}
+          onSelected={onSelected}
+        />
+        <mui.DialogContentText id="alert-dialog-description">
+          To the following site:
+        </mui.DialogContentText>
+        <Select
+          endpoint={endpoint}
+          fetch="site.all"
+          labelField="title"
+          value={site}
+          onValue={onSite}
+        />
+      </mui.DialogContent>
+      <mui.DialogActions>
+        <mui.Button
+          onClick={onSubmit}
+          color="primary"
+          disabled={selected.size === 0 || site == null}
+        >
+          Add
+        </mui.Button>
+        <mui.Button onClick={onClose} color="secondary">
+          Cancel
+        </mui.Button>
+      </mui.DialogActions>
+    </React.Suspense>
+  );
+}
 
-    RenderToolbar: props => {
-      let caption = "No users selected";
-      if (props.selected.size > 0) {
-        caption = `Selected ${props.selected.size} users`;
-      }
-      let onRemove = () => {
-        let userIds = [...props.selected];
-        Resource.perform(removeUser, { userIds }).then(() => {
-          props.onSelected(new Set());
-        });
-      };
-      return (
-        <>
-          <mui.Typography variant="caption">{caption}</mui.Typography>
-          <mui.Button
+function AddToSiteAction({ selected: initialSelected, disabled }) {
+  let [selected, setSelected] = React.useState(null);
+  let [site, setSite] = React.useState(null);
+  let [open, setOpen] = React.useState(false);
+  let onClose = () => setOpen(false);
+  let onOpen = () => setOpen(true);
+  let onSubmit = () => {
+    if (site == null) {
+      return;
+    }
+    let userIds = selected != null ? [...selected] : [...initialSelected];
+    Resource.perform(addUserToSite, { userIds, siteId: site }).then(() => {
+      onClose();
+    });
+  };
+  return (
+    <>
+      <Button
+        size="small"
+        disabled={disabled}
+        icon={<AddBoxIcon />}
+        onClick={onOpen}
+      >
+        Add to site
+      </Button>
+      <mui.Dialog open={open} onClose={onClose}>
+        <AddToSiteActionDialog
+          initialSelected={initialSelected}
+          selected={selected != null ? selected : initialSelected}
+          onSelected={setSelected}
+          site={site}
+          onSite={setSite}
+          onSubmit={onSubmit}
+          onClose={onClose}
+        />
+      </mui.Dialog>
+    </>
+  );
+}
+
+let pickUser = route("/users", {
+  type: "pick",
+  fetch: "user.paginated",
+  title: "Users",
+  description: "List of users",
+  fields: [
+    { require: { field: "remote_user" } },
+    phoneField,
+    "expired",
+    { require: { field: "system_admin" } },
+  ],
+  filters: undefined,
+
+  RenderToolbar: props => {
+    let caption = "No users selected";
+    if (props.selected.size > 0) {
+      caption = `Selected ${props.selected.size} users`;
+    }
+    let onRemove = () => {
+      let userIds = [...props.selected];
+      Resource.perform(removeUser, { userIds }).then(() => {
+        props.onSelected(new Set());
+      });
+    };
+    let disabled = props.selected.size === 0;
+    return (
+      <>
+        <mui.Typography variant="caption">{caption}</mui.Typography>
+        <div>
+          <AddToSiteAction selected={props.selected} disabled={disabled} />
+          <Button
             size="small"
-            color="secondary"
-            disabled={props.selected.size === 0}
+            disabled={disabled}
             onClick={onRemove}
+            icon={<DeleteIcon />}
           >
-            <DeleteIcon />
             Remove
-          </mui.Button>
-        </>
-      );
-    },
-    onSelect: id => [showUser, { id }],
+          </Button>
+        </div>
+      </>
+    );
   },
-};
+  onSelect: id => [showUser, { id }],
+});
 
-let pickUserWithCustomFilters: Router.Route = {
-  path: "/users-custom",
-  screen: {
-    type: 'pick',
-    ...pickUser.screen,
-    title: "Users (with custom filters)",
-    filters: customPickUserFilters,
-  },
-};
+let pickUserWithCustomFilters = route("/users-custom", {
+  type: "pick",
+  ...pickUser.screen,
+  title: "Users (with custom filters)",
+  filters: customPickUserFilters,
+});
 
-let showUser = {
-  path: "/users/:id",
-  screen: {
-    type: "show",
-    title: "User",
-    fetch: "user.get",
-    fields: [
-      { title: "Remote User", require: { field: "remote_user" } },
-      "system_admin",
-      "expired",
-      {
-        title: "Contact Info",
-        require: {
-          field: "contact_info",
-          require: [{ field: "id" }, { field: "type" }, { field: "value" }],
-        },
-        render: ({ value }) => JSON.stringify(value),
+let showUser = route("/users/:id", {
+  type: "show",
+  title: "User",
+  fetch: "user.get",
+  fields: [
+    { title: "Remote User", require: { field: "remote_user" } },
+    "system_admin",
+    "expired",
+    {
+      title: "Contact Info",
+      require: {
+        field: "contact_info",
+        require: [{ field: "id" }, { field: "type" }, { field: "value" }],
       },
-    ],
-    RenderTitle: props => {
-      return props.data.remote_user;
+      render: ({ value }) => JSON.stringify(value),
     },
+  ],
+  RenderTitle: props => {
+    return props.data.remote_user;
   },
-};
+});
 
-let pickPatient: Router.Route = {
-  path: "/patients",
-  screen: {
-    type: "pick",
-    fetch: "patient.paginated",
-    title: "Patients",
-    description: "List of patients",
-  },
-};
+let pickPatient = route("/patients", {
+  type: "pick",
+  fetch: "patient.paginated",
+  title: "Patients",
+  description: "List of patients",
+});
+
+let pickSite = route("/sites", {
+  type: "pick",
+  fetch: "site.paginated",
+  title: "Sites",
+  description: "List of sites",
+  onSelect: id => [showSite, { id }],
+});
+
+let showSite = route("/sites/:id", {
+  type: "show",
+  fetch: "site.get",
+  title: "Site",
+  fields: [
+    { title: "Title", require: { field: "title" } },
+    { title: "Code", require: { field: "code" } },
+    {
+      title: "Users",
+      require: {
+        field: "users",
+        require: [{ field: "user" }, { field: "role" }],
+      },
+      render: ({ value }) => JSON.stringify(value),
+    },
+  ],
+});
 
 let router: Router.Router = Router.make([
-  { ...pickUser, path: "/" },
+  route("/", pickUser.screen),
   pickUser,
   showUser,
   pickUserWithCustomFilters,
   pickPatient,
+  pickSite,
+  showSite,
 ]);
 
-let menu = [
-  pickUser,
-  pickUserWithCustomFilters,
-  pickPatient
-];
+let menu = [pickUser, pickUserWithCustomFilters, pickPatient, pickSite];
 
 function App() {
   let match = Router.useMatch(router);

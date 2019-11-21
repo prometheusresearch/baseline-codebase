@@ -38,7 +38,10 @@ export type CustomScreen = {|
 
 export type Screen = PickScreen | ShowScreen | CustomScreen;
 
-export type Route = {|
+export opaque type Route: {
+  +path: RoutePattern.pattern,
+  +screen: Screen,
+} = {|
   +path: RoutePattern.pattern,
   +screen: Screen,
   +children?: $ReadOnlyArray<Route>,
@@ -69,6 +72,18 @@ export type Match = {|
   +screen: Screen,
   +params: Params,
 |};
+
+export function route(
+  path: string,
+  screen: Screen,
+  ...children: Route[]
+): Route {
+  return {
+    path,
+    screen,
+    children,
+  };
+}
 
 export function make(
   routes: Route[],

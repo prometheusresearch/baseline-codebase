@@ -224,9 +224,10 @@ const PickTableBody = ({
      * to know if incremention of page is allowed
      */
     onDataReceive(data);
-    const dataTrimmed = data.slice(0, data.length - 1);
+    const dataTrimmed =
+      data.length < pickState.limit ? data : data.slice(0, data.length - 1);
     return dataTrimmed;
-  }, [resourceData, fetch, onDataReceive]);
+  }, [resourceData, fetch, onDataReceive, pickState]);
 
   if (data.length === 0) {
     return <PickNoDataPlaceholder columns={columns} />;

@@ -34,10 +34,28 @@
     type: text
   - link: caregiver
     to: user
+    required: false
   - column: date_of_birth
     type: date
 
   - identity: [code: offset]
+
+- table: site
+  with:
+  - column: code
+    type: text
+  - column: title
+    type: text
+
+  - identity: [code]
+
+- table: user_x_site
+  with:
+  - link: user
+  - link: site
+  - column: role
+    type: [admin, user]
+  - identity: [user, site]
 
 # DATA
 
@@ -99,3 +117,27 @@
       code: 1
       type: phone
       value: 555-55-11
+
+- table: site
+  with:
+  - data:
+    - code: acme
+      title: "ACME"
+    - code: pr-univ
+      title: "Prometheus University"
+
+- table: user_x_site
+  with:
+  - data:
+    - site: acme
+      user: "'andrey@prometheusresearch.com'"
+      role: admin
+    - site: acme
+      user: "'konstantin@prometheusresearch.com'"
+      role: user
+    - site: acme
+      user: "'jason@prometheusresearch.com'"
+      role: user
+    - site: pr-univ
+      user: "'andrey@prometheusresearch.com'"
+      role: admin

@@ -1671,6 +1671,9 @@ def test_query_connect():
                 africa: get(id: "AFRICA") {
                     name
                 }
+                none: get_many(id: []) { name }
+                africa_only: get_many(id: ["AFRICA"]) { name }
+                africa_and_america: get_many(id: ["AFRICA", "AMERICA"]) { name }
                 firstTwo: paginated(limit: 2) {
                     name
                 }
@@ -1688,6 +1691,9 @@ def test_query_connect():
         "region": {
             "count": 5,
             "africa": {"name": "AFRICA"},
+            "none": [],
+            "africa_only": [{"name": "AFRICA"}],
+            "africa_and_america": [{"name": "AFRICA"}, {"name": "AMERICA"}],
             "firstTwo": [{"name": "AFRICA"}, {"name": "AMERICA"}],
             "all": [
                 {"name": "AFRICA", "nation": {"count": 5}},

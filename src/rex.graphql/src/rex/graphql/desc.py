@@ -815,6 +815,17 @@ def connectiontype_uncached(
         fields = lambda entitytype, entitytype_complete: {}
     entitytype_complete = entitytype_complete or entitytype
     by_id = q.id == argument("id", EntityId(entitytype.name))
+
+    @filter_from_function()
+    def by_id_many(ids: argument("id", List(EntityId(entitytype.name)))):
+        if not ids:
+            yield False
+        else:
+            expr = q.id == ids[0]
+            for id in ids[1:]:
+                expr = expr | (q.id == id)
+            yield expr
+
     return Record(
         name=connectiontype_name(entitytype=entitytype, name=name),
         fields=lambda: {
@@ -822,6 +833,13 @@ def connectiontype_uncached(
                 q.entity.filter(by_id).first(),
                 type=entitytype_complete,
                 description=f"Get {entitytype.name} by id",
+                loc=None,
+            ),
+            "get_many": query(
+                q.entity,
+                filters=[by_id_many],
+                type=entitytype_complete,
+                description=f"Get multiple {entitytype.name} by id",
                 loc=None,
             ),
             "all": query(

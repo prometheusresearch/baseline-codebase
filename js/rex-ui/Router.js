@@ -9,43 +9,88 @@ import invariant from "invariant";
 import * as History from "history";
 import * as React from "react";
 import * as RoutePattern from "./RoutePattern.js";
+import * as Rapid from "./rapid";
 
-export type Route<+T> = {|
-  +path: RoutePattern.pattern,
-  +screen?: T,
-  +children?: $ReadOnlyArray<Route<T>>,
+export type ShowScreen = {|
+  type: "show",
+  title: string,
+  fetch: string,
+  fields?: ?(Rapid.FieldConfig[]),
+  RenderTitle?: ?Rapid.ShowRenderTitle,
 |};
 
-export opaque type Router<T>: {
-  push: (route: Route<T>, param?: Params) => void,
-  replace: (route: Route<T>, params?: Params) => void,
-  pop: () => void,
-  isActive: (route: Route<T>, params?: Params) => boolean,
-} = {|
-  push: (route: Route<T>, param?: Params) => void,
-  replace: (route: Route<T>, params?: Params) => void,
-  pop: () => void,
-  isActive: (route: Route<T>, params?: Params) => boolean,
+export type PickScreen = {|
+  type: "pick",
+  title: string,
+  fetch: string,
+  description: string,
+  fields?: ?(Rapid.FieldConfig[]),
+  filters?: ?(Rapid.PickFilterConfig[]),
+  onSelect?: (id: string) => [Route, Params],
+  RenderToolbar?: Rapid.PickRenderToolbar,
+|};
 
-  pairs: [RoutePattern.pattern, RoutePattern.compiledPattern, Route<T>, T][],
-  index: Map<Route<T> | T, RoutePattern.compiledPattern>,
+export type CustomScreen = {|
+  type: "custom",
+  title: string,
+  Render: React.AbstractComponent<{| params: Object |}>,
+|};
+
+export type Screen = PickScreen | ShowScreen | CustomScreen;
+
+export opaque type Route: {
+  +path: RoutePattern.pattern,
+  +screen: Screen,
+} = {|
+  +path: RoutePattern.pattern,
+  +screen: Screen,
+  +children?: $ReadOnlyArray<Route>,
+|};
+
+export opaque type Router: {
+  push: (route: Route, param?: Params) => void,
+  replace: (route: Route, params?: Params) => void,
+  pop: () => void,
+  isActive: (route: Route, params?: Params) => boolean,
+  routes: Route[],
+} = {|
+  push: (route: Route, param?: Params) => void,
+  replace: (route: Route, params?: Params) => void,
+  pop: () => void,
+  isActive: (route: Route, params?: Params) => boolean,
+  routes: Route[],
+
+  pairs: [RoutePattern.pattern, RoutePattern.compiledPattern, Route, Screen][],
+  index: Map<Route | Screen, RoutePattern.compiledPattern>,
   history: History.BrowserHistory,
 |};
 
 export type Params = { [name: string]: string };
 
-export type Match<+T> = {|
-  +route: Route<T>,
-  +screen: T,
+export type Match = {|
+  +route: Route,
+  +screen: Screen,
   +params: Params,
 |};
 
-export function make<T>(
-  routes: Route<T>[],
+export function route(
+  path: string,
+  screen: Screen,
+  ...children: Route[]
+): Route {
+  return {
+    path,
+    screen,
+    children,
+  };
+}
+
+export function make(
+  routes: Route[],
   options?: {| basename?: ?string |},
-): Router<T> {
+): Router {
   let pairs = [];
-  let index: Map<Route<T> | T, RoutePattern.compiledPattern> = new Map();
+  let index: Map<Route | Screen, RoutePattern.compiledPattern> = new Map();
 
   let visit = routes.map(route => [[], route]);
   while (visit.length > 0) {
@@ -71,8 +116,8 @@ export function make<T>(
 
   let history = History.createBrowserHistory({ basename });
 
-  let push = (route: Route<T>, params) => {
-    console.log('push', route, params);
+  let push = (route: Route, params) => {
+    console.log("push", route, params);
     let pattern = index.get(route);
     if (pattern == null) {
       console.error("Unknown route:", route);
@@ -82,8 +127,8 @@ export function make<T>(
     history.push(pathname);
   };
 
-  let replace = (route: Route<T>, params) => {
-    console.log('replace', route, params);
+  let replace = (route: Route, params) => {
+    console.log("replace", route, params);
     let pattern = index.get(route);
     if (pattern == null) {
       console.error("Unknown route:", route);
@@ -94,7 +139,7 @@ export function make<T>(
   };
 
   let pop = () => {
-    console.log('pop');
+    console.log("pop");
     history.goBack();
   };
 
@@ -113,6 +158,7 @@ export function make<T>(
     replace,
     pop,
     isActive,
+    routes,
 
     pairs,
     index,
@@ -120,7 +166,7 @@ export function make<T>(
   };
 }
 
-export function match<T>(router: Router<T>, loc?: History.Location): ?Match<T> {
+export function match(router: Router, loc?: History.Location): ?Match {
   if (loc == null) {
     loc = router.history.location;
   }
@@ -134,8 +180,8 @@ export function match<T>(router: Router<T>, loc?: History.Location): ?Match<T> {
   return null;
 }
 
-export function useMatch<T>(router: Router<T>): ?Match<T> {
-  let [matched, setMatched] = React.useState<?Match<T>>(() => match(router));
+export function useMatch(router: Router): ?Match {
+  let [matched, setMatched] = React.useState<?Match>(() => match(router));
   React.useEffect(
     () =>
       router.history.listen(location => setMatched(match(router, location))),

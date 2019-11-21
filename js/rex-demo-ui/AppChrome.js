@@ -7,20 +7,12 @@ import { ThemeProvider } from "@material-ui/styles";
 import MenuIcon from "@material-ui/icons/Menu";
 import ClearIcon from "@material-ui/icons/Clear";
 import { DARK_THEME, DEFAULT_THEME } from "rex-ui/rapid/themes";
-import * as Screen from "./Screen.js";
 import * as Router from "rex-ui/Router";
 import * as Layout from "rex-ui/Layout";
 import * as Theme from "rex-ui/Theme";
 
 let drawerWidth = 240;
 let appBarHeight = 64;
-
-export type MenuItem = {|
-  title?: ?string,
-  route: Router.Route<Screen.Screen>,
-|};
-
-export type Menu = MenuItem[];
 
 const useStyles = Theme.makeStyles(theme => ({
   appBar: {
@@ -50,8 +42,8 @@ const useStyles = Theme.makeStyles(theme => ({
 }));
 
 type AppChromeProps = {|
-  router: Router.Router<Screen.Screen>,
-  menu: Menu,
+  router: Router.Router,
+  menu?: Router.Route[],
   title: string,
   children: React.Node,
 |};
@@ -143,10 +135,10 @@ let useAppDrawerStyles = Theme.makeStyles(theme => ({
 type AppDrawerProps = {|
   open: boolean,
   onClose: () => void,
-  menu: Menu,
   theme: any,
   onTheme: any => void,
-  router: Router.Router<Screen.Screen>,
+  router: Router.Router,
+  menu?: Router.Route[],
 |};
 
 function AppDrawer({
@@ -193,23 +185,18 @@ function AppDrawer({
 }
 
 type AppMenuProps = {|
-  router: Router.Router<Screen.Screen>,
-  menu: Menu,
+  router: Router.Router,
+  menu?: Router.Route[],
   onNavigate: () => void,
 |};
 
-function AppMenu({ router, menu, onNavigate }: AppMenuProps) {
-  let items = menu.map((item, index) => {
-    let key = item.route.path;
-    let title =
-      item.title != null
-        ? item.title
-        : item.route.screen != null
-        ? item.route.screen.title
-        : "Page";
-    let selected = router.isActive(item.route);
+function AppMenu({ router, menu = router.routes, onNavigate }: AppMenuProps) {
+  let items = menu.map((route, index) => {
+    let key = route.path;
+    let title = route.screen.title;
+    let selected = router.isActive(route);
     let onClick = () => {
-      router.replace(item.route);
+      router.replace(route);
       onNavigate();
     };
     return (

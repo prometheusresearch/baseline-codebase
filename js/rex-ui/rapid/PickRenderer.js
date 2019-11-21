@@ -83,6 +83,25 @@ export const useRendererStyles = makeStyles((theme: Theme) => {
   };
 });
 
+const useMinWindowWidth = (minWidth: number) => {
+  const [doesMatch, setDoesMatch] = React.useState(
+    window.innerWidth >= minWidth,
+  );
+
+  React.useEffect(() => {
+    const handler = debounce(() => {
+      setDoesMatch(window.innerWidth >= minWidth);
+    }, 128);
+
+    window.addEventListener("resize", handler);
+    return () => {
+      window.removeEventListener("resize", handler);
+    };
+  });
+
+  return doesMatch;
+};
+
 type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
 
@@ -224,7 +243,7 @@ export const PickRenderer = ({
   sortingConfig,
   filtersSpecs,
 }: PickRendererProps) => {
-  const isTabletWidth = useMediaQuery("screen and (min-width: 720px)");
+  const isTabletWidth = useMinWindowWidth(720);
 
   const defaultPickState = {
     offset: 0,

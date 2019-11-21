@@ -23,6 +23,10 @@ import { makeStyles, type Theme } from "@material-ui/styles";
 import { Button } from "rex-ui/Button";
 import * as Router from "rex-ui/Router";
 import { route, make as makeRouter } from "rex-ui/Router";
+import * as ShowSite from "./ShowSite.js";
+import * as ShowUser from "./ShowUser.js";
+import * as PickUser from "./PickUser.js";
+import * as API from "./API.js";
 
 let useStyles = makeStyles((theme: Theme) => {
   return {
@@ -32,284 +36,16 @@ let useStyles = makeStyles((theme: Theme) => {
   };
 });
 
-let endpoint = RexGraphQL.configure("/_api/graphql");
+export let pickUser = route("/users", PickUser.screen);
 
-let removeUser = Resource.defineMutation<{| userIds: string[] |}, void>({
-  endpoint,
-  mutation: `
-    mutation removeUser($userIds: [user_id]!) {
-      remove_user(user_ids: $userIds)
-    }
-  `,
-});
-
-let addUserToSite = Resource.defineMutation<
-  {| userIds: string[], siteId: string |},
-  void,
->({
-  endpoint,
-  mutation: `
-    mutation addUserToSite($userIds: [user_id]!, $siteId: site_id!) {
-      add_user_to_site(user_ids: $userIds, site_id: $siteId)
-    }
-  `,
-});
-
-let phoneField = {
-  title: "Phone",
-  require: {
-    field: "phone",
-    require: [{ field: "value" }],
-  },
-  render({ value }) {
-    return value != null ? <div>tel: {value.value}</div> : "—";
-  },
-};
-
-const CustomSortRenderer = ({ value, values, onChange }) => {
-  const classes = useStyles();
-
-  const valueString =
-    typeof value === "string" || value === undefined
-      ? value
-      : JSON.stringify(value);
-
-  return (
-    <FormControl component="fieldset">
-      <FormLabel style={{ fontSize: 14 }} component="legend">
-        Sorting
-      </FormLabel>
-      <RadioGroup
-        aria-label="Sorting"
-        name="sorting"
-        value={valueString}
-        onChange={ev => onChange(ev.target.value)}
-      >
-        {(values || []).map(val => {
-          const valString =
-            typeof val === "string" || val === undefined
-              ? val
-              : JSON.stringify(val);
-
-          const label =
-            typeof val === "string" && val !== "undefined"
-              ? val
-              : val === undefined || val === "undefined"
-              ? "None"
-              : `${val.field}, ${val.desc ? `desc` : `asc`}`;
-
-          return (
-            <FormControlLabel
-              key={valString}
-              value={valString}
-              control={<Radio />}
-              label={label}
-              classes={{
-                label: classes.customFilterLabel,
-              }}
-            />
-          );
-        })}
-      </RadioGroup>
-    </FormControl>
-  );
-};
-
-function ShowOnlyAdmins(props) {
-  let checked = Boolean(props.value);
-  let handleOnChange = e => {
-    if (e.target.checked) {
-      props.onChange(true);
-    } else {
-      props.onChange(undefined);
-    }
-  };
-  return (
-    <FormControlLabel
-      control={<Checkbox checked={checked} onChange={handleOnChange} />}
-      label="Show admins only"
-    />
-  );
-}
-
-let customPickUserFilters = [
-  {
-    name: "system_admin",
-    render: ShowOnlyAdmins,
-  },
-];
-
-function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
-  let [selected, setSelected] = React.useState(initialSelected);
-  let [site, setSite] = React.useState(null);
-  let onSubmit = () => {
-    if (site == null) {
-      return;
-    }
-    let userIds = [...selected];
-    Resource.perform(addUserToSite, { userIds, siteId: site }).then(() => {
-      onClose(true);
-    });
-  };
-  return (
-    <React.Suspense fallback={<LoadingIndicator />}>
-      <mui.DialogTitle>Add users to a site</mui.DialogTitle>
-      <mui.DialogContent>
-        <div style={{ marginBottom: 16 }}>
-          <mui.DialogContentText id="alert-dialog-description">
-            Site to add users to:
-          </mui.DialogContentText>
-          <Select
-            endpoint={endpoint}
-            fetch="site.all"
-            labelField="title"
-            value={site}
-            onValue={setSite}
-          />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <mui.DialogContentText id="alert-dialog-description">
-            The following users will be added to the site:
-          </mui.DialogContentText>
-          <List
-            endpoint={endpoint}
-            fetch="user.get_many"
-            id={[...initialSelected]}
-            primaryTextField="remote_user"
-            selected={selected}
-            onSelected={setSelected}
-          />
-        </div>
-      </mui.DialogContent>
-      <mui.DialogActions>
-        <mui.Button
-          onClick={onSubmit}
-          color="primary"
-          disabled={selected.size === 0 || site == null}
-        >
-          Add
-        </mui.Button>
-        <mui.Button onClick={() => onClose(false)} color="secondary">
-          Cancel
-        </mui.Button>
-      </mui.DialogActions>
-    </React.Suspense>
-  );
-}
-
-function AddToSiteAction({ selected, onSelected, disabled }) {
-  let [site, setSite] = React.useState(null);
-  let [open, setOpen] = React.useState(false);
-  let onClose = done => {
-    if (done) {
-      onSelected(new Set());
-    }
-    setOpen(false);
-  };
-  let onOpen = () => setOpen(true);
-  return (
-    <>
-      <Button
-        size="small"
-        disabled={disabled}
-        icon={<AddBoxIcon />}
-        onClick={onOpen}
-      >
-        Add to site
-      </Button>
-      <mui.Dialog open={open} onClose={onClose}>
-        <AddToSiteActionDialog selected={selected} onClose={onClose} />
-      </mui.Dialog>
-    </>
-  );
-}
-
-let pickUser = route("/users", {
-  type: "pick",
-  fetch: "user.paginated",
-  title: "Users",
-  description: "List of users",
-  fields: [
-    { require: { field: "remote_user" } },
-    phoneField,
-    "expired",
-    { require: { field: "system_admin" } },
-  ],
-  filters: undefined,
-
-  RenderToolbar: props => {
-    let caption = "No users selected";
-    if (props.selected.size > 0) {
-      caption = `Selected ${props.selected.size} users`;
-    }
-    let onRemove = () => {
-      let userIds = [...props.selected];
-      Resource.perform(removeUser, { userIds }).then(() => {
-        props.onSelected(new Set());
-      });
-    };
-    let disabled = props.selected.size === 0;
-    return (
-      <>
-        <mui.Typography variant="caption">{caption}</mui.Typography>
-        <div>
-          <AddToSiteAction
-            selected={props.selected}
-            onSelected={props.onSelected}
-            disabled={disabled}
-          />
-          <Button
-            size="small"
-            disabled={disabled}
-            onClick={onRemove}
-            icon={<DeleteIcon />}
-          >
-            Remove
-          </Button>
-        </div>
-      </>
-    );
-  },
-  onSelect: id => [showUser, { id }],
-});
-
-let pickUserWithCustomFilters = route("/users-custom", {
-  type: "pick",
-  ...pickUser.screen,
-  title: "Users (with custom filters)",
-  filters: customPickUserFilters,
-});
-
-let showUser = route("/users/:id", {
-  type: "show",
-  title: "User",
-  fetch: "user.get",
-  fields: [
-    { title: "Remote User", require: { field: "remote_user" } },
-    "system_admin",
-    "expired",
-    {
-      title: "Contact Info",
-      require: {
-        field: "contact_info",
-        require: [{ field: "id" }, { field: "type" }, { field: "value" }],
-      },
-      render: ({ value }) => JSON.stringify(value),
-    },
-  ],
-  RenderTitle: props => {
-    return props.data.remote_user;
-  },
-});
-
-let pickPatient = route("/patients", {
+export let pickPatient = route("/patients", {
   type: "pick",
   fetch: "patient.paginated",
   title: "Patients",
   description: "List of patients",
 });
 
-let pickSite = route("/sites", {
+export let pickSite = route("/sites", {
   type: "pick",
   fetch: "site.paginated",
   title: "Sites",
@@ -317,38 +53,19 @@ let pickSite = route("/sites", {
   onSelect: id => [showSite, { id }],
 });
 
-let showSite = route("/sites/:id", {
-  type: "show",
-  fetch: "site.get",
-  title: "Site",
-  fields: [
-    { title: "Title", require: { field: "title" } },
-    { title: "Code", require: { field: "code" } },
-    {
-      title: "Users",
-      require: {
-        field: "users",
-        require: [
-          { field: "user", require: [{ field: "remote_user" }] },
-          { field: "role" },
-        ],
-      },
-      render: ({ value }) => JSON.stringify(value),
-    },
-  ],
-});
+export let showSite = route("/sites/:id", ShowSite.screen);
+export let showUser = route("/users/:id", ShowUser.screen);
 
-let router: Router.Router = Router.make([
+export let router: Router.Router = Router.make([
   route("/", pickUser.screen),
   pickUser,
   showUser,
-  pickUserWithCustomFilters,
-  pickPatient,
   pickSite,
   showSite,
+  pickPatient,
 ]);
 
-let menu = [pickUser, pickUserWithCustomFilters, pickPatient, pickSite];
+let menu = [pickUser, pickPatient, pickSite];
 
 function App() {
   let match = Router.useMatch(router);
@@ -367,7 +84,7 @@ function App() {
       return (
         <Pick
           key={JSON.stringify(screen)}
-          endpoint={endpoint}
+          endpoint={API.endpoint}
           fetch={screen.fetch}
           onRowClick={onRowClick}
           fields={screen.fields}
@@ -388,7 +105,7 @@ function App() {
       };
       return (
         <Show
-          endpoint={endpoint}
+          endpoint={API.endpoint}
           fetch={screen.fetch}
           args={{ id: params.id }}
           fields={screen.fields}

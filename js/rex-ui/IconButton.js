@@ -66,7 +66,6 @@ export let IconButton = React.forwardRef<Props, HTMLElement>(
       }
       return style;
     }, [theme, active, size]);
-    console.log(style);
     return (
       <mui.IconButton
         {...rest}

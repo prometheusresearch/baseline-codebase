@@ -17,7 +17,6 @@ import {
   Checkbox,
 } from "@material-ui/core";
 import * as mui from "@material-ui/core";
-import * as Screen from "./Screen.js";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AppChrome from "./AppChrome";
 import { makeStyles, type Theme } from "@material-ui/styles";
@@ -126,7 +125,7 @@ let customPickUserFilters = [
   },
 ];
 
-let pickUser: Router.Route<Screen.PickScreen> = {
+let pickUser: Router.Route = {
   path: "/users",
   screen: {
     type: "pick",
@@ -171,9 +170,10 @@ let pickUser: Router.Route<Screen.PickScreen> = {
   },
 };
 
-let pickUserWithCustomFilters: Router.Route<Screen.PickScreen> = {
+let pickUserWithCustomFilters: Router.Route = {
   path: "/users-custom",
   screen: {
+    type: 'pick',
     ...pickUser.screen,
     title: "Users (with custom filters)",
     filters: customPickUserFilters,
@@ -205,7 +205,7 @@ let showUser = {
   },
 };
 
-let pickPatient: Router.Route<Screen.PickScreen> = {
+let pickPatient: Router.Route = {
   path: "/patients",
   screen: {
     type: "pick",
@@ -215,7 +215,7 @@ let pickPatient: Router.Route<Screen.PickScreen> = {
   },
 };
 
-let router: Router.Router<Screen.Screen> = Router.make([
+let router: Router.Router = Router.make([
   { ...pickUser, path: "/" },
   pickUser,
   showUser,
@@ -224,16 +224,16 @@ let router: Router.Router<Screen.Screen> = Router.make([
 ]);
 
 let menu = [
-  { route: pickUser },
-  { route: pickUserWithCustomFilters },
-  { route: pickPatient },
+  pickUser,
+  pickUserWithCustomFilters,
+  pickPatient
 ];
 
 function App() {
   let match = Router.useMatch(router);
 
   let renderPickView = React.useCallback(
-    (screen: Screen.PickScreen, params) => {
+    (screen: Router.PickScreen, params) => {
       let onRowClick;
       if (screen.onSelect != null) {
         let onSelect = screen.onSelect;
@@ -261,7 +261,7 @@ function App() {
   );
 
   let renderShowView = React.useCallback(
-    (screen: Screen.ShowScreen, params) => {
+    (screen: Router.ShowScreen, params) => {
       let onBack = () => {
         router.pop();
       };
@@ -287,6 +287,8 @@ function App() {
         return renderShowView(match.screen, match.params);
       case "pick":
         return renderPickView(match.screen, match.params);
+      case "custom":
+        return <match.screen.Render params={match.params} />;
       default: {
         (match.screen.type: empty); // eslint-disable-line
         throw new Error(`Unknown screen: ${match.screen.type}`);

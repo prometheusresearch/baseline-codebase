@@ -28,7 +28,7 @@ export type TypeSchemaDataObject = {|
 
 type QueryFieldSpec = {
   field: string,
-  require?: QueryFieldSpec[],
+  require?: Array<QueryFieldSpec>,
 };
 
 /** Configure fields to fetch from GraphQL endpoint. */
@@ -120,10 +120,32 @@ const buildQueryAST = (
   };
 };
 
+const makeSelectionSetFromQueryFieldSpec = (
+  queryFieldSpec: Field.QueryFieldSpec,
+): void | ast.SelectionSetNode => {
+  if (!queryFieldSpec) return undefined;
+
+  return {
+    kind: "SelectionSet",
+    selections: queryFieldSpec.require
+      ? queryFieldSpec.require.map(obj => {
+          return {
+            kind: "Field",
+            name: {
+              kind: "Name",
+              value: obj.field,
+            },
+            selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
+          };
+        })
+      : [],
+  };
+};
+
 const makeSelectionSetFromSpec = (
   fieldSpec: Field.FieldSpec,
 ): void | ast.SelectionSetNode => {
-  if (!fieldSpec) return;
+  if (!fieldSpec) return undefined;
 
   return {
     kind: "SelectionSet",
@@ -135,6 +157,7 @@ const makeSelectionSetFromSpec = (
               kind: "Name",
               value: obj.field,
             },
+            selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
           };
         })
       : [],

@@ -297,8 +297,6 @@ export const PickRenderer = ({
     }));
   };
 
-  // const { variableDefinitions } = queryDefinition;
-
   // Initialize search state if there's SEARCH_VAR_NAME
   React.useEffect(() => {
     if (variablesMap != null && variablesMap.get(SEARCH_VAR_NAME)) {
@@ -309,10 +307,6 @@ export const PickRenderer = ({
       }));
     }
   }, [variablesMap]);
-
-  // queryDefinition.variableDefinitions
-  //           ? [...queryDefinition.variableDefinitions]
-  //           : queryDefinition.variableDefinitions || []
 
   /**
    * Decide if filters block is opened via state from localStorage

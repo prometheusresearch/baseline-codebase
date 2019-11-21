@@ -325,7 +325,7 @@ export const PickRenderer = ({
         searchText: "",
       }));
     }
-  }, [variablesMap]);
+  }, []);
 
   /**
    * Decide if filters block is opened via state from localStorage

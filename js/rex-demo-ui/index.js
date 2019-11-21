@@ -139,40 +139,47 @@ let customPickUserFilters = [
   },
 ];
 
-function AddToSiteActionDialog({
-  initialSelected,
-  selected,
-  onSelected,
-  onSubmit,
-  onClose,
-  site,
-  onSite,
-}) {
+function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
+  let [selected, setSelected] = React.useState(initialSelected);
+  let [site, setSite] = React.useState(null);
+  let onSubmit = () => {
+    if (site == null) {
+      return;
+    }
+    let userIds = [...selected];
+    Resource.perform(addUserToSite, { userIds, siteId: site }).then(() => {
+      onClose(true);
+    });
+  };
   return (
     <React.Suspense fallback={<LoadingIndicator />}>
       <mui.DialogTitle>Add users to a site</mui.DialogTitle>
       <mui.DialogContent>
-        <mui.DialogContentText id="alert-dialog-description">
-          Please confirm that you are going to add the following users:
-        </mui.DialogContentText>
-        <List
-          endpoint={endpoint}
-          fetch="user.get_many"
-          id={[...initialSelected]}
-          primaryTextField="remote_user"
-          selected={selected}
-          onSelected={onSelected}
-        />
-        <mui.DialogContentText id="alert-dialog-description">
-          To the following site:
-        </mui.DialogContentText>
-        <Select
-          endpoint={endpoint}
-          fetch="site.all"
-          labelField="title"
-          value={site}
-          onValue={onSite}
-        />
+        <div style={{ marginBottom: 16 }}>
+          <mui.DialogContentText id="alert-dialog-description">
+            Site to add users to:
+          </mui.DialogContentText>
+          <Select
+            endpoint={endpoint}
+            fetch="site.all"
+            labelField="title"
+            value={site}
+            onValue={setSite}
+          />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <mui.DialogContentText id="alert-dialog-description">
+            The following users will be added to the site:
+          </mui.DialogContentText>
+          <List
+            endpoint={endpoint}
+            fetch="user.get_many"
+            id={[...initialSelected]}
+            primaryTextField="remote_user"
+            selected={selected}
+            onSelected={setSelected}
+          />
+        </div>
       </mui.DialogContent>
       <mui.DialogActions>
         <mui.Button
@@ -182,7 +189,7 @@ function AddToSiteActionDialog({
         >
           Add
         </mui.Button>
-        <mui.Button onClick={onClose} color="secondary">
+        <mui.Button onClick={() => onClose(false)} color="secondary">
           Cancel
         </mui.Button>
       </mui.DialogActions>
@@ -190,21 +197,16 @@ function AddToSiteActionDialog({
   );
 }
 
-function AddToSiteAction({ selected: initialSelected, disabled }) {
-  let [selected, setSelected] = React.useState(null);
+function AddToSiteAction({ selected, onSelected, disabled }) {
   let [site, setSite] = React.useState(null);
   let [open, setOpen] = React.useState(false);
-  let onClose = () => setOpen(false);
-  let onOpen = () => setOpen(true);
-  let onSubmit = () => {
-    if (site == null) {
-      return;
+  let onClose = done => {
+    if (done) {
+      onSelected(new Set());
     }
-    let userIds = selected != null ? [...selected] : [...initialSelected];
-    Resource.perform(addUserToSite, { userIds, siteId: site }).then(() => {
-      onClose();
-    });
+    setOpen(false);
   };
+  let onOpen = () => setOpen(true);
   return (
     <>
       <Button
@@ -216,15 +218,7 @@ function AddToSiteAction({ selected: initialSelected, disabled }) {
         Add to site
       </Button>
       <mui.Dialog open={open} onClose={onClose}>
-        <AddToSiteActionDialog
-          initialSelected={initialSelected}
-          selected={selected != null ? selected : initialSelected}
-          onSelected={setSelected}
-          site={site}
-          onSite={setSite}
-          onSubmit={onSubmit}
-          onClose={onClose}
-        />
+        <AddToSiteActionDialog selected={selected} onClose={onClose} />
       </mui.Dialog>
     </>
   );
@@ -259,7 +253,11 @@ let pickUser = route("/users", {
       <>
         <mui.Typography variant="caption">{caption}</mui.Typography>
         <div>
-          <AddToSiteAction selected={props.selected} disabled={disabled} />
+          <AddToSiteAction
+            selected={props.selected}
+            onSelected={props.onSelected}
+            disabled={disabled}
+          />
           <Button
             size="small"
             disabled={disabled}
@@ -330,7 +328,10 @@ let showSite = route("/sites/:id", {
       title: "Users",
       require: {
         field: "users",
-        require: [{ field: "user" }, { field: "role" }],
+        require: [
+          { field: "user", require: [{ field: "remote_user" }] },
+          { field: "role" },
+        ],
       },
       render: ({ value }) => JSON.stringify(value),
     },

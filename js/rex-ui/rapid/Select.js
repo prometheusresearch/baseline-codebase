@@ -92,9 +92,7 @@ function SelectRenderer({
   }
   return (
     <mui.Select value={value} onChange={onChange} style={{ width: "100%" }}>
-      <mui.MenuItem key={EMPTY_VALUE_SENTINEL} value={EMPTY_VALUE_SENTINEL}>
-        {"—"}
-      </mui.MenuItem>
+      <mui.MenuItem key={EMPTY_VALUE_SENTINEL} value={EMPTY_VALUE_SENTINEL} />
       {items}
     </mui.Select>
   );

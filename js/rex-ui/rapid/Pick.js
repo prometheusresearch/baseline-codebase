@@ -119,6 +119,18 @@ export let PickBase = (props: PickProps) => {
     filtersSpecs,
   });
 
+  let variablesMap = null;
+  if (
+    queryDefinition.variableDefinitions &&
+    queryDefinition.variableDefinitions.length > 0
+  ) {
+    variablesMap = new Map();
+
+    for (let variable of queryDefinition.variableDefinitions) {
+      variablesMap.set(variable.variable.name.value, variable);
+    }
+  }
+
   return (
     <PickRenderer
       {...rest}
@@ -127,8 +139,7 @@ export let PickBase = (props: PickProps) => {
       fetch={fetch}
       filtersSpecs={filtersSpecs}
       resource={resource}
-      queryDefinition={queryDefinition}
-      introspectionTypesMap={introspectionTypesMap}
+      variablesMap={variablesMap}
       columns={fieldSpecs}
       fieldDescription={fieldDescription}
       sortingConfig={sortingConfig}

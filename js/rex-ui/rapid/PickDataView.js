@@ -338,7 +338,6 @@ const buildParams = (pickState: PickState) => {
 
 export const PickDataView = ({
   onDataReceive: _onDataReceive,
-  variableDefinitions,
   args,
   resource,
   columns,
@@ -360,7 +359,6 @@ export const PickDataView = ({
   onDataReceive: any => any,
   columns: Field.FieldSpec[],
   args?: { [key: string]: any },
-  variableDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
   isTabletWidth: boolean,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,

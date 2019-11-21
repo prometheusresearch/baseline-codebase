@@ -48,7 +48,7 @@ export const useFilterStyles = makeStyles((theme: Theme) => {
 
 type Props = {|
   state: PickState,
-  variableDefinitions: VariableDefinitionNode[] | void,
+  variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSearchState: (val: string) => void,
   setFilterState: (name: string, value: ?boolean) => void,
@@ -58,7 +58,7 @@ type Props = {|
 |};
 
 const PickFilterToolbarBase = ({
-  variableDefinitions,
+  variablesMap,
   state,
   sortingConfig,
   setFilterState,
@@ -67,7 +67,7 @@ const PickFilterToolbarBase = ({
   isTabletWidth,
   filtersSpecs,
 }: Props) => {
-  if (variableDefinitions == null) {
+  if (variablesMap == null) {
     return null;
   }
 
@@ -179,23 +179,33 @@ const PickFilterToolbarBase = ({
               {SearchRenderer}
             </Grid>
           ) : null}
-
           {sortingConfig != null ? (
             <Grid item xs={6} sm={4} md={3} lg={2}>
               {SortRenderer}
             </Grid>
           ) : null}
 
-          {variableDefinitions
-            .filter(varDef => {
-              // Get only Boolean vars
-              // $FlowFixMe
+          {Array.from(variablesMap.keys())
+            .filter(key => {
+              const varDef = variablesMap.get(key);
+
+              if (!varDef) {
+                return false;
+              }
+
               const value = varDef.type.name
-                ? varDef.type.name.value
+                ? // $FlowFixMe
+                  varDef.type.name.value
                 : undefined;
+
               return value === "Boolean";
             })
-            .map((varDef, index) => {
+            .map((key, index) => {
+              const varDef = variablesMap.get(key);
+              if (!varDef) {
+                return null;
+              }
+
               const booleanFilterName = varDef.variable.name.value;
 
               let CustomBooleanRenderer: ?React.ComponentType<{
@@ -203,6 +213,7 @@ const PickFilterToolbarBase = ({
                 value: any,
                 values?: Array<any>,
               }> = null;
+
               if (filtersSpecs != null) {
                 if (filtersSpecs.get(booleanFilterName) != null) {
                   // $FlowFixMe

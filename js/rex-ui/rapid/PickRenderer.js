@@ -128,8 +128,7 @@ export type PickRendererConfigProps = {|
 export type PickRendererProps = {|
   resource: Resource<any, any>,
   columns: Field.FieldSpec[],
-  queryDefinition: OperationDefinitionNode,
-  introspectionTypesMap: Map<string, IntrospectionType>,
+  variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
   theme?: Theme,
@@ -208,8 +207,7 @@ export const PickRenderer = ({
   resource,
   columns,
   fetch,
-  queryDefinition,
-  introspectionTypesMap,
+  variablesMap,
   RenderColumnCell,
   RenderRowCell,
   RenderRow,
@@ -299,31 +297,28 @@ export const PickRenderer = ({
     }));
   };
 
-  const { variableDefinitions } = queryDefinition;
+  // const { variableDefinitions } = queryDefinition;
 
   // Initialize search state if there's SEARCH_VAR_NAME
   React.useEffect(() => {
-    if (
-      variableDefinitions != null &&
-      variableDefinitions.find(
-        def => def.variable.name.value === SEARCH_VAR_NAME,
-      )
-    ) {
+    if (variablesMap != null && variablesMap.get(SEARCH_VAR_NAME)) {
       setState(state => ({
         ...state,
         search: "",
         searchText: "",
       }));
     }
-  }, [variableDefinitions]);
+  }, [variablesMap]);
+
+  // queryDefinition.variableDefinitions
+  //           ? [...queryDefinition.variableDefinitions]
+  //           : queryDefinition.variableDefinitions || []
 
   /**
    * Decide if filters block is opened via state from localStorage
    */
-  const filtersLocalStorageKey = queryDefinition.variableDefinitions
-    ? `rapidFiltersState__${queryDefinition.variableDefinitions
-        .map(obj => obj.variable.name.value)
-        .join("_")}`
+  const filtersLocalStorageKey = variablesMap
+    ? `rapidFiltersState__${Array.from(variablesMap.keys()).join("_")}`
     : null;
   let filtersLocalStorageOpened = false;
   if (filtersLocalStorageKey != null) {
@@ -379,11 +374,7 @@ export const PickRenderer = ({
             setSortingState={setSortingState}
             setSearchState={setSearchState}
             isTabletWidth={isTabletWidth}
-            variableDefinitions={
-              queryDefinition.variableDefinitions
-                ? [...queryDefinition.variableDefinitions]
-                : queryDefinition.variableDefinitions
-            }
+            variablesMap={variablesMap}
             filtersSpecs={filtersSpecs}
           />
         ) : null}
@@ -393,11 +384,6 @@ export const PickRenderer = ({
         state={state}
         sortingConfig={sortingConfig}
         setSortingState={setSortingState}
-        variableDefinitions={
-          queryDefinition.variableDefinitions
-            ? [...queryDefinition.variableDefinitions]
-            : queryDefinition.variableDefinitions || []
-        }
         onDataReceive={setViewData}
         columns={columns}
         isTabletWidth={isTabletWidth}

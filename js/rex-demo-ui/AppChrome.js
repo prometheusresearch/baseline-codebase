@@ -201,7 +201,7 @@ function AppMenu({ router, menu = router.routes, onNavigate }: AppMenuProps) {
     };
     return (
       <mui.ListItem
-        key={key}
+        key={`${key}+${index}`}
         button={true}
         selected={selected}
         onClick={onClick}

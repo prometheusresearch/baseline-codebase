@@ -50,9 +50,9 @@ export let screen: Router.ShowScreen = {
 };
 
 function ContactInfoList(props) {
-  let items = props.value.map(item => {
+  let items = props.value.map((item, index) => {
     return (
-      <mui.ListItem>
+      <mui.ListItem key={index}>
         <mui.ListItemText primary={item.value} secondary={item.type} />
       </mui.ListItem>
     );
@@ -61,12 +61,12 @@ function ContactInfoList(props) {
 }
 
 function SiteList(props) {
-  let items = props.value.map(item => {
+  let items = props.value.map((item, index) => {
     let onClick = () => {
       routes.router.push(routes.showSite, { id: item.site.id });
     };
     return (
-      <mui.ListItem button={true} onClick={onClick}>
+      <mui.ListItem button={true} onClick={onClick} key={index}>
         <mui.ListItemText primary={item.site.title} secondary={item.role} />
       </mui.ListItem>
     );
@@ -75,12 +75,12 @@ function SiteList(props) {
 }
 
 function PatientList(props) {
-  let items = props.value.map(item => {
+  let items = props.value.map((item, index) => {
     let onClick = () => {
       routes.router.push(routes.showPatient, { id: item.id });
     };
     return (
-      <mui.ListItem button={true} onClick={onClick}>
+      <mui.ListItem button={true} onClick={onClick} key={index}>
         <mui.ListItemText primary={item.name} />
       </mui.ListItem>
     );

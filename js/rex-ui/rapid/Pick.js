@@ -9,7 +9,7 @@ import * as Resource from "rex-graphql/Resource";
 
 import * as QueryPath from "./QueryPath.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import { buildQuery } from "./buildQuery";
+import { introspect } from "./Introspection";
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
 import * as Field from "./Field.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
@@ -91,7 +91,7 @@ export let PickBase = (props: PickProps) => {
       introspectionTypesMap,
       fields: nextFieldSpecs,
       fieldDescription,
-    } = buildQuery({
+    } = introspect({
       schema,
       path,
       fields: fieldSpecs,

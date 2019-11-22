@@ -9,7 +9,7 @@ import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource";
 import * as mui from "@material-ui/core";
 
-import { buildQuery } from "./buildQuery";
+import { introspect } from "./Introspection";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
@@ -31,7 +31,7 @@ export function List(props: ListProps) {
     let path = QueryPath.make(fetch);
     let fields = ["id", primaryTextField];
     let fieldSpecs = Field.configureFields(fields);
-    let { query, ast, fields: nextFieldSpecs } = buildQuery({
+    let { query, ast, fields: nextFieldSpecs } = introspect({
       schema,
       path,
       fields: fieldSpecs,

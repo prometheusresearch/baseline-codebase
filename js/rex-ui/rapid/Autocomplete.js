@@ -15,7 +15,7 @@ import deburr from "lodash/deburr";
 import match from "autosuggest-highlight/match";
 import parse from "autosuggest-highlight/parse";
 
-import { buildQuery } from "./buildQuery";
+import { introspect } from "./Introspection.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
@@ -48,14 +48,13 @@ export function Autocomplete(props: AutocompleteProps) {
 
   let { resource, path } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
-    let fieldSpecs = Field.configureFields(["id", labelField, ...fields]);
-    let { query, ast, fields: nextFieldSpecs } = buildQuery({
+    let { query, ast, fieldSpecs } = introspect({
       schema,
       path,
-      fields: fieldSpecs,
+      fields: ["id", labelField, ...fields],
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
-    return { path, resource, fieldSpecs: nextFieldSpecs };
+    return { path, resource, fieldSpecs };
   }, [fetch, endpoint, schema, labelField, fields]);
 
   return (

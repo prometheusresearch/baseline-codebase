@@ -5,6 +5,12 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.10.0
+======
+
+* Added ``get_latest_mart_db`` function to API.
+
+
 0.9.1
 =====
 

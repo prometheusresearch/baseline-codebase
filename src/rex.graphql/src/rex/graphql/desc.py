@@ -311,7 +311,7 @@ class Query(Field):
         self.loc = code_location.here() if loc is autoloc else loc
 
         if transform is not None and type is None:
-            with code_location.context(self.loc, desc=desc):
+            with code_location.context(self.loc):
                 raise Error(
                     "Missing type argument for a query field w/ transform"
                 )
@@ -799,19 +799,24 @@ def compute_from_function(
     return decorate
 
 
-def connectiontype_name(entitytype):
-    return f"{entitytype.name}_connection"
+def connectiontype_name(entitytype, name="connection"):
+    return f"{entitytype.name}_{name}"
 
 
 def connectiontype_uncached(
-    entitytype, entitytype_complete=None, fields=None, filters=None, sort=None
+    entitytype,
+    entitytype_complete=None,
+    fields=None,
+    filters=None,
+    sort=None,
+    name="connection",
 ):
     if fields is None:
         fields = lambda entitytype, entitytype_complete: {}
     entitytype_complete = entitytype_complete or entitytype
-    by_id = q.id == argument("id", NonNull(EntityId(entitytype.name)))
+    by_id = q.id == argument("id", EntityId(entitytype.name))
     return Record(
-        name=connectiontype_name(entitytype),
+        name=connectiontype_name(entitytype=entitytype, name=name),
         fields=lambda: {
             "get": query(
                 q.entity.filter(by_id).first(),
@@ -861,6 +866,7 @@ def connect(
     fields=None,
     description=None,
     loc=autoloc,
+    name="connection",
 ):
     """ Configure a :func:`query` field for querying tables or one-to-many
     links between tables.
@@ -940,6 +946,7 @@ def connect(
             filters=tuple(filters) if filters else None,
             fields=fields,
             sort=sort,
+            name=name,
         ),
         description=description or f"Connection to {type.name}",
         loc=loc,
@@ -1003,6 +1010,37 @@ class ComputedParam(Param):
         )
 
 
+class Directive:
+    def __init__(self, name, params, description=None):
+        self.name = name
+        self.params = params
+        self.description = description
+
+
+include_directive = Directive(
+    name="include",
+    params={
+        "if": Argument(
+            name="if",
+            type=NonNull(scalar.Boolean),
+            description="Included when true.",
+        )
+    },
+    description="Include this field only when 'if' argument is true.",
+)
+skip_directive = Directive(
+    name="skip",
+    params={
+        "if": Argument(
+            name="if",
+            type=NonNull(scalar.Boolean),
+            description="Skipped when true.",
+        )
+    },
+    description="Skip this field when 'if' argument is true.",
+)
+
+
 def query(
     query: Q,
     type: Type = None,
@@ -1012,7 +1050,7 @@ def query(
     deprecation_reason: t.Optional[str] = None,
     sort: t.Optional[Q] = None,
     paginate: bool = False,
-    finalize_query = None,
+    finalize_query=None,
     transform=None,
     loc=autoloc,
 ) -> Field:

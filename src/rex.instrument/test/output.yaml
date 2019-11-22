@@ -4,9 +4,9 @@
 ---
 suite: rex.instrument
 tests:
-- sh: pip install --quiet --editable ./demo
+- sh: pip install --quiet --editable ../rex.demo.instrument
   stdout: ''
-- sh: rex dropdb --quiet rex.instrument_demo
+- sh: rex dropdb --quiet rex.demo.instrument
   stdout: ''
-- sh: rex deploy --quiet rex.instrument_demo
+- sh: rex deploy --quiet rex.demo.instrument
   stdout: ''

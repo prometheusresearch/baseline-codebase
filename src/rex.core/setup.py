@@ -6,12 +6,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.core',
-    version="1.18.0",
+    version="1.19.0",
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
-    license="AGPLv3",
+    license="Apache-2.0",
     url="https://bitbucket.org/prometheus/rex.core",
     package_dir={'': 'src'},
     packages=find_packages('src'),

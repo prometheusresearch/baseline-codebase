@@ -2,29 +2,30 @@
  * @copyright 2016-present, Prometheus Research, LLC
  */
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
-import JSCreole from 'jscreole';
+import * as React from "react";
+import PropTypes from "prop-types";
+import * as ReactDOM from "react-dom";
+import JSCreole from "jscreole";
 
-import * as FormContext from './FormContext';
+import * as FormContext from "./FormContext";
 
 let parser = new JSCreole();
 
-
 function isString(props, propName, componentName) {
-  if ((typeof props[propName] !== 'string') && (!(props[propName] instanceof String))) {
-    return new Error(`Invalid prop '${propName}' supplied to '${componentName}'. Not a string.`);
+  if (
+    typeof props[propName] !== "string" &&
+    !(props[propName] instanceof String)
+  ) {
+    return new Error(
+      `Invalid prop '${propName}' supplied to '${componentName}'. Not a string.`,
+    );
   }
 }
 
 export default class MarkupString extends React.Component {
-
   static propTypes = {
     children: isString,
-    Component: PropTypes.oneOfType([
-      PropTypes.func,
-      PropTypes.string]),
+    Component: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     inline: PropTypes.bool,
     parameters: PropTypes.object,
   };
@@ -32,13 +33,19 @@ export default class MarkupString extends React.Component {
   static contextTypes = FormContext.contextTypes;
 
   static defaultProps = {
-    Component: 'span',
+    Component: "span",
     inline: false,
     parameters: {},
   };
 
   render() {
-    let {Component, inline: _inline, parameters: _parameters, children: _children, ...props} = this.props;
+    let {
+      Component,
+      inline: _inline,
+      parameters: _parameters,
+      children: _children,
+      ...props
+    } = this.props;
     return <Component {...props} />;
   }
 
@@ -61,7 +68,7 @@ export default class MarkupString extends React.Component {
    * then an empty string is inserted in the macro's place.
    */
   substituteVariables(text) {
-    let parameters = {...this.context.parameters, ...this.props.parameters};
+    let parameters = { ...this.context.parameters, ...this.props.parameters };
     text = text.replace(
       /<<Parameter ([a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9])\s*([^>]+)?>>/g,
       (macro, parameter, defaultValue) => {
@@ -75,8 +82,8 @@ export default class MarkupString extends React.Component {
           return defaultValue;
         }
 
-        return '';
-      }
+        return "";
+      },
     );
 
     return text;
@@ -88,7 +95,7 @@ export default class MarkupString extends React.Component {
 
     let text = this.props.children;
     text = this.substituteVariables(text);
-    parser.parse(node, text, {inline: this.props.inline});
+    parser.parse(node, text, { inline: this.props.inline });
   }
 
   componentDidMount() {
@@ -98,7 +105,6 @@ export default class MarkupString extends React.Component {
   componentDidUpdate() {
     this.update();
   }
-
 }
 
 function removeChildren(node) {

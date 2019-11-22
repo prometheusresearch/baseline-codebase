@@ -1,0 +1,23 @@
+{% extends "rex.demo.forms:/templates/base.html" %}
+
+{% block body %}
+<script type="text/javascript">
+    RexFormsDemo.renderRecon(
+        {
+            recon: {{ recon|json }},
+            demos: {{ demos|json }},
+            recons: {{ recons|json }},
+            mountPoint: {{ MOUNT['rex.demo.forms']|json }},
+            apiUrls: {
+                resourcePrefix: '{{ SETTINGS.forms_local_resource_prefix|url }}',
+                lookup: '{{ MOUNT['rex.forms'] }}/lookup',
+            },
+            i18nUrl: {{ MOUNT['rex.i18n']|json }},
+            initialLocale: '{{ CURRENT_LOCALE }}',
+            availableLocales: {{ SUPPORTED_LOCALES|list|json }}
+        },
+        document.getElementById('main')
+    );
+</script>
+{% endblock %}
+

@@ -32,5 +32,5 @@ export default InjectI18N(
 
       return <span>{desc}</span>;
     }
-  }
+  },
 );

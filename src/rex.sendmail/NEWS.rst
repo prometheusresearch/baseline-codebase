@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.0 (2019-10-16)
+==================
+
+* Added ``sendmail_username`` and ``sendmail_password`` settings.
+
+
 1.0.4 (2015-04-23)
 ==================
 

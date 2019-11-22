@@ -233,23 +233,23 @@ Channel::
     FATAL ERROR: too few arguments for task forms-retrieve: missing <channel-uid>
     <BLANKLINE>
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo simple survey')
+    >>> ctl('forms-retrieve --project=rex.demo.forms simple survey')
     {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "How do you feel today?"}}}]}]}
 
 
 It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to retrieve the Form for::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey')
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex survey')
     {"instrument": {"id": "urn:another-test-instrument", "version": "1.2"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_foo", "text": {"en": "How do you feel today?"}}}, {"type": "question", "options": {"fieldId": "q_bar", "text": {"en": "What is your favorite number?"}}}, {"type": "question", "options": {"fieldId": "q_baz", "text": {"en": "Is water wet?"}}}]}]}
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --version=1')
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex survey --version=1')
     {"instrument": {"id": "urn:another-test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_foo", "text": {"en": "How do you feel today?"}}}, {"type": "question", "options": {"fieldId": "q_bar", "text": {"en": "What is your favorite number?"}}}]}]}
 
 
 It can also print the JSON in a prettier way::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --pretty')
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex survey --pretty')
     {
       "instrument": {
         "id": "urn:another-test-instrument",
@@ -295,7 +295,7 @@ It can also print the JSON in a prettier way::
 
 It can also print the definition in YAML format::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --pretty --format=YAML')
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex survey --pretty --format=YAML')
     instrument:
       id: urn:another-test-instrument
       version: '1.2'
@@ -322,42 +322,42 @@ It can also print the definition in YAML format::
 
 It fails if the instrument doesn't exist::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo doesntexist survey', expect=1)
+    >>> ctl('forms-retrieve --project=rex.demo.forms doesntexist survey', expect=1)
     FATAL ERROR: Instrument "doesntexist" does not exist.
     <BLANKLINE>
 
 
 Or if the channel doesn't exist::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex doesntexist', expect=1)
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex doesntexist', expect=1)
     FATAL ERROR: Channel "doesntexist" does not exist.
     <BLANKLINE>
 
 
 Or if the channel is not a form-based channel::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex mobile', expect=1)
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex mobile', expect=1)
     FATAL ERROR: Channel "mobile" is not a web form channel.
     <BLANKLINE>
 
 
 Or if the combination of instrument and channel doesn't exist::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex entry', expect=1)
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex entry', expect=1)
     FATAL ERROR: No Form exists for Instrument "complex", Version 2, Channel "entry"
     <BLANKLINE>
 
 
 Or if the version doesn't exist::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --version=99', expect=1)
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex survey --version=99', expect=1)
     FATAL ERROR: The desired version of "complex" does not exist.
     <BLANKLINE>
 
 
 Or if you specify a bogus format::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --pretty --format=XML', expect=1)
+    >>> ctl('forms-retrieve --project=rex.demo.forms complex survey --pretty --format=XML', expect=1)
     FATAL ERROR: invalid value for option --format: Invalid format type "XML" specified
     <BLANKLINE>
 
@@ -407,14 +407,14 @@ and the path to the file containing the JSON::
     FATAL ERROR: too few arguments for task forms-store: missing <configuration>
     <BLANKLINE>
 
-    >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms/simplest.json')
+    >>> ctl('forms-store --project=rex.demo.forms simple survey ./test/forms/simplest.json')
     Using Instrument: Simple Instrument
     Instrument Version: 1
     Using Channel: RexSurvey
     ### SAVED FORM simple1survey
     Updated existing Form
 
-    >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms/simplest.yaml')
+    >>> ctl('forms-store --project=rex.demo.forms simple survey ./test/forms/simplest.yaml')
     Using Instrument: Simple Instrument
     Instrument Version: 1
     Using Channel: RexSurvey
@@ -424,14 +424,14 @@ and the path to the file containing the JSON::
 
 It fails if the instrument doesn't exist::
 
-    >>> ctl('forms-store --project=rex.forms_demo doesntexist survey ./test/forms/simplest.json', expect=1)
+    >>> ctl('forms-store --project=rex.demo.forms doesntexist survey ./test/forms/simplest.json', expect=1)
     FATAL ERROR: Instrument "doesntexist" does not exist.
     <BLANKLINE>
 
 
 Or if the channel doesn't exist::
 
-    >>> ctl('forms-store --project=rex.forms_demo simple doesntexist ./test/forms/simplest.json', expect=1)
+    >>> ctl('forms-store --project=rex.demo.forms simple doesntexist ./test/forms/simplest.json', expect=1)
     Using Instrument: Simple Instrument
     Instrument Version: 1
     FATAL ERROR: Channel "doesntexist" does not exist.
@@ -440,7 +440,7 @@ Or if the channel doesn't exist::
 
 Or if the channel is not a form-based channel::
 
-    >>> ctl('forms-store --project=rex.forms_demo simple mobile ./test/forms/simplest.json', expect=1)
+    >>> ctl('forms-store --project=rex.demo.forms simple mobile ./test/forms/simplest.json', expect=1)
     Using Instrument: Simple Instrument
     Instrument Version: 1
     FATAL ERROR: Channel "mobile" is not a web form channel.
@@ -450,7 +450,7 @@ Or if the channel is not a form-based channel::
 If the combination of instrument/version and channel doesn't exist, a new Form
 will be created::
 
-    >>> ctl('forms-store --project=rex.forms_demo simple fake ./test/forms/simplest.json')
+    >>> ctl('forms-store --project=rex.demo.forms simple fake ./test/forms/simplest.json')
     Using Instrument: Simple Instrument
     Instrument Version: 1
     Using Channel: FakeChannel
@@ -459,7 +459,7 @@ will be created::
 
 Or if the version doesn't exist::
 
-    >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms/simplest.json --version=99', expect=1)
+    >>> ctl('forms-store --project=rex.demo.forms simple survey ./test/forms/simplest.json --version=99', expect=1)
     Using Instrument: Simple Instrument
     FATAL ERROR: The desired version of "simple" does not exist.
     <BLANKLINE>

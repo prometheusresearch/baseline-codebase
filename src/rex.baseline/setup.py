@@ -13,7 +13,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
     maintainer_email='contact@prometheusresearch.com',
-    license='AGPLv3',
+    license='Apache-2.0',
     url='https://bitbucket.org/rexdb/rex.baseline',
     include_package_data=True,
     install_requires=[

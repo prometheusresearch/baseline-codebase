@@ -19,16 +19,16 @@ let CheckboxInput = style(ReactUI.Checkbox, {
   Label: {
     fontSize: null,
     disabled: {
-      color: "#aaa"
-    }
+      color: "#aaa",
+    },
   },
   LabelWrapper: {
-    maxWidth: "90%"
-  }
+    maxWidth: "90%",
+  },
 });
 
 let CheckboxGroupInput = style(ReactUI.CheckboxGroup, {
-  Checkbox: props => <CheckboxInput {...props} />
+  Checkbox: props => <CheckboxInput {...props} />,
 });
 
 let valueStrategy = {
@@ -40,13 +40,13 @@ let valueStrategy = {
       nextValue = null;
     }
     return nextValue;
-  }
+  },
 };
 
 export default ReactForms.reactive(
   class CheckGroup extends React.Component {
     static contextTypes = {
-      ...FormContext.contextTypes
+      ...FormContext.contextTypes,
     };
 
     render() {
@@ -70,7 +70,7 @@ export default ReactForms.reactive(
           label: (
             <OptionLabel text={enumeration.text} audio={enumeration.audio} />
           ),
-          hint: enumeration.help && <Help>{enumeration.help}</Help>
+          hint: enumeration.help && <Help>{enumeration.help}</Help>,
         }));
       } else {
         options = Object.keys(type.enumerations)
@@ -78,7 +78,7 @@ export default ReactForms.reactive(
           .map(enumeration => {
             return {
               value: enumeration,
-              label: enumeration
+              label: enumeration,
             };
           });
       }
@@ -86,7 +86,7 @@ export default ReactForms.reactive(
       if (event) {
         let hidden = event.hiddenEnumerations(eventKey);
         options = options.filter(
-          enumeration => hidden.indexOf(enumeration.value) === -1
+          enumeration => hidden.indexOf(enumeration.value) === -1,
         );
       }
 
@@ -95,7 +95,7 @@ export default ReactForms.reactive(
         let hotkeys = Hotkey.hotkeysFromOptions(options, this.props.options);
         keys = {
           ...Hotkey.configureHotkeys(hotkeys),
-          Tab: "Tab"
+          Tab: "Tab",
         };
 
         if (hotkeys) {
@@ -111,7 +111,7 @@ export default ReactForms.reactive(
               );
               return {
                 ...option,
-                label
+                label,
               };
             } else {
               return option;
@@ -153,5 +153,5 @@ export default ReactForms.reactive(
       }
       this.props.formValue.update(value);
     };
-  }
+  },
 );

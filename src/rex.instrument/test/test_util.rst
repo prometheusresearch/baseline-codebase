@@ -81,14 +81,14 @@ class implementations in the currently-executing application::
 
     >>> from rex.instrument.util import get_implementation
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.instrument_demo')
+    >>> rex = Rex('rex.demo.instrument')
     >>> rex.on()
 
     >>> get_implementation('user', package_name='instrument')
-    rex.instrument_demo.DemoUser
+    rex.demo.instrument.DemoUser
 
     >>> get_implementation('instrument')
-    rex.instrument_demo.DemoInstrument
+    rex.demo.instrument.DemoInstrument
 
     >>> get_implementation('doesntexist')
     Traceback (most recent call last):

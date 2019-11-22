@@ -16,6 +16,6 @@ tests:
 - sh: pip uninstall -q -y rex.sendmail_demo
 - rmdir: ./sandbox
 
-- coverage-check: 95.0
+- coverage-check: 90.0
 - coverage-report: ./build/coverage
 

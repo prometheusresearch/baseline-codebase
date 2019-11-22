@@ -10,7 +10,7 @@ Set up the environment::
     >>> from copy import deepcopy
     >>> from rex.core import Rex
     >>> from webob import Request
-    >>> rex = Rex('rex.forms_demo')
+    >>> rex = Rex('rex.demo.forms')
     >>> rex.on()
 
 

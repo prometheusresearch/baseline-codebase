@@ -10,7 +10,7 @@ Set up the environment::
     >>> from rex.core import Rex, SandboxPackage
     >>> from datetime import datetime
     >>> from rex.instrument.util import get_implementation
-    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex = Rex('__main__', 'rex.demo.instrument')
     >>> rex.on()
 
 
@@ -830,7 +830,7 @@ There is calculation callable option, that can be used as follows::
     ...           'type': 'text',
     ...           'method': 'python',
     ...           'options': {
-    ...             'callable': 'rex.instrument_demo.my_calculation1'
+    ...             'callable': 'rex.demo.instrument.my_calculation1'
     ...           }
     ...         },
     ...         {
@@ -838,7 +838,7 @@ There is calculation callable option, that can be used as follows::
     ...           'type': 'text',
     ...           'method': 'python',
     ...           'options': {
-    ...             'callable': 'rex.instrument_demo.my_calculation2'
+    ...             'callable': 'rex.demo.instrument.my_calculation2'
     ...           }
     ...         }
     ...     ]
@@ -871,39 +871,39 @@ or module doesnot exist::
 
 or module doesnot contain given object name::
 
-    >>> CALCULATIONSET['calculations'][0]['options']['callable'] = 'rex.instrument_demo.my_calculation'
+    >>> CALCULATIONSET['calculations'][0]['options']['callable'] = 'rex.demo.instrument.my_calculation'
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    rex.instrument.errors.InstrumentError: Unexpected callable rex.instrument_demo.my_calculation: suitable callable object not found: module 'rex.instrument_demo' has no attribute 'my_calculation'
+    rex.instrument.errors.InstrumentError: Unexpected callable rex.demo.instrument.my_calculation: suitable callable object not found: module 'rex.demo.instrument' has no attribute 'my_calculation'
     While executing calculation:
         calc1
 
 or given object is not callable::
 
-    >>> CALCULATIONSET['calculations'][0]['options']['callable'] = 'rex.instrument_demo.my_calculation3'
+    >>> CALCULATIONSET['calculations'][0]['options']['callable'] = 'rex.demo.instrument.my_calculation3'
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    rex.instrument.errors.InstrumentError: Unexpected callable option rex.instrument_demo.my_calculation3: my_calculation3 is not callable.
+    rex.instrument.errors.InstrumentError: Unexpected callable option rex.demo.instrument.my_calculation3: my_calculation3 is not callable.
     While executing calculation:
         calc1
 
-    >>> CALCULATIONSET['calculations'][0]['options']['callable'] = 'rex.instrument_demo.my_calculation4'
+    >>> CALCULATIONSET['calculations'][0]['options']['callable'] = 'rex.demo.instrument.my_calculation4'
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    rex.instrument.errors.InstrumentError: Execution of rex.instrument_demo.my_calculation4 failed: __call__() missing 1 required positional argument: 'calculations'
+    rex.instrument.errors.InstrumentError: Execution of rex.demo.instrument.my_calculation4 failed: __call__() missing 1 required positional argument: 'calculations'
     While executing calculation:
         calc1
 
 execute(...) fails when application started with incorrect modules list defined
 by the setting instrument_calculationmethod_default_module_list::
 
-    >>> rex = Rex('__main__', 'rex.instrument_demo',
+    >>> rex = Rex('__main__', 'rex.demo.instrument',
     ...     instrument_calculationmethod_default_module_list=['math1'])
     >>> rex.on()
 

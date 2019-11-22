@@ -11,7 +11,7 @@ import { ThemeProvider } from "rex-ui/Theme.js";
 import * as History from "rex-ui/History";
 import { type Menu, NavMenuItems } from "./NavMenu.js";
 
-let useStyles = styles.makeStyles({
+let useStyles = styles.makeStyles(theme => ({
   HorizontalNavMenuRoot: {
     display: "flex",
     flexDirection: "row"
@@ -33,7 +33,7 @@ let useStyles = styles.makeStyles({
     color: "white !important",
     fontSize: "85% !important"
   }
-});
+}));
 
 let HorizontalMavMenuItem = React.forwardRef((props, ref) => {
   let [anchorEl, setAnchorEl] = React.useState(null);

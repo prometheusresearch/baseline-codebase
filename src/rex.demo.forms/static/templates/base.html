@@ -1,0 +1,19 @@
+{%- from 'rex.i18n:/template/macros.html' import polyfill -%}
+<!doctype html>
+<html>
+  <head>
+    <title>rex.demo.forms</title>
+    {{ polyfill() }}
+    {% if bundle.css %}
+    <link rel="stylesheet" href="{{ bundle.css|url }}">
+    {% endif %}
+    <script type="text/javascript">
+      var __PUBLIC_PATH__ = '{{ bundle.js|url }}/';
+    </script>
+    <script src="{{ bundle.js|url }}"></script>
+  </head>
+  <body>
+    <div id="main"></div>
+    {% block body %}{% endblock %}
+  </body>
+</html>

@@ -19,6 +19,7 @@ __all__ = (
     'get_management_db',
     'get_hosting_cluster',
     'get_mart_db',
+    'get_latest_mart_db',
     'get_mart_etl_db',
     'get_sql_connection',
     'MartCache',
@@ -70,6 +71,42 @@ def get_mart_db(name, extensions=None):
         ext.update(extensions)
 
     return RexHTSQL(uri, ext)
+
+
+def get_latest_mart_db(definition, extensions=None):
+    """
+    Returns an HTSQL instance connected to the most recently-created Mart
+    database for the specified definition.
+
+    :param definition: the definition to retrieve the Mart for
+    :type definition: str
+    :param extensions:
+        the HTSQL extensions to enable/configure, in addition to those defined
+        by the ``mart_htsql_extension`` setting
+    :type extensions: dict
+    :rtype: rex.db.RexHTSQL
+    """
+
+    data = get_management_db().produce(
+        '''
+        /top(
+            rexmart_inventory
+                .filter(
+                    definition=$definition
+                    & status='complete'
+                )
+                .sort(
+                    date_creation_completed-
+                )
+        ).name
+        ''',
+        definition=definition,
+    )
+
+    if not data:
+        return None
+
+    return get_mart_db(data[0], extensions=extensions)
 
 
 def get_mart_etl_db(name, extensions=None):

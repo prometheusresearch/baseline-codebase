@@ -67,7 +67,7 @@ returned by their ``get_parameters()`` method::
     >>> task = Task('bar999', subject, instrument, 100)
 
     >>> from rex.core import Rex
-    >>> rex = Rex('__main__', 'rex.instrument', db='pgsql:instrument_demo')
+    >>> rex = Rex('__main__', 'rex.instrument', db='pgsql:demo.instrument')
     >>> rex.on()
     >>> ParameterSupplier.get_task_parameters(task)
     {'something': 'or other', 'foo': 'bar'}

@@ -4,9 +4,9 @@
 ---
 suite: rex.form-previewer
 tests:
-- sh: pip install --quiet --editable ../rex.instrument/demo
+- sh: pip install --quiet --editable ../rex.demo.instrument
   stdout: ''
-- sh: pip install --quiet --editable ../rex.forms/demo
+- sh: pip install --quiet --editable ../rex.demo.forms
   stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''

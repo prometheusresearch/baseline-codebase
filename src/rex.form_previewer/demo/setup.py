@@ -15,7 +15,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.form_previewer',
-        'rex.forms_demo',
+        'rex.demo.forms',
     ],
     rex_init='rex.form_previewer_demo',
     rex_static='static',

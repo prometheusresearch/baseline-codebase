@@ -18,18 +18,20 @@ type MonthProps = {|
   month: number,
   year: number,
   value: string,
-  onClick?: number => void
+  onClick?: number => void,
+  disabled?: boolean
 |};
 
 export type RenderMonth = ({|
   ...MonthProps,
-  key?: string | number
+  key?: string | number,
+  disabled?: boolean
 |}) => React.Node;
 
 export let Month = (props: MonthProps) => {
-  let { active, month, onClick } = props;
+  let { active, month, onClick, disabled } = props;
   let handleClick = () => {
-    if (onClick) {
+    if (onClick && !disabled) {
       onClick(month);
     }
   };
@@ -40,7 +42,9 @@ export let Month = (props: MonthProps) => {
     borderRadius: Common.buttonSize / 2,
     display: "flex",
     flexGrow: 1,
-    backgroundColor: active ? activeStyle.backgroundColor : null
+    backgroundColor: active ? activeStyle.backgroundColor : null,
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.5 : 1
   };
 
   let textStyle = {
@@ -67,7 +71,9 @@ type MonthViewProps = {|
   selectedDate: ?Moment,
   showYears: () => void,
   onClose?: () => void,
-  renderMonth?: RenderMonth
+  renderMonth?: RenderMonth,
+  minDate?: Moment,
+  maxDate?: Moment
 |};
 
 export let MonthView = (props: MonthViewProps) => {
@@ -77,7 +83,9 @@ export let MonthView = (props: MonthViewProps) => {
     onViewDate,
     selectedDate,
     showYears,
-    onClose
+    onClose,
+    minDate,
+    maxDate
   } = props;
   let viewYear = viewDate.year();
   let selectedMonth = selectedDate != null ? selectedDate.month() : null;
@@ -98,16 +106,21 @@ export let MonthView = (props: MonthViewProps) => {
     }
   };
 
-  let cells = YEAR_MONTH_RANGE.map(month =>
-    renderMonth({
+  let cells = YEAR_MONTH_RANGE.map(month => {
+    const isBeforeMin = minDate ? viewDate.isBefore(minDate, "month") : false;
+    const isAfterMax = maxDate ? viewDate.isAfter(maxDate, "month") : false;
+    const disabled = isBeforeMin || isAfterMax;
+
+    return renderMonth({
       key: month,
       active: month === selectedMonth && viewYear === selectedYear,
       month: month,
       year: viewYear,
       value: MONTHS_SHORT[month],
-      onClick: onMonthClick
-    })
-  );
+      onClick: onMonthClick,
+      disabled
+    });
+  });
   let rows = chunk(cells, 3).map((row, idx) => (
     <div style={{ display: "flex", flexDirection: "row" }} key={idx}>
       {row}

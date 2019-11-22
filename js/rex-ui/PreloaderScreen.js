@@ -9,7 +9,7 @@ import * as styles from "@material-ui/styles";
 
 type Props = {};
 
-let useStyles = styles.makeStyles({
+let useStyles = styles.makeStyles(theme => ({
   root: {
     display: "flex",
     width: "100%",
@@ -17,7 +17,7 @@ let useStyles = styles.makeStyles({
     alignItems: "center",
     justifyContent: "center"
   }
-});
+}));
 
 let PreloaderScreen = (props: Props) => {
   let classes = useStyles();

@@ -179,23 +179,23 @@ It requires a single argument which is the UID of the Instrument to retrieve::
     FATAL ERROR: too few arguments for task instrument-retrieve: missing <instrument-uid>
     <BLANKLINE>
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo simple')
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument simple')
     {"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}
 
 
 It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to retrieve::
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo complex')
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument complex')
     {"id": "urn:another-test-instrument", "version": "1.2", "title": "The Other Instrument", "record": [{"id": "q_foo", "type": "text"}, {"id": "q_bar", "type": "integer"}, {"id": "q_baz", "type": "boolean"}]}
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --version=1')
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument complex --version=1')
     {"id": "urn:another-test-instrument", "version": "1.1", "title": "The Other Instrument", "record": [{"id": "q_foo", "type": "text"}, {"id": "q_bar", "type": "integer"}]}
 
 
 It can also print the JSON in a prettier way::
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --pretty')
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument complex --pretty')
     {
       "id": "urn:another-test-instrument",
       "version": "1.2",
@@ -219,7 +219,7 @@ It can also print the JSON in a prettier way::
 
 It can also print the definition in YAML format::
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --pretty --format=YAML')
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument complex --pretty --format=YAML')
     id: urn:another-test-instrument
     version: '1.2'
     title: The Other Instrument
@@ -234,21 +234,21 @@ It can also print the definition in YAML format::
 
 It fails if the instrument doesn't exist::
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo doesntexist', expect=1)
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument doesntexist', expect=1)
     FATAL ERROR: Instrument "doesntexist" does not exist.
     <BLANKLINE>
 
 
 Or if the version doesn't exist::
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo simple --version=99', expect=1)
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument simple --version=99', expect=1)
     FATAL ERROR: The desired version of "simple" does not exist.
     <BLANKLINE>
 
 
 Or if you specify a bogus format::
 
-    >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --pretty --format=XML', expect=1)
+    >>> ctl('instrument-retrieve --project=rex.demo.instrument complex --pretty --format=XML', expect=1)
     FATAL ERROR: invalid value for option --format: Invalid format type "XML" specified
     <BLANKLINE>
 
@@ -294,11 +294,11 @@ the file containing the JSON::
     FATAL ERROR: too few arguments for task instrument-store: missing <definition>
     <BLANKLINE>
 
-    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.json')
+    >>> ctl('instrument-store --project=rex.demo.instrument complex ./test/instruments/simplest.json')
     Using Instrument: Complex Instrument
     Created version: 3
 
-    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.yaml')
+    >>> ctl('instrument-store --project=rex.demo.instrument complex ./test/instruments/simplest.yaml')
     Using Instrument: Complex Instrument
     Created version: 3
 
@@ -306,12 +306,12 @@ the file containing the JSON::
 It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to store the JSON as::
 
-    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.json --version=1')
+    >>> ctl('instrument-store --project=rex.demo.instrument complex ./test/instruments/simplest.json --version=1')
     Using Instrument: Complex Instrument
     ### SAVED INSTRUMENTVERSION complex1
     Updated version: 1
 
-    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.json --version=99')
+    >>> ctl('instrument-store --project=rex.demo.instrument complex ./test/instruments/simplest.json --version=99')
     Using Instrument: Complex Instrument
     Created version: 99
 
@@ -319,7 +319,7 @@ Instrument to store the JSON as::
 It takes a series of ``context`` options to pass extra variables to the
 underlying API implementation::
 
-    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.json --context=extra_param=foo', expect=1)
+    >>> ctl('instrument-store --project=rex.demo.instrument complex ./test/instruments/simplest.json --context=extra_param=foo', expect=1)
     Using Instrument: Complex Instrument
     FATAL ERROR: Expected an integer
     Got:
@@ -328,7 +328,7 @@ underlying API implementation::
         extra_param
     <BLANKLINE>
 
-    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.json --context=extra_param=123')
+    >>> ctl('instrument-store --project=rex.demo.instrument complex ./test/instruments/simplest.json --context=extra_param=123')
     Using Instrument: Complex Instrument
     ### INSTRUMENTVERSION CREATE CONTEXT: {'extra_param': 123}
     Created version: 3
@@ -337,7 +337,7 @@ underlying API implementation::
 If you specify the UID of an Instrument that does not exist, it will be
 created for you::
 
-    >>> ctl('instrument-store --project=rex.instrument_demo doesntexist ./test/instruments/simplest.json')
+    >>> ctl('instrument-store --project=rex.demo.instrument doesntexist ./test/instruments/simplest.json')
     An Instrument by "doesntexist" does not exist; creating it.
     Using Instrument: doesntexist
     Created version: 1
@@ -594,22 +594,22 @@ It requires a single argument which is the UID of the Instrument to retrieve::
     FATAL ERROR: too few arguments for task calculationset-retrieve: missing <instrument-uid>
     <BLANKLINE>
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation')
-    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument calculation')
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.demo.instrument.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo simple', expect=1)
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument simple', expect=1)
     FATAL ERROR: No CalculationSet exists for Instrument "simple", Version 1
     <BLANKLINE>
 
 It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to retrieve::
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --version=1')
-    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument calculation --version=1')
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.demo.instrument.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
 
 It can also print the JSON in a prettier way::
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --pretty')
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument calculation --pretty')
     {
       "instrument": {
         "id": "urn:test-calculation",
@@ -621,7 +621,7 @@ It can also print the JSON in a prettier way::
           "type": "integer",
           "method": "python",
           "options": {
-            "callable": "rex.instrument_demo.my_calculation1"
+            "callable": "rex.demo.instrument.my_calculation1"
           }
         },
         {
@@ -645,7 +645,7 @@ It can also print the JSON in a prettier way::
 
 It can also print the definition in YAML format::
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --pretty --format=YAML')
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument calculation --pretty --format=YAML')
     instrument:
       id: urn:test-calculation
       version: '1.1'
@@ -654,7 +654,7 @@ It can also print the definition in YAML format::
       type: integer
       method: python
       options:
-        callable: rex.instrument_demo.my_calculation1
+        callable: rex.demo.instrument.my_calculation1
     - id: calc2
       type: integer
       method: htsql
@@ -669,19 +669,19 @@ It can also print the definition in YAML format::
 
 It fails if the instrument doesn't exist::
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo doesntexist', expect=1)
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument doesntexist', expect=1)
     FATAL ERROR: Instrument "doesntexist" does not exist.
     <BLANKLINE>
 
 Or if the version doesn't exist::
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --version=2', expect=1)
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument calculation --version=2', expect=1)
     FATAL ERROR: The desired version of "calculation" does not exist.
     <BLANKLINE>
 
 Or if you specify a bogus format::
 
-    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --pretty --format=XML', expect=1)
+    >>> ctl('calculationset-retrieve --project=rex.demo.instrument calculation --pretty --format=XML', expect=1)
     FATAL ERROR: invalid value for option --format: Invalid format type "XML" specified
     <BLANKLINE>
 
@@ -723,13 +723,13 @@ the file containing the CalculationSet JSON or YAML::
     FATAL ERROR: too few arguments for task calculationset-store: missing <definition>
     <BLANKLINE>
 
-    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.json')
+    >>> ctl('calculationset-store --project=rex.demo.instrument calculation ./test/calculationsets/simplest.json')
     Using Instrument: Calculation Instrument
     Instrument Version: 1
     ### SAVED CALCULATIONSET calculation1
     Updated existing CalculationSet
 
-    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.yaml')
+    >>> ctl('calculationset-store --project=rex.demo.instrument calculation ./test/calculationsets/simplest.yaml')
     Using Instrument: Calculation Instrument
     Instrument Version: 1
     ### SAVED CALCULATIONSET calculation1
@@ -738,7 +738,7 @@ the file containing the CalculationSet JSON or YAML::
 It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to store the CalculationSet JSON as::
 
-    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.json --version=1')
+    >>> ctl('calculationset-store --project=rex.demo.instrument calculation ./test/calculationsets/simplest.json --version=1')
     Using Instrument: Calculation Instrument
     Instrument Version: 1
     ### SAVED CALCULATIONSET calculation1
@@ -746,13 +746,13 @@ Instrument to store the CalculationSet JSON as::
 
 It fails if instrument doesnot exist::
 
-    >>> ctl('calculationset-store --project=rex.instrument_demo doesntexist ./test/calculationsets/simplest.json', expect=1)
+    >>> ctl('calculationset-store --project=rex.demo.instrument doesntexist ./test/calculationsets/simplest.json', expect=1)
     FATAL ERROR: Instrument "doesntexist" does not exist.
     <BLANKLINE>
 
 It fails if instrument version doesnot exist::
 
-    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.json --version 2', expect=1)
+    >>> ctl('calculationset-store --project=rex.demo.instrument calculation ./test/calculationsets/simplest.json --version 2', expect=1)
     Using Instrument: Calculation Instrument
     FATAL ERROR: The desired version of "calculation" does not exist.
     <BLANKLINE>

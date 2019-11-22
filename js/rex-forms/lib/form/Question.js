@@ -20,7 +20,7 @@ export default InjectI18N(
   ReactForms.reactive(
     class Question extends React.Component {
       static defaultProps = {
-        onEditable: noop
+        onEditable: noop,
       };
 
       shouldComponentUpdate(nextProps) {
@@ -43,7 +43,7 @@ export default InjectI18N(
           plain,
           editable,
           disabled,
-          mode
+          mode,
         } = this.props;
         let { field } = formValue.schema.instrument;
 
@@ -57,7 +57,7 @@ export default InjectI18N(
 
         let readOnly = (mode === "review" && !editable) || mode === "view";
         let style = {
-          cursor: disabled ? "not-allowed" : undefined
+          cursor: disabled ? "not-allowed" : undefined,
         };
 
         return (
@@ -162,6 +162,6 @@ export default InjectI18N(
       onCancelEdit = () => {
         this.props.onEditable({ editable: false, commit: false });
       };
-    }
-  )
+    },
+  ),
 );

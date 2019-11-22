@@ -14,7 +14,7 @@ abstract interface classes, which, of course, are mostly useless::
     >>> from rex.core import Rex, get_settings
     >>> from rex.instrument.interface import *
 
-    >>> test = Rex('__main__', 'rex.instrument', db='pgsql:instrument_demo')
+    >>> test = Rex('__main__', 'rex.instrument', db='pgsql:demo.instrument')
     >>> test.on()
     >>> get_settings().instrument_implementation
     Record(user=rex.instrument.interface.user.User, subject=rex.instrument.interface.subject.Subject, instrument=rex.instrument.interface.instrument.Instrument, instrumentversion=rex.instrument.interface.instrumentversion.InstrumentVersion, assessment=rex.instrument.interface.assessment.Assessment, draftinstrumentversion=rex.instrument.interface.draftinstrumentversion.DraftInstrumentVersion, channel=rex.instrument.interface.channel.Channel, task=rex.instrument.interface.task.Task, entry=rex.instrument.interface.entry.Entry, calculationset=rex.instrument.interface.calculationset.CalculationSet, resultset=rex.instrument.interface.resultset.ResultSet, draftcalculationset=rex.instrument.interface.draftcalculationset.DraftCalculationSet)
@@ -47,66 +47,66 @@ abstract interface classes, which, of course, are mostly useless::
 Typically an app would have these implementations specified in its
 ``settings.yaml`` file::
 
-    >>> test = Rex('__main__', 'rex.instrument_demo')
+    >>> test = Rex('__main__', 'rex.demo.instrument')
     >>> test.on()
     >>> get_settings().instrument_implementation
-    Record(user=rex.instrument_demo.DemoUser, subject=rex.instrument_demo.DemoSubject, instrument=rex.instrument_demo.DemoInstrument, instrumentversion=rex.instrument_demo.DemoInstrumentVersion, assessment=rex.instrument_demo.DemoAssessment, draftinstrumentversion=rex.instrument_demo.DemoDraftInstrumentVersion, channel=rex.instrument_demo.DemoChannel, task=rex.instrument_demo.DemoTask, entry=rex.instrument_demo.DemoEntry, calculationset=rex.instrument_demo.DemoCalculationSet, resultset=rex.instrument_demo.DemoResultSet, draftcalculationset=rex.instrument_demo.DemoDraftCalculationSet)
+    Record(user=rex.demo.instrument.DemoUser, subject=rex.demo.instrument.DemoSubject, instrument=rex.demo.instrument.DemoInstrument, instrumentversion=rex.demo.instrument.DemoInstrumentVersion, assessment=rex.demo.instrument.DemoAssessment, draftinstrumentversion=rex.demo.instrument.DemoDraftInstrumentVersion, channel=rex.demo.instrument.DemoChannel, task=rex.demo.instrument.DemoTask, entry=rex.demo.instrument.DemoEntry, calculationset=rex.demo.instrument.DemoCalculationSet, resultset=rex.demo.instrument.DemoResultSet, draftcalculationset=rex.demo.instrument.DemoDraftCalculationSet)
     >>> Instrument.get_implementation()
-    rex.instrument_demo.DemoInstrument
+    rex.demo.instrument.DemoInstrument
     >>> InstrumentVersion.get_implementation()
-    rex.instrument_demo.DemoInstrumentVersion
+    rex.demo.instrument.DemoInstrumentVersion
     >>> Assessment.get_implementation()
-    rex.instrument_demo.DemoAssessment
+    rex.demo.instrument.DemoAssessment
     >>> Channel.get_implementation()
-    rex.instrument_demo.DemoChannel
+    rex.demo.instrument.DemoChannel
     >>> Task.get_implementation()
-    rex.instrument_demo.DemoTask
+    rex.demo.instrument.DemoTask
     >>> Entry.get_implementation()
-    rex.instrument_demo.DemoEntry
+    rex.demo.instrument.DemoEntry
     >>> CalculationSet.get_implementation()
-    rex.instrument_demo.DemoCalculationSet
+    rex.demo.instrument.DemoCalculationSet
     >>> ResultSet.get_implementation()
-    rex.instrument_demo.DemoResultSet
+    rex.demo.instrument.DemoResultSet
     >>> User.get_implementation()
-    rex.instrument_demo.DemoUser
+    rex.demo.instrument.DemoUser
     >>> Subject.get_implementation()
-    rex.instrument_demo.DemoSubject
+    rex.demo.instrument.DemoSubject
     >>> DraftInstrumentVersion.get_implementation()
-    rex.instrument_demo.DemoDraftInstrumentVersion
+    rex.demo.instrument.DemoDraftInstrumentVersion
     >>> DraftCalculationSet.get_implementation()
-    rex.instrument_demo.DemoDraftCalculationSet
+    rex.demo.instrument.DemoDraftCalculationSet
     >>> test.off()
 
 
 The setting can be specified by multiple apps and will be merged::
 
-    >>> test = Rex('__main__', 'rex.instrument_demo', instrument_implementation={'user': 'rex.instrument_demo.OtherDemoUser'})
+    >>> test = Rex('__main__', 'rex.demo.instrument', instrument_implementation={'user': 'rex.demo.instrument.OtherDemoUser'})
     >>> test.on()
     >>> get_settings().instrument_implementation
-    Record(user=rex.instrument_demo.OtherDemoUser, subject=rex.instrument_demo.DemoSubject, instrument=rex.instrument_demo.DemoInstrument, instrumentversion=rex.instrument_demo.DemoInstrumentVersion, assessment=rex.instrument_demo.DemoAssessment, draftinstrumentversion=rex.instrument_demo.DemoDraftInstrumentVersion, channel=rex.instrument_demo.DemoChannel, task=rex.instrument_demo.DemoTask, entry=rex.instrument_demo.DemoEntry, calculationset=rex.instrument_demo.DemoCalculationSet, resultset=rex.instrument_demo.DemoResultSet, draftcalculationset=rex.instrument_demo.DemoDraftCalculationSet)
+    Record(user=rex.demo.instrument.OtherDemoUser, subject=rex.demo.instrument.DemoSubject, instrument=rex.demo.instrument.DemoInstrument, instrumentversion=rex.demo.instrument.DemoInstrumentVersion, assessment=rex.demo.instrument.DemoAssessment, draftinstrumentversion=rex.demo.instrument.DemoDraftInstrumentVersion, channel=rex.demo.instrument.DemoChannel, task=rex.demo.instrument.DemoTask, entry=rex.demo.instrument.DemoEntry, calculationset=rex.demo.instrument.DemoCalculationSet, resultset=rex.demo.instrument.DemoResultSet, draftcalculationset=rex.demo.instrument.DemoDraftCalculationSet)
     >>> Instrument.get_implementation()
-    rex.instrument_demo.DemoInstrument
+    rex.demo.instrument.DemoInstrument
     >>> InstrumentVersion.get_implementation()
-    rex.instrument_demo.DemoInstrumentVersion
+    rex.demo.instrument.DemoInstrumentVersion
     >>> Assessment.get_implementation()
-    rex.instrument_demo.DemoAssessment
+    rex.demo.instrument.DemoAssessment
     >>> Channel.get_implementation()
-    rex.instrument_demo.DemoChannel
+    rex.demo.instrument.DemoChannel
     >>> Task.get_implementation()
-    rex.instrument_demo.DemoTask
+    rex.demo.instrument.DemoTask
     >>> Entry.get_implementation()
-    rex.instrument_demo.DemoEntry
+    rex.demo.instrument.DemoEntry
     >>> CalculationSet.get_implementation()
-    rex.instrument_demo.DemoCalculationSet
+    rex.demo.instrument.DemoCalculationSet
     >>> ResultSet.get_implementation()
-    rex.instrument_demo.DemoResultSet
+    rex.demo.instrument.DemoResultSet
     >>> User.get_implementation()
-    rex.instrument_demo.OtherDemoUser
+    rex.demo.instrument.OtherDemoUser
     >>> Subject.get_implementation()
-    rex.instrument_demo.DemoSubject
+    rex.demo.instrument.DemoSubject
     >>> DraftInstrumentVersion.get_implementation()
-    rex.instrument_demo.DemoDraftInstrumentVersion
+    rex.demo.instrument.DemoDraftInstrumentVersion
     >>> DraftCalculationSet.get_implementation()
-    rex.instrument_demo.DemoDraftCalculationSet
+    rex.demo.instrument.DemoDraftCalculationSet
     >>> test.off()
 

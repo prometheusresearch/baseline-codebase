@@ -562,7 +562,7 @@ configure-kube:
 		for c in $$all_clusters; do echo "- $$c"; done; \
 		read -p "[$$default_cluster]> " c; \
 		c="$${c:-$$default_cluster}"; \
-		if gcloud container clusters describe "$$c" >/dev/null 2>&1; then \
+		if gcloud --project="$$project" container clusters describe "$$c" >/dev/null 2>&1; then \
 			cluster="$$c"; \
 		else \
 			echo "${RED}Invalid choice!${NORM}"; \

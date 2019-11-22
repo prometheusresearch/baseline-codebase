@@ -33,7 +33,7 @@ export default InjectI18N(
         if (type.base === "boolean") {
           options = [
             { value: true, label: this._("Yes") },
-            { value: false, label: this._("No") }
+            { value: false, label: this._("No") },
           ];
         } else if (type.base === "enumeration") {
           if (enumerations) {
@@ -42,8 +42,8 @@ export default InjectI18N(
               label: getLocalizedString(
                 enumeration.text,
                 this.getI18N(),
-                this.context.defaultLocalization
-              )
+                this.context.defaultLocalization,
+              ),
             }));
           } else {
             options = Object.keys(type.enumerations)
@@ -51,21 +51,21 @@ export default InjectI18N(
               .map(enumeration => {
                 return {
                   value: enumeration,
-                  label: enumeration
+                  label: enumeration,
                 };
               });
           }
           if (event) {
             let hidden = event.hiddenEnumerations(eventKey);
             options = options.filter(
-              enumeration => hidden.indexOf(enumeration.value) === -1
+              enumeration => hidden.indexOf(enumeration.value) === -1,
             );
           }
         } else {
           invariant(
             false,
             "<Dropdown /> is incompatible with field of type %s",
-            type.base
+            type.base,
           );
         }
 
@@ -75,6 +75,6 @@ export default InjectI18N(
           </Widget>
         );
       }
-    }
-  )
+    },
+  ),
 );

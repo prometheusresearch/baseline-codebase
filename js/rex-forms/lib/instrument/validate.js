@@ -3,21 +3,27 @@
  * @flow
  */
 
-import type {Value, error} from 'react-forms';
-import type {I18N} from 'rex-i18n';
-import type {JSONSchemaExt} from '../types';
+import moment from "moment";
+import type { Value, error } from "react-forms";
+import type { I18N } from "rex-i18n";
+import type { JSONSchema } from "../types";
 
-import invariant from 'invariant';
-import isInteger from 'lodash/isInteger';
-import isFinite from 'lodash/isFinite';
-import isArray from 'lodash/isArray';
-import isPlainObject from 'lodash/isPlainObject';
+import invariant from "invariant";
+import isInteger from "lodash/isInteger";
+import isFinite from "lodash/isFinite";
+import isArray from "lodash/isArray";
+import isPlainObject from "lodash/isPlainObject";
 
-import cast from '../cast';
+import cast from "../cast";
 
+/**
+ * ISO8601-based default regexps
+ */
 const DATE_TIME_RE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/;
 const DATE_RE = /^\d\d\d\d-\d\d-\d\d$/;
 const TIME_RE = /^\d\d:\d\d(:\d\d)?$/;
+const ISO_DATE_FORMAT = "YYYY-MM-DD";
+const ISO_DATE_TIME_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
 /**
  * Determine if field value is empty.
@@ -26,83 +32,75 @@ export function isEmptyValue(value: mixed): boolean {
   if (isArray(value)) {
     const valueRefined: Array<mixed> = cast(value);
     // If the array is empty, or only contains "empty" values, then true.
-    return valueRefined
-      .filter((val) => !isEmptyValue(val))
-      .length === 0;
-
+    return valueRefined.filter(val => !isEmptyValue(val)).length === 0;
   } else if (isPlainObject(value)) {
-    const valueRefined: Object  = cast(value);
+    const valueRefined: Object = cast(value);
     // If the object is empty, or only contains keys with "empty" values, then true.
-    return Object.keys(valueRefined)
-      .filter(key => !isEmptyValue(valueRefined[key]))
-      .length === 0;
-
+    return (
+      Object.keys(valueRefined).filter(key => !isEmptyValue(valueRefined[key]))
+        .length === 0
+    );
   } else {
     // These are what we define as "empty" values.
-    return value === null || value === '' || value === undefined;
+    return value === null || value === "" || value === undefined;
   }
 }
 
 /**
-* Determine if field value is completed.
-*/
+ * Determine if field value is completed.
+ */
 export function isFieldCompleted(formValue: Value): boolean {
-  let {value, completeErrorList} = formValue;
+  let { value, completeErrorList } = formValue;
   return !!(
     completeErrorList.length === 0 &&
-    value && typeof value === 'object' && (
-      !isEmptyValue(value.value) ||
-      !isEmptyValue(value.annotation)
-    )
+    value &&
+    typeof value === "object" &&
+    (!isEmptyValue(value.value) || !isEmptyValue(value.annotation))
   );
 }
 
-export function createReactFormsMessages({i18n}: {i18n: I18N}) {
+export function createReactFormsMessages({ i18n }: { i18n: I18N }) {
   return {
-    IS_REQUIRED: i18n.gettext('You must provide a response for this field.'),
+    IS_REQUIRED: i18n.gettext("You must provide a response for this field."),
 
     // These aren't used, don't bother translating them.
-    DOES_NOT_CONFORM_TO_FORMAT: 'does not conform to: ',
-    INVALID: 'invalid',
-    IS_THE_WRONG_TYPE: 'is the wrong type',
-    MUST_BE_UNIQUE: 'must be unique',
-    HAS_ADDITIONAL_ITEMS: 'has additional items',
-    HAS_ADDITIONAL_PROPERTIES: 'has additional properties',
-    MUST_BE_AN_ENUM_VALUE: 'must be an enum value',
-    DEPENDENCIES_NOT_SET: 'dependencies not set',
-    REFERENCED_SCHEMA_DOES_NOT_MATCH: 'referenced schema does not match',
-    NEGATIVE_SCHEMA_MATCHES: 'negative schema matches',
-    PATTERN_MISMATCH: 'pattern mismatch',
-    NO_SCHEMAS_MATCH: 'no schemas match',
-    NO_OR_MORE_THAN_ONE_SCHEMAS_MATCH: 'no (or more than one) schemas match',
-    HAS_A_REMAINDER: 'has a remainder',
-    HAS_MORE_PROPERTIES_THAN_ALLOWED: 'has more properties than allowed',
-    HAS_LESS_PROPERTIES_THAN_ALLOWED: 'has less properties than allowed',
-    HAS_MORE_ITEMS_THAN_ALLOWED: 'has more items than allowed',
-    HAS_LESS_ITEMS_THAN_ALLOWED: 'has less items than allowed',
-    HAS_LONGER_LENGTH_THAN_ALLOWED: 'has longer length than allowed',
-    HAS_LESS_LENGTH_THAN_ALLOWED: 'has less length than allowed',
-    IS_LESS_THAN_MINIMUM: 'is less than minimum',
-    IS_MORE_THAN_MAXIMUM: 'is more than maximum',
+    DOES_NOT_CONFORM_TO_FORMAT: "does not conform to: ",
+    INVALID: "invalid",
+    IS_THE_WRONG_TYPE: "is the wrong type",
+    MUST_BE_UNIQUE: "must be unique",
+    HAS_ADDITIONAL_ITEMS: "has additional items",
+    HAS_ADDITIONAL_PROPERTIES: "has additional properties",
+    MUST_BE_AN_ENUM_VALUE: "must be an enum value",
+    DEPENDENCIES_NOT_SET: "dependencies not set",
+    REFERENCED_SCHEMA_DOES_NOT_MATCH: "referenced schema does not match",
+    NEGATIVE_SCHEMA_MATCHES: "negative schema matches",
+    PATTERN_MISMATCH: "pattern mismatch",
+    NO_SCHEMAS_MATCH: "no schemas match",
+    NO_OR_MORE_THAN_ONE_SCHEMAS_MATCH: "no (or more than one) schemas match",
+    HAS_A_REMAINDER: "has a remainder",
+    HAS_MORE_PROPERTIES_THAN_ALLOWED: "has more properties than allowed",
+    HAS_LESS_PROPERTIES_THAN_ALLOWED: "has less properties than allowed",
+    HAS_MORE_ITEMS_THAN_ALLOWED: "has more items than allowed",
+    HAS_LESS_ITEMS_THAN_ALLOWED: "has less items than allowed",
+    HAS_LONGER_LENGTH_THAN_ALLOWED: "has longer length than allowed",
+    HAS_LESS_LENGTH_THAN_ALLOWED: "has less length than allowed",
+    IS_LESS_THAN_MINIMUM: "is less than minimum",
+    IS_MORE_THAN_MAXIMUM: "is more than maximum",
   };
 }
 
 export default class Validate {
-
   i18n: I18N;
 
-  constructor({i18n}: {i18n: I18N}) {
+  constructor({ i18n }: { i18n: I18N }) {
     this.i18n = i18n;
   }
 
-  number = (value: number, node: JSONSchemaExt) => {
+  number = (value: number, node: JSONSchema) => {
     if (!isFinite(value)) {
-      return this.i18n.gettext('Not a valid number.');
+      return this.i18n.gettext("Not a valid number.");
     }
-    invariant(
-      node.instrument != null,
-      'Incomplete schema'
-    );
+    invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -112,14 +110,11 @@ export default class Validate {
     return true;
   };
 
-  integer = (value: number, node: JSONSchemaExt) => {
+  integer = (value: number, node: JSONSchema) => {
     if (!isInteger(value)) {
-      return this.i18n.gettext('Not a valid whole number.');
+      return this.i18n.gettext("Not a valid whole number.");
     }
-    invariant(
-      node.instrument != null,
-      'Incomplete schema'
-    );
+    invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -129,20 +124,24 @@ export default class Validate {
     return true;
   };
 
-  date = (value: string, node: JSONSchemaExt) => {
-    if (!DATE_RE.exec(value)) {
-      return this.i18n.gettext('This must be entered in the form: YYYY-MM-DD');
-    }
-    if (!this.checkLegalDate(value)) {
-      return this.i18n.gettext('Not a valid date.');
+  date = (value: string, node: JSONSchema) => {
+    const regex = node.dateRegex ? new RegExp(node.dateRegex) : DATE_RE;
+    const format = node.dateFormat || ISO_DATE_FORMAT;
+
+    if (!regex.exec(value)) {
+      return this.i18n.gettext(`This must be entered in the form: ${format}`);
     }
 
-    invariant(
-      node.instrument != null,
-      'Incomplete schema'
-    );
-    if (node.instrument.type.range) {
-      let failure = this.checkValueRange(value, node.instrument.type.range);
+    let date = moment(value, format);
+    if (!date.isValid()) {
+      return this.i18n.gettext("Not a valid date.");
+    }
+
+    invariant(node.instrument != null, "Incomplete schema");
+    let { range } = node.instrument.type;
+    if (range != null) {
+      let isoValue = date.format(ISO_DATE_FORMAT);
+      let failure = this.checkValueRange(isoValue, range);
       if (failure !== true) {
         return failure;
       }
@@ -150,25 +149,35 @@ export default class Validate {
     return true;
   };
 
-  dateTime = (value: string, node: JSONSchemaExt) => {
-    if (!DATE_TIME_RE.exec(value)) {
-      return this.i18n.gettext('This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]');
+  dateTime = (value: string, node: JSONSchema) => {
+    const regex = node.dateTimeRegex
+      ? new RegExp(node.dateTimeRegex)
+      : DATE_TIME_RE;
+    const dateFormat = node.dateFormat || ISO_DATE_FORMAT;
+
+    if (!regex.exec(value)) {
+      return this.i18n.gettext(
+        `This must be entered in the form: ${dateFormat}THH:MM[:SS]`,
+      );
     }
 
-    let parts = value.split('T');
-    if (!this.checkLegalDate(parts[0])) {
-      return this.i18n.gettext('Not a valid date.');
-    }
-    if (!this.checkLegalTime(parts[1])) {
-      return this.i18n.gettext('Not a valid time.');
+    let [date, time] = value.split("T");
+
+    if (!moment(date, dateFormat).isValid()) {
+      return this.i18n.gettext("Not a valid date.");
     }
 
-    invariant(
-      node.instrument != null,
-      'Incomplete schema'
-    );
-    if (node.instrument.type.range) {
-      let failure = this.checkValueRange(value, node.instrument.type.range);
+    let TIME_FORMAT = "HH:mm:ss";
+    if (!moment(time, TIME_FORMAT).isValid()) {
+      return this.i18n.gettext("Not a valid time.");
+    }
+
+    invariant(node.instrument != null, "Incomplete schema");
+    let { range } = node.instrument.type;
+    if (range) {
+      let format = `${dateFormat}THH:mm:ss`;
+      let isoValue = moment(value, format).format(ISO_DATE_TIME_FORMAT);
+      let failure = this.checkValueRange(isoValue, range);
       if (failure !== true) {
         return failure;
       }
@@ -176,18 +185,15 @@ export default class Validate {
     return true;
   };
 
-  time = (value: string, node: JSONSchemaExt) => {
+  time = (value: string, node: JSONSchema) => {
     if (!TIME_RE.exec(value)) {
-      return this.i18n.gettext('This must be entered in the form: HH:MM[:SS]');
+      return this.i18n.gettext("This must be entered in the form: HH:MM[:SS]");
     }
     if (!this.checkLegalTime(value)) {
-      return this.i18n.gettext('Not a valid time.');
+      return this.i18n.gettext("Not a valid time.");
     }
 
-    invariant(
-      node.instrument != null,
-      'Incomplete schema'
-    );
+    invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -197,7 +203,7 @@ export default class Validate {
     return true;
   };
 
-  recordList = (value: Array<Object>, node: JSONSchemaExt) => {
+  recordList = (value: Array<Object>, node: JSONSchema) => {
     value = value || [];
 
     if (value.length > 0) {
@@ -205,8 +211,10 @@ export default class Validate {
       value.forEach((rec, idx) => {
         if (isEmptyValue(rec)) {
           errors.push({
-            field: '' + idx,
-            message: this.i18n.gettext('You must respond to at least one question in this record.')
+            field: "" + idx,
+            message: this.i18n.gettext(
+              "You must respond to at least one question in this record.",
+            ),
           });
         }
       });
@@ -216,36 +224,33 @@ export default class Validate {
     }
 
     if (isEmptyValue(value)) {
-      invariant(
-        node.instrument != null,
-        'Incomplete schema'
-      );
+      invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.required) {
-        return this.i18n.gettext('You must provide a response for this field.');
+        return this.i18n.gettext("You must provide a response for this field.");
       }
     } else {
-      invariant(
-        node.instrument != null,
-        'Incomplete schema'
-      );
+      invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.type.length) {
-        let {min, max} = node.instrument.type.length;
-        let minFailure = (
-          min !== undefined &&
-          min > value.length
-        );
-        let maxFailure = (
-          max !== undefined &&
-          max < value.length
-        );
+        let { min, max } = node.instrument.type.length;
+        let minFailure = min !== undefined && min > value.length;
+        let maxFailure = max !== undefined && max < value.length;
         if (minFailure || maxFailure) {
-          let error = {message: undefined, force: true};
+          let error = { message: undefined, force: true };
           if (min !== undefined && max !== undefined) {
-            error.message = this.i18n.gettext('Must enter between %(min)s and %(max)s records.', {min, max});
+            error.message = this.i18n.gettext(
+              "Must enter between %(min)s and %(max)s records.",
+              { min, max },
+            );
           } else if (min !== undefined) {
-            error.message = this.i18n.gettext('Must enter at least %(min)s records.', {min});
+            error.message = this.i18n.gettext(
+              "Must enter at least %(min)s records.",
+              { min },
+            );
           } else if (max !== undefined) {
-            error.message = this.i18n.gettext('Cannot enter more than %(max)s records.', {max});
+            error.message = this.i18n.gettext(
+              "Cannot enter more than %(max)s records.",
+              { max },
+            );
           }
           return error;
         }
@@ -254,44 +259,34 @@ export default class Validate {
     return true;
   };
 
-  matrix = (value: Object, node: JSONSchemaExt) => {
+  matrix = (value: Object, node: JSONSchema) => {
     if (isEmptyValue(value)) {
-      invariant(
-        node.instrument != null,
-        'Incomplete schema'
-      );
+      invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.required) {
-        return this.i18n.gettext('You must provide a response for this field.');
+        return this.i18n.gettext("You must provide a response for this field.");
       }
     }
     return true;
   };
 
-  matrixRow = (value: Object, node: JSONSchemaExt) => {
+  matrixRow = (value: Object, node: JSONSchema) => {
     if (isEmptyValue(value)) {
-      invariant(
-        node.instrument != null,
-        'Incomplete schema'
-      );
+      invariant(node.instrument != null, "Incomplete schema");
       if (node.instrument.required) {
-        return this.i18n.gettext('You must provide a response for this row.');
+        return this.i18n.gettext("You must provide a response for this row.");
       }
     } else {
-      invariant(
-        node.instrument != null,
-        'Incomplete schema'
-      );
-      const {requiredColumns} = node.instrument;
-      invariant(
-        requiredColumns != null,
-        'Invalid schema'
-      );
+      invariant(node.instrument != null, "Incomplete schema");
+      const { requiredColumns } = node.instrument;
+      invariant(requiredColumns != null, "Invalid schema");
       let errorList: error[] = requiredColumns
         .filter(col => isEmptyValue(value[col]))
-        .map((col) => {
+        .map(col => {
           let error: error = {
-            field: col + '.value',
-            message: this.i18n.gettext('You must provide a response for this field.'),
+            field: col + ".value",
+            message: this.i18n.gettext(
+              "You must provide a response for this field.",
+            ),
             force: true,
           };
           return error;
@@ -301,58 +296,54 @@ export default class Validate {
     return true;
   };
 
-  enumerationSet = (value: Array<string>, node: JSONSchemaExt) => {
+  enumerationSet = (value: Array<string>, node: JSONSchema) => {
     value = value || [];
-    invariant(
-      node.instrument != null,
-      'Incomplete schema'
-    );
-    if ((value.length > 0) && node.instrument.type.length) {
-      let {min, max} = node.instrument.type.length;
-      let minFailure = (
-        min !== undefined &&
-        min > value.length
-      );
-      let maxFailure = (
-        max !== undefined &&
-        max < value.length
-      );
+    invariant(node.instrument != null, "Incomplete schema");
+    if (value.length > 0 && node.instrument.type.length) {
+      let { min, max } = node.instrument.type.length;
+      let minFailure = min !== undefined && min > value.length;
+      let maxFailure = max !== undefined && max < value.length;
       if (minFailure || maxFailure) {
         if (min !== undefined && max !== undefined) {
-          return this.i18n.gettext('Must select between %(min)s and %(max)s choices.', {min, max});
+          return this.i18n.gettext(
+            "Must select between %(min)s and %(max)s choices.",
+            { min, max },
+          );
         } else if (min !== undefined) {
-          return this.i18n.gettext('Must select at least %(min)s choices.', {min});
+          return this.i18n.gettext("Must select at least %(min)s choices.", {
+            min,
+          });
         } else if (max !== undefined) {
-          return this.i18n.gettext('Cannot select more than %(max)s choices.', {max});
+          return this.i18n.gettext("Cannot select more than %(max)s choices.", {
+            max,
+          });
         }
       }
     }
     return true;
   };
 
-  text = (value: string, node: JSONSchemaExt) => {
-    value = value || '';
-    invariant(
-      node.instrument != null,
-      'Incomplete schema'
-    );
+  text = (value: string, node: JSONSchema) => {
+    value = value || "";
+    invariant(node.instrument != null, "Incomplete schema");
     if (node.instrument.type.length) {
-      let {min, max} = node.instrument.type.length;
-      let minFailure = (
-        min !== undefined &&
-        min > value.length
-      );
-      let maxFailure = (
-        max !== undefined &&
-        max < value.length
-      );
+      let { min, max } = node.instrument.type.length;
+      let minFailure = min !== undefined && min > value.length;
+      let maxFailure = max !== undefined && max < value.length;
       if (minFailure || maxFailure) {
         if (min !== undefined && max !== undefined) {
-          return this.i18n.gettext('Must be between %(min)s and %(max)s characters.', {min, max});
+          return this.i18n.gettext(
+            "Must be between %(min)s and %(max)s characters.",
+            { min, max },
+          );
         } else if (min !== undefined) {
-          return this.i18n.gettext('Must be at least %(min)s characters.', {min});
+          return this.i18n.gettext("Must be at least %(min)s characters.", {
+            min,
+          });
         } else if (max !== undefined) {
-          return this.i18n.gettext('Cannot be more than %(max)s characters.', {max});
+          return this.i18n.gettext("Cannot be more than %(max)s characters.", {
+            max,
+          });
         }
       }
     }
@@ -362,63 +353,60 @@ export default class Validate {
         node.instrument.type.pattern = new RegExp(node.instrument.type.pattern);
       }
       if (!node.instrument.type.pattern.exec(value)) {
-        return this.i18n.gettext('Does not match the expected pattern.');
+        return this.i18n.gettext("Does not match the expected pattern.");
       }
     }
     return true;
   };
 
-  checkValueRange(value: any, {min, max}: {min?: any; max?: any}) {
-    let minFailure = (
-      min !== undefined &&
-      min > value
-    );
-    let maxFailure = (
-      max !== undefined &&
-      max < value
-    );
+  checkValueRange(value: any, { min, max }: { min?: any, max?: any }) {
+    let minFailure = min != undefined && min > value;
+    let maxFailure = max != undefined && max < value;
+
     if (minFailure || maxFailure) {
       if (min !== undefined && max !== undefined) {
-        return this.i18n.gettext('Must be between %(min)s and %(max)s.', {min, max});
+        return this.i18n.gettext("Must be between %(min)s and %(max)s.", {
+          min,
+          max,
+        });
       } else if (min !== undefined) {
-        return this.i18n.gettext('Must be at least %(min)s.', {min});
+        return this.i18n.gettext("Must be at least %(min)s.", { min });
       } else if (max !== undefined) {
-        return this.i18n.gettext('Cannot be beyond %(max)s.', {max});
+        return this.i18n.gettext("Cannot be beyond %(max)s.", { max });
       }
     } else {
       return true;
     }
   }
 
-  checkLegalDate(dateStr: string): boolean {
-    let parts = dateStr.split('-').map(Number);
-    // $FlowIssue: fixme
-    let parsed = new Date(parts[0], (parts[1] - 1), parts[2]);
-    if (
-        isNaN(parsed.getTime())
-        || (parsed.getFullYear() !== parts[0])
-        || (parsed.getMonth() !== (parts[1] - 1))
-        || (parsed.getDate() !== parts[2])
-        ) {
-      return false;
-    }
-    return true;
-  }
+  // checkLegalDate(dateStr: string): boolean {
+  //   let parts = dateStr.split("-").map(Number);
+  //   // $FlowIssue: fixme
+  //   let parsed = new Date(parts[0], parts[1] - 1, parts[2]);
+  //   if (
+  //     isNaN(parsed.getTime()) ||
+  //     parsed.getFullYear() !== parts[0] ||
+  //     parsed.getMonth() !== parts[1] - 1 ||
+  //     parsed.getDate() !== parts[2]
+  //   ) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   checkLegalTime(timeStr: string): boolean {
-    let parts = timeStr.split(':').map(Number);
+    let parts = timeStr.split(":").map(Number);
     if (
-      ((parts[0] < 0) || (parts[0] > 23))
-      || ((parts[1] < 0) || (parts[1] > 59))
-      || ((parts[2] < 0) || (parts[2] > 59))
-      ) {
+      parts[0] < 0 ||
+      parts[0] > 23 ||
+      (parts[1] < 0 || parts[1] > 59) ||
+      (parts[2] < 0 || parts[2] > 59)
+    ) {
       return false;
     }
-    if ((parts.length === 3) && ((parts[2] < 0) || (parts[2] > 59))) {
+    if (parts.length === 3 && (parts[2] < 0 || parts[2] > 59)) {
       return false;
     }
     return true;
   }
-
 }
-

@@ -6,9 +6,9 @@ title: REX.FORMBUILDER
 tests:
   - coverage: setup.cfg
 
-  - sh: pip install --quiet --editable ../rex.instrument/demo
+  - sh: pip install --quiet --editable ../rex.demo.instrument
     ignore: true
-  - sh: pip install --quiet --editable ../rex.forms/demo
+  - sh: pip install --quiet --editable ../rex.demo.forms
     ignore: true
   - sh: pip install --quiet --editable ./demo
     ignore: true

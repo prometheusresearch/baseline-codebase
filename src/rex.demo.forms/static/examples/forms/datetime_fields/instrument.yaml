@@ -1,0 +1,77 @@
+id: urn:datetime-fields
+version: '1.0'
+title: 'Fields: DateTime'
+record:
+  - id: plain
+    type: dateTime
+  - id: required
+    type: dateTime
+    required: true
+
+  - id: min_value
+    type:
+      base: dateTime
+      range:
+        min: '2010-01-01T02:00:00'
+  - id: max_value
+    type:
+      base: dateTime
+      range:
+        max: '2222-01-01T20:00:00'
+  - id: bounded_value
+    type:
+      base: dateTime
+      range:
+        min: '2010-01-01T02:00:00'
+        max: '2222-01-01T20:00:00'
+  - id: required_bounded_value
+    type:
+      base: dateTime
+      range:
+        min: '2010-01-01T02:00:00'
+        max: '2222-01-01T20:00:00'
+    required: true
+
+  - id: explanation_opt
+    type: dateTime
+    explanation: optional
+  - id: required_explanation_opt
+    type: dateTime
+    required: true
+    explanation: optional
+  - id: explanation_req
+    type: dateTime
+    explanation: required
+  - id: required_explanation_req
+    type: dateTime
+    required: true
+    explanation: required
+
+  - id: annotation_opt
+    type: dateTime
+    annotation: optional
+  - id: annotation_req
+    type: dateTime
+    annotation: required
+
+  - id: exp_opt_ann_opt
+    type: dateTime
+    explanation: optional
+    annotation: optional
+  - id: exp_req_ann_opt
+    type: dateTime
+    explanation: required
+    annotation: optional
+  - id: exp_opt_ann_req
+    type: dateTime
+    explanation: optional
+    annotation: required
+  - id: exp_req_ann_req
+    type: dateTime
+    explanation: required
+    annotation: required
+
+  - id: q1
+    type: dateTime
+  - id: q2
+    type: dateTime

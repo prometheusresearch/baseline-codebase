@@ -2,13 +2,13 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import * as React from 'react';
-import * as ReactUI from '@prometheusresearch/react-ui-0.21';
+import * as React from "react";
+import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 
-import Label from './Label';
-import AudioPlayer from './AudioPlayer';
+import Label from "./Label";
+import AudioPlayer from "./AudioPlayer";
 
-export default function OptionLabel({text, audio}) {
+export default function OptionLabel({ text, audio }) {
   if (!audio) {
     return <Label>{text}</Label>;
   } else {
@@ -22,5 +22,3 @@ export default function OptionLabel({text, audio}) {
     );
   }
 }
-
-

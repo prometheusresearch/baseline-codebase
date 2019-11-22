@@ -4,11 +4,19 @@
 ---
 suite: rex.forms
 tests:
-  - sh: pip install --quiet --editable ../rex.instrument/demo
-    stdout: ''
-  - sh: pip install --quiet --editable ./demo
-    stdout: ''
-  - sh: rex dropdb --quiet rex.forms_demo
-    stdout: ''
-  - sh: rex deploy --quiet rex.forms_demo
-    stdout: ''
+- sh: pip install --quiet --editable ../rex.demo.instrument
+  stdout: |
+    You are using pip version 18.1, however version 19.2.3 is available.
+    You should consider upgrading via the 'pip install --upgrade pip' command.
+- sh: pip install --quiet --editable ../rex.demo.forms
+  stdout: |
+    You are using pip version 18.1, however version 19.2.3 is available.
+    You should consider upgrading via the 'pip install --upgrade pip' command.
+- sh: pip install --quiet --editable ../rex.demo.instrument
+  stdout: ''
+- sh: pip install --quiet --editable ./demo
+  stdout: ''
+- sh: rex dropdb --quiet rex.demo.forms
+  stdout: ''
+- sh: rex deploy --quiet rex.demo.forms
+  stdout: ''

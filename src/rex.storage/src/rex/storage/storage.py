@@ -1,229 +1,453 @@
 
 import io
-import os
+import os.path
+import tempfile
+
+from collections import OrderedDict
+
 import cloudstorage
+
 from rex.core import get_settings, cached
-from .util import parse_url
-from .driver import get_driver, is_url
+
+from .util import parse_url, join
+from .driver import get_driver
 from .errors import StorageError
+
 
 @cached
 def get_storage():
-    storage = Storage()
-    storage.verify()
-    return storage
+    """
+    Retrieves the primary interface to the rex.storage system.
+
+    :rtype: rex.storage.Storage
+    """
+
+    return Storage()
 
 
-class Storage:
+class Mount:
+    """
+    Represents a mounted container in the rex.storage system.
+    """
 
-    def __init__(self):
-        self.mount = {}
-        settings = get_settings()
-        for path, storage in settings.storage_mount.items():
-            self.mount[path] = {**storage}
-            if len(self.mount[path]) == 1: # only 'url' is defined
-                (service, _c, _n) = parse_url(storage['url'])
-                credentials = settings.storage_credentials[service]
-                if not credentials:
-                    continue
-                for key, value in credentials.items():
-                    self.mount[path][key] = value
-        self.cfg = {}
-        for path, storage in self.mount.items():
-            (service, container, _) = parse_url(storage['url'])
-            self.cfg[path] = self.cfg[f'{service}://{container}/'] = \
-                dict((k, v) for k,v in storage.items() if k != 'url')
+    def __init__(self, path_prefix, **config):
+        self.path_prefix = path_prefix
+        self.config = config
+        self.url_prefix = self.config.pop('url')
+        service, container_name, base_path = parse_url(self.url_prefix)
+        self.base_path = base_path
 
-    def verify(self):
-        for prefix in self.url_prefixes:
-            (service, container, _) = parse_url(prefix)
-            self.get_container(f'{service}://{container}/')
-
-    def add(self, path_or_url, content):
-        """
-        Adds data to the storage.
-
-        `path_or_url`
-            The filename or URL of the BLOB.
-            Examples:
-            - /some/path/file.txt
-            - s3://bucket/file.txt
-
-        `content`
-            The attachment content; either a string or a file-like object.
-        """
-        (prefix, name) = self.get_target(path_or_url)
-        if isinstance(content, io.TextIOBase):
-            content = content.read().encode('utf-8')
-        if isinstance(content, str):
-            content = io.BytesIO(content.encode('utf-8'))
-        elif isinstance(content, bytes):
-            content = io.BytesIO(content)
-        container = self.get_container(prefix)
         try:
-            blob = container.upload_blob(content, blob_name=name)
-        except cloudstorage.exceptions.NotFoundError as exc:
-            raise StorageError(str(exc))
-        return File(url=prefix + name, blob=blob, fp=content)
-
-    def get_blob(self, path_or_url):
-        (prefix, name) = self.get_target(path_or_url)
-        container = self.get_container(prefix)
-        try:
-            return container.get_blob(name)
-        except cloudstorage.exceptions.NotFoundError as exc:
-            raise StorageError(str(exc))
-
-    def download(self, url=None, blob=None):
-        if url is None and blob is None:
-            raise StorageError('Cannot download, since url & blob both are None')
-        if blob is None:
-            blob = self.get_blob(url)
-        buf = io.BytesIO()
-        blob.download(buf)
-        buf.seek(0)
-        return buf
-
-    def open(self, path_or_url):
-        blob = self.get_blob(path_or_url)
-        buf = self.download(blob=blob)
-        (prefix, name) = self.get_target(path_or_url)
-        return File(url=prefix + name, blob=blob, fp=buf)
-
-    def exists(self, path_or_url):
-        """
-        Checks if file or directory exists
-        """
-        for name in self.ls(path_or_url):
-            return True
-        return False
-
-    def is_file(self, path_or_url):
-        (prefix, name) = self.get_target(path_or_url)
-        container = self.get_container(prefix)
-        return name in container
-
-    def is_dir(self, path_or_url):
-        return self.exists(path_or_url) and not self.is_file(path_or_url)
-
-    def get_target(self, path_or_url):
-        # normalize file or directory
-        parts = path_or_url.split('/')
-        if len(parts) <= 2: # '/path' should become '/path/'
-            path_or_url += '/'
-        url_prefix = None
-        name = None
-        if path_or_url.startswith('/'):
-            for prefix in self.path_prefixes:
-                if path_or_url.startswith(prefix):
-                    url_prefix = self.mount[prefix]['url']
-                    name = path_or_url[len(prefix):]
-                    break
-        else:
-            for prefix in self.url_prefixes:
-                if path_or_url.startswith(prefix):
-                    url_prefix = prefix
-                    name = path_or_url[len(prefix):]
-                    break
-        if url_prefix is None:
-            raise StorageError(f'`{path_or_url}` is not found '
-                                'in the mount table.')
-        (service, container, subdir) = parse_url(url_prefix)
-        return (f'{service}://{container}/', subdir + name)
-
-    def join(self, *args):
-        res = []
-        for arg in args:
-            arg = arg.strip()
-            if arg.startswith('/') or is_url(arg):
-                res = [] # abs path remove all previous parts
-            parts = (arg[:-1] if arg.endswith('/') else arg).split('/')
-            for part in parts:
-                if part == '.':
-                    continue
-                elif part == '..':
-                    if len(res) and res[-1]:
-                        res.pop(-1)
-                    # TODO: decide if we should raise here?
-                else:
-                    res.append(part)
-        return '/'.join(res)
-
-    def pop_segment(self, path_or_url):
-        path_or_url = path_or_url.strip()
-        path_or_url = path_or_url[:-1] if path_or_url.endswith('/') \
-                                       else path_or_url
-        parts = path_or_url.split('/')
-        if len(parts) == 1:
-            return path_or_url, None
-        else:
-            return '/'.join(parts[:-1]), parts[-1] or None
-
-    def list_objects(self, path_or_url):
-        (prefix, name) = self.get_target(path_or_url)
-        container = self.get_container(prefix)
-        for blob in container:
-            if blob.name == name:
-                yield (os.path.basename(name),
-                       File(url=prefix + name, blob=blob))
-            elif not name:
-                yield (blob.name, File(url=prefix+blob.name, blob=blob))
-            elif blob.name.startswith(name):
-                res = blob.name[len(name):]
-                if name.endswith('/'):
-                    yield (res, File(url=prefix+blob.name, blob=blob))
-                elif res.startswith('/'):
-                    yield (res[1:], File(url=prefix+blob.name, blob=blob))
-
-    def ls(self, path_or_url):
-        seen = set()
-        for (name, f) in self.list_objects(path_or_url):
-            parts = name.split('/')
-            if len(parts) == 1:
-                yield (name, f)
-            else:
-                dir = parts[0] + '/'
-                if dir not in seen:
-                    seen.add(dir)
-                    yield (dir, None)
-
-    @property
-    def path_prefixes(self):
-        return sorted((path for path in self.mount), key=lambda p: -len(p))
-
-    @property
-    def url_prefixes(self):
-        return sorted((s['url'] for s in self.mount.values()),
-                      key=lambda u: -len(u))
-
-    def get_container(self, prefix):
-        (service, container, _) = parse_url(prefix)
-        driver = get_driver(service)
-        try:
-            storage = driver(**self.cfg[prefix])
+            driver = get_driver(service)
+            storage = driver(**self.config)
             storage.validate_credentials()
-            return storage.get_container(container)
+            self.container = storage.get_container(container_name)
         except cloudstorage.exceptions.NotFoundError:
-            raise StorageError(f'"{container}" not found')
+            raise StorageError(f'"{container_name}" not found')
         except cloudstorage.exceptions.CredentialsError as exc:
-            raise StorageError(f'Could not verify connection to storage: {exc}')
+            raise StorageError(
+                f'Could not verify connection to storage: {exc}'
+            )
 
+    def path(self, *name):
+        """
+        Builds a Path object for the given object name on this Mount.
+
+        :param name: the name of the object
+        :type name: str
+        :rtype: rex.storage.Path
+        """
+
+        return Path(self, '').join(*name)
+
+    def __iter__(self):
+        return get_storage().object_list(self.path_prefix)
+
+    def __str__(self):
+        return self.path_prefix
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.path_prefix!r})'
+
+
+class Path:
+    """
+    Represents a full location to an object in the rex.storage system.
+    """
+
+    def __init__(self, mount, name):
+        #: The rex.storage.Mount that this Path is a part of.
+        self.mount = mount
+
+        #: The name of the object relative to its mount point.
+        self.name = name
+
+    @property
+    def url_prefix(self):
+        """
+        The mount point where the object is located, in URL form.
+        """
+        return self.mount.url_prefix
+
+    @property
+    def url_full(self):
+        """
+        The full path of the object, in URL form.
+        """
+        return join(self.mount.url_prefix, self.name)
+
+    @property
+    def path_prefix(self):
+        """
+        The mount point where the object is located, in filepath form.
+        """
+        return self.mount.path_prefix
+
+    @property
+    def path_full(self):
+        """
+        The full path of the object, in filepath form.
+        """
+        return join(self.mount.path_prefix, self.name)
+
+    @property
+    def file_name(self):
+        """
+        The name of the file this object represents.
+        """
+        return os.path.basename(self.name)
+
+    @property
+    def dir_name(self):
+        """
+        The name of the directory that this object is in.
+        """
+        return os.path.dirname(self.name)
+
+    @property
+    def container_location(self):
+        """
+        The full path of the object, relative to the root of the container.
+        """
+        return join(self.mount.base_path, self.name).lstrip('/')
+
+    def download(self, file_or_path):
+        """
+        Downloads the object to the specified location.
+
+        :param file_or_path: the location to download the file to
+        :type file_or_path: file-like object|str
+        """
+        return get_storage().download(self, file_or_path)
+
+    def get(self, encoding=None):
+        """
+        Retrieves the object from the system.
+
+        :param encoding:
+            if the content of the object is text, this is the encoding to use
+            to decode the bytes when reading it
+        :type encoding: str
+        :rtype: rex.storage.File
+        """
+        return get_storage().get(self, encoding=encoding)
+
+    def join(self, *parts):
+        """
+        Returns a new Path object with the specified parts appended.
+
+        :rtype: rex.storage.Path
+        """
+        return Path(
+            self.mount,
+            join(self.name, *parts).lstrip('/'),
+        )
+
+    def pop(self):
+        """
+        Returns a new Path object with the last part of the path removed.
+
+        :rtype: rex.storage.Path
+        """
+        name = self.name
+        if name.endswith('/'):
+            name = name[:-1]
+        name = os.path.dirname(name)
+        if name:
+            name += '/'
+        return Path(self.mount, name)
+
+    def __add__(self, other):
+        return self.join(other)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.mount!r}, {self.name!r})'
 
 
 class File:
+    """
+    A file-like object representing an object in the rex.storage system.
+    """
 
-    def __init__(self, url, blob, fp=None):
-        self.url = url
-        self.blob = blob
-        self.fp = fp
+    def __init__(self, path, fobj=None):
+        #: The rex.storage.Path that this file corresponds to.
+        self.path = path
+        self._fobj = fobj
 
-    def __getattribute__(self, attr):
-        if attr == 'url':
-            return object.__getattribute__(self, 'url')
-        elif attr == 'blob':
-            return object.__getattribute__(self, 'blob')
+    def __getattr__(self, attr):
+        if not self._fobj:
+            self._fobj = get_storage().get(self.path)._fobj
+        return getattr(self._fobj, attr)
+
+    def __str__(self):
+        return self.path.name
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.path!r})'
+
+
+class Storage:
+    """
+    The core interface of the rex.storage API.
+    """
+
+    def __init__(self):
+        #: A mapping of the available mount points to their rex.storage.Mount
+        #: representations.
+        self.mounts = {}
+
+        # Translate the configuration into Mounts
+        for path, config in get_settings().storage_mount.items():  # noqa: no-member
+            config = dict(config)
+            if len(config) == 1:  # only 'url' is defined
+                service, _, _ = parse_url(config['url'])
+                config.update(
+                    get_settings().storage_credentials[service] or {}  # noqa: no-member
+                )
+            self.mounts[path] = Mount(path, **config)
+
+        # Index the Mounts for faster lookups later.
+        self._path_prefixes = OrderedDict(
+            sorted(
+                self.mounts.items(),
+                key=lambda item: -len(item[0]),
+            )
+        )
+        self._url_prefixes = OrderedDict(
+            sorted(
+                {
+                    mount.url_prefix: mount
+                    for mount in self.mounts.values()
+                }.items(),
+                key=lambda item: -len(item[0]),
+            )
+        )
+
+    def parse_path(self, storage_path):
+        """
+        Creates a Path object that represents the specified path.
+
+        The specified path is expected to be in either URL form (e.g.,
+        "scheme://container/path/to/file.ext") or filepath form (e.g.,
+        "/mount/point/file.ext").
+
+        :param storage_path: the path to parse
+        :type storage_path: str|rex.storage.Path
+        :rtype: rex.storage.Path
+        """
+
+        if isinstance(storage_path, Path):
+            return storage_path
+
+        storage_path = storage_path.strip()
+
+        if storage_path.startswith('/'):
+            for prefix in self._path_prefixes:
+                if storage_path.startswith(prefix):
+                    return Path(
+                        self._path_prefixes[prefix],
+                        storage_path[len(prefix):],
+                    )
+
+            mount = self._path_prefixes.get(
+                storage_path + '/'
+            )
+            if mount:
+                return Path(mount, '')
+
         else:
-            fp = object.__getattribute__(self, 'fp')
-            if fp is None:
-                fp = self.fp = get_storage().download(url=self.url)
-            return getattr(fp, attr)
+            for prefix in self._url_prefixes:
+                if storage_path.startswith(prefix):
+                    return Path(
+                        self._url_prefixes[prefix],
+                        storage_path[len(prefix):],
+                    )
+
+            mount = self._url_prefixes.get(
+                storage_path + '/'
+            )
+            if mount:
+                return Path(mount, '')
+
+        raise StorageError(
+            f'A mount point for "{storage_path}" is not configured'
+        )
+
+    def join(self, *parts):  # noqa: no-self-use
+        return join(*parts)
+
+    def put(self, storage_path, content, encoding=None):
+        """
+        Stores content to an object in the system.
+
+        :param storage_path: the location to store the content in
+        :type storage_path: str|rex.storage.Path
+        :param content: the content to store in the container
+        :type content: bytes|str|io.IOBase
+        :param encoding:
+            if the content is a ``str`` or ``io.TextIOBase``, this is the
+            encoding scheme to use when marshalling it into bytes; defaults to
+            ``utf-8`` if not specified
+        :type encoding: str
+        :rtype: rex.storage.File
+        """
+
+        path = self.parse_path(storage_path)
+
+        encoding = encoding or 'utf-8'
+
+        if isinstance(content, bytes):
+            content = io.BytesIO(content)
+        elif isinstance(content, str):
+            content = io.BytesIO(content.encode(encoding))
+        elif isinstance(content, io.StringIO):
+            content = io.BytesIO(content.getvalue().encode(
+                content.encoding or encoding,
+            ))
+        elif isinstance(content, io.TextIOBase):
+            # This is not optimal, as it requires us to read the whole thing
+            # into memory.
+            content = io.BytesIO(
+                content.read().encode(content.encoding or encoding),
+            )
+
+        try:
+            path.mount.container.upload_blob(
+                content,
+                blob_name=path.container_location,
+            )
+        except cloudstorage.exceptions.NotFoundError as exc:
+            raise StorageError(str(exc))
+
+        return File(path)
+
+    def download(self, storage_path, file_or_path):
+        """
+        Retrieves an object from the system and stores its contents to the
+        specified location.
+
+        :param storage_path: the path of the object to retrieve
+        :type storage_path: str|rex.storage.Path
+        :param file_or_path: the location to download the file to
+        :type file_or_path: file-like object|str
+        """
+
+        path = self.parse_path(storage_path)
+
+        if isinstance(file_or_path, str):
+            file = open(file_or_path, 'wb')
+        else:
+            file = file_or_path
+
+        try:
+            blob = path.mount.container.get_blob(path.container_location)
+        except cloudstorage.exceptions.NotFoundError as exc:
+            raise StorageError(str(exc))
+
+        blob.download(file)
+
+    def get(self, storage_path, encoding=None):
+        """
+        Retrieves an object from the system.
+
+        :param storage_path: the path of the object to retrieve
+        :type storage_path: str|rex.storage.Path
+        :param encoding:
+            if the content of the object is text, this is the encoding to use
+            to decode the bytes when reading it
+        :type encoding: str
+        :rtype: rex.storage.File
+        """
+
+        tmp = tempfile.TemporaryFile()
+
+        path = self.parse_path(storage_path)
+        self.download(path, tmp)
+        tmp.seek(0)
+
+        if encoding:
+            tmp = io.TextIOWrapper(
+                io.BufferedReader(tmp),
+                encoding=encoding,
+            )
+
+        return File(path, fobj=tmp)
+
+    def exists(self, storage_path):
+        """
+        Determines whether or not the specified path is an actual object in
+        the system.
+
+        :param storage_path: the path of the object check for
+        :type storage_path: str|rex.storage.Path
+        """
+        return len(list(self.object_list(storage_path))) == 1
+
+    def object_list(self, storage_path):
+        """
+        A generator that returns the objects that exist at the specified path.
+
+        :param storage_path: the path to look for objects in
+        :type storage_path: str|rex.storage.Path
+        :rtype: iter(rex.storage.Path)
+        """
+
+        path = self.parse_path(storage_path)
+        mount_root = path.container_location.lstrip('/')
+        for blob in path.mount.container:
+            if not mount_root:
+                yield path.join(blob.name)
+            elif blob.name.startswith(mount_root):
+                yield path.join(blob.name[len(mount_root):])
+
+    def object_tree(self, storage_path):
+        """
+        Returns a nested dictionary that provides a simple representation of
+        the objects that exist at the specified path.
+
+        :param storage_path: the path to look for objects in
+        :type storage_path: str|rex.storage.Path
+        :rtype: dict
+        """
+
+        tree = {}
+
+        for path in self.object_list(storage_path):
+            parts = path.name.split('/')
+
+            scope = tree
+            while parts:
+                part = parts.pop(0)
+                if parts:
+                    dirname = part + '/'
+                    if dirname not in scope:
+                        scope[dirname] = {}
+                    scope = scope[dirname]
+                else:
+                    scope[part] = path
+
+        return tree
+

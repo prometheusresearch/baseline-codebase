@@ -7,7 +7,7 @@ Set up the environment::
 
     >>> from pprint import pprint
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.instrument_demo')
+    >>> rex = Rex('rex.demo.instrument')
     >>> rex.on()
     >>> from rex.instrument.interface.calculationmethod import *
     >>> from rex.instrument.util import get_implementation

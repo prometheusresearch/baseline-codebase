@@ -20,7 +20,7 @@ def fix_cwd(s):
     return s.replace(os.getcwd(), '/...')
 
 def upload(*args):
-    cmd = ' '.join(['upload', 'rex.storage', f"--config={CONFIG_PATH}"]
+    cmd = ' '.join(['storage-upload', 'rex.storage', f"--config={CONFIG_PATH}"]
             + [str(util.TEST_INPUT_PATH / arg) for arg in args[:-1]]
             + [args[-1]])
     return Ctl(cmd)

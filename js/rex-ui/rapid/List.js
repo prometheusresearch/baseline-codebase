@@ -69,15 +69,54 @@ function ListRenderer({
   onSelected,
 }: ListRendererProps) {
   let data = Resource.unstable_useResource(resource, { id: id });
+
   for (let key of QueryPath.toArray(path)) {
     if (data == null) {
       break;
     }
     data = data[key];
   }
+
+  let RenderPrimaryText = React.useCallback(
+    props => {
+      return props.item[primaryTextField];
+    },
+    [primaryTextField],
+  );
+
+  return (
+    <ListOfData
+      data={data}
+      selected={selected}
+      onSelected={onSelected}
+      RenderPrimaryText={RenderPrimaryText}
+    />
+  );
+}
+
+type ListOfDataProps = {|
+  data: Object[],
+  selected?: ?Set<string>,
+  onSelected?: ?(Set<string>) => void,
+  onClick?: Object => void,
+  RenderPrimaryText: React.AbstractComponent<{| item: Object |}>,
+  RenderSecondaryText?: React.AbstractComponent<{| item: Object |}>,
+|};
+
+export function ListOfData(props: ListOfDataProps) {
+  let {
+    data,
+    selected,
+    onSelected,
+    onClick,
+    RenderPrimaryText,
+    RenderSecondaryText,
+  } = props;
   let items = data.map(item => {
-    let primary = item[primaryTextField];
-    let onChange = e => {
+    let primary = <RenderPrimaryText item={item} />;
+    let secondary =
+      RenderSecondaryText != null ? <RenderSecondaryText item={item} /> : null;
+    let handleChange = e => {
       if (selected != null) {
         let nextSelected = new Set(selected);
         if (e.target.checked) {
@@ -90,18 +129,28 @@ function ListRenderer({
         }
       }
     };
+    let handleClick =() => {
+      if (onClick!= null) {
+        console.log(item);
+        onClick(item);
+      }
+    };
     return (
-      <mui.ListItem key={item.id}>
+      <mui.ListItem
+        key={item.id}
+        button={onClick != null}
+        onClick={handleClick}
+      >
         {selected != null && (
           <mui.Checkbox
             style={{ padding: 0 }}
             checked={selected.has(item.id)}
-            onChange={onChange}
+            handleChange={handleChange}
             tabIndex={-1}
             disableRipple
           />
         )}
-        <mui.ListItemText primary={primary} />
+        <mui.ListItemText primary={primary} secondary={secondary} />
       </mui.ListItem>
     );
   });

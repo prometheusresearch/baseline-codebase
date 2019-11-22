@@ -11,6 +11,7 @@ from rex.web import (
 )
 from rex.graphql import (
     schema,
+    Object,
     Entity,
     List,
     connect,
@@ -18,18 +19,55 @@ from rex.graphql import (
     q,
     sort,
     scalar,
+    compute,
     entity_id,
     argument,
     Enum,
     EnumValue,
+    compute_from_function,
     filter_from_function,
     mutation_from_function,
 )
 from rex.graphql.serve import serve
 
-
 @cached
 def get_schema():
+
+    search_result = Object(
+        name="search_result",
+        fields=lambda: {
+            "id": compute(scalar.String),
+            "type": compute(scalar.String),
+            "label": compute(scalar.String),
+        }
+    )
+
+    @compute_from_function()
+    def search(search: scalar.String) -> List(search_result):
+        db = get_db()
+        results = []
+
+        q_users = q.user.filter(q.remote_user.matches(search)).select(
+            id=q.id,
+            type='user',
+            label=q.remote_user
+        )
+        q_sites = q.site.filter(q.title.matches(search)).select(
+            id=q.id,
+            type='site',
+            label=q.title
+        )
+        q_patients = q.patient.filter(q.name.matches(search)).select(
+            id=q.id,
+            type='patient',
+            label=q.name
+        )
+
+        for q_results in [q_users, q_patients, q_sites]:
+            results = results + q_results.take(10).produce().data
+
+        return results
+
     q_user_expired = q.expires.boolean() & (q.expires <= datetime.now())
     q_user_phone = q.contact_info.filter(q.type == "phone").first()
 
@@ -185,6 +223,7 @@ def get_schema():
                 description="Patients",
             ),
             "site": connect(query=q.site, type=site, description="Sites"),
+            "search": search,
         },
         mutations=[remove_user, add_user_to_site],
     )

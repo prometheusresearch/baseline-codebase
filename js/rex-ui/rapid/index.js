@@ -6,5 +6,6 @@ export type { ShowRenderTitle } from "./ShowRenderer.js";
 export { Show } from "./Show.js";
 export { List, ListOfData } from "./List.js";
 export { Select } from "./Select.js";
+export { Autocomplete } from "./Autocomplete.js";
 export { LoadingIndicator } from "./LoadingIndicator.js";
 export type { FieldConfig, FilterConfig as PickFilterConfig } from "./Field.js";

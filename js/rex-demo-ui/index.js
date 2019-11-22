@@ -3,8 +3,8 @@
 import invariant from "invariant";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { Pick, Show, List, Select, LoadingIndicator } from "rex-ui/rapid";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import * as Rapid from "rex-ui/rapid";
+import * as mui from "@material-ui/core";
 import AppChrome from "./AppChrome";
 import * as Router from "rex-ui/Router";
 import * as ShowSite from "./ShowSite.js";
@@ -25,7 +25,6 @@ export let pickSite = Router.route("/", {
 
 export let showSite = Router.route("/:id", ShowSite.screen);
 
-
 export let pickPatient = Router.route("/", {
   type: "pick",
   fetch: "patient.paginated",
@@ -40,19 +39,54 @@ export let showPatient = Router.route("/:id", {
   title: "Patient",
 });
 
-let home = Router.route("/", PickUser.screen);
+let home = Router.route("/", {
+  type: "custom",
+  title: "Home",
+  Render(props) {
+    let [value, setValue] = React.useState(null);
+    let onValue = value => {
+      setValue(value);
+      if (value != null) {
+        if (value.type === "user") {
+          router.push(showUser, { id: value.id });
+        } else if (value.type === "patient") {
+          router.push(showPatient, { id: value.id });
+        } else if (value.type === "site") {
+          router.push(showSite, { id: value.id });
+        }
+      }
+    };
+    let RenderItem = React.useCallback(props => {
+      return (
+        <div>
+          <mui.Typography>{props.label}</mui.Typography>
+          <mui.Typography variant="caption">{props.item.type}</mui.Typography>
+        </div>
+      );
+    }, []);
+    return (
+      <div style={{ padding: 24 }}>
+        <Rapid.Autocomplete
+          endpoint={API.endpoint}
+          fetch="search"
+          label="Search"
+          labelField="label"
+          fields={["type"]}
+          value={value}
+          onValue={onValue}
+          RenderItem={RenderItem}
+        />
+      </div>
+    );
+  },
+});
 let users = Router.group("/users", pickUser, showUser);
 let sites = Router.group("/sites", pickSite, showSite);
 let patients = Router.group("/patients", pickPatient, showPatient);
 
-export let router: Router.Router = Router.make([
-  home,
-  users,
-  sites,
-  patients,
-]);
+export let router: Router.Router = Router.make([home, users, sites, patients]);
 
-let menu = [pickUser, pickPatient, pickSite];
+let menu = [home, pickUser, pickPatient, pickSite];
 
 function App() {
   let match = Router.useMatch(router);
@@ -69,7 +103,7 @@ function App() {
       }
 
       return (
-        <Pick
+        <Rapid.Pick
           key={JSON.stringify(screen)}
           endpoint={API.endpoint}
           fetch={screen.fetch}
@@ -91,7 +125,7 @@ function App() {
         router.pop();
       };
       return (
-        <Show
+        <Rapid.Show
           endpoint={API.endpoint}
           fetch={screen.fetch}
           args={{ id: params.id }}
@@ -123,7 +157,9 @@ function App() {
 
   return (
     <AppChrome menu={menu} router={router} title="Rex Rapid Demo">
-      <React.Suspense fallback={<LoadingIndicator />}>{ui}</React.Suspense>
+      <React.Suspense fallback={<Rapid.LoadingIndicator />}>
+        {ui}
+      </React.Suspense>
     </AppChrome>
   );
 }
@@ -133,7 +169,7 @@ invariant(root != null, "DOM is not avaialble: missing #root");
 
 ReactDOM.render(
   <>
-    <CssBaseline />
+    <mui.CssBaseline />
     <App />
   </>,
   root,

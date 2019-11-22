@@ -114,13 +114,17 @@ const useDataViewStyles = makeStyles((theme: Theme) => {
   };
 });
 
-const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
+const PickNoDataPlaceholder = ({
+  fieldSpecs,
+}: {
+  fieldSpecs: Field.FieldSpec[],
+}) => {
   let classes = useDataViewStyles();
 
   return (
     <TableBody>
       <TableRow>
-        <TableCell colSpan={columns.length + 1}>
+        <TableCell colSpan={fieldSpecs.length + 1}>
           <div className={classes.center}>
             <Typography variant={"caption"}>No data</Typography>
           </div>
@@ -132,11 +136,11 @@ const PickNoDataPlaceholder = ({ columns }: { columns: Field.FieldSpec[] }) => {
 
 const PickCardListView = ({
   data,
-  columns,
+  fieldSpecs,
   onClick,
 }: {|
   data: Array<any>,
-  columns: Field.FieldSpec[],
+  fieldSpecs: Field.FieldSpec[],
   onClick?: (row: any) => void,
 |}) => {
   const classes = useDataViewStyles();
@@ -158,7 +162,7 @@ const PickCardListView = ({
                 onClick={onClick ? () => onClick(row) : undefined}
                 title={null}
                 data={row}
-                fieldSpecs={columns}
+                fieldSpecs={fieldSpecs}
               />
             </div>
           </Grid>
@@ -169,7 +173,7 @@ const PickCardListView = ({
 };
 
 const PickTableBody = ({
-  columns,
+  fieldSpecs,
   sortingConfig,
   setSortingState,
   RenderColumnCell,
@@ -188,7 +192,7 @@ const PickTableBody = ({
   onSelected,
   showAs,
 }: {|
-  columns: Field.FieldSpec[],
+  fieldSpecs: Field.FieldSpec[],
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
   isTabletWidth: boolean,
@@ -213,7 +217,7 @@ const PickTableBody = ({
   const resourceData = useResource(resource, params);
   setTableFullHeight(false);
 
-  if (resourceData == null || columns.length === 0) {
+  if (resourceData == null || fieldSpecs.length === 0) {
     return null;
   }
 
@@ -230,7 +234,7 @@ const PickTableBody = ({
   }, [resourceData, fetch, onDataReceive, pickState]);
 
   if (data.length === 0) {
-    return <PickNoDataPlaceholder columns={columns} />;
+    return <PickNoDataPlaceholder fieldSpecs={fieldSpecs} />;
   }
 
   if ((!isTabletWidth && showAs !== "table") || showAs === "card-list") {
@@ -241,7 +245,7 @@ const PickTableBody = ({
             <PickCardListView
               onClick={onRowClick}
               data={data}
-              columns={columns}
+              fieldSpecs={fieldSpecs}
             />
           </TableCell>
         </TableRow>
@@ -341,7 +345,7 @@ export const PickDataView = ({
   onDataReceive: _onDataReceive,
   args,
   resource,
-  columns,
+  fieldSpecs,
   fetch,
   isTabletWidth,
   sortingConfig,
@@ -358,7 +362,7 @@ export const PickDataView = ({
 }: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
-  columns: Field.FieldSpec[],
+  fieldSpecs: Field.FieldSpec[],
   args?: { [key: string]: any },
   isTabletWidth: boolean,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
@@ -392,9 +396,9 @@ export const PickDataView = ({
 
   const columnsMap = new Map();
   const columnsNames = [];
-  for (let column of columns) {
-    columnsMap.set(column.require.field, column);
-    columnsNames.push(column.require.field);
+  for (let fieldSpec of fieldSpecs) {
+    columnsMap.set(fieldSpec.require.field, fieldSpec);
+    columnsNames.push(fieldSpec.require.field);
   }
 
   const TableHeadRows = columnsNames.map((columnName, index) => {
@@ -515,7 +519,7 @@ export const PickDataView = ({
           fallback={
             <TableBody>
               <TableRow>
-                <TableCell colSpan={columns.length + 1}>
+                <TableCell colSpan={fieldSpecs.length + 1}>
                   <div className={classes.center}>
                     <LoadingIndicator />
                   </div>
@@ -529,7 +533,7 @@ export const PickDataView = ({
               pickState={state}
               onDataReceive={onDataReceive}
               resource={resource}
-              columns={columns}
+              fieldSpecs={fieldSpecs}
               sortingConfig={sortingConfig}
               setSortingState={setSortingState}
               RenderColumnCell={RenderColumnCell}

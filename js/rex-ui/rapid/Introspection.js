@@ -10,6 +10,7 @@ import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
 import { capitalize } from "./helpers.js";
 import { ConfigError } from "./ErrorBoundary";
+import { buildSortingConfig } from "./buildSortingConfig.js";
 
 export type TypeIntrospectionFieldType = {|
   kind: string,
@@ -36,27 +37,54 @@ export const introspect = ({
   schema,
   path,
   fields,
+  filters,
+  sortableColumns,
 }: {|
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fields: ?Array<Field.FieldSpec>,
+  fields: ?Array<Field.FieldConfig>,
+  filters?: ?Array<Field.FilterConfig>,
+  sortableColumns?: ?Array<string>,
 |}): {|
   query: string,
   ast: ast.DocumentNode,
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
-  fields: Field.FieldSpec[],
-  fieldDescription?: ?string,
+  fieldSpecs: Field.FieldSpec[],
+  filterSpecs: ?Field.FilterSpecMap,
+  description?: ?string,
+  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
 |} => {
-  const info = buildQueryAST(schema, path, fields);
-  const query = print(info.ast);
+  const fieldSpecs = Field.configureFields(fields);
+  const filterSpecs = Field.configureFilters(filters);
+
+  const {
+    ast,
+    introspectionTypesMap,
+    fieldSpecsUpdated,
+    description,
+    queryDefinition,
+  } = buildQueryAST(schema, path, fieldSpecs);
+
+  const sortingConfig = buildSortingConfig({
+    variableDefinitions: queryDefinition.variableDefinitions,
+    fieldSpecs: fieldSpecsUpdated,
+    introspectionTypesMap,
+    variableDefinitionName: Field.SORTING_VAR_NAME,
+    sortableColumns,
+    filterSpecs,
+  });
+
+  const query = print(ast);
   return {
     query,
-    ast: info.ast,
-    queryDefinition: info.queryDefinition,
-    introspectionTypesMap: info.introspectionTypesMap,
-    fields: info.fields,
-    fieldDescription: info.description,
+    ast,
+    queryDefinition,
+    introspectionTypesMap,
+    fieldSpecs: fieldSpecsUpdated,
+    description,
+    filterSpecs,
+    sortingConfig,
   };
 };
 
@@ -69,7 +97,7 @@ const buildQueryAST = (
   columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
-  fields: Field.FieldSpec[],
+  fieldSpecsUpdated: Field.FieldSpec[],
   description: ?string,
 |} => {
   let typesMap: Map<string, introspection.IntrospectionType> = new Map();
@@ -89,7 +117,7 @@ const buildQueryAST = (
     selectionSet,
     columns,
     inputValues,
-    fields,
+    fieldSpecsUpdated,
     fieldDescription,
   ] = buildSelectionSet(
     typesMap,
@@ -115,11 +143,14 @@ const buildQueryAST = (
     columns,
     introspectionTypesMap: typesMap,
     queryDefinition: operationDefinition,
-    fields,
+    fieldSpecsUpdated,
     description: fieldDescription,
   };
 };
 
+/**
+ * Field.QueryFieldSpec -> void | ast.SelectionSetNode recursively
+ */
 const makeSelectionSetFromQueryFieldSpec = (
   queryFieldSpec: Field.QueryFieldSpec,
 ): void | ast.SelectionSetNode => {
@@ -142,6 +173,9 @@ const makeSelectionSetFromQueryFieldSpec = (
   };
 };
 
+/**
+ * Builds SelectionSet using makeSelectionSetFromQueryFieldSpec recursion
+ */
 const makeSelectionSetFromSpec = (
   fieldSpec: Field.FieldSpec,
 ): void | ast.SelectionSetNode => {
@@ -254,7 +288,6 @@ const buildSelectionSet = (
         }
       }
 
-      // TODO: Make it recursive
       const selectionSet = makeSelectionSetFromSpec(fieldSpec);
 
       selections.push({

@@ -13,19 +13,18 @@ import {
 } from "graphql/utilities/introspectionQuery";
 import * as Field from "./Field";
 import { ConfigError } from "./ErrorBoundary";
-import { type FilterSpecMap, SORTING_VAR_NAME } from "./Pick";
 
 const buildSortableFieldObjects = ({
   inputFields,
   fieldObjectExtensions,
   introspectionTypesMap,
-  columns,
+  fieldSpecs,
   sortableColumns,
 }: {|
   inputFields: $ReadOnlyArray<IntrospectionInputValue>,
   fieldObjectExtensions: Array<{ [key: string]: any }>,
   introspectionTypesMap: Map<string, IntrospectionType>,
-  columns: Field.FieldSpec[],
+  fieldSpecs: ?(Field.FieldSpec[]),
   sortableColumns?: ?Array<string>,
 |}) => {
   const sortFieldsField = inputFields.find(
@@ -54,7 +53,8 @@ const buildSortableFieldObjects = ({
 
   let sortableFieldObjects = [];
   sortableFieldNames
-    .filter(name => columns.find(col => col.require.field === name))
+    // TODO: Get rid of empty array
+    .filter(name => (fieldSpecs || []).find(col => col.require.field === name))
     .forEach(field => {
       if (sortableColumns != null && !sortableColumns.includes(field)) {
         return;
@@ -71,20 +71,20 @@ export const buildSortingConfig = ({
   variableDefinitions,
   introspectionTypesMap,
   variableDefinitionName,
-  columns,
+  fieldSpecs,
   sortableColumns,
-  filtersSpecs,
+  filterSpecs,
 }: {|
   variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
   introspectionTypesMap: Map<string, IntrospectionType>,
   variableDefinitionName: string,
-  columns: Field.FieldSpec[],
+  fieldSpecs: Field.FieldSpec[],
   sortableColumns?: ?Array<string>,
-  filtersSpecs: ?FilterSpecMap,
+  filterSpecs: ?Field.FilterSpecMap,
 |}): ?Array<{| field: string, desc: boolean |}> => {
   if (
     variableDefinitions == null ||
-    (filtersSpecs != null && filtersSpecs.get(SORTING_VAR_NAME) == null)
+    (filterSpecs != null && filterSpecs.get(Field.SORTING_VAR_NAME) == null)
   ) {
     return null;
   }
@@ -131,7 +131,7 @@ export const buildSortingConfig = ({
 
   const sortableFieldObjects = buildSortableFieldObjects({
     inputFields,
-    columns,
+    fieldSpecs,
     fieldObjectExtensions: [{ desc: true }, { desc: false }],
     introspectionTypesMap,
     sortableColumns,

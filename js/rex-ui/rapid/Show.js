@@ -28,14 +28,13 @@ export let Show = (props: ShowProps) => {
 
   let { resource, fieldSpecs, path } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
-    let fieldSpecs = Field.configureFields(fields);
-    let { query, ast, fields: nextFieldSpecs } = introspect({
+    let { query, ast, fieldSpecs } = introspect({
       schema,
       path,
-      fields: fieldSpecs,
+      fields,
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
-    return { path, resource, fieldSpecs: nextFieldSpecs };
+    return { path, resource, fieldSpecs };
   }, [fetch, fields, endpoint, schema]);
 
   return (

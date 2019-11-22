@@ -29,14 +29,13 @@ export function Select(props: SelectProps) {
   let { resource, path } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
     let fields = ["id", labelField];
-    let fieldSpecs = Field.configureFields(fields);
-    let { query, ast, fields: nextFieldSpecs } = introspect({
+    let { query, ast, fieldSpecs } = introspect({
       schema,
       path,
-      fields: fieldSpecs,
+      fields,
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
-    return { path, resource, fieldSpecs: nextFieldSpecs };
+    return { path, resource, fieldSpecs };
   }, [fetch, endpoint, schema, labelField]);
 
   return (

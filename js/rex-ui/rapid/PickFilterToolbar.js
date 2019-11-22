@@ -15,12 +15,6 @@ import FormControl from "@material-ui/core/FormControl";
 import { type VariableDefinitionNode } from "graphql/language/ast";
 import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
 
-import {
-  type FiltersConfig,
-  type FilterSpecMap,
-  SORTING_VAR_NAME,
-} from "./Pick";
-
 import * as Field from "./Field.js";
 import { MuiThemeProvider } from "@material-ui/core";
 
@@ -54,7 +48,7 @@ type Props = {|
   setFilterState: (name: string, value: ?boolean) => void,
   setSortingState: (value: string) => void,
   isTabletWidth?: boolean,
-  filtersSpecs: ?FilterSpecMap,
+  filterSpecs: ?Field.FilterSpecMap,
 |};
 
 const PickFilterToolbarBase = ({
@@ -65,7 +59,7 @@ const PickFilterToolbarBase = ({
   setSortingState,
   setSearchState,
   isTabletWidth,
-  filtersSpecs,
+  filterSpecs,
 }: Props) => {
   if (variablesMap == null) {
     return null;
@@ -80,8 +74,8 @@ const PickFilterToolbarBase = ({
     value: any,
     values?: Array<any>,
   }> = null;
-  if (filtersSpecs != null) {
-    if (filtersSpecs.get(SEARCH_VAR_NAME) != null) {
+  if (filterSpecs != null) {
+    if (filterSpecs.get(SEARCH_VAR_NAME) != null) {
       // $FlowFixMe
       if (filtersSpecs.get(SEARCH_VAR_NAME).render != null) {
         // $FlowFixMe
@@ -119,8 +113,8 @@ const PickFilterToolbarBase = ({
     value: any,
     values?: Array<any>,
   }> = null;
-  if (filtersSpecs != null) {
-    if (filtersSpecs.get(SORTING_VAR_NAME) != null) {
+  if (filterSpecs != null) {
+    if (filterSpecs.get(Field.SORTING_VAR_NAME) != null) {
       // $FlowFixMe
       if (filtersSpecs.get(SORTING_VAR_NAME).render != null) {
         // $FlowFixMe
@@ -214,21 +208,21 @@ const PickFilterToolbarBase = ({
                 values?: Array<any>,
               }> = null;
 
-              if (filtersSpecs != null) {
-                if (filtersSpecs.get(booleanFilterName) != null) {
+              if (filterSpecs != null) {
+                if (filterSpecs.get(booleanFilterName) != null) {
                   // $FlowFixMe
-                  if (filtersSpecs.get(booleanFilterName).render != null) {
+                  if (filterSpecs.get(booleanFilterName).render != null) {
                     // $FlowFixMe
-                    CustomBooleanRenderer = (filtersSpecs.get(booleanFilterName)
+                    CustomBooleanRenderer = (filterSpecs.get(booleanFilterName)
                       .render: any);
                   }
                 }
               }
 
-              return filtersSpecs == null ||
-                (filtersSpecs.get(booleanFilterName) != null &&
+              return filterSpecs == null ||
+                (filterSpecs.get(booleanFilterName) != null &&
                   //$FlowFixMe
-                  filtersSpecs.get(booleanFilterName).render == null) ? (
+                  filterSpecs.get(booleanFilterName).render == null) ? (
                 <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
                   <BooleanFilter
                     key={booleanFilterName}

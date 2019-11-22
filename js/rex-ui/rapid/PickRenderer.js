@@ -57,7 +57,6 @@ import * as Field from "./Field.js";
 
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, capitalize } from "./helpers";
-import { type FilterSpecMap } from "./Pick";
 
 export const useRendererStyles = makeStyles((theme: Theme) => {
   if (theme.palette == null || isEmptyObject(theme)) {
@@ -146,12 +145,12 @@ export type PickRendererConfigProps = {|
 
 export type PickRendererProps = {|
   resource: Resource<any, any>,
-  columns: Field.FieldSpec[],
+  fieldSpecs: Field.FieldSpec[],
   variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
   theme?: Theme,
-  filtersSpecs?: ?FilterSpecMap,
+  filterSpecs?: ?Field.FilterSpecMap,
 
   selected: Set<string>,
   onSelected: (nextSelected: Set<string>) => void,
@@ -224,7 +223,7 @@ export type PickState = {|
 
 export const PickRenderer = ({
   resource,
-  columns,
+  fieldSpecs,
   fetch,
   variablesMap,
   RenderColumnCell,
@@ -241,7 +240,7 @@ export const PickRenderer = ({
   selected,
   onSelected,
   sortingConfig,
-  filtersSpecs,
+  filterSpecs,
 }: PickRendererProps) => {
   const isTabletWidth = useMinWindowWidth(720);
 
@@ -388,7 +387,7 @@ export const PickRenderer = ({
             setSearchState={setSearchState}
             isTabletWidth={isTabletWidth}
             variablesMap={variablesMap}
-            filtersSpecs={filtersSpecs}
+            filterSpecs={filterSpecs}
           />
         ) : null}
       </div>
@@ -398,7 +397,7 @@ export const PickRenderer = ({
         sortingConfig={sortingConfig}
         setSortingState={setSortingState}
         onDataReceive={setViewData}
-        columns={columns}
+        fieldSpecs={fieldSpecs}
         isTabletWidth={isTabletWidth}
         fetch={fetch}
         resource={resource}

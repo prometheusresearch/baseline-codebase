@@ -19,51 +19,9 @@ export type PickProps = {|
   endpoint: Endpoint,
   fields?: ?(Field.FieldConfig[]),
   args?: { [key: string]: any },
-  filters?: ?Array<FilterConfig>,
+  filters?: ?Array<Field.FilterConfig>,
   ...PickRendererConfigProps,
 |};
-
-export type FilterConfig =
-  | string
-  | {
-      name: string,
-      render?: React.AbstractComponent<{
-        value: any,
-        values?: Array<any>,
-        onChange: (newValue: any) => void,
-      }>,
-    };
-
-export type FilterSpec = {|
-  render: ?React.ComponentType<{
-    value: any,
-    values?: Array<any>,
-    onChange: (newValue: any) => void,
-  }>,
-|};
-
-export type FilterSpecMap = Map<string, FilterSpec>;
-
-export type FiltersConfig = FilterConfig[];
-
-export const SORTING_VAR_NAME = "sort";
-
-const filtersConfigToSpecs = (configs: ?FiltersConfig): ?FilterSpecMap => {
-  if (configs == null || configs.length === 0) {
-    return null;
-  }
-  let SpecMap: FilterSpecMap = new Map();
-
-  for (let config of configs) {
-    if (typeof config === "string") {
-      SpecMap.set(config, { render: null });
-    } else if (typeof config === "object") {
-      SpecMap.set(config.name, { render: config.render });
-    }
-  }
-
-  return SpecMap;
-};
 
 export let PickBase = (props: PickProps) => {
   let {
@@ -79,45 +37,41 @@ export let PickBase = (props: PickProps) => {
   let {
     resource,
     fieldSpecs,
+    filterSpecs,
     introspectionTypesMap,
     queryDefinition,
-    fieldDescription,
+    description: fieldDescription,
+    sortingConfig,
   } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
-    let fieldSpecs = Field.configureFields(fields);
     let {
       query,
       queryDefinition,
       introspectionTypesMap,
-      fields: nextFieldSpecs,
-      fieldDescription,
+      fieldSpecs,
+      description,
+      filterSpecs,
+      sortingConfig,
     } = introspect({
       schema,
       path,
-      fields: fieldSpecs,
+      fields,
+      filters,
+      sortableColumns,
     });
     let resource = Resource.defineQuery({ query, endpoint });
     return {
       resource,
-      fieldSpecs: nextFieldSpecs,
+      fieldSpecs,
+      filterSpecs,
       introspectionTypesMap,
       queryDefinition,
-      fieldDescription,
+      description,
+      sortingConfig,
     };
-  }, [fetch, schema, endpoint]);
+  }, [fetch, schema, endpoint, filters]);
 
   let [selected, setSelected] = React.useState(new Set());
-
-  const filtersSpecs = filtersConfigToSpecs(filters);
-
-  const sortingConfig = buildSortingConfig({
-    variableDefinitions: queryDefinition.variableDefinitions,
-    columns: fieldSpecs,
-    introspectionTypesMap,
-    variableDefinitionName: SORTING_VAR_NAME,
-    sortableColumns,
-    filtersSpecs,
-  });
 
   let variablesMap = null;
   if (
@@ -137,10 +91,10 @@ export let PickBase = (props: PickProps) => {
       selected={selected}
       onSelected={setSelected}
       fetch={fetch}
-      filtersSpecs={filtersSpecs}
+      filterSpecs={filterSpecs}
       resource={resource}
       variablesMap={variablesMap}
-      columns={fieldSpecs}
+      fieldSpecs={fieldSpecs}
       fieldDescription={fieldDescription}
       sortingConfig={sortingConfig}
     />

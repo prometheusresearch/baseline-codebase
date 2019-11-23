@@ -59,10 +59,6 @@ const buildSortableFieldObjects = ({
           ? fieldSpecs.find(spec => spec.require.field === field)
           : null;
 
-      console.log("field: ", field);
-      console.log("spec: ", spec);
-      console.log("==========");
-
       if (!spec || !spec.sortable) {
         return;
       }
@@ -71,8 +67,6 @@ const buildSortableFieldObjects = ({
         sortableFieldObjects.push({ field, ...fieldObjectExtension });
       });
     });
-
-  console.log("sortableFieldObjects: ", sortableFieldObjects);
 
   return sortableFieldObjects.length > 0 ? sortableFieldObjects : null;
 };

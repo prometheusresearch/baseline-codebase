@@ -117,8 +117,6 @@ export type PickRendererConfigProps = {|
   description?: string,
   fieldDescription?: ?string,
   showAs?: PickMode,
-  columnsWidth?: { [key: string]: string | number },
-  sortableColumns?: ?Array<string>,
 
   RenderColumnCell?: (props: {
     column?: Field.FieldSpec,
@@ -236,7 +234,6 @@ export const PickRenderer = ({
   description,
   fieldDescription,
   showAs,
-  columnsWidth,
   selected,
   onSelected,
   sortingConfig,
@@ -403,7 +400,6 @@ export const PickRenderer = ({
         resource={resource}
         onRowClick={onRowClick}
         showAs={showAs}
-        columnsWidth={columnsWidth}
         selected={selected}
         onSelected={onSelected}
       />

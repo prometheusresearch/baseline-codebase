@@ -24,66 +24,43 @@ export type PickProps = {|
 |};
 
 export let PickBase = (props: PickProps) => {
-  let {
-    endpoint,
-    fields = null,
-    fetch,
-    filters,
-    sortableColumns,
-    ...rest
-  } = props;
+  let { endpoint, fields, fetch, filters, ...rest } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
   let {
     resource,
     fieldSpecs,
     filterSpecs,
-    introspectionTypesMap,
-    queryDefinition,
     description: fieldDescription,
     sortingConfig,
+    variablesMap,
   } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
     let {
       query,
-      queryDefinition,
-      introspectionTypesMap,
       fieldSpecs,
       description,
       filterSpecs,
       sortingConfig,
+      variablesMap,
     } = introspect({
       schema,
       path,
       fields,
       filters,
-      sortableColumns,
     });
     let resource = Resource.defineQuery({ query, endpoint });
     return {
       resource,
       fieldSpecs,
       filterSpecs,
-      introspectionTypesMap,
-      queryDefinition,
       description,
       sortingConfig,
+      variablesMap,
     };
   }, [fetch, schema, endpoint, filters]);
 
   let [selected, setSelected] = React.useState(new Set());
-
-  let variablesMap = null;
-  if (
-    queryDefinition.variableDefinitions &&
-    queryDefinition.variableDefinitions.length > 0
-  ) {
-    variablesMap = new Map();
-
-    for (let variable of queryDefinition.variableDefinitions) {
-      variablesMap.set(variable.variable.name.value, variable);
-    }
-  }
 
   return (
     <PickRenderer

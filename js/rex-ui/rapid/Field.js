@@ -3,6 +3,7 @@
  */
 
 import { type AbstractComponent, type ComponentType } from "react";
+import { type VariableDefinitionNode } from "graphql/language/ast";
 import { capitalize } from "./helpers.js";
 
 /** Configure visual fields (columns in a table, fields in a card) */
@@ -10,6 +11,7 @@ export type FieldConfig =
   | string
   | {|
       require: QueryFieldSpec,
+      sortable?: boolean,
       title?: string,
       render?: AbstractComponent<{ value: any }>,
       width?: number,
@@ -22,14 +24,15 @@ export type FieldSpec = {
    */
   title: string,
   require: QueryFieldSpec,
+  sortable?: boolean,
   render?: AbstractComponent<{ value: any }>,
   width?: number,
 };
 
-export type QueryFieldSpec = {
+export type QueryFieldSpec = {|
   field: string,
   require?: QueryFieldSpec[],
-};
+|};
 
 export type FilterConfig =
   | string
@@ -54,6 +57,8 @@ export type FilterSpecMap = Map<string, FilterSpec>;
 
 export type FiltersConfig = FilterConfig[];
 
+export type VariableDefinition = VariableDefinitionNode;
+
 export function configureField(config: FieldConfig): FieldSpec {
   switch (typeof config) {
     case "string": {
@@ -63,6 +68,8 @@ export function configureField(config: FieldConfig): FieldSpec {
           field: config,
           require: [],
         },
+        // Allow sorting by default for string fields
+        sortable: true,
       };
     }
 
@@ -72,6 +79,7 @@ export function configureField(config: FieldConfig): FieldSpec {
         require: config.require,
         render: config.render,
         width: config.width,
+        sortable: config.sortable,
       };
     }
   }

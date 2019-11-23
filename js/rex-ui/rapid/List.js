@@ -129,9 +129,8 @@ export function ListOfData(props: ListOfDataProps) {
         }
       }
     };
-    let handleClick =() => {
-      if (onClick!= null) {
-        console.log(item);
+    let handleClick = () => {
+      if (onClick != null) {
         onClick(item);
       }
     };

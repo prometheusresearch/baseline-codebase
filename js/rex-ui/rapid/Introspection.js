@@ -38,22 +38,19 @@ export const introspect = ({
   path,
   fields,
   filters,
-  sortableColumns,
 }: {|
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
   fields: ?Array<Field.FieldConfig>,
   filters?: ?Array<Field.FilterConfig>,
-  sortableColumns?: ?Array<string>,
 |}): {|
   query: string,
   ast: ast.DocumentNode,
-  introspectionTypesMap: Map<string, introspection.IntrospectionType>,
-  queryDefinition: ast.OperationDefinitionNode,
   fieldSpecs: Field.FieldSpec[],
   filterSpecs: ?Field.FilterSpecMap,
   description?: ?string,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
+  variablesMap: ?Map<string, Field.VariableDefinition>,
 |} => {
   const fieldSpecs = Field.configureFields(fields);
   const filterSpecs = Field.configureFilters(filters);
@@ -70,21 +67,30 @@ export const introspect = ({
     variableDefinitions: queryDefinition.variableDefinitions,
     fieldSpecs: fieldSpecsUpdated,
     introspectionTypesMap,
-    variableDefinitionName: Field.SORTING_VAR_NAME,
-    sortableColumns,
     filterSpecs,
   });
+
+
+  let variablesMap = null;
+  if (
+    queryDefinition.variableDefinitions &&
+    queryDefinition.variableDefinitions.length > 0
+  ) {
+    variablesMap = new Map();
+    for (let variable of queryDefinition.variableDefinitions) {
+      variablesMap.set(variable.variable.name.value, variable);
+    }
+  }
 
   const query = print(ast);
   return {
     query,
     ast,
-    queryDefinition,
-    introspectionTypesMap,
     fieldSpecs: fieldSpecsUpdated,
     description,
     filterSpecs,
     sortingConfig,
+    variablesMap,
   };
 };
 

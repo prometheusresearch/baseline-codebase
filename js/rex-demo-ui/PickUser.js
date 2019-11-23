@@ -45,8 +45,9 @@ export let screen: Router.PickScreen = {
   title: "Users",
   description: "List of users",
   fields: [
-    { require: { field: "remote_user" } },
+    { require: { field: "remote_user" }, sortable: false, width: 256 },
     phoneField,
+    "expires",
     "expired",
     { require: { field: "system_admin" } },
   ],

@@ -356,7 +356,6 @@ export const PickDataView = ({
   onRowClick,
   state,
   showAs,
-  columnsWidth,
   selected,
   onSelected,
 }: {|
@@ -445,10 +444,7 @@ export const PickDataView = ({
 
     const title = column.title || capitalize(columnName);
 
-    const columnStyle =
-      columnsWidth && columnsWidth[columnName]
-        ? { width: columnsWidth[columnName] }
-        : undefined;
+    const columnStyle = column.width ? { width: column.width } : undefined;
 
     return (
       <TableCell

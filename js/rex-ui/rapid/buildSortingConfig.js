@@ -19,13 +19,11 @@ const buildSortableFieldObjects = ({
   fieldObjectExtensions,
   introspectionTypesMap,
   fieldSpecs,
-  sortableColumns,
 }: {|
   inputFields: $ReadOnlyArray<IntrospectionInputValue>,
   fieldObjectExtensions: Array<{ [key: string]: any }>,
   introspectionTypesMap: Map<string, IntrospectionType>,
   fieldSpecs: ?(Field.FieldSpec[]),
-  sortableColumns?: ?Array<string>,
 |}) => {
   const sortFieldsField = inputFields.find(
     inputField =>
@@ -56,41 +54,46 @@ const buildSortableFieldObjects = ({
     // TODO: Get rid of empty array
     .filter(name => (fieldSpecs || []).find(col => col.require.field === name))
     .forEach(field => {
-      if (sortableColumns != null && !sortableColumns.includes(field)) {
+      let spec =
+        fieldSpecs != null
+          ? fieldSpecs.find(spec => spec.require.field === field)
+          : null;
+
+      console.log("field: ", field);
+      console.log("spec: ", spec);
+      console.log("==========");
+
+      if (!spec || !spec.sortable) {
         return;
       }
+
       fieldObjectExtensions.forEach(fieldObjectExtension => {
         sortableFieldObjects.push({ field, ...fieldObjectExtension });
       });
     });
 
-  return sortableFieldObjects;
+  console.log("sortableFieldObjects: ", sortableFieldObjects);
+
+  return sortableFieldObjects.length > 0 ? sortableFieldObjects : null;
 };
 
 export const buildSortingConfig = ({
   variableDefinitions,
   introspectionTypesMap,
-  variableDefinitionName,
   fieldSpecs,
-  sortableColumns,
   filterSpecs,
 }: {|
   variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
   introspectionTypesMap: Map<string, IntrospectionType>,
-  variableDefinitionName: string,
   fieldSpecs: Field.FieldSpec[],
-  sortableColumns?: ?Array<string>,
   filterSpecs: ?Field.FilterSpecMap,
 |}): ?Array<{| field: string, desc: boolean |}> => {
-  if (
-    variableDefinitions == null ||
-    (filterSpecs != null && filterSpecs.get(Field.SORTING_VAR_NAME) == null)
-  ) {
+  if (variableDefinitions == null) {
     return null;
   }
 
   const variableDefinition = variableDefinitions.find(def => {
-    return def.variable.name.value === variableDefinitionName;
+    return def.variable.name.value === Field.SORTING_VAR_NAME;
   });
 
   if (variableDefinition == null) {
@@ -134,7 +137,6 @@ export const buildSortingConfig = ({
     fieldSpecs,
     fieldObjectExtensions: [{ desc: true }, { desc: false }],
     introspectionTypesMap,
-    sortableColumns,
   });
 
   return sortableFieldObjects;

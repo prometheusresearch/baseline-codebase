@@ -17,7 +17,7 @@ import { buildSortingConfig } from "./buildSortingConfig.js";
 
 export type PickProps = {|
   endpoint: Endpoint,
-  fields?: ?(Field.FieldConfig[]),
+  fields?: ?{ [name: string]: Field.FieldConfig },
   args?: { [key: string]: any },
   filters?: ?Array<Field.FilterConfig>,
   ...PickRendererConfigProps,

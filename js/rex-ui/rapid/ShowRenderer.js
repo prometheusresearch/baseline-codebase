@@ -33,7 +33,7 @@ export type ShowRendererProps = {|
   path: QueryPath.QueryPath,
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
   onClick?: (row: any) => void,
   ...ShowRendererConfigProps,
 |};
@@ -99,15 +99,17 @@ export let ShowCard = ({
 }: {|
   data: any,
   title: React.Node,
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
   onClick?: () => void,
 |}) => {
   let classes = useStyles();
 
-  let content = fieldSpecs.map(spec => {
+  let content = [];
+  for (let name in fieldSpecs) {
+    let spec = fieldSpecs[name];
     let key = spec.require.field;
     let value = data[key];
-    return (
+    content.push(
       <div key={key} className={classes.contentWrapper}>
         <Typography variant={"caption"}>
           {(spec && spec.title) || key}
@@ -119,9 +121,9 @@ export let ShowCard = ({
             <RenderValue value={value} />
           )}
         </Typography>
-      </div>
+      </div>,
     );
-  });
+  }
 
   return (
     <Grid container spacing={8}>

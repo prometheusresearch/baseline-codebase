@@ -143,7 +143,7 @@ export type PickRendererConfigProps = {|
 
 export type PickRendererProps = {|
   resource: Resource<any, any>,
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
   variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },

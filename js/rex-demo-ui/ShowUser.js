@@ -9,11 +9,11 @@ export let screen: Router.ShowScreen = {
   type: "show",
   title: "User",
   fetch: "user.get",
-  fields: [
-    { title: "Remote User", require: { field: "remote_user" } },
-    "system_admin",
-    "expired",
-    {
+  fields: {
+    title: { title: "Remote User", require: { field: "remote_user" } },
+    system_admin: "system_admin",
+    expired: "expired",
+    contact_info: {
       title: "Contact Info",
       require: {
         field: "contact_info",
@@ -21,7 +21,7 @@ export let screen: Router.ShowScreen = {
       },
       render: ContactInfoList,
     },
-    {
+    sites: {
       title: "Sites",
       require: {
         field: "sites",
@@ -35,7 +35,7 @@ export let screen: Router.ShowScreen = {
       },
       render: SiteList,
     },
-    {
+    patients: {
       title: "Patients",
       require: {
         field: "patients",
@@ -43,7 +43,7 @@ export let screen: Router.ShowScreen = {
       },
       render: PatientList,
     },
-  ],
+  },
   RenderTitle: props => {
     return props.data.remote_user;
   },

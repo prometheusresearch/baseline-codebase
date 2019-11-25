@@ -44,13 +44,19 @@ export let screen: Router.PickScreen = {
   fetch: "user.paginated",
   title: "Users",
   description: "List of users",
-  fields: [
-    { require: { field: "remote_user" }, sortable: false, width: 256 },
-    phoneField,
-    "expires",
-    "expired",
-    { require: { field: "system_admin" } },
-  ],
+  fields: {
+    remote_user: {
+      require: { field: "remote_user" },
+      sortable: false,
+      width: 256,
+    },
+    phone: phoneField,
+    expires: "expires",
+    expired: "expired",
+    system_admin: {
+      require: { field: "system_admin" },
+    },
+  },
   filters: [
     {
       name: "system_admin",

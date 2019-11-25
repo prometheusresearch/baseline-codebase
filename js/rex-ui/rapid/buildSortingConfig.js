@@ -16,14 +16,12 @@ import { ConfigError } from "./ErrorBoundary";
 
 const buildSortableFieldObjects = ({
   inputFields,
-  fieldObjectExtensions,
   introspectionTypesMap,
   fieldSpecs,
 }: {|
   inputFields: $ReadOnlyArray<IntrospectionInputValue>,
-  fieldObjectExtensions: Array<{ [key: string]: any }>,
   introspectionTypesMap: Map<string, IntrospectionType>,
-  fieldSpecs: ?(Field.FieldSpec[]),
+  fieldSpecs: { [name: string]: Field.FieldSpec },
 |}) => {
   const sortFieldsField = inputFields.find(
     inputField =>
@@ -50,23 +48,14 @@ const buildSortableFieldObjects = ({
   );
 
   let sortableFieldObjects = [];
-  sortableFieldNames
-    // TODO: Get rid of empty array
-    .filter(name => (fieldSpecs || []).find(col => col.require.field === name))
-    .forEach(field => {
-      let spec =
-        fieldSpecs != null
-          ? fieldSpecs.find(spec => spec.require.field === field)
-          : null;
-
-      if (!spec || !spec.sortable) {
-        return;
-      }
-
-      fieldObjectExtensions.forEach(fieldObjectExtension => {
-        sortableFieldObjects.push({ field, ...fieldObjectExtension });
-      });
-    });
+  for (let name of sortableFieldNames) {
+    let spec = fieldSpecs[name];
+    if (spec == null || !spec.sortable) {
+      continue;
+    }
+    sortableFieldObjects.push({ field: name, desc: true });
+    sortableFieldObjects.push({ field: name, desc: false });
+  }
 
   return sortableFieldObjects.length > 0 ? sortableFieldObjects : null;
 };
@@ -79,7 +68,7 @@ export const buildSortingConfig = ({
 }: {|
   variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
   introspectionTypesMap: Map<string, IntrospectionType>,
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
   filterSpecs: ?Field.FilterSpecMap,
 |}): ?Array<{| field: string, desc: boolean |}> => {
   if (variableDefinitions == null) {
@@ -129,7 +118,6 @@ export const buildSortingConfig = ({
   const sortableFieldObjects = buildSortableFieldObjects({
     inputFields,
     fieldSpecs,
-    fieldObjectExtensions: [{ desc: true }, { desc: false }],
     introspectionTypesMap,
   });
 

@@ -27,13 +27,15 @@ export function List(props: ListProps) {
   let { fetch, endpoint, primaryTextField, id, selected, onSelected } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
-  let { resource, path } = React.useMemo(() => {
+  let { resource, path, fieldSpecs } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
-    let fields = ["id", primaryTextField];
     let { query, fieldSpecs } = introspect({
       schema,
       path,
-      fields,
+      fields: {
+        id: "id",
+        primaryText: primaryTextField,
+      },
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { path, resource, fieldSpecs };
@@ -43,7 +45,7 @@ export function List(props: ListProps) {
     <ListRenderer
       path={path}
       resource={resource}
-      primaryTextField={primaryTextField}
+      fieldSpecs={fieldSpecs}
       id={id}
       selected={selected}
       onSelected={onSelected}
@@ -54,7 +56,7 @@ export function List(props: ListProps) {
 type ListRendererProps = {|
   path: QueryPath.QueryPath,
   resource: Resource.Resource<any, any>,
-  primaryTextField: Field.FieldConfig,
+  fieldSpecs: { id: Field.FieldSpec, primaryText: Field.FieldSpec },
   id: string[],
   selected?: Set<string>,
   onSelected?: (Set<string>) => void,
@@ -63,7 +65,7 @@ type ListRendererProps = {|
 function ListRenderer({
   path,
   resource,
-  primaryTextField,
+  fieldSpecs,
   id,
   selected,
   onSelected,
@@ -79,9 +81,9 @@ function ListRenderer({
 
   let RenderPrimaryText = React.useCallback(
     props => {
-      return props.item[primaryTextField];
+      return props.item[fieldSpecs.primaryText.require.field];
     },
-    [primaryTextField],
+    [fieldSpecs.primaryText],
   );
 
   return (

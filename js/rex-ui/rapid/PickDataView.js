@@ -117,14 +117,14 @@ const useDataViewStyles = makeStyles((theme: Theme) => {
 const PickNoDataPlaceholder = ({
   fieldSpecs,
 }: {
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
 }) => {
   let classes = useDataViewStyles();
 
   return (
     <TableBody>
       <TableRow>
-        <TableCell colSpan={fieldSpecs.length + 1}>
+        <TableCell colSpan={Object.keys(fieldSpecs).length + 1}>
           <div className={classes.center}>
             <Typography variant={"caption"}>No data</Typography>
           </div>
@@ -140,7 +140,7 @@ const PickCardListView = ({
   onClick,
 }: {|
   data: Array<any>,
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
   onClick?: (row: any) => void,
 |}) => {
   const classes = useDataViewStyles();
@@ -192,7 +192,7 @@ const PickTableBody = ({
   onSelected,
   showAs,
 }: {|
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
   isTabletWidth: boolean,
@@ -217,7 +217,7 @@ const PickTableBody = ({
   const resourceData = useResource(resource, params);
   setTableFullHeight(false);
 
-  if (resourceData == null || fieldSpecs.length === 0) {
+  if (resourceData == null) {
     return null;
   }
 
@@ -361,7 +361,7 @@ export const PickDataView = ({
 }: {|
   resource: Resource<any, any>,
   onDataReceive: any => any,
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: { [name: string]: Field.FieldSpec },
   args?: { [key: string]: any },
   isTabletWidth: boolean,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
@@ -395,9 +395,10 @@ export const PickDataView = ({
 
   const columnsMap = new Map();
   const columnsNames = [];
-  for (let fieldSpec of fieldSpecs) {
-    columnsMap.set(fieldSpec.require.field, fieldSpec);
-    columnsNames.push(fieldSpec.require.field);
+  for (let name in fieldSpecs) {
+    let spec = fieldSpecs[name];
+    columnsMap.set(spec.require.field, spec);
+    columnsNames.push(spec.require.field);
   }
 
   const TableHeadRows = columnsNames.map((columnName, index) => {
@@ -515,7 +516,7 @@ export const PickDataView = ({
           fallback={
             <TableBody>
               <TableRow>
-                <TableCell colSpan={fieldSpecs.length + 1}>
+                <TableCell colSpan={Object.keys(fieldSpecs).length + 1}>
                   <div className={classes.center}>
                     <LoadingIndicator />
                   </div>

@@ -15,7 +15,7 @@ export type ShowScreen = {|
   type: "show",
   title: string,
   fetch: string,
-  fields?: ?(Rapid.FieldConfig[]),
+  fields?: ?{ [name: string]: Rapid.FieldConfig },
   RenderTitle?: ?Rapid.ShowRenderTitle,
 |};
 
@@ -24,7 +24,7 @@ export type PickScreen = {|
   title: string,
   fetch: string,
   description: string,
-  fields?: ?(Rapid.FieldConfig[]),
+  fields?: ?{ [name: string]: Rapid.FieldConfig },
   filters?: ?(Rapid.PickFilterConfig[]),
   onSelect?: (id: string) => [Route, Params],
   RenderToolbar?: Rapid.PickRenderToolbar,

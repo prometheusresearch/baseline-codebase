@@ -23,9 +23,9 @@ import * as Field from "./Field.js";
 export type AutocompleteProps = {|
   endpoint: Endpoint,
   fetch: string,
-  labelField: Field.FieldConfig,
   label?: string,
-  fields?: Field.FieldConfig[],
+  labelField: Field.FieldConfig,
+  fields?: { [name: string]: Field.FieldConfig },
   placeholder?: string,
   value: ?Object,
   onValue: (?Object) => void,
@@ -37,7 +37,7 @@ export function Autocomplete(props: AutocompleteProps) {
     fetch,
     endpoint,
     labelField,
-    fields = [],
+    fields = {},
     value,
     onValue,
     label,
@@ -46,12 +46,12 @@ export function Autocomplete(props: AutocompleteProps) {
   } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
-  let { resource, path } = React.useMemo(() => {
+  let { resource, path, fieldSpecs } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
     let { query, fieldSpecs } = introspect({
       schema,
       path,
-      fields: ["id", labelField, ...fields],
+      fields: { id: "id", label: labelField, ...fields },
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { path, resource, fieldSpecs };
@@ -61,7 +61,7 @@ export function Autocomplete(props: AutocompleteProps) {
     <AutocompleteRenderer
       path={path}
       resource={resource}
-      labelField={labelField}
+      fieldSpecs={fieldSpecs}
       label={label}
       placeholder={placeholder}
       value={value}
@@ -102,11 +102,11 @@ let useStyles = makeStyles(theme => ({
 type AutocompleteRendererProps = {|
   path: QueryPath.QueryPath,
   resource: Resource.Resource<any, any>,
-  labelField: Field.FieldConfig,
+  fieldSpecs: { id: Field.FieldSpec, label: Field.FieldSpec },
   label?: string,
   placeholder?: string,
-  value: ?string,
-  onValue: (?string) => void,
+  value: ?Object,
+  onValue: (?Object) => void,
   RenderItem?: React.AbstractComponent<{| label: React.Node, item: Object |}>,
 |};
 
@@ -116,7 +116,7 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
     path,
     label,
     placeholder,
-    labelField,
+    fieldSpecs,
     value,
     onValue,
     RenderItem,
@@ -124,7 +124,7 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
 
   let popperNode = React.useRef<?HTMLElement>(null);
   let [search, setSearch] = React.useState(
-    value != null ? value[(labelField: any)] : "",
+    value != null ? value[fieldSpecs.label.require.field] : "",
   );
   let [suggestions, setSuggestions] = React.useState([]);
 
@@ -177,7 +177,7 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
   }
 
   function renderSuggestion(suggestion, { query, isHighlighted }) {
-    let label = suggestion[labelField];
+    let label = suggestion[fieldSpecs.label.require.field];
     let matches = match(label, query);
     let parts = parse(label, matches);
 
@@ -210,7 +210,7 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
   }
 
   function getSuggestionValue(suggestion) {
-    return suggestion[labelField];
+    return suggestion[fieldSpecs.label.require.field];
   }
 
   return (

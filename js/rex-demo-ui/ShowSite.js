@@ -10,10 +10,16 @@ export let screen: Router.ShowScreen = {
   type: "show",
   fetch: "site.get",
   title: "Site",
-  fields: [
-    { title: "Title", require: { field: "title" } },
-    { title: "Code", require: { field: "code" } },
-    {
+  fields: {
+    title: {
+      title: "Title",
+      require: { field: "title" },
+    },
+    code: {
+      title: "Code",
+      require: { field: "code" },
+    },
+    users: {
       title: "Users",
       require: {
         field: "users",
@@ -27,7 +33,7 @@ export let screen: Router.ShowScreen = {
       },
       render: UserList,
     },
-  ],
+  },
 };
 
 function UserList(props) {

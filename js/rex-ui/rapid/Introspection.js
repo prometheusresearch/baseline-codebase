@@ -32,29 +32,33 @@ type QueryFieldSpec = {
   require?: Array<QueryFieldSpec>,
 };
 
-export type Introspection = {|
+export type Introspection<T: { [name: string]: Field.FieldSpec }> = {|
   query: string,
-  fieldSpecs: Field.FieldSpec[],
+  fieldSpecs: T,
   filterSpecs: ?Field.FilterSpecMap,
   description?: ?string,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   variablesMap: ?Map<string, Field.VariableDefinition>,
 |};
 
-export type IntrospectionConfig = {|
+export type IntrospectionConfig<T: { [name: string]: Field.FieldConfig }> = {|
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fields: ?Array<Field.FieldConfig>,
+  fields: ?T,
   filters?: ?Array<Field.FilterConfig>,
 |};
 
-/** Configure fields to fetch from GraphQL endpoint. */
-export const introspect = ({
+/**
+ * Introspect GraphQL schema.
+ */
+export function introspect<T: { [name: string]: Field.FieldConfig }>({
   schema,
   path,
   fields,
   filters,
-}: IntrospectionConfig): Introspection => {
+}: IntrospectionConfig<T>): Introspection<
+  $ObjMap<T, <V>(V) => Field.FieldSpec>,
+> {
   const fieldSpecs = Field.configureFields(fields);
   const filterSpecs = Field.configureFilters(filters);
 
@@ -93,18 +97,18 @@ export const introspect = ({
     sortingConfig,
     variablesMap,
   };
-};
+}
 
 const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fieldSpecsRequested: ?(Field.FieldSpec[]),
+  fieldSpecsRequested: ?{ [name: string]: Field.FieldSpec },
 ): {|
   ast: ast.DocumentNode,
   columns: ast.FieldNode[],
   introspectionTypesMap: Map<string, introspection.IntrospectionType>,
   queryDefinition: ast.OperationDefinitionNode,
-  fieldSpecsUpdated: Field.FieldSpec[],
+  fieldSpecsUpdated: { [name: string]: Field.FieldSpec },
   description: ?string,
 |} => {
   let typesMap: Map<string, introspection.IntrospectionType> = new Map();
@@ -209,24 +213,23 @@ const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
   path: string[],
-  fieldSpecsRequested: ?(Field.FieldSpec[]),
+  fieldSpecsRequested: ?{ [name: string]: Field.FieldSpec },
 ): [
   ast.SelectionSetNode,
   ast.FieldNode[],
   introspection.IntrospectionInputValue[],
-  Field.FieldSpec[],
+  { [name: string]: Field.FieldSpec },
   ?string,
 ] => {
   // Break the recursion
   if (path.length === 0) {
-    // TODO(andreypopp): Convert fieldSpecsRequested into Map<string, ...> for
-    // efficient lookup.
     let fieldSpecsMap = new Map<string, Field.FieldSpec>();
     let fieldIntros: introspection.IntrospectionField[] = [];
-    let fieldSpecs: Field.FieldSpec[] = [];
+    let fieldSpecs: { [name: string]: Field.FieldSpec } = {};
 
     if (fieldSpecsRequested != null) {
-      for (let fieldSpec of fieldSpecsRequested) {
+      for (let name in fieldSpecsRequested) {
+        let fieldSpec = fieldSpecsRequested[name];
         fieldSpecsMap.set(fieldSpec.require.field, fieldSpec);
       }
 
@@ -265,13 +268,13 @@ const buildSelectionSet = (
         if (spec == null) {
           continue;
         }
-        fieldSpecs.push(spec);
+        fieldSpecs[name] = spec;
         seen.add(name);
       }
 
       for (let spec of fieldSpecsMap.values()) {
         if (!seen.has(spec.require.field)) {
-          fieldSpecs.push(spec);
+          fieldSpecs[spec.require.field] = spec;
         }
       }
     }

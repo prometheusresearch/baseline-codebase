@@ -85,11 +85,17 @@ export function configureField(config: FieldConfig): FieldSpec {
   }
 }
 
-export function configureFields(configs: ?(FieldConfig[])): ?(FieldSpec[]) {
+export function configureFields<T: { [name: string]: FieldConfig }>(
+  configs: ?T,
+): ?$ObjMap<T, <V>(V) => FieldSpec> {
   if (configs == null) {
     return null;
   }
-  return configs.map(configureField);
+  let specs = {};
+  for (let name in configs) {
+    specs[name] = configureField(configs[name]);
+  }
+  return specs;
 }
 
 export function guessFieldTitle(field: string) {

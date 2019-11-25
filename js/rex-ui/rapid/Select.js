@@ -26,9 +26,9 @@ export function Select(props: SelectProps) {
   let { fetch, endpoint, labelField, value, onValue } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
-  let { resource, path } = React.useMemo(() => {
+  let { resource, path, fieldSpecs } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
-    let fields = ["id", labelField];
+    let fields = { id: "id", label: labelField };
     let { query, fieldSpecs } = introspect({
       schema,
       path,
@@ -42,7 +42,7 @@ export function Select(props: SelectProps) {
     <SelectRenderer
       path={path}
       resource={resource}
-      labelField={labelField}
+      fieldSpecs={fieldSpecs}
       value={value}
       onValue={onValue}
     />
@@ -52,7 +52,7 @@ export function Select(props: SelectProps) {
 type SelectRendererProps = {|
   path: QueryPath.QueryPath,
   resource: Resource.Resource<any, any>,
-  labelField: Field.FieldConfig,
+  fieldSpecs: { id: Field.FieldSpec, label: Field.FieldSpec },
   value: ?string,
   onValue: (?string) => void,
 |};
@@ -60,7 +60,7 @@ type SelectRendererProps = {|
 function SelectRenderer({
   path,
   resource,
-  labelField,
+  fieldSpecs,
   value,
   onValue,
 }: SelectRendererProps) {
@@ -72,7 +72,7 @@ function SelectRenderer({
     data = data[key];
   }
   let items = data.map(item => {
-    let label = item[labelField];
+    let label = item[fieldSpecs.label.require.field];
     return (
       <mui.MenuItem key={item.id} value={item.id}>
         {label}

@@ -76,42 +76,44 @@ export default function AppChrome({
 
   return (
     <ThemeProvider theme={theme}>
-      <mui.AppBar
-        position="fixed"
-        className={classNames(classes.appBar, {
-          [classes.shift]: layout !== "phone" && drawerOpen,
-        })}
-      >
-        <mui.Toolbar>
-          {!drawerOpen && (
-            <mui.IconButton
-              aria-label="Open drawer"
-              onClick={toggleDrawerOpen}
-              className={classNames(classes.menuButton)}
-            >
-              <MenuIcon color="primary" />
-            </mui.IconButton>
-          )}
-          <mui.Typography variant="h6" color="primary" noWrap>
-            {title}
-          </mui.Typography>
-        </mui.Toolbar>
-      </mui.AppBar>
-      <AppDrawer
-        open={drawerOpen}
-        onClose={toggleDrawerOpen}
-        menu={menu}
-        router={router}
-        theme={appTheme}
-        onTheme={setAppTheme}
-      />
-      <main
-        className={classNames(classes.content, {
-          [classes.shift]: layout !== "phone" && drawerOpen,
-        })}
-      >
-        {children}
-      </main>
+      <mui.MuiThemeProvider theme={theme}>
+        <mui.AppBar
+          position="fixed"
+          className={classNames(classes.appBar, {
+            [classes.shift]: layout !== "phone" && drawerOpen,
+          })}
+        >
+          <mui.Toolbar>
+            {!drawerOpen && (
+              <mui.IconButton
+                aria-label="Open drawer"
+                onClick={toggleDrawerOpen}
+                className={classNames(classes.menuButton)}
+              >
+                <MenuIcon color="primary" />
+              </mui.IconButton>
+            )}
+            <mui.Typography variant="h6" color="primary" noWrap>
+              {title}
+            </mui.Typography>
+          </mui.Toolbar>
+        </mui.AppBar>
+        <AppDrawer
+          open={drawerOpen}
+          onClose={toggleDrawerOpen}
+          menu={menu}
+          router={router}
+          theme={appTheme}
+          onTheme={setAppTheme}
+        />
+        <main
+          className={classNames(classes.content, {
+            [classes.shift]: layout !== "phone" && drawerOpen,
+          })}
+        >
+          {children}
+        </main>
+      </mui.MuiThemeProvider>
     </ThemeProvider>
   );
 }

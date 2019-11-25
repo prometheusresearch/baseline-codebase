@@ -2,9 +2,14 @@
  * @flow
  */
 import { createMuiTheme, type Theme } from "@material-ui/core/styles";
-import orange from "@material-ui/core/colors/orange";
+import brown from "@material-ui/core/colors/brown";
+import deepPurple from "@material-ui/core/colors/deepPurple";
 
-export const DEFAULT_THEME = createMuiTheme();
+export const DEFAULT_THEME = createMuiTheme({
+  palette: {
+    secondary: deepPurple,
+  },
+});
 
 export const DARK_THEME = createMuiTheme({
   palette: {
@@ -13,6 +18,6 @@ export const DARK_THEME = createMuiTheme({
       dark: "rgb(66,66,66)",
       contrastText: "white",
     },
-    secondary: orange,
+    secondary: brown,
   },
 });

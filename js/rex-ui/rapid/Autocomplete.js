@@ -48,7 +48,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
   let { resource, path } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
-    let { query, ast, fieldSpecs } = introspect({
+    let { query, fieldSpecs } = introspect({
       schema,
       path,
       fields: ["id", labelField, ...fields],

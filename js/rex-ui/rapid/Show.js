@@ -28,7 +28,7 @@ export let Show = (props: ShowProps) => {
 
   let { resource, fieldSpecs, path } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
-    let { query, ast, fieldSpecs } = introspect({
+    let { query, fieldSpecs } = introspect({
       schema,
       path,
       fields,

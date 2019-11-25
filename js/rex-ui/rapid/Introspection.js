@@ -32,26 +32,29 @@ type QueryFieldSpec = {
   require?: Array<QueryFieldSpec>,
 };
 
+export type Introspection = {|
+  query: string,
+  fieldSpecs: Field.FieldSpec[],
+  filterSpecs: ?Field.FilterSpecMap,
+  description?: ?string,
+  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
+  variablesMap: ?Map<string, Field.VariableDefinition>,
+|};
+
+export type IntrospectionConfig = {|
+  schema: introspection.IntrospectionSchema,
+  path: QueryPath.QueryPath,
+  fields: ?Array<Field.FieldConfig>,
+  filters?: ?Array<Field.FilterConfig>,
+|};
+
 /** Configure fields to fetch from GraphQL endpoint. */
 export const introspect = ({
   schema,
   path,
   fields,
   filters,
-}: {|
-  schema: introspection.IntrospectionSchema,
-  path: QueryPath.QueryPath,
-  fields: ?Array<Field.FieldConfig>,
-  filters?: ?Array<Field.FilterConfig>,
-|}): {|
-  query: string,
-  ast: ast.DocumentNode,
-  fieldSpecs: Field.FieldSpec[],
-  filterSpecs: ?Field.FilterSpecMap,
-  description?: ?string,
-  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
-  variablesMap: ?Map<string, Field.VariableDefinition>,
-|} => {
+}: IntrospectionConfig): Introspection => {
   const fieldSpecs = Field.configureFields(fields);
   const filterSpecs = Field.configureFilters(filters);
 
@@ -70,7 +73,6 @@ export const introspect = ({
     filterSpecs,
   });
 
-
   let variablesMap = null;
   if (
     queryDefinition.variableDefinitions &&
@@ -85,7 +87,6 @@ export const introspect = ({
   const query = print(ast);
   return {
     query,
-    ast,
     fieldSpecs: fieldSpecsUpdated,
     description,
     filterSpecs,

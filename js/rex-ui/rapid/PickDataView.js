@@ -35,7 +35,6 @@ import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
 import { type PickState } from "./PickRenderer";
 import { LoadingIndicator } from "./LoadingIndicator";
-import { MuiThemeProvider } from "@material-ui/core";
 
 import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
 import { DEFAULT_THEME } from "./themes";
@@ -483,8 +482,6 @@ export const PickDataView = ({
     tableClassNames.push(classes.tableFullHeight);
   }
 
-  const theme = useTheme();
-
   return (
     <div className={classes.tableWrapper} ref={wrapperRef}>
       <Table
@@ -525,28 +522,26 @@ export const PickDataView = ({
             </TableBody>
           }
         >
-          <MuiThemeProvider theme={theme}>
-            <PickTableBody
-              pickState={state}
-              onDataReceive={onDataReceive}
-              resource={resource}
-              fieldSpecs={fieldSpecs}
-              sortingConfig={sortingConfig}
-              setSortingState={setSortingState}
-              RenderColumnCell={RenderColumnCell}
-              RenderRow={RenderRow}
-              RenderRowCell={RenderRowCell}
-              onRowClick={onRowClick}
-              fetch={fetch}
-              isTabletWidth={isTabletWidth}
-              columnsMap={columnsMap}
-              columnsNames={columnsNames}
-              setTableFullHeight={setTableFullHeight}
-              showAs={showAs}
-              selected={selected}
-              onSelected={onSelected}
-            />
-          </MuiThemeProvider>
+          <PickTableBody
+            pickState={state}
+            onDataReceive={onDataReceive}
+            resource={resource}
+            fieldSpecs={fieldSpecs}
+            sortingConfig={sortingConfig}
+            setSortingState={setSortingState}
+            RenderColumnCell={RenderColumnCell}
+            RenderRow={RenderRow}
+            RenderRowCell={RenderRowCell}
+            onRowClick={onRowClick}
+            fetch={fetch}
+            isTabletWidth={isTabletWidth}
+            columnsMap={columnsMap}
+            columnsNames={columnsNames}
+            setTableFullHeight={setTableFullHeight}
+            showAs={showAs}
+            selected={selected}
+            onSelected={onSelected}
+          />
         </React.Suspense>
       </Table>
     </div>

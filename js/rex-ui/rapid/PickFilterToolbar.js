@@ -16,7 +16,6 @@ import { type VariableDefinitionNode } from "graphql/language/ast";
 import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
 
 import * as Field from "./Field.js";
-import { MuiThemeProvider } from "@material-ui/core";
 
 import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
 import { DEFAULT_THEME } from "./themes";
@@ -285,11 +284,5 @@ function BooleanFilter({
 }
 
 export const PickFilterToolbar = (props: Props) => {
-  const theme = useTheme();
-
-  return (
-    <MuiThemeProvider theme={theme}>
-      <PickFilterToolbarBase {...props} />
-    </MuiThemeProvider>
-  );
+  return <PickFilterToolbarBase {...props} />;
 };

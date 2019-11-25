@@ -27,7 +27,6 @@ import {
   ThemeProvider,
   type Theme,
 } from "@material-ui/styles";
-import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -349,8 +348,6 @@ export const PickRenderer = ({
     topPartClassNames.push(classes.topPartWrapperMobile);
   }
 
-  let theme = useTheme();
-
   return (
     <Paper className={classes.root}>
       {/* npm -> "classnames" would be handy here */}
@@ -360,9 +357,7 @@ export const PickRenderer = ({
           description={description || fieldDescription}
           bottomToolbar={
             RenderToolbar != null ? (
-              <MuiThemeProvider theme={theme}>
-                <RenderToolbar selected={selected} onSelected={onSelected} />
-              </MuiThemeProvider>
+              <RenderToolbar selected={selected} onSelected={onSelected} />
             ) : null
           }
           rightToolbar={

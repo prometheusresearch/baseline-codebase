@@ -3,7 +3,7 @@
 import * as React from "react";
 import classNames from "classnames";
 import * as mui from "@material-ui/core";
-import { ThemeProvider } from "@material-ui/styles";
+import { ThemeProvider, useTheme } from "@material-ui/styles";
 import MenuIcon from "@material-ui/icons/Menu";
 import ClearIcon from "@material-ui/icons/Clear";
 import { DARK_THEME, DEFAULT_THEME } from "rex-ui/rapid/themes";
@@ -48,20 +48,78 @@ type AppChromeProps = {|
   children: React.Node,
 |};
 
+type AppChromeContentProps = {|
+  ...AppChromeProps,
+  appTheme: "default" | "custom",
+  setAppTheme: (newTheme: "default" | "custom") => void,
+|};
+
+function AppChromeContent({
+  title,
+  children,
+  router,
+  menu,
+  appTheme,
+  setAppTheme,
+}: AppChromeContentProps) {
+  let [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  let toggleDrawerOpen = () => {
+    setDrawerOpen(open => !open);
+  };
+  let layout = Layout.useLayoutMode();
+  let classes = useStyles();
+  let theme = useTheme();
+
+  return (
+    <mui.MuiThemeProvider theme={theme}>
+      <mui.AppBar
+        position="fixed"
+        className={classNames(classes.appBar, {
+          [classes.shift]: layout !== "phone" && drawerOpen,
+        })}
+      >
+        <mui.Toolbar>
+          {!drawerOpen && (
+            <mui.IconButton
+              aria-label="Open drawer"
+              onClick={toggleDrawerOpen}
+              className={classNames(classes.menuButton)}
+            >
+              <MenuIcon color="primary" />
+            </mui.IconButton>
+          )}
+          <mui.Typography variant="h6" color="primary" noWrap>
+            {title}
+          </mui.Typography>
+        </mui.Toolbar>
+      </mui.AppBar>
+      <AppDrawer
+        open={drawerOpen}
+        onClose={toggleDrawerOpen}
+        menu={menu}
+        router={router}
+        theme={appTheme}
+        onTheme={setAppTheme}
+      />
+      <main
+        className={classNames(classes.content, {
+          [classes.shift]: layout !== "phone" && drawerOpen,
+        })}
+      >
+        {children}
+      </main>
+    </mui.MuiThemeProvider>
+  );
+}
+
 export default function AppChrome({
   title,
   children,
   router,
   menu,
 }: AppChromeProps) {
-  let [drawerOpen, setDrawerOpen] = React.useState(false);
   let [appTheme, setAppTheme] = React.useState<"default" | "custom">("default");
-  let toggleDrawerOpen = () => {
-    setDrawerOpen(open => !open);
-  };
-  let layout = Layout.useLayoutMode();
-  let classes = useStyles();
-
   let theme = React.useMemo(() => {
     switch (appTheme) {
       case "custom": {
@@ -76,44 +134,15 @@ export default function AppChrome({
 
   return (
     <ThemeProvider theme={theme}>
-      <mui.MuiThemeProvider theme={theme}>
-        <mui.AppBar
-          position="fixed"
-          className={classNames(classes.appBar, {
-            [classes.shift]: layout !== "phone" && drawerOpen,
-          })}
-        >
-          <mui.Toolbar>
-            {!drawerOpen && (
-              <mui.IconButton
-                aria-label="Open drawer"
-                onClick={toggleDrawerOpen}
-                className={classNames(classes.menuButton)}
-              >
-                <MenuIcon color="primary" />
-              </mui.IconButton>
-            )}
-            <mui.Typography variant="h6" color="primary" noWrap>
-              {title}
-            </mui.Typography>
-          </mui.Toolbar>
-        </mui.AppBar>
-        <AppDrawer
-          open={drawerOpen}
-          onClose={toggleDrawerOpen}
-          menu={menu}
-          router={router}
-          theme={appTheme}
-          onTheme={setAppTheme}
-        />
-        <main
-          className={classNames(classes.content, {
-            [classes.shift]: layout !== "phone" && drawerOpen,
-          })}
-        >
-          {children}
-        </main>
-      </mui.MuiThemeProvider>
+      <AppChromeContent
+        title={title}
+        router={router}
+        menu={menu}
+        appTheme={appTheme}
+        setAppTheme={setAppTheme}
+      >
+        {children}
+      </AppChromeContent>
     </ThemeProvider>
   );
 }

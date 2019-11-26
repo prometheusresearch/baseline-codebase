@@ -14,7 +14,7 @@ import {
 import * as Field from "./Field";
 import { ConfigError } from "./ErrorBoundary";
 
-const buildSortableFieldObjects = ({
+export const buildSortableFieldObjects = ({
   inputFields,
   introspectionTypesMap,
   fieldSpecs,

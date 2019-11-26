@@ -99,7 +99,7 @@ export function introspect<T: { [name: string]: Field.FieldConfig }>({
   };
 }
 
-const buildQueryAST = (
+export const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
   fieldSpecsRequested: ?{ [name: string]: Field.FieldSpec },

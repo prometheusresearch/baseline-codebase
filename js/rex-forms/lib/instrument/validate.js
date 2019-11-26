@@ -125,8 +125,12 @@ export default class Validate {
   };
 
   date = (value: string, node: JSONSchema) => {
-    const regex = node.dateRegex ? new RegExp(node.dateRegex) : DATE_RE;
-    const format = node.dateFormat || ISO_DATE_FORMAT;
+    let regex =
+      node.fieldConfig != null
+        ? new RegExp(node.fieldConfig.dateRegex)
+        : DATE_RE;
+    let format =
+      node.fieldConfig != null ? node.fieldConfig.dateFormat : ISO_DATE_FORMAT;
 
     if (!regex.exec(value)) {
       return this.i18n.gettext(`This must be entered in the form: ${format}`);
@@ -150,10 +154,12 @@ export default class Validate {
   };
 
   dateTime = (value: string, node: JSONSchema) => {
-    const regex = node.dateTimeRegex
-      ? new RegExp(node.dateTimeRegex)
-      : DATE_TIME_RE;
-    const dateFormat = node.dateFormat || ISO_DATE_FORMAT;
+    let regex =
+      node.fieldConfig != null
+        ? new RegExp(node.fieldConfig.dateTimeRegex)
+        : DATE_TIME_RE;
+    let dateFormat =
+      node.fieldConfig != null ? node.fieldConfig.dateFormat : ISO_DATE_FORMAT;
 
     if (!regex.exec(value)) {
       return this.i18n.gettext(

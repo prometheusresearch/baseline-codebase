@@ -5,12 +5,18 @@
 import * as React from "react";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 
+import * as types from "../types.js";
 import DiscrepancyTitle from "./DiscrepancyTitle";
 import DiscrepancyChoices from "./DiscrepancyChoices";
 import PositionDescription from "./PositionDescription";
 import { isCompleteSimple } from "./Discrepancy";
 
-export default class SimpleDiscrepancy extends React.Component {
+type SimpleDiscrepancyProps = {|
+  discrepancy: types.Discrepancy,
+  formValue: types.FormValue,
+|};
+
+export default class SimpleDiscrepancy extends React.Component<SimpleDiscrepancyProps> {
   render() {
     let { formValue, discrepancy, entries } = this.props;
     let { schema } = formValue;

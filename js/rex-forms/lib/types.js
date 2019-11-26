@@ -4,6 +4,8 @@
  */
 
 import type { REXLExpression } from "rex-expression";
+import type { keypath, error, select } from "react-forms";
+import type { FieldConfig } from "./form/FormFormatConfig.js";
 
 export type KeyPath = Array<string | number>;
 
@@ -12,18 +14,13 @@ export type JSONSchemaExtension = {|
     type: RIOSExtendedType,
     required?: boolean,
     requiredColumns?: Array<string>,
+    field?: RIOSField,
   },
   format?: any,
   onUpdate?: any,
   form?: any,
   event?: any,
-  dateRegex?: RegExp,
-  dateFormat?: string,
-  dateInputMask?: string,
-  dateTimeRegex?: RegExp,
-  dateTimeRegexBase?: RegExp,
-  dateTimeFormatBase?: string,
-  dateTimeInputMaskBase?: string,
+  fieldConfig?: ?FieldConfig,
 |};
 
 export type JSONObjectSchema = {|
@@ -290,3 +287,37 @@ export type RIOSValue =
 export type RIOSValueMapping = {
   [rowId: string]: RIOSValueCollection,
 };
+
+export type Discrepancy = {
+  [entryId: string]: RIOSValue,
+};
+
+export type DiscrepancyEntry = {|
+  uid: string,
+  modified_by: string,
+|};
+
+export type DiscrepancySet = {
+  [fieldId: string]: Discrepancy,
+};
+
+export type FormValue = {|
+  parent: FormValue,
+  root: FormValue,
+
+  keyPath: keypath,
+  value: mixed,
+  schema: JSONSchema,
+
+  errorList: error[],
+  completeErrorList: error[],
+
+  removeError: (error, suppressUpdate?: boolean) => FormValue,
+  addError: (error, suppressUpdate?: boolean) => FormValue,
+
+  params: { forceShowErrors: boolean, context?: {} },
+  updateParams: (newParams: mixed, suppressUpdate?: boolean) => FormValue,
+
+  select: (select: select) => FormValue,
+  update: (newValue: mixed, suppressUpdate?: boolean) => void,
+|};

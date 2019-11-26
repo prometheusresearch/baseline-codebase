@@ -4,7 +4,6 @@
  */
 
 import * as React from "react";
-import type { Value as FormValue } from "react-forms";
 import invariant from "invariant";
 
 import * as types from "../types";
@@ -29,7 +28,7 @@ import Moment from "moment";
 /** Props accepted by widet component. */
 export type WidgetProps = {|
   /** Form value. */
-  formValue: FormValue,
+  formValue: types.FormValue,
 
   /** RIOS form/instrument for the current question.
    * TODO: Properly type `instrument` in lib/instrument/schema.js
@@ -59,7 +58,7 @@ export type WidgetInputProps = {|
   variant: {| error: boolean |},
   onBlur: () => void,
   instrument: any,
-  formValue: FormValue,
+  formValue: types.FormValue,
   useLocaleFormat?: boolean,
 |};
 

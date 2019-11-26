@@ -1,0 +1,24 @@
+id: urn:simple
+version: '1.0'
+title: Localized Fields (with useLocaleFormat)
+record:
+  - id: date
+    type: date
+  - id: datetime
+    type: dateTime
+
+  - id: date_inside_matrix
+    type:
+      base: matrix
+      rows:
+        - id: row1
+      columns:
+        - id: col1
+          type: date
+
+  - id: date_inside_record_list
+    type:
+      base: recordList
+      record:
+        - id: item1
+          type: date

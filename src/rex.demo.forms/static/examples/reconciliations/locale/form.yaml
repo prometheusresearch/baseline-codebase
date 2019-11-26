@@ -1,0 +1,57 @@
+instrument:
+  id: urn:simple
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: date
+          text:
+            en: Date
+          widget:
+            type: datePicker
+            options:
+              useLocaleFormat: true
+      - type: question
+        options:
+          fieldId: datetime
+          text:
+            en: Datetime
+          widget:
+            type: dateTimePicker
+            options:
+              useLocaleFormat: true
+
+      - type: question
+        options:
+          fieldId: date_inside_matrix
+          text:
+            en: Inside Matrix (useLocaleFormat)
+          rows:
+            - id: row1
+              text:
+                en: First Row
+          questions:
+            - fieldId: col1
+              text:
+                en: First Column
+              widget:
+                type: datePicker
+                options:
+                  useLocaleFormat: true
+
+      - type: question
+        options:
+          fieldId: date_inside_record_list
+          text:
+            en: Inside RecordList (useLocaleFormat)
+          questions:
+            - fieldId: item1
+              text:
+                en: First Subfield
+              widget:
+                type: datePicker
+                options:
+                  useLocaleFormat: true

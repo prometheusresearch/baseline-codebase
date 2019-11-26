@@ -2,10 +2,13 @@
  * @flow
  */
 
+import Moment from "moment";
 import Validate from "../instrument/validate";
 
 import type {
   RIOSForm,
+  RIOSField,
+  RIOSValue,
   RIOSQuestion,
   RIOSQuestionElement,
   RIOSWidgetConfig,
@@ -133,4 +136,62 @@ export function makeFieldConfig(locale: string): FieldConfig {
     dateTimeFormatBase,
     dateTimeInputMaskBase,
   };
+}
+
+export function formatValue(
+  field: RIOSField,
+  format: ?FieldConfig,
+  value: ?RIOSValue,
+): ?RIOSValue {
+  if (format == null) {
+    return value;
+  }
+  if (value == null) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    if (field.type === "date") {
+      let date = Moment(value, DEFAULT_DATE_FORMAT, true);
+      if (date.isValid()) {
+        return date.format(format.dateFormat);
+      }
+    } else if (field.type === "dateTime") {
+      let date = Moment(value, DEFAULT_DATETIME_FORMAT, true);
+      if (date.isValid()) {
+        return date.format(format.dateTimeFormat);
+      }
+    }
+  }
+
+  return value;
+}
+
+export function parseValue(
+  field: RIOSField,
+  format: ?FieldConfig,
+  value: ?RIOSValue,
+): ?RIOSValue {
+  if (format == null) {
+    return value;
+  }
+  if (value == null) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    if (field.type === "date") {
+      let date = Moment(value, format.dateFormat, true);
+      if (date.isValid()) {
+        return date.format(DEFAULT_DATE_FORMAT);
+      }
+    } else if (field.type === "dateTime") {
+      let date = Moment(value, format.dateTimeFormat, true);
+      if (date.isValid()) {
+        return date.format(DEFAULT_DATETIME_FORMAT);
+      }
+    }
+  }
+
+  return value;
 }

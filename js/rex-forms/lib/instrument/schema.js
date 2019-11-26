@@ -167,17 +167,7 @@ export function generateValueSchema(
   ctx: Context,
 ): JSONSchema {
   let { formatConfig } = ctx;
-  let format = FormFormatConfig.findFieldConfig(formatConfig, eventKey) || {};
-
-  let {
-    dateRegex,
-    dateFormat,
-    dateInputMask,
-    dateTimeRegex,
-    dateTimeRegexBase,
-    dateTimeFormatBase,
-    dateTimeInputMaskBase,
-  } = format;
+  let fieldConfig = FormFormatConfig.findFieldConfig(formatConfig, eventKey)
 
   switch (type.base) {
     case "float":
@@ -208,9 +198,7 @@ export function generateValueSchema(
         type: "string",
         format: ctx.validate.date,
         instrument: { type },
-        dateFormat,
-        dateRegex,
-        dateInputMask,
+        fieldConfig,
       };
     case "time":
       return {
@@ -223,13 +211,7 @@ export function generateValueSchema(
         type: "string",
         format: ctx.validate.dateTime,
         instrument: { type },
-        dateFormat,
-        dateRegex,
-        dateInputMask,
-        dateTimeRegex,
-        dateTimeRegexBase,
-        dateTimeFormatBase,
-        dateTimeInputMaskBase,
+        fieldConfig,
       };
     case "recordList":
       invariant(type.record != null, "Invalid recordList type");
@@ -392,4 +374,16 @@ export function resolveType(
       base: resolvedType.base,
     };
   }
+}
+
+export function instrumentInfo(schema: JSONSchema) {
+  let instrument = schema.instrument;
+  invariant(instrument != null, `RIOSInstrument info is not available`);
+  return instrument;
+}
+
+export function field(schema: JSONSchema): RIOSField {
+  let {field} = instrumentInfo(schema);
+  invariant(field != null, `RIOSField is not available`);
+  return field;
 }

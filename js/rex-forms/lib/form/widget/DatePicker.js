@@ -50,7 +50,11 @@ const InputDate = (props: WidgetInputProps) => {
   const [showModal, setShowModal] = React.useState(false);
 
   const { instrument, formValue, value, ...rest } = props;
-  const dateFormat = schema.dateFormat || DEFAULT_DATE_FORMAT;
+
+  const dateFormat =
+    schema.fieldConfig != null
+      ? schema.fieldConfig.dateFormat
+      : DEFAULT_DATE_FORMAT;
 
   const { minDate, maxDate } = getDatesFromRange(
     instrument.type && instrument.type.range,
@@ -74,13 +78,8 @@ const InputDate = (props: WidgetInputProps) => {
   };
 
   const onChange = value => {
-    let momentFormatted = Moment(value, dateFormat);
-    let viewDate = value != null ? momentFormatted : Moment();
-
-    if (!viewDate.isValid()) {
-      viewDate = Moment();
-    }
-
+    let date = Moment(value, dateFormat);
+    let viewDate = date.isValid() ? date : Moment();
     setViewDate(viewDate);
     props.onChange(value);
   };
@@ -155,17 +154,15 @@ function DatePicker(props: WidgetProps) {
           width: "small",
         },
   };
-  const { schema } = updatedProps.formValue;
+  let { schema } = updatedProps.formValue;
 
   let renderInput = (props: WidgetInputProps) => {
-    const { schema } = props.formValue;
-    return (
-      <ReactForms.Input
-        {...props}
-        Component={InputDate}
-        mask={schema.dateInputMask || DEFAULT_INPUT_MASK}
-      />
-    );
+    let { schema } = props.formValue;
+    let mask =
+      schema.fieldConfig != null
+        ? schema.fieldConfig.dateInputMask
+        : DEFAULT_INPUT_MASK;
+    return <ReactForms.Input {...props} Component={InputDate} mask={mask} />;
   };
 
   return <InputText {...updatedProps} renderInput={renderInput} />;

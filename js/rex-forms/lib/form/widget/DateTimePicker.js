@@ -8,6 +8,7 @@ import * as ReactForms from "react-forms/reactive";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import Moment from "moment";
 
+import * as types from "../../types.js";
 import Modal from "@material-ui/core/Modal";
 import Paper from "@material-ui/core/Paper";
 import DateRange from "@material-ui/icons/DateRange";
@@ -48,15 +49,18 @@ const InputDateTime = (
 ) => {
   const { instrument, formValue, value, ...rest } = props;
   const { schema } = formValue;
-  const {
-    dateRegex,
-    dateFormat,
-    dateInputMask,
-    dateTimeRegex,
-    dateTimeRegexBase,
-    dateTimeFormatBase,
-    dateTimeInputMaskBase,
-  } = schema;
+  const dateTimeRegexBase =
+    schema.fieldConfig != null
+      ? schema.fieldConfig.dateTimeRegexBase
+      : DATE_REGEX_NO_SECONDS;
+  const dateTimeFormatBase =
+    schema.fieldConfig != null
+      ? schema.fieldConfig.dateTimeFormatBase
+      : DATE_FORMAT_BASE;
+  const dateTimeInputMaskBase =
+    schema.fieldConfig != null
+      ? schema.fieldConfig.dateTimeInputMaskBase
+      : "9999-99-99T99:99";
 
   const [viewDate, setViewDate] = React.useState(Moment());
   const [showModal, setShowModal] = React.useState(false);
@@ -64,9 +68,7 @@ const InputDateTime = (
   const [timePickerMode, setTimePickerMode] = React.useState("time");
 
   const dateFormatBase = dateTimeFormatBase || DATE_FORMAT_BASE;
-  const mask = dateTimeInputMaskBase
-    ? `${dateTimeInputMaskBase}:99`
-    : "9999-99-99T99:99:99";
+  const mask = `${dateTimeInputMaskBase}:99`;
   let selectedDate =
     props.value != null
       ? Moment(props.value, `${dateFormatBase}:ss`)

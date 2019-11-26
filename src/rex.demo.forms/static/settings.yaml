@@ -29,3 +29,13 @@ i18n_supported_locales:
   - es
   - ar
 
+  - ak_GH  # Akan (Ghana)
+  - en_GH  # English (Ghana)
+
+  - en_LR  # English (Liberia)
+
+  - yo_NG  # Yoruba (Nigeria)
+  - en_NG  # English (Nigeria)
+
+  - en_TZ  # English (Tanzania)
+  - sw_TZ  # Swahili (Tanzania)

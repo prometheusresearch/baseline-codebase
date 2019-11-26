@@ -1,7 +1,9 @@
 /**
  * @copyright 2014-present, Prometheus Research, LLC
+ * @flow
  */
 
+import invariant from "invariant";
 import mapValues from "lodash/mapValues";
 import map from "lodash/map";
 import keys from "lodash/keys";
@@ -10,23 +12,36 @@ import uniq from "lodash/uniq";
 import { resolveType } from "../instrument/schema";
 import Validate from "../instrument/validate";
 import { isEmptyValue } from "../instrument/validate";
+import * as FormFormatConfig from "../form/FormFormatConfig.js";
+import * as types from "../types.js";
 
-export function fromDiscrepancies(discrepancies = {}, instrument, form, env) {
-  env = {
-    ...env,
-    validate: new Validate({ i18n: env.i18n }),
+export function fromDiscrepancies(
+  discrepancies: ?types.DiscrepancySet,
+  instrument: types.RIOSInstrument,
+  form: types.RIOSForm,
+  envConfig: {| i18n: any, formatConfig: FormFormatConfig.Config |},
+) {
+  if (discrepancies == null) {
+    discrepancies = {};
+  }
+  let env = {
+    i18n: envConfig.i18n,
+    formatConfig: envConfig.formatConfig,
+    validate: new Validate({ i18n: envConfig.i18n }),
     types: instrument.types,
   };
   let required = [];
   let properties = mapValues(discrepancies, (discrepancy, fieldId) => {
     let field = findField(instrument, fieldId);
+    invariant(field != null, `Field ${fieldId} does not exist in instrument`);
     let { question, position } = findPageQuestion(form, fieldId);
     let type = resolveType(field.type, env.types);
     if (field.required) {
       required.push(fieldId);
     }
+    let key = [fieldId];
     return {
-      ...generateValueSchema(type, question, discrepancy, env),
+      ...generateValueSchema(type, question, discrepancy, key, env),
       discrepancy,
       form: { question, position },
       instrument: { field, type },
@@ -40,7 +55,13 @@ export function fromDiscrepancies(discrepancies = {}, instrument, form, env) {
   return schema;
 }
 
-function generateValueSchema(type, question, discrepancy, env) {
+function generateValueSchema(
+  type,
+  question: types.RIOSQuestion,
+  discrepancy,
+  key: string[],
+  env,
+) {
   switch (type.base) {
     case "float":
       return {
@@ -65,12 +86,14 @@ function generateValueSchema(type, question, discrepancy, env) {
         type: "boolean",
         instrument: { type },
       };
-    case "date":
+    case "date": {
       return {
         type: "string",
         format: env.validate.date,
         instrument: { type },
+        fieldConfig: FormFormatConfig.findFieldConfig(env.formatConfig, key),
       };
+    }
     case "time":
       return {
         type: "string",
@@ -82,16 +105,25 @@ function generateValueSchema(type, question, discrepancy, env) {
         type: "string",
         format: env.validate.dateTime,
         instrument: { type },
+        fieldConfig: FormFormatConfig.findFieldConfig(env.formatConfig, key),
       };
-    case "recordList":
+    case "recordList": {
+      let record = type.record;
+      invariant(record != null, 'Missing "record" on recordList type');
+      let questions = question.questions;
+      invariant(
+        questions != null,
+        'Missing "questions" on question for recordList type',
+      );
       let items = [];
       let maxIndex = Math.max.apply(null, Object.keys(discrepancy).map(Number));
       for (let i = 0; i <= maxIndex; i++) {
         items.push(
-          generateRecordSchema(
-            type.record,
-            question,
+          generateRecordListSchema(
+            record,
+            questions,
             discrepancy[i] || {},
+            key,
             env,
           ),
         );
@@ -101,29 +133,59 @@ function generateValueSchema(type, question, discrepancy, env) {
         items,
         instrument: { type },
       };
-    case "enumeration":
+    }
+    case "enumeration": {
+      let enumerations = type.enumerations;
+      invariant(
+        enumerations != null,
+        'Missing "enumerations" on enumeration type',
+      );
       return {
-        enum: Object.keys(type.enumerations),
+        enum: Object.keys(enumerations),
         instrument: { type },
       };
-    case "enumerationSet":
+    }
+    case "enumerationSet": {
+      let enumerations = type.enumerations;
+      invariant(
+        enumerations != null,
+        'Missing "enumerations" on enumerationSet type',
+      );
       return {
         type: "array",
         format: env.validate.enumerationSet,
         instrument: { type },
-        items: { enum: Object.keys(type.enumerations) },
+        items: { enum: Object.keys(enumerations) },
       };
+    }
     case "matrix": {
+      let rows = type.rows;
+      invariant(rows != null, 'Missing "rows" on matrix type');
+      let columns = type.columns;
+      invariant(columns != null, 'Missing "columns" on matrix type');
+      let questions = question.questions;
+      invariant(
+        questions != null,
+        'Missing "questions" on question for matrix type',
+      );
+      let questionRows = question.rows;
+      invariant(
+        questionRows != null,
+        'Missing "rows" on question for matrix type',
+      );
+
       let properties = {};
-      type.rows.forEach(row => {
+      rows.forEach(row => {
         if (!discrepancy[row.id]) {
           return;
         }
         properties[row.id] = generateMatrixRowSchema(
           row,
-          type.columns,
-          question,
+          columns,
+          questions,
+          questionRows,
           discrepancy[row.id],
+          key,
           env,
         );
       });
@@ -148,7 +210,7 @@ function recordValidator(needsValue, value, node) {
   return true;
 }
 
-function generateRecordSchema(record, question, discrepancy, env) {
+function generateRecordListSchema(record, questions, discrepancy, key, env) {
   let properties = {};
   let required = [];
   for (let i = 0; i < record.length; i++) {
@@ -156,14 +218,21 @@ function generateRecordSchema(record, question, discrepancy, env) {
     if (!discrepancy[field.id]) {
       continue;
     }
-    let recordQuestion = findQuestion(question, field.id);
+    let recordQuestion = findQuestion(questions, field.id);
     let type = resolveType(field.type, env.types);
     if (field.required) {
       required.push(field.id);
     }
+    let updatedKey = key.concat([field.id]);
     properties[field.id] = {
-      ...generateValueSchema(type, recordQuestion, discrepancy, env),
-      form: { question: recordQuestion.question },
+      ...generateValueSchema(
+        type,
+        recordQuestion,
+        discrepancy,
+        updatedKey,
+        env,
+      ),
+      form: { question: recordQuestion },
       instrument: { field, type },
     };
   }
@@ -181,7 +250,15 @@ function generateRecordSchema(record, question, discrepancy, env) {
   };
 }
 
-function generateMatrixRowSchema(row, columns, question, discrepancy, env) {
+function generateMatrixRowSchema(
+  row,
+  columns,
+  questions,
+  questionRows,
+  discrepancy,
+  key,
+  env,
+) {
   let node = {
     type: "object",
     properties: {},
@@ -194,8 +271,10 @@ function generateMatrixRowSchema(row, columns, question, discrepancy, env) {
     node.properties[column.id] = generateMatrixColumnSchema(
       column,
       row,
-      question,
+      questions,
+      questionRows,
       discrepancy[column.id],
+      key,
       env,
     );
     if (column.required) {
@@ -208,15 +287,24 @@ function generateMatrixRowSchema(row, columns, question, discrepancy, env) {
   return node;
 }
 
-function generateMatrixColumnSchema(column, row, question, discrepancy, env) {
-  let columnQuestion = findQuestion(question, column.id);
-  let rowQuestion = findRow(question, row.id);
+function generateMatrixColumnSchema(
+  column,
+  row,
+  questions,
+  questionRows,
+  discrepancy,
+  key,
+  env,
+) {
+  let columnQuestion = findQuestion(questions, column.id);
+  let rowQuestion = findRow(questionRows, row.id);
   let type = resolveType(column.type, env.types);
+  let updatedKey = key.concat([row.id, column.id]);
   return {
-    ...generateValueSchema(type, columnQuestion, discrepancy, env),
+    ...generateValueSchema(type, columnQuestion, discrepancy, updatedKey, env),
     instrument: { type, field: column, row },
     form: {
-      ...columnQuestion,
+      question: columnQuestion,
       row: rowQuestion,
     },
   };
@@ -231,7 +319,18 @@ function findField(instrument, fieldId) {
   return null;
 }
 
-function findPageQuestion(form, fieldId) {
+function findPageQuestion(
+  form,
+  fieldId,
+): {|
+  question: types.RIOSQuestion,
+  position: ?{|
+    id: string,
+    pageNumber: number,
+    elementNumber: number,
+    elementCount: number,
+  |},
+|} {
   for (let i = 0; i < form.pages.length; i++) {
     let page = form.pages[i];
     for (let j = 0; j < page.elements.length; j++) {
@@ -242,7 +341,7 @@ function findPageQuestion(form, fieldId) {
       if (element.options.fieldId !== fieldId) {
         continue;
       }
-      let question = element.options || {};
+      let question: types.RIOSQuestion = element.options || ({}: any);
       return {
         question,
         position: {
@@ -258,29 +357,33 @@ function findPageQuestion(form, fieldId) {
   return {
     question: {
       fieldId,
-      text: fieldId,
+      text: { en: fieldId },
     },
     position: null,
   };
 }
 
-function findQuestion(question, fieldId) {
-  for (let i = 0; i < question.questions.length; i++) {
-    let recordQuestion = question.questions[i];
+function findQuestion(
+  questions: types.RIOSQuestion[],
+  fieldId,
+): types.RIOSQuestion {
+  for (let i = 0; i < questions.length; i++) {
+    let recordQuestion = questions[i];
     if (recordQuestion.fieldId !== fieldId) {
       continue;
     }
-    return { question: recordQuestion };
+    return recordQuestion;
   }
 
   return {
-    question: { fieldId, text: fieldId },
+    fieldId,
+    text: { en: fieldId },
   };
 }
 
-function findRow(question, rowId) {
-  for (let i = 0; i < question.rows.length; i++) {
-    let row = question.rows[i];
+function findRow(rows: types.RIOSDescriptor[], rowId) {
+  for (let i = 0; i < rows.length; i++) {
+    let row = rows[i];
     if (row.id !== rowId) {
       continue;
     }

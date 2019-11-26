@@ -1,54 +1,62 @@
 /**
  * @copyright 2014-present, Prometheus Research, LLC
+ * @flow
  */
 
-import React from 'react';
-import * as PropTypes from 'prop-types';
-import {Reconciler} from 'rex-forms';
-import {Provider} from 'rex-i18n';
+import React from "react";
+import { Reconciler } from "rex-forms";
+import { Provider } from "rex-i18n";
+import type { Options } from "./toolbar.js";
+import JsonViewer from "../jsonviewer";
 
-export default class Workspace extends React.Component {
+type WorkspaceProps = {|
+  mountPoint: string,
+  apiUrls: Object,
+  i18nUrl: string,
+  recon: Object,
+  options: Options,
+|};
 
-  static propTypes = {
-    mountPoint: PropTypes.string.isRequired,
-    apiUrls: PropTypes.object.isRequired,
-    i18nUrl: PropTypes.string.isRequired,
-    recon: PropTypes.object.isRequired,
-    options: PropTypes.object
+export default function Workspace(props: WorkspaceProps) {
+  let [solution, setSolution] = React.useState(null);
+  let onComplete = reconState => {
+    console.log("complete", reconState);
+    setSolution(reconState.solution);
   };
 
-  static defaultProps = {
-    options: {}
+  let onChange = reconState => {
+    console.log("change", reconState);
+    setSolution(reconState.solution);
   };
 
-  onComplete(reconState) {
-    console.log('complete', reconState);
+  let Component: any = Reconciler;
+
+  if (props.recon.id === "custom_widget") {
+    Component = require("../CustomWidgetDemo").default;
   }
 
-  render() {
-    let Component = Reconciler;
-
-    if (this.props.recon.id === 'custom_widget') {
-      Component = require('../CustomWidgetDemo').default;
-    }
-
-    return (
-      <Provider
-        locale={this.props.options.locale}
-        baseUrl={this.props.i18nUrl}>
+  return (
+    <div style={{ display: "flex" }}>
+      <Provider locale={props.options.locale} baseUrl={props.i18nUrl}>
         <Component
           // eslint-disable-next-line
           Form={Reconciler}
-          instrument={this.props.recon.instrument}
+          instrument={props.recon.instrument}
           // eslint-disable-next-line
-          form={this.props.recon.form}
-          parameters={this.props.recon.parameters}
-          discrepancies={this.props.recon.discrepancies}
-          entries={this.props.recon.entries}
-          onComplete={this.onComplete}
-          apiUrls={this.props.apiUrls}
-          />
+          form={props.recon.form}
+          parameters={props.recon.parameters}
+          discrepancies={props.recon.discrepancies}
+          entries={props.recon.entries}
+          onComplete={onComplete}
+          onChange={onChange}
+          apiUrls={props.apiUrls}
+        />
       </Provider>
-    );
-  }
+      {props.options.showSolution && (
+        <div style={{ fontSize: "80%", minWidth: 200, padding: 16 }}>
+          <JsonViewer object={solution} />
+        </div>
+      )}
+    </div>
+  );
 }

@@ -58,6 +58,7 @@ TEST_PY = ${SRC_PY}
 # This variable contains a list of Python packages that will be installed in
 # the development environment.
 TOOL_PY = \
+	pip==19.3.1 \
 	wheel==0.33.1 \
 	setuptools==41.6.0 \
 	pbbt==0.1.6 \

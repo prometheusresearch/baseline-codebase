@@ -2,6 +2,7 @@
 # Lists of source packages.
 include Makefile.*
 
+SHELL = /bin/bash
 
 # Development mode (local, docker, or kube).
 DEVMODE = ${shell cat .devmode 2>/dev/null}
@@ -15,6 +16,8 @@ REGISTRY ?=
 PRJ_NAME ?= ${shell hg identify -b | cut -d / -f 1}
 PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg identify -i | tr + -}}
 
+# Name of the lock (requirements) file for Python packages
+PY_LOCK = src/requirements.txt
 
 # Display available targets.
 .DEFAULT_GOAL = help
@@ -291,13 +294,38 @@ build-docs: ./bin/activate
 # Compile source packages in development mode.
 develop: ./bin/activate	#: recompile source packages
 	${MAKE} build-js
-	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
-	set -ex; \
-	for src in ${SRC_PY}; do \
-		./bin/pip --isolated install --editable $$src; \
-	done
-	${MAKE} build-generic
+	${MAKE} build-py
 	${MAKE} build-docs
+	${MAKE} build-generic
+	${MAKE} build-data
+
+
+build-py:
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
+	@set -e; \
+	if [ -e "${PY_LOCK}" ]; \
+		then ./bin/pip --isolated install -r "${PY_LOCK}"; \
+	else \
+		echo "${RED}${PY_LOCK} will be created, commit it to the repositiry.${NORM}"; \
+		for src in ${SRC_PY}; do \
+			./bin/pip --isolated install --editable $$src; \
+		done; \
+		${MAKE} lock-py; \
+	fi
+
+
+lock-py:
+	@echo "${BLUE}Locking python dependencies (${PY_LOCK})...${NORM}"
+	@rm -f ${PY_LOCK}
+	@echo "# Automaticaly generated with 'make lock-py' command." >> ${PY_LOCK}
+	@echo "# Global dependencies:" >> ${PY_LOCK}
+	@./bin/pip --isolated freeze --exclude-editable >> ${PY_LOCK}
+	@echo "# Local dependencies:" >> ${PY_LOCK}
+	@for src in ${SRC_PY}; do echo "-e $$src" >> ${PY_LOCK}; done
+.PHONY: lock-py
+
+
+build-data:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Linking data files...${NORM}"
 	set -ex; \
 	for src in ${SRC_DATA}; do \
@@ -314,10 +342,11 @@ develop: ./bin/activate	#: recompile source packages
 install: ./bin/activate
 	${MAKE} build-js
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
-	set -ex; \
-	for src in ${SRC_PY}; do \
-		./bin/pip --isolated install $$src; \
-	done
+	set -e; \
+	if [ ! -e "${PY_LOCK}" ]; then
+		echo "${RED}Missing ${PY_LOCK}, fix by running 'make build-py'${NORM}" \
+	fi; \
+	./bin/pip --isolated install -r <(sed -E 's/^-e[[:space:]]+//' ${PY_LOCK})
 	${MAKE} build-generic
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Copying data files...${NORM}"
 	set -ex; \

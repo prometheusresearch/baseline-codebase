@@ -14,15 +14,21 @@ import {
 import * as Field from "./Field";
 import { ConfigError } from "./ErrorBoundary";
 
+export type SortableFieldObjectsInput = {|
+  inputFields: ?$ReadOnlyArray<IntrospectionInputValue>,
+  introspectionTypesMap: Map<string, IntrospectionType>,
+  fieldSpecs: { [name: string]: Field.FieldSpec },
+|};
+
 export const buildSortableFieldObjects = ({
   inputFields,
   introspectionTypesMap,
   fieldSpecs,
-}: {|
-  inputFields: $ReadOnlyArray<IntrospectionInputValue>,
-  introspectionTypesMap: Map<string, IntrospectionType>,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
-|}) => {
+}: SortableFieldObjectsInput) => {
+  if (inputFields == null) {
+    return null;
+  }
+
   const sortFieldsField = inputFields.find(
     inputField =>
       inputField.name === "field" && inputField.type.kind === "ENUM",
@@ -60,23 +66,17 @@ export const buildSortableFieldObjects = ({
   return sortableFieldObjects.length > 0 ? sortableFieldObjects : null;
 };
 
-export const buildSortingConfig = ({
-  variableDefinitions,
-  introspectionTypesMap,
-  fieldSpecs,
-  filterSpecs,
-}: {|
-  variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
+export const getInputFieldsFromVariable = (
+  variableDefinitions: ?$ReadOnlyArray<VariableDefinitionNode>,
   introspectionTypesMap: Map<string, IntrospectionType>,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
-  filterSpecs: ?Field.FilterSpecMap,
-|}): ?Array<{| field: string, desc: boolean |}> => {
+  variableName: string,
+) => {
   if (variableDefinitions == null) {
     return null;
   }
 
   const variableDefinition = variableDefinitions.find(def => {
-    return def.variable.name.value === Field.SORTING_VAR_NAME;
+    return def.variable.name.value === variableName;
   });
 
   if (variableDefinition == null) {
@@ -102,7 +102,34 @@ export const buildSortingConfig = ({
   }
 
   const inputObjectType: IntrospectionInputObjectType = (variableType: any);
-  const { inputFields } = inputObjectType;
+
+  return inputObjectType.inputFields;
+};
+
+export const buildSortingConfig = ({
+  variableDefinitions,
+  introspectionTypesMap,
+  fieldSpecs,
+  filterSpecs,
+}: {|
+  variableDefinitions?: $ReadOnlyArray<VariableDefinitionNode>,
+  introspectionTypesMap: Map<string, IntrospectionType>,
+  fieldSpecs: { [name: string]: Field.FieldSpec },
+  filterSpecs: ?Field.FilterSpecMap,
+|}): ?Array<{| field: string, desc: boolean |}> => {
+  if (variableDefinitions == null) {
+    return null;
+  }
+
+  const inputFields = getInputFieldsFromVariable(
+    variableDefinitions,
+    introspectionTypesMap,
+    Field.SORTING_VAR_NAME,
+  );
+
+  if (inputFields == null) {
+    return null;
+  }
 
   const hasValidFields =
     inputFields.find(f => f.name === "field") &&

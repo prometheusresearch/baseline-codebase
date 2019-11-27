@@ -44,7 +44,7 @@ export type Introspection<T: { [name: string]: Field.FieldSpec }> = {|
 export type IntrospectionConfig<T: { [name: string]: Field.FieldConfig }> = {|
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fields: ?T,
+  fields?: ?T,
   filters?: ?Array<Field.FilterConfig>,
 |};
 
@@ -162,7 +162,7 @@ export const buildQueryAST = (
 /**
  * Field.QueryFieldSpec -> void | ast.SelectionSetNode recursively
  */
-const makeSelectionSetFromQueryFieldSpec = (
+export const makeSelectionSetFromQueryFieldSpec = (
   queryFieldSpec: Field.QueryFieldSpec,
 ): void | ast.SelectionSetNode => {
   if (!queryFieldSpec) return undefined;
@@ -187,7 +187,7 @@ const makeSelectionSetFromQueryFieldSpec = (
 /**
  * Builds SelectionSet using makeSelectionSetFromQueryFieldSpec recursion
  */
-const makeSelectionSetFromSpec = (
+export const makeSelectionSetFromSpec = (
   fieldSpec: Field.FieldSpec,
 ): void | ast.SelectionSetNode => {
   if (!fieldSpec) return undefined;
@@ -209,7 +209,7 @@ const makeSelectionSetFromSpec = (
   };
 };
 
-const buildSelectionSet = (
+export const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
   path: string[],
@@ -457,7 +457,7 @@ function isFieldNodeListLike(field) {
   );
 }
 
-const resolveField = (
+export const resolveField = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
   fieldName: string,

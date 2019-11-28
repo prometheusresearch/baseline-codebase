@@ -2,13 +2,7 @@
  * @flow
  */
 
-import {
-  introspect,
-  buildQueryAST,
-  makeSelectionSetFromSpec,
-  buildSelectionSet,
-  resolveField,
-} from "../Introspection";
+import { introspect, makeSelectionSetFromSpec } from "../Introspection";
 import * as QueryPath from "../QueryPath.js";
 import { TEST_SCHEMA } from "./test_schema";
 
@@ -47,60 +41,6 @@ const queryNestedFields = `query ConstructedQuery($system_admin: Boolean, $expir
   }
 }
 `;
-
-describe("Testing buildSelectionSet", function() {
-  it("Should throw", function() {
-    let { introspectionTypesMap } = buildQueryAST(
-      TEST_SCHEMA,
-      QueryPath.make(["user"]),
-    );
-
-    let expectation = () =>
-      buildSelectionSet(
-        introspectionTypesMap,
-        (introspectionTypesMap.get("user_connection"): any),
-        ["exmpl"],
-      );
-
-    expect(expectation).toThrow('No field "user_connection.exmpl" found');
-  });
-});
-
-describe("Testing resolveField", function() {
-  it("should throw", function() {
-    let { introspectionTypesMap } = buildQueryAST(
-      TEST_SCHEMA,
-      QueryPath.make(["user"]),
-    );
-
-    let expectation = () =>
-      resolveField(
-        introspectionTypesMap,
-        (introspectionTypesMap.get("user_connection"): any),
-        "paginatez",
-      );
-
-    expect(expectation).toThrowError(
-      'No field "user_connection.paginatez" found',
-    );
-  });
-
-  it("should throw", function() {
-    let { introspectionTypesMap } = buildQueryAST(
-      TEST_SCHEMA,
-      QueryPath.make(["user"]),
-    );
-
-    let expectation = () =>
-      resolveField(
-        introspectionTypesMap,
-        (introspectionTypesMap.get(TEST_SCHEMA.queryType.name): any),
-        "userz",
-      );
-
-    expect(expectation).toThrowError('No field "Root.userz" found');
-  });
-});
 
 describe("Testing makeSelectionSetFromSpec", function() {
   it("should be equal to expected value", function() {
@@ -146,32 +86,6 @@ describe("Testing makeSelectionSetFromSpec", function() {
         },
       ],
     });
-  });
-});
-
-describe("Testing buildQueryAST", function() {
-  it("Expecting to throw", function() {
-    let nullRootTypes = TEST_SCHEMA.types.reduce((acc, type) => {
-      return type.name === TEST_SCHEMA.queryType.name ? acc : [...acc, type];
-    }, []);
-
-    expect(() => {
-      buildQueryAST(
-        { ...TEST_SCHEMA, types: nullRootTypes },
-        QueryPath.make(["user.paginated"]),
-      );
-    }).toThrowError("Expected ObjectType at the root");
-  });
-
-  it("Should be equal to expected value", function() {
-    let { fieldSpecsUpdated, columns } = buildQueryAST(
-      TEST_SCHEMA,
-      QueryPath.make(["user"]),
-      {},
-    );
-
-    expect(columns).toEqual([]);
-    expect(fieldSpecsUpdated).toEqual({});
   });
 });
 
@@ -250,5 +164,18 @@ describe("Testing introspect", function() {
         fields: {},
       }),
     ).toThrowError('No field "user_connection.paginated_" found');
+  });
+
+  it("Expecting to throw", function() {
+    let nullRootTypes = TEST_SCHEMA.types.reduce((acc, type) => {
+      return type.name === TEST_SCHEMA.queryType.name ? acc : [...acc, type];
+    }, []);
+
+    expect(() => {
+      introspect({
+        schema: { ...TEST_SCHEMA, types: nullRootTypes },
+        path: QueryPath.make(["user.paginated"]),
+      });
+    }).toThrowError("Expected ObjectType at the root");
   });
 });

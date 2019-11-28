@@ -32,6 +32,22 @@ const queryUser = `query ConstructedQuery($system_admin: Boolean, $expired: Bool
 }
 `;
 
+const queryNestedFields = `query ConstructedQuery($system_admin: Boolean, $expired: Boolean, $has_phone: Boolean, $search: String, $sort: sort_user_direction) {
+  user {
+    all(system_admin: $system_admin, expired: $expired, has_phone: $has_phone, search: $search, sort: $sort) {
+      remote_user
+      contact_info {
+        value
+      }
+      patients {
+        name
+      }
+      id
+    }
+  }
+}
+`;
+
 describe("Testing buildSelectionSet", function() {
   it("Should throw", function() {
     let { introspectionTypesMap } = buildQueryAST(
@@ -160,6 +176,38 @@ describe("Testing buildQueryAST", function() {
 });
 
 describe("Testing introspect", function() {
+  it("Should be equal to queryNestedFields reference value", function() {
+    let { query, fieldSpecs, description, filterSpecs } = introspect({
+      schema: TEST_SCHEMA,
+      path: QueryPath.make(["user", "all"]),
+      fields: {
+        contact_info: {
+          require: {
+            field: "contact_info",
+            require: [
+              {
+                field: "value",
+              },
+            ],
+          },
+        },
+        patients: {
+          require: {
+            field: "patients",
+            require: [
+              {
+                field: "name",
+              },
+            ],
+          },
+        },
+        remote_user: "remote_user",
+      },
+    });
+
+    expect(query).toEqual(queryNestedFields);
+  });
+
   it("Should be equal to queryUser reference value", function() {
     let { query, fieldSpecs, description, filterSpecs } = introspect({
       schema: TEST_SCHEMA,

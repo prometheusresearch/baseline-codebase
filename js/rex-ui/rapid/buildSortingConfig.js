@@ -36,7 +36,7 @@ export const buildSortableFieldObjects = ({
 
   if (sortFieldsField == null) {
     throw new ConfigError(
-      "Could not find 'field' input field in buildSortableFieldObjects",
+      "Could not find inputField.name === 'field' in buildSortableFieldObjects",
     );
   }
 

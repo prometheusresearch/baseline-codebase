@@ -95,4 +95,47 @@ describe("Testing buildSortableFieldObjects function", function() {
       },
     ]);
   });
+
+  it("Should not find inputField.name === 'field' in buildSortableFieldObjects", function() {
+    let fieldSpecs =
+      configureFields({
+        remote_user: {
+          require: { field: "remote_user" },
+        },
+        expires: "expires",
+        system_admin: {
+          require: { field: "system_admin" },
+        },
+      }) || {};
+
+    let { introspectionTypesMap, queryDefinition } = buildQueryAST(
+      TEST_SCHEMA,
+      QueryPath.make(["user", "paginated"]),
+      fieldSpecs,
+    );
+
+    let { variableDefinitions } = queryDefinition;
+
+    let inputFields = getInputFieldsFromVariable(
+      queryDefinition.variableDefinitions,
+      introspectionTypesMap,
+      Field.SORTING_VAR_NAME,
+    );
+
+    const inputFieldsWithNoEnumField = inputFields
+      ? inputFields.filter(input => input.name !== "field")
+      : [];
+
+    const sortableFieldObjectsInput: SortableFieldObjectsInput = {
+      fieldSpecs,
+      inputFields: inputFieldsWithNoEnumField,
+      introspectionTypesMap,
+    };
+
+    let expectation = () =>
+      buildSortableFieldObjects(sortableFieldObjectsInput);
+    expect(expectation).toThrowError(
+      "Could not find inputField.name === 'field' in buildSortableFieldObjects",
+    );
+  });
 });

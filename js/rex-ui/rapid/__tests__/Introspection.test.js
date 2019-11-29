@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { introspect, makeSelectionSetFromSpec } from "../Introspection";
+import { introspect } from "../Introspection";
 import * as QueryPath from "../QueryPath.js";
 import { TEST_SCHEMA } from "./test_schema";
 
@@ -31,7 +31,11 @@ const queryNestedFields = `query ConstructedQuery($system_admin: Boolean, $expir
     all(system_admin: $system_admin, expired: $expired, has_phone: $has_phone, search: $search, sort: $sort) {
       remote_user
       contact_info {
-        value
+        user {
+          contact_info {
+            user
+          }
+        }
       }
       patients {
         name
@@ -41,53 +45,6 @@ const queryNestedFields = `query ConstructedQuery($system_admin: Boolean, $expir
   }
 }
 `;
-
-describe("Testing makeSelectionSetFromSpec", function() {
-  it("should be equal to expected value", function() {
-    let expectation = makeSelectionSetFromSpec({
-      title: "Test",
-      require: {
-        field: "user",
-      },
-    });
-
-    expect(expectation).toEqual({
-      kind: "SelectionSet",
-      selections: [],
-    });
-  });
-
-  it("should be equal to expected value", function() {
-    let expectation = makeSelectionSetFromSpec({
-      title: "Test",
-      require: {
-        field: "user",
-        require: [
-          {
-            field: "paginated",
-          },
-        ],
-      },
-    });
-
-    expect(expectation).toEqual({
-      kind: "SelectionSet",
-      selections: [
-        {
-          kind: "Field",
-          name: {
-            kind: "Name",
-            value: "paginated",
-          },
-          selectionSet: {
-            kind: "SelectionSet",
-            selections: [],
-          },
-        },
-      ],
-    });
-  });
-});
 
 describe("Testing introspect", function() {
   it("Should be equal to queryNestedFields reference value", function() {
@@ -100,7 +57,13 @@ describe("Testing introspect", function() {
             field: "contact_info",
             require: [
               {
-                field: "value",
+                field: "user",
+                require: [
+                  {
+                    field: "contact_info",
+                    require: [{ field: "user" }],
+                  },
+                ],
               },
             ],
           },
@@ -177,5 +140,46 @@ describe("Testing introspect", function() {
         path: QueryPath.make(["user.paginated"]),
       });
     }).toThrowError("Expected ObjectType at the root");
+  });
+
+  it("Expecting to throw on rootType as Map", function() {
+    let invalidRootTypes = TEST_SCHEMA.types.reduce((acc, type) => {
+      if (type.name === TEST_SCHEMA.queryType.name) {
+        let invalidRootType = (new Map(): any);
+        invalidRootType.name = TEST_SCHEMA.queryType.name;
+
+        return [...acc, (invalidRootType: any)];
+      }
+      return [...acc, type];
+    }, []);
+
+    expect(() => {
+      introspect({
+        schema: { ...TEST_SCHEMA, types: invalidRootTypes },
+        path: QueryPath.make("user.paginated"),
+      });
+    }).toThrowError("Expected rootType as OBJECT at the root");
+  });
+
+  it("Expecting to throw", function() {
+    let invalidTypes = TEST_SCHEMA.types.reduce((acc, type) => {
+      if (type.kind === "OBJECT" && type.name === "user") {
+        let invalidType = {
+          ...type,
+          kind: "INVALID",
+        };
+
+        return [...acc, (invalidType: any)];
+      }
+
+      return [...acc, type];
+    }, []);
+
+    expect(() => {
+      introspect({
+        schema: { ...TEST_SCHEMA, types: invalidTypes },
+        path: QueryPath.make("user.paginated"),
+      });
+    }).toThrowError("Expected object type for nextType.kind");
   });
 });

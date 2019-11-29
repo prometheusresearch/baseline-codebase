@@ -121,7 +121,7 @@ export const buildQueryAST = (
     throw new ConfigError("Expected ObjectType at the root");
   }
   if (rootType.kind !== "OBJECT") {
-    throw new ConfigError("Expected ObjectType at the root");
+    throw new ConfigError("Expected rootType as OBJECT at the root");
   }
 
   let [
@@ -164,23 +164,25 @@ export const buildQueryAST = (
  */
 export const makeSelectionSetFromQueryFieldSpec = (
   queryFieldSpec: Field.QueryFieldSpec,
-): void | ast.SelectionSetNode => {
-  if (!queryFieldSpec) return undefined;
+): ast.SelectionSetNode => {
+  let selections = [];
+
+  if (queryFieldSpec.require != null) {
+    for (let query of queryFieldSpec.require) {
+      selections.push({
+        kind: "Field",
+        name: {
+          kind: "Name",
+          value: query.field,
+        },
+        selectionSet: makeSelectionSetFromQueryFieldSpec(query),
+      });
+    }
+  }
 
   return {
     kind: "SelectionSet",
-    selections: queryFieldSpec.require
-      ? queryFieldSpec.require.map(obj => {
-          return {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: obj.field,
-            },
-            selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
-          };
-        })
-      : [],
+    selections,
   };
 };
 
@@ -189,23 +191,24 @@ export const makeSelectionSetFromQueryFieldSpec = (
  */
 export const makeSelectionSetFromSpec = (
   fieldSpec: Field.FieldSpec,
-): void | ast.SelectionSetNode => {
-  if (!fieldSpec) return undefined;
+): ast.SelectionSetNode => {
+  let selections = [];
+  if (fieldSpec.require.require != null) {
+    for (let obj of fieldSpec.require.require) {
+      selections.push({
+        kind: "Field",
+        name: {
+          kind: "Name",
+          value: obj.field,
+        },
+        selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
+      });
+    }
+  }
 
   return {
     kind: "SelectionSet",
-    selections: fieldSpec.require.require
-      ? fieldSpec.require.require.map(obj => {
-          return {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: obj.field,
-            },
-            selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
-          };
-        })
-      : [],
+    selections,
   };
 };
 
@@ -505,6 +508,7 @@ export const resolveField = (
   }
 
   let nextType = resolveType(field.type);
+
   if (nextType.kind !== "OBJECT") {
     throw new ConfigError("Expected object type for nextType.kind");
   }

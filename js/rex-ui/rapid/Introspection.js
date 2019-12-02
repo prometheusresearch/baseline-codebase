@@ -44,7 +44,7 @@ export type Introspection<T: { [name: string]: Field.FieldSpec }> = {|
 export type IntrospectionConfig<T: { [name: string]: Field.FieldConfig }> = {|
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
-  fields: ?T,
+  fields?: ?T,
   filters?: ?Array<Field.FilterConfig>,
 |};
 
@@ -99,7 +99,7 @@ export function introspect<T: { [name: string]: Field.FieldConfig }>({
   };
 }
 
-const buildQueryAST = (
+export const buildQueryAST = (
   schema: introspection.IntrospectionSchema,
   path: QueryPath.QueryPath,
   fieldSpecsRequested: ?{ [name: string]: Field.FieldSpec },
@@ -121,7 +121,7 @@ const buildQueryAST = (
     throw new ConfigError("Expected ObjectType at the root");
   }
   if (rootType.kind !== "OBJECT") {
-    throw new ConfigError("Expected ObjectType at the root");
+    throw new ConfigError("Expected rootType as OBJECT at the root");
   }
 
   let [
@@ -162,54 +162,57 @@ const buildQueryAST = (
 /**
  * Field.QueryFieldSpec -> void | ast.SelectionSetNode recursively
  */
-const makeSelectionSetFromQueryFieldSpec = (
+export const makeSelectionSetFromQueryFieldSpec = (
   queryFieldSpec: Field.QueryFieldSpec,
-): void | ast.SelectionSetNode => {
-  if (!queryFieldSpec) return undefined;
+): ast.SelectionSetNode => {
+  let selections = [];
+
+  if (queryFieldSpec.require != null) {
+    for (let query of queryFieldSpec.require) {
+      selections.push({
+        kind: "Field",
+        name: {
+          kind: "Name",
+          value: query.field,
+        },
+        selectionSet: makeSelectionSetFromQueryFieldSpec(query),
+      });
+    }
+  }
 
   return {
     kind: "SelectionSet",
-    selections: queryFieldSpec.require
-      ? queryFieldSpec.require.map(obj => {
-          return {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: obj.field,
-            },
-            selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
-          };
-        })
-      : [],
+    selections,
   };
 };
 
 /**
  * Builds SelectionSet using makeSelectionSetFromQueryFieldSpec recursion
  */
-const makeSelectionSetFromSpec = (
+export const makeSelectionSetFromSpec = (
   fieldSpec: Field.FieldSpec,
-): void | ast.SelectionSetNode => {
-  if (!fieldSpec) return undefined;
+): ast.SelectionSetNode => {
+  let selections = [];
+  if (fieldSpec.require.require != null) {
+    for (let obj of fieldSpec.require.require) {
+      selections.push({
+        kind: "Field",
+        name: {
+          kind: "Name",
+          value: obj.field,
+        },
+        selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
+      });
+    }
+  }
 
   return {
     kind: "SelectionSet",
-    selections: fieldSpec.require.require
-      ? fieldSpec.require.require.map(obj => {
-          return {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: obj.field,
-            },
-            selectionSet: makeSelectionSetFromQueryFieldSpec(obj),
-          };
-        })
-      : [],
+    selections,
   };
 };
 
-const buildSelectionSet = (
+export const buildSelectionSet = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
   path: string[],
@@ -457,7 +460,7 @@ function isFieldNodeListLike(field) {
   );
 }
 
-const resolveField = (
+export const resolveField = (
   typesMap: Map<string, introspection.IntrospectionType>,
   type: introspection.IntrospectionObjectType,
   fieldName: string,
@@ -505,6 +508,7 @@ const resolveField = (
   }
 
   let nextType = resolveType(field.type);
+
   if (nextType.kind !== "OBJECT") {
     throw new ConfigError("Expected object type for nextType.kind");
   }

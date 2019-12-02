@@ -26,7 +26,16 @@ export type ShowRenderTitle = React.AbstractComponent<{| data: any |}>;
 
 export type ShowRendererConfigProps = {|
   RenderTitle?: ?ShowRenderTitle,
+  RenderToolbar?: ?RenderToolbar,
 |};
+
+export type RenderToolbarProps = {|
+  data: any,
+  onAdd?: () => void,
+  onRemove?: () => void,
+|};
+
+export type RenderToolbar = React.AbstractComponent<RenderToolbarProps>;
 
 export type ShowRendererProps = {|
   resource: Resource<any, any>,
@@ -35,11 +44,24 @@ export type ShowRendererProps = {|
   catcher?: (err: Error) => void,
   fieldSpecs: { [name: string]: Field.FieldSpec },
   onClick?: (row: any) => void,
+  onAdd?: () => void,
+  onRemove?: () => void,
+
   ...ShowRendererConfigProps,
 |};
 
 export let ShowRenderer = (props: ShowRendererProps) => {
-  let { resource, path, args = {}, RenderTitle, fieldSpecs, onClick } = props;
+  let {
+    resource,
+    path,
+    args = {},
+    RenderTitle,
+    fieldSpecs,
+    onClick,
+    RenderToolbar,
+    onAdd,
+    onRemove,
+  } = props;
 
   let resourceData = useResource(resource, { ...args });
 
@@ -66,6 +88,11 @@ export let ShowRenderer = (props: ShowRendererProps) => {
       title={title}
       data={data}
       fieldSpecs={fieldSpecs}
+      toolbar={
+        RenderToolbar != null ? (
+          <RenderToolbar data={data} onAdd={onAdd} onRemove={onRemove} />
+        ) : null
+      }
     />
   );
 };
@@ -96,11 +123,13 @@ export let ShowCard = ({
   title,
   fieldSpecs,
   onClick,
+  toolbar,
 }: {|
   data: any,
   title: React.Node,
   fieldSpecs: { [name: string]: Field.FieldSpec },
   onClick?: () => void,
+  toolbar?: React.Node,
 |}) => {
   let classes = useStyles();
 
@@ -143,6 +172,7 @@ export let ShowCard = ({
                 </Typography>
               )}
               {content}
+              {toolbar != null ? <div>{toolbar}</div> : null}
             </CardContent>
           </Card>
         </Paper>

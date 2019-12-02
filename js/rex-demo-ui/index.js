@@ -121,8 +121,8 @@ function App() {
 
   let renderShowView = React.useCallback(
     (screen: Router.ShowScreen, params) => {
-      let onBack = () => {
-        router.pop();
+      let onRemove = () => {
+        router.replace(pickUser);
       };
       return (
         <Rapid.Show
@@ -131,6 +131,8 @@ function App() {
           args={{ id: params.id }}
           fields={screen.fields}
           RenderTitle={screen.RenderTitle}
+          RenderToolbar={screen.RenderToolbar}
+          onRemove={onRemove}
         />
       );
     },

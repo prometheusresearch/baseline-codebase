@@ -17,6 +17,7 @@ export type ShowScreen = {|
   fetch: string,
   fields?: ?{ [name: string]: Rapid.FieldConfig },
   RenderTitle?: ?Rapid.ShowRenderTitle,
+  RenderToolbar?: ?Rapid.ShowRenderToolbar,
 |};
 
 export type PickScreen = {|

@@ -19,6 +19,8 @@ export type ShowProps = {|
   fetch: string,
   fields?: ?{ [name: string]: Field.FieldConfig },
   args?: { [key: string]: any },
+  onAdd?: () => void,
+  onRemove?: () => void,
   ...ShowRendererConfigProps,
 |};
 

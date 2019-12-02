@@ -294,25 +294,36 @@ build-docs: ./bin/activate
 # Compile source packages in development mode.
 develop: ./bin/activate	#: recompile source packages
 	${MAKE} build-js
-	${MAKE} build-py
+	${MAKE} develop-py
 	${MAKE} build-docs
 	${MAKE} build-generic
 	${MAKE} build-data
 
 
-build-py:
+develop-py:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	@set -e; \
 	if [ -e "${PY_LOCK}" ]; then \
 		./bin/pip --isolated install -r "${PY_LOCK}"; \
+		${MAKE} develop-py-rex; \
 	else \
 		echo "${RED}${PY_LOCK} will be created, commit it to the repository.${NORM}"; \
 		for src in ${SRC_PY}; do \
 			./bin/pip --isolated install --editable $$src; \
 		done; \
+		${MAKE} develop-py-rex; \
 		${MAKE} lock-py; \
 	fi
 
+# This performs Rex extensions to setuptools.
+# Use it like: `make develop-py-rex` or `make install-py-rex`.
+%-py-rex:
+	set -e; \
+	for src in ${SRC_PY}; do \
+		(cd $$src; \
+		python setup.py ${@:%-py-rex=%}_static; \
+		python setup.py egg_info); \
+	done
 
 lock-py:
 	@echo "${BLUE}Locking python dependencies (${PY_LOCK})...${NORM}"
@@ -341,12 +352,7 @@ build-data:
 # Compile and install source packages.
 install: ./bin/activate
 	${MAKE} build-js
-	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
-	set -e; \
-	if [ ! -e "${PY_LOCK}" ]; then
-		echo "${RED}Missing ${PY_LOCK}, fix by running 'make build-py'${NORM}" \
-	fi; \
-	./bin/pip --isolated install -r <(sed -E 's/^-e[[:space:]]+//' ${PY_LOCK})
+	${MAKE} install-py
 	${MAKE} build-generic
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Copying data files...${NORM}"
 	set -ex; \
@@ -358,6 +364,15 @@ install: ./bin/activate
 	done
 .PHONY: install
 
+install-py:
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
+	@set -e; \
+	if [ ! -e "${PY_LOCK}" ]; then \
+		echo "${RED}Missing ${PY_LOCK}, fix by running 'make develop-py'${NORM}"; \
+		exit 1; \
+	fi; \
+	./bin/pip --isolated install -r <(sed -E 's/^-e[[:space:]]+//' ${PY_LOCK})
+	@${MAKE} install-py-rex
 
 # Test source packages.
 test: ./bin/activate	#: test all source packages (specify PKG=<SRC> to test a single package)

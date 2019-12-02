@@ -21,14 +21,28 @@ import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
 
 export type AutocompleteProps = {|
+  /** GraphQL endpoint. */
   endpoint: Endpoint,
+  /** Path inside GraphQL schema. */
   fetch: string,
-  label?: string,
+
+  /** Field which specifies the label. */
   labelField: Field.FieldConfig,
+  /** Field which specifies the id. */
+  idField?: Field.FieldConfig,
+  /** Additional fields to query. */
   fields?: { [name: string]: Field.FieldConfig },
-  placeholder?: string,
+
+  /** Currently selected value. */
   value: ?Object,
+  /** Called when user selects a new value. */
   onValue: (?Object) => void,
+
+  /** Field label. */
+  label?: string,
+  /** Field placeholder. */
+  placeholder?: string,
+  /** This allows to specify a component which is used to render an item. */
   RenderItem?: React.AbstractComponent<{| label: React.Node, item: Object |}>,
 |};
 
@@ -37,6 +51,7 @@ export function Autocomplete(props: AutocompleteProps) {
     fetch,
     endpoint,
     labelField,
+    idField = "id",
     fields = {},
     value,
     onValue,
@@ -51,7 +66,7 @@ export function Autocomplete(props: AutocompleteProps) {
     let { query, fieldSpecs } = introspect({
       schema,
       path,
-      fields: { id: "id", label: labelField, ...fields },
+      fields: { ...fields, id: idField, label: labelField },
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { path, resource, fieldSpecs };

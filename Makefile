@@ -2,8 +2,6 @@
 # Lists of source packages.
 include Makefile.*
 
-SHELL = /bin/bash
-
 # Development mode (local, docker, or kube).
 DEVMODE = ${shell cat .devmode 2>/dev/null}
 
@@ -300,40 +298,22 @@ develop: ./bin/activate	#: recompile source packages
 	${MAKE} build-data
 
 
+# Install python packages in development mode
 develop-py:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	@set -e; \
 	if [ -e "${PY_LOCK}" ]; then \
 		./bin/pip --isolated install -r "${PY_LOCK}"; \
-		${MAKE} develop-py-rex; \
 	else \
 		echo "${RED}${PY_LOCK} will be created, commit it to the repository.${NORM}"; \
-		for src in ${SRC_PY}; do \
-			./bin/pip --isolated install --editable $$src; \
-		done; \
-		${MAKE} develop-py-rex; \
-		${MAKE} lock-py; \
 	fi
-
-# This performs Rex extensions to setuptools.
-# Use it like: `make develop-py-rex` or `make install-py-rex`.
-%-py-rex:
-	set -e; \
+	@set -e; \
 	for src in ${SRC_PY}; do \
-		(cd $$src; \
-		python setup.py ${@:%-py-rex=%}_static; \
-		python setup.py egg_info); \
+		./bin/pip --isolated install --editable $$src; \
 	done
-
-lock-py:
-	@echo "${BLUE}Locking python dependencies (${PY_LOCK})...${NORM}"
 	@rm -f ${PY_LOCK}
-	@echo "# Automaticaly generated with 'make lock-py' command." >> ${PY_LOCK}
-	@echo "# Global dependencies:" >> ${PY_LOCK}
+	@echo "# This file is generated automatically (see Makefile)." >> ${PY_LOCK}
 	@./bin/pip --isolated freeze --exclude-editable >> ${PY_LOCK}
-	@echo "# Local dependencies:" >> ${PY_LOCK}
-	@for src in ${SRC_PY}; do echo "-e $$src" >> ${PY_LOCK}; done
-.PHONY: lock-py
 
 
 build-data:
@@ -364,15 +344,15 @@ install: ./bin/activate
 	done
 .PHONY: install
 
+
+# Install python packages
 install-py:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	@set -e; \
-	if [ ! -e "${PY_LOCK}" ]; then \
-		echo "${RED}Missing ${PY_LOCK}, fix by running 'make develop-py'${NORM}"; \
-		exit 1; \
-	fi; \
-	./bin/pip --isolated install -r <(sed -E 's/^-e[[:space:]]+//' ${PY_LOCK})
-	@${MAKE} install-py-rex
+	for src in ${SRC_PY}; do \
+		./bin/pip --isolated install --no-deps $$src; \
+	done
+
 
 # Test source packages.
 test: ./bin/activate	#: test all source packages (specify PKG=<SRC> to test a single package)

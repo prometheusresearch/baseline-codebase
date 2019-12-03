@@ -98,7 +98,10 @@ init-remote:
 # Create the environment and install development tools.
 init-env:
 	python3 -m venv ${CURDIR}
-	set -e; for tool in ${TOOL_PY}; do ./bin/pip --isolated install $$tool; done
+	set -e; \
+	if [ -e "${PY_LOCK}" ]; \
+	then ./bin/pip --isolated install -r "${PY_LOCK}"; \
+	else for tool in ${TOOL_PY}; do ./bin/pip --isolated install $$tool; done; fi
 	set -e; for tool in ${TOOL_JS}; do npm --global --prefix ${CURDIR} install $$tool; done
 	echo "#!/bin/sh\n[ \$$# -eq 0 ] && exec \$$SHELL || exec \"\$$@\"" >./bin/rsh
 	chmod a+x ./bin/rsh
@@ -313,7 +316,7 @@ develop-py:
 	done
 	@rm -f ${PY_LOCK}
 	@echo "# This file is generated automatically (see Makefile)." >> ${PY_LOCK}
-	@./bin/pip --isolated freeze --exclude-editable >> ${PY_LOCK}
+	@./bin/pip --isolated freeze --all --exclude-editable >> ${PY_LOCK}
 
 
 build-data:

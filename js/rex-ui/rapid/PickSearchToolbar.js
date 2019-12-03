@@ -11,6 +11,7 @@ import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
+import FormLabel from "@material-ui/core/FormLabel";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
 import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
@@ -18,8 +19,12 @@ import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
 import * as Field from "./Field.js";
 
 import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
+import SearchIcon from "@material-ui/icons/Search";
+import ClearIcon from "@material-ui/icons/Clear";
+
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, capitalize } from "./helpers";
+import { IconButton } from "@material-ui/core";
 
 export const useFilterStyles = makeStyles((theme: Theme) => {
   if (theme.palette == null || isEmptyObject(theme)) {
@@ -28,10 +33,35 @@ export const useFilterStyles = makeStyles((theme: Theme) => {
 
   return {
     tableControl: {},
-    formControl: {
-      minWidth: 320,
+    formLabel: {
+      display: "block",
+    },
+    search: {
+      position: "relative",
+      borderRadius: 4,
+      padding: "10px 16px",
+      backgroundColor: "white",
+      boxShadow: "0px 2px 4px 0px rgba(0,0,0,0.15)",
+      "&:hover": {
+        boxShadow: "0px 2px 2px 0px rgba(0,0,0,0.1)",
+      },
+      transition: "box-shadow 0.2s",
+      marginLeft: 0,
       width: "100%",
-      padding: 0,
+      display: "flex",
+    },
+    searchIcon: {
+      width: 32,
+      pointerEvents: "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    searchIconClickable: {
+      width: 32,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     },
   };
 });
@@ -81,19 +111,38 @@ const PickSearchToolbarBase = ({
         value={state.searchText}
       />
     ) : (
-      <FormControl className={classes.formControl}>
-        <TextField
-          label={"Search"}
-          value={state.searchText}
-          onChange={ev => {
-            setSearchState(ev.target.value);
-          }}
-          margin={"none"}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-      </FormControl>
+      <FormLabel className={classes.formLabel}>
+        <div className={classes.search}>
+          <TextField
+            placeholder={"Search"}
+            value={state.searchText}
+            onChange={ev => {
+              setSearchState(ev.target.value);
+            }}
+            margin={"none"}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            style={{
+              flex: "1 1 auto",
+            }}
+            name={"site-search"}
+          />
+
+          {state.searchText == "" ? (
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+          ) : (
+            <div className={classes.searchIconClickable}>
+              <ClearIcon
+                style={{ cursor: "pointer" }}
+                onClick={() => setSearchState("")}
+              />
+            </div>
+          )}
+        </div>
+      </FormLabel>
     );
 
   return (

@@ -183,13 +183,12 @@ let usePickHeaderStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingTop: theme.spacing.unit,
-    flex: "1 1 auto",
-    alignItems: "flex-end",
+    flex: "0 1 420px",
+    marginRight: 8,
   },
   typographyWrapper: {
     marginRight: 16,
-    flex: "0 0 auto",
+    flex: "1 1 auto",
   },
 }));
 

@@ -2,6 +2,7 @@
 # Lists of source packages.
 include Makefile.*
 
+
 # Development mode (local, docker, or kube).
 DEVMODE = ${shell cat .devmode 2>/dev/null}
 
@@ -305,11 +306,9 @@ develop: ./bin/activate	#: recompile source packages
 develop-py:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	@set -e; \
-	if [ -e "${PY_LOCK}" ]; then \
-		./bin/pip --isolated install -r "${PY_LOCK}"; \
-	else \
-		echo "${RED}${PY_LOCK} will be created, commit it to the repository.${NORM}"; \
-	fi
+	if [ -e "${PY_LOCK}" ]; \
+	then ./bin/pip --isolated install -r "${PY_LOCK}"; \
+	else echo "${RED}${PY_LOCK} will be created, commit it to the repository.${NORM}"; fi
 	@set -e; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install --editable $$src; \

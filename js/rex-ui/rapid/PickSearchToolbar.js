@@ -24,7 +24,7 @@ import ClearIcon from "@material-ui/icons/Clear";
 
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, capitalize } from "./helpers";
-import { IconButton } from "@material-ui/core";
+import { IconButton, InputBase } from "@material-ui/core";
 
 export const useFilterStyles = makeStyles((theme: Theme) => {
   if (theme.palette == null || isEmptyObject(theme)) {
@@ -38,7 +38,7 @@ export const useFilterStyles = makeStyles((theme: Theme) => {
     },
     search: {
       position: "relative",
-      borderRadius: 4,
+      borderRadius: "50px",
       padding: "10px 16px",
       backgroundColor: "white",
       boxShadow: "0px 2px 4px 0px rgba(0,0,0,0.15)",
@@ -113,7 +113,7 @@ const PickSearchToolbarBase = ({
     ) : (
       <FormLabel className={classes.formLabel}>
         <div className={classes.search}>
-          <TextField
+          <InputBase
             placeholder={"Search"}
             value={state.searchText}
             onChange={ev => {
@@ -125,6 +125,7 @@ const PickSearchToolbarBase = ({
             }}
             style={{
               flex: "1 1 auto",
+              fontSize: "14px",
             }}
             name={"site-search"}
           />

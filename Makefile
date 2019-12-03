@@ -97,7 +97,7 @@ init-remote:
 # Create the environment and install development tools.
 init-env:
 	python3 -m venv ${CURDIR}
-	set -e; for tool in ${TOOL_PY}; do ./bin/pip --isolated install $$tool; done
+	set -e; for tool in ${TOOL_PY}; do ./bin/pip install $$tool; done
 	set -e; for tool in ${TOOL_JS}; do npm --global --prefix ${CURDIR} install $$tool; done
 	echo "#!/bin/sh\n[ \$$# -eq 0 ] && exec \$$SHELL || exec \"\$$@\"" >./bin/rsh
 	chmod a+x ./bin/rsh
@@ -167,6 +167,7 @@ up-local:
 
 
 up-docker:
+	docker volume inspect rexdb-cache >/dev/null 2>&1 || docker volume create rexdb-cache
 	docker-compose up -d
 	. ./.env && \
 	HTTP_HOST=`${NOTERM_RSH} dig +short nginx` && \
@@ -294,7 +295,7 @@ develop: ./bin/activate	#: recompile source packages
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \
 	for src in ${SRC_PY}; do \
-		./bin/pip --isolated install --editable $$src; \
+		./bin/pip install --editable $$src; \
 	done
 	${MAKE} build-generic
 	${MAKE} build-docs
@@ -316,7 +317,7 @@ install: ./bin/activate
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \
 	for src in ${SRC_PY}; do \
-		./bin/pip --isolated install $$src; \
+		./bin/pip install $$src; \
 	done
 	${MAKE} build-generic
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Copying data files...${NORM}"

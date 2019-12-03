@@ -314,9 +314,9 @@ develop-py:
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install --editable $$src; \
 	done
-	@rm -f ${PY_LOCK}
-	@echo "# This file is generated automatically (see Makefile)." >> ${PY_LOCK}
-	@./bin/pip --isolated freeze --all --exclude-editable >> ${PY_LOCK}
+	@echo "# This file is generated automatically (see Makefile)." >> ${PY_LOCK}.tmp
+	@./bin/pip --isolated freeze --all --exclude-editable >> ${PY_LOCK}.tmp
+	@mv ${PY_LOCK}.tmp ${PY_LOCK}
 
 
 build-data:

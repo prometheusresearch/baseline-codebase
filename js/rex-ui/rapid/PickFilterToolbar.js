@@ -13,7 +13,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 
 import { type VariableDefinitionNode } from "graphql/language/ast";
-import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
+import { type PickState } from "./PickRenderer";
 
 import * as Field from "./Field.js";
 
@@ -43,7 +43,6 @@ type Props = {|
   state: PickState,
   variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
-  setSearchState: (val: string) => void,
   setFilterState: (name: string, value: ?boolean) => void,
   setSortingState: (value: string) => void,
   isTabletWidth?: boolean,
@@ -56,7 +55,6 @@ const PickFilterToolbarBase = ({
   sortingConfig,
   setFilterState,
   setSortingState,
-  setSearchState,
   isTabletWidth,
   filterSpecs,
 }: Props) => {
@@ -67,45 +65,6 @@ const PickFilterToolbarBase = ({
   const classes = useFilterStyles();
 
   const classNames = [classes.tableControl];
-
-  let CustomSearchRenderer: ?React.ComponentType<{
-    onChange: (newValue: any) => void,
-    value: any,
-    values?: Array<any>,
-  }> = null;
-  if (filterSpecs != null) {
-    if (filterSpecs.get(SEARCH_VAR_NAME) != null) {
-      // $FlowFixMe
-      if (filtersSpecs.get(SEARCH_VAR_NAME).render != null) {
-        // $FlowFixMe
-        CustomSearchRenderer = (filtersSpecs.get(SEARCH_VAR_NAME).render: any);
-      }
-    }
-  }
-
-  const SearchRenderer =
-    state.search == null ? null : CustomSearchRenderer ? (
-      <CustomSearchRenderer
-        onChange={(newValue: string) => {
-          setSearchState(newValue);
-        }}
-        value={state.searchText}
-      />
-    ) : (
-      <FormControl className={classes.formControl}>
-        <TextField
-          label="Search"
-          value={state.searchText}
-          onChange={ev => {
-            setSearchState(ev.target.value);
-          }}
-          margin={"none"}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-      </FormControl>
-    );
 
   let CustomSortRenderer: ?React.ComponentType<{
     onChange: (newValue: any) => void,
@@ -167,11 +126,6 @@ const PickFilterToolbarBase = ({
     >
       <Grid item xs={12}>
         <FormGroup row>
-          {state.search != null ? (
-            <Grid item xs={6} sm={4} md={3} lg={2}>
-              {SearchRenderer}
-            </Grid>
-          ) : null}
           {sortingConfig != null ? (
             <Grid item xs={6} sm={4} md={3} lg={2}>
               {SortRenderer}

@@ -56,6 +56,7 @@ import * as Field from "./Field.js";
 
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, capitalize } from "./helpers";
+import { PickSearchToolbar } from "./PickSearchToolbar.js";
 
 export const useRendererStyles = makeStyles((theme: Theme) => {
   if (theme.palette == null || isEmptyObject(theme)) {
@@ -166,6 +167,7 @@ let usePickHeaderStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+    flexWrap: "wrap",
   },
   toolbar: {
     display: "flex",
@@ -175,17 +177,35 @@ let usePickHeaderStyles = makeStyles(theme => ({
     paddingTop: theme.spacing.unit,
   },
   title: {
-    marginBottom: "8px",
+    marginBottom: 8,
+  },
+  searchToolbar: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: theme.spacing.unit,
+    flex: "1 1 auto",
+    alignItems: "flex-end",
+  },
+  typographyWrapper: {
+    marginRight: 16,
+    flex: "0 0 auto",
   },
 }));
 
-const PickHeader = ({ title, description, rightToolbar, bottomToolbar }) => {
+const PickHeader = ({
+  title,
+  description,
+  rightToolbar,
+  bottomToolbar,
+  searchToolbar,
+}) => {
   const classes = usePickHeaderStyles();
 
   return (
     <div className={classes.root}>
       <div className={classes.top}>
-        <div>
+        <div className={classes.typographyWrapper}>
           {title ? (
             <Typography variant={"h5"} className={classes.title}>
               {title}
@@ -195,6 +215,9 @@ const PickHeader = ({ title, description, rightToolbar, bottomToolbar }) => {
             <Typography variant={"caption"}>{description}</Typography>
           ) : null}
         </div>
+        {searchToolbar ? (
+          <div className={classes.searchToolbar}>{searchToolbar}</div>
+        ) : null}
         {rightToolbar && <div>{rightToolbar}</div>}
       </div>
       {bottomToolbar != null && (
@@ -369,14 +392,22 @@ export const PickRenderer = ({
               icon={<FilterListIcon />}
             />
           }
+          searchToolbar={
+            <PickSearchToolbar
+              state={state}
+              setSearchState={setSearchState}
+              variablesMap={variablesMap}
+              filterSpecs={filterSpecs}
+            />
+          }
         />
+
         {showFilters ? (
           <PickFilterToolbar
             state={state}
             setFilterState={setFilterState}
             sortingConfig={sortingConfig}
             setSortingState={setSortingState}
-            setSearchState={setSearchState}
             isTabletWidth={isTabletWidth}
             variablesMap={variablesMap}
             filterSpecs={filterSpecs}

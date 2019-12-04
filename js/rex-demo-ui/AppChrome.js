@@ -29,7 +29,7 @@ const useStyles = Theme.makeStyles(theme => ({
     height: "100vh",
     maxHeight: "100vh",
     paddingTop: appBarHeight,
-    marginLeft: 0,
+    margin: 0,
   },
   menuButton: {
     marginLeft: 0,
@@ -148,8 +148,6 @@ export default function AppChrome({
 }
 
 let useAppDrawerStyles = Theme.makeStyles(theme => {
-  console.log("useAppDrawerStyles theme", theme);
-
   return {
     root: {
       flexShrink: 0,
@@ -198,7 +196,7 @@ function AppDrawer({
       anchor="left"
       open={open}
       transitionDuration={0}
-      // style={style}
+      style={style}
       PaperProps={{ style }}
       className={classes.root}
     >

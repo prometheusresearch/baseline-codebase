@@ -212,7 +212,7 @@ export let ShowCard = ({
   }
 
   return (
-    <Grid container spacing={8}>
+    <Grid container>
       <Grid item xs={12}>
         <Paper className={classes.root}>
           <Card

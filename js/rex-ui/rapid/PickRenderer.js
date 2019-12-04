@@ -187,6 +187,7 @@ let usePickHeaderStyles = makeStyles(theme => ({
     justifyContent: "space-between",
     flex: "0 1 420px",
     marginRight: 8,
+    height: 48,
   },
   typographyWrapper: {
     marginRight: 16,
@@ -386,7 +387,6 @@ export const PickRenderer = ({
           }
           rightToolbar={
             <IconButton
-              size="small"
               onClick={toggleFilters}
               active={showFilters}
               aria-label="Filter list"

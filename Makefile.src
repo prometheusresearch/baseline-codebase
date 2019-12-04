@@ -45,6 +45,7 @@ SRC_PY = \
 	src/rex.baseline \
 	src/rex.demo.instrument \
 	src/rex.demo.forms \
+	src/rex.demo.ui \
 	src/rex.demo.baseline
 
 
@@ -84,7 +85,8 @@ WORKSPACE_JS = \
 # (using "yarn run build").
 SRC_JS = \
 	js/rex-action-application \
-	js/rex-demo-forms
+	js/rex-demo-forms \
+	js/rex-demo-ui
 
 
 ### JavaScript Project Tests

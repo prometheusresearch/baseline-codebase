@@ -147,21 +147,25 @@ export default function AppChrome({
   );
 }
 
-let useAppDrawerStyles = Theme.makeStyles(theme => ({
-  root: {
-    flexShrink: 0,
-  },
-  wrapper: {
-    flex: "1 1 auto",
-  },
-  toolbar: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    padding: theme.spacing.unit,
-    ...theme.mixins.toolbar,
-  },
-}));
+let useAppDrawerStyles = Theme.makeStyles(theme => {
+  console.log("useAppDrawerStyles theme", theme);
+
+  return {
+    root: {
+      flexShrink: 0,
+    },
+    wrapper: {
+      flex: "1 1 auto",
+    },
+    toolbar: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      padding: theme.spacing.unit,
+      ...theme.mixins.toolbar,
+    },
+  };
+});
 
 type AppDrawerProps = {|
   open: boolean,
@@ -194,7 +198,7 @@ function AppDrawer({
       anchor="left"
       open={open}
       transitionDuration={0}
-      style={style}
+      // style={style}
       PaperProps={{ style }}
       className={classes.root}
     >

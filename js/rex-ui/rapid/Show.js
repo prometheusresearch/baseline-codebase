@@ -19,7 +19,7 @@ export type ShowProps = {|
   endpoint: Endpoint,
   fetch: string,
   fields?: ?{ [name: string]: Field.FieldConfig },
-  titleField?: Field.FieldConfig,
+  titleField?: ?Field.FieldConfig,
   args?: { [key: string]: any },
   onAdd?: () => void,
   onRemove?: () => void,

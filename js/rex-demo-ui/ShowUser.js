@@ -62,6 +62,7 @@ export let screen: Router.ShowScreen = {
       render: PatientList,
     },
   },
+  titleField: "title",
   RenderToolbar,
 };
 

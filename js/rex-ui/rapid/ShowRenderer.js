@@ -43,7 +43,7 @@ export type ShowRendererProps = {|
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
   fieldSpecs: { [name: string]: Field.FieldSpec },
-  titleField?: Field.FieldConfig,
+  titleField?: ?Field.FieldConfig,
   onClick?: (row: any) => void,
   onAdd?: () => void,
   onRemove?: () => void,
@@ -159,7 +159,7 @@ export let ShowCard = ({
   data: any,
   title: React.Node,
   fieldSpecs: { [name: string]: Field.FieldSpec },
-  titleField?: Field.FieldConfig,
+  titleField?: ?Field.FieldConfig,
 
   onClick?: () => void,
   toolbar?: React.Node,

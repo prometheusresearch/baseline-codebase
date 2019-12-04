@@ -130,6 +130,7 @@ function App() {
           fetch={screen.fetch}
           args={{ id: params.id }}
           fields={screen.fields}
+          titleField={"title"}
           RenderTitle={screen.RenderTitle}
           RenderToolbar={screen.RenderToolbar}
           onRemove={onRemove}

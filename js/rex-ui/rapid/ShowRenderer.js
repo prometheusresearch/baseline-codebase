@@ -43,6 +43,7 @@ export type ShowRendererProps = {|
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
   fieldSpecs: { [name: string]: Field.FieldSpec },
+  titleField?: Field.FieldConfig,
   onClick?: (row: any) => void,
   onAdd?: () => void,
   onRemove?: () => void,
@@ -57,6 +58,7 @@ export let ShowRenderer = (props: ShowRendererProps) => {
     args = {},
     RenderTitle,
     fieldSpecs,
+    titleField,
     onClick,
     RenderToolbar,
     onAdd,
@@ -66,14 +68,14 @@ export let ShowRenderer = (props: ShowRendererProps) => {
   let resourceData = useResource(resource, { ...args });
 
   if (resourceData == null) {
-    return null;
+    return <ShowCard404 />;
   }
 
   let data = resourceData;
   for (let seg of QueryPath.toArray(path)) {
     data = data[seg];
     if (data == null) {
-      return null;
+      return <ShowCard404 />;
     }
   }
 
@@ -88,6 +90,7 @@ export let ShowRenderer = (props: ShowRendererProps) => {
       title={title}
       data={data}
       fieldSpecs={fieldSpecs}
+      titleField={titleField}
       toolbar={
         RenderToolbar != null ? (
           <RenderToolbar data={data} onAdd={onAdd} onRemove={onRemove} />
@@ -112,29 +115,74 @@ let useStyles = makeStyles(theme => ({
   title: {
     marginBottom: theme.spacing.unit * 2,
   },
+  titleSmall: {
+    fontSize: 16,
+  },
   contentWrapper: {
     marginBottom: "16px",
     wordBreak: "break-word",
   },
 }));
 
+export const ShowCard404 = () => {
+  let classes = useStyles();
+
+  return (
+    <Grid>
+      <Grid item xs={12}>
+        <Paper className={classes.root}>
+          <Card raised={false}>
+            <CardContent>
+              <Typography
+                variant="h6"
+                gutterBottom
+                className={classes.titleSmall}
+              >
+                Not found
+              </Typography>
+            </CardContent>
+          </Card>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+};
+
 export let ShowCard = ({
   data,
   title,
   fieldSpecs,
+  titleField,
   onClick,
   toolbar,
 }: {|
   data: any,
   title: React.Node,
   fieldSpecs: { [name: string]: Field.FieldSpec },
+  titleField?: Field.FieldConfig,
+
   onClick?: () => void,
   toolbar?: React.Node,
 |}) => {
   let classes = useStyles();
 
+  let titleFieldName: string | null = null;
+  if (titleField != null) {
+    // Flow couldn't resolve switch/case types
+    if (typeof titleField === "object") {
+      titleFieldName = titleField.require.field;
+    }
+    if (typeof titleField === "string") {
+      titleFieldName = titleField;
+    }
+  }
+
   let content = [];
   for (let name in fieldSpecs) {
+    if (name === titleFieldName) {
+      continue;
+    }
+
     let spec = fieldSpecs[name];
     let key = spec.require.field;
     let value = data[key];
@@ -154,6 +202,15 @@ export let ShowCard = ({
     );
   }
 
+  let titleRender = null;
+  if (title != null) {
+    titleRender = title;
+  }
+  if (titleFieldName != null) {
+    let fieldSpec = fieldSpecs[titleFieldName];
+    titleRender = data[fieldSpec.require.field];
+  }
+
   return (
     <Grid container spacing={8}>
       <Grid item xs={12}>
@@ -166,11 +223,9 @@ export let ShowCard = ({
             })}
           >
             <CardContent>
-              {title != null && (
-                <Typography variant="h5" gutterBottom className={classes.title}>
-                  {title}
-                </Typography>
-              )}
+              <Typography variant="h5" gutterBottom className={classes.title}>
+                {titleRender}
+              </Typography>
               {content}
               {toolbar != null ? <div>{toolbar}</div> : null}
             </CardContent>

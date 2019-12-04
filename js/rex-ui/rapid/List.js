@@ -114,7 +114,7 @@ export function ListOfData(props: ListOfDataProps) {
     RenderPrimaryText,
     RenderSecondaryText,
   } = props;
-  let items = data.map(item => {
+  let items = data.map((item, index) => {
     let primary = <RenderPrimaryText item={item} />;
     let secondary =
       RenderSecondaryText != null ? <RenderSecondaryText item={item} /> : null;
@@ -138,7 +138,7 @@ export function ListOfData(props: ListOfDataProps) {
     };
     return (
       <mui.ListItem
-        key={item.id}
+        key={`${item.id}-${index}`}
         button={onClick != null}
         onClick={handleClick}
       >

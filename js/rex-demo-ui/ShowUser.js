@@ -62,9 +62,6 @@ export let screen: Router.ShowScreen = {
       render: PatientList,
     },
   },
-  RenderTitle: props => {
-    return props.data.remote_user;
-  },
   RenderToolbar,
 };
 
@@ -164,7 +161,6 @@ function AddToSiteActionDialog({ data, onClose }) {
 }
 
 function AddToSiteAction({ data, onAdd }) {
-  console.log("data: ", data);
   let [site, setSite] = React.useState(null);
   let [open, setOpen] = React.useState(false);
   let onClose = done => {

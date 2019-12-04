@@ -13,11 +13,13 @@ import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
 import { ShowRenderer, type ShowRendererConfigProps } from "./ShowRenderer.js";
 import * as Field from "./Field.js";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 export type ShowProps = {|
   endpoint: Endpoint,
   fetch: string,
   fields?: ?{ [name: string]: Field.FieldConfig },
+  titleField?: Field.FieldConfig,
   args?: { [key: string]: any },
   onAdd?: () => void,
   onRemove?: () => void,
@@ -40,11 +42,13 @@ export let Show = (props: ShowProps) => {
   }, [fetch, fields, endpoint, schema]);
 
   return (
-    <ShowRenderer
-      {...rest}
-      path={path}
-      resource={resource}
-      fieldSpecs={fieldSpecs}
-    />
+    <ErrorBoundary>
+      <ShowRenderer
+        {...rest}
+        path={path}
+        resource={resource}
+        fieldSpecs={fieldSpecs}
+      />
+    </ErrorBoundary>
   );
 };

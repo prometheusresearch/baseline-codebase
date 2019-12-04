@@ -19,8 +19,6 @@ import {
   type IntrospectionEnumType,
 } from "graphql/utilities/introspectionQuery";
 
-import debounce from "lodash/debounce";
-
 import {
   makeStyles,
   useTheme,
@@ -55,7 +53,7 @@ import { PickDataView } from "./PickDataView.js";
 import * as Field from "./Field.js";
 
 import { DEFAULT_THEME } from "./themes";
-import { isEmptyObject, capitalize } from "./helpers";
+import { isEmptyObject, capitalize, useDebouncedCallback } from "./helpers";
 import { PickSearchToolbar } from "./PickSearchToolbar.js";
 
 export const useRendererStyles = makeStyles((theme: Theme) => {
@@ -87,14 +85,18 @@ const useMinWindowWidth = (minWidth: number) => {
     window.innerWidth >= minWidth,
   );
 
-  React.useEffect(() => {
-    const handler = debounce(() => {
+  const resizeHandler = useDebouncedCallback(
+    128,
+    () => {
       setDoesMatch(window.innerWidth >= minWidth);
-    }, 128);
+    },
+    [],
+  );
 
-    window.addEventListener("resize", handler);
+  React.useEffect(() => {
+    window.addEventListener("resize", resizeHandler);
     return () => {
-      window.removeEventListener("resize", handler);
+      window.removeEventListener("resize", resizeHandler);
     };
   });
 
@@ -284,7 +286,7 @@ export const PickRenderer = ({
     setState(defaultPickState);
   }, [fetch]);
 
-  const debouncedSetState = React.useMemo(() => debounce(setState, 256), []);
+  const debouncedSetState = useDebouncedCallback(256, setState, []);
 
   const [viewData, setViewData] = React.useState<Array<any>>([]);
 

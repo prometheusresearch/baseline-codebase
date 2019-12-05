@@ -1306,33 +1306,58 @@ parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)
 
 
 @cached
-def sort_direction_type(type, fields):
+def sort_direction_type(type, keys):
 
     field_type = Enum(
         name=f"sort_{type.name}_field",
-        values=[EnumValue(name=name) for name in fields],
+        values=[EnumValue(name=key) for key in keys],
     )
 
     sort_direction_type = InputObject(
         name=f"sort_{type.name}_direction",
         fields=lambda: {
             "field": InputObjectField(field_type),
-            "desc": InputObjectField(scalar.Boolean),
+            "desc": InputObjectField(scalar.Boolean, default_value=False),
         },
     )
 
     return sort_direction_type
 
 
-def sort(type, fields):
-    """ Define sort for a type."""
-    sort_type = sort_direction_type(type, fields=fields)
+def sort(type, **fields):
+    """ Define sort for a type.
+
+    Example::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(
+        ...         q.region,
+        ...         type=region,
+        ...         sort=sort(
+        ...             region,
+        ...             name=q.name,
+        ...             nation_count=q.nation.count()
+        ...         )
+        ...     )
+        ... })
+
+        >>> res = execute(sch, "{ region(sort: {field: name}) { name } }")
+        >>> [region['name'] for region in res.data['region']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+
+        >>> res = execute(sch, "{ region(sort: {field: name, desc: true}) { name } }")
+        >>> [region['name'] for region in res.data['region']]
+        ['MIDDLE EAST', 'EUROPE', 'ASIA', 'AMERICA', 'AFRICA']
+
+    """
+    sort_keys = tuple(fields.keys())
+    sort_type = sort_direction_type(type=type, keys=sort_keys)
 
     @sort_from_function()
     def sort(sort: sort_type = None):
         q_sort = None
         if sort is not None:
-            q_sort = q[sort["field"]]
+            q_sort = fields[sort["field"]]
             if sort["desc"]:
                 q_sort = q_sort.desc()
         return q_sort

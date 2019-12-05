@@ -44,7 +44,6 @@ def get_schema():
 
     @compute_from_function()
     def search(search: scalar.String) -> List(search_result):
-        db = get_db()
         results = []
 
         q_users = q.user.filter(q.remote_user.matches(search)).select(
@@ -167,7 +166,7 @@ def get_schema():
             else:
                 yield ~q_user_phone.boolean()
 
-    sort_user = sort(user, ("remote_user", "expires"))
+    sort_user = sort(user, remote_user=q.remote_user, expires=q.expires)
 
     @mutation_from_function()
     def remove_user(user_ids: List(entity_id.user)) -> scalar.Boolean:

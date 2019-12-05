@@ -15,7 +15,7 @@ import * as ReactDOM from "react-dom";
  */
 export function setReactRef<T: React.AbstractComponent<*>>(
   ref: React.Ref<T> | null,
-  instance: T | null
+  instance: T | null,
 ) {
   if (typeof ref === "function") {
     ref(instance);
@@ -27,7 +27,7 @@ export function setReactRef<T: React.AbstractComponent<*>>(
 }
 
 export function findHTMLElement(
-  component: null | HTMLElement | React.Component<mixed>
+  component: null | HTMLElement | React.Component<mixed>,
 ) {
   if (component == null) {
     return null;
@@ -36,13 +36,13 @@ export function findHTMLElement(
   invariant(
     element instanceof HTMLElement,
     "findHTMLElement: expected HTMLElement but got %s",
-    element
+    element,
   );
   return element;
 }
 
 export function getComponentDisplayName<T>(
-  ComponentType: React.AbstractComponent<T>
+  ComponentType: React.AbstractComponent<T>,
 ): string | null {
   let displayName = null;
   if (ComponentType.displayName != null) {

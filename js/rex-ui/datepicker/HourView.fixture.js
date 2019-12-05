@@ -25,5 +25,5 @@ export default Fixture.fixture({
       </div>
     );
   },
-  props: {}
+  props: {},
 });

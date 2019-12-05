@@ -20,22 +20,22 @@ let useStyles = styles.makeStyles(theme => ({
   root: {
     display: "flex !important",
     flexDirection: "row !important",
-    alignItems: "center !important"
+    alignItems: "center !important",
   },
   input: {
     marginLeft: 8,
-    flex: 1
+    flex: 1,
   },
   iconButton: {
-    padding: 10
-  }
+    padding: 10,
+  },
 }));
 
 type Props = {|
   placeholder?: string,
   debounce?: number,
   value: null | string,
-  onChange: (null | string) => void
+  onChange: (null | string) => void,
 |};
 
 export function SearchInput(props: Props) {

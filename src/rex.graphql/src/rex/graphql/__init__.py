@@ -36,6 +36,7 @@ __all__ = (
     "connect",
     "filter_from_function",
     "sort_from_function",
+    "sort",
     "q",
     # Parameters
     "argument",
@@ -45,6 +46,8 @@ __all__ = (
     "mutation_from_function",
     # Execution
     "execute",
+    "execute_exn",
+    "execute_q",
     "Result",
     "GraphQLError",
 )
@@ -76,6 +79,7 @@ from .desc import (
     compute_from_function,
     mutation_from_function,
     sort_from_function,
+    sort,
 )
 from .execute import execute, execute_exn, Result
 from .schema import schema, Schema

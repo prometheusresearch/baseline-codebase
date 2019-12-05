@@ -16,21 +16,21 @@ export type Theme = styles.Theme;
 
 let defaultTheme: Theme = mui.createMuiTheme({
   typography: {
-    useNextVariants: true
-  }
+    useNextVariants: true,
+  },
 });
 
 export let theme: Theme = mui.createMuiTheme({
   typography: {
-    useNextVariants: true
+    useNextVariants: true,
   },
   palette: {
     ...defaultTheme.palette,
     success: {
       main: mui.colors.green["600"],
       light: mui.colors.green["200"],
-      dark: mui.colors.green["800"]
-    }
+      dark: mui.colors.green["800"],
+    },
   },
   breakpoints: {
     values: {
@@ -38,25 +38,31 @@ export let theme: Theme = mui.createMuiTheme({
       sm: 600,
       md: 1080,
       lg: 1280,
-      xl: 1920
-    }
+      xl: 1920,
+    },
   },
   definitonList: {
     verticalSpacing: 8,
-    horizontalSpacing: 8
-  }
+    horizontalSpacing: 8,
+  },
 });
 
 export let useTheme: void => Theme = () => {
   return styles.useTheme() || theme;
+};
+
+export function makeStyles<Styles: {}>(
+  spec: Theme => Styles,
+): any => $ObjMap<Styles, <V>(V) => string> {
+  return styles.makeStyles(spec, { defaultTheme: theme });
 }
 
 export let ThemeProvider = ({
   theme: themeCustom,
-  children
+  children,
 }: {
   theme?: Theme,
-  children: React.Node
+  children: React.Node,
 }) => {
   if (themeCustom == null) {
     themeCustom = theme;

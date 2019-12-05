@@ -7,7 +7,7 @@ import invariant from "invariant";
 import ResizeObserver from "resize-observer-polyfill";
 import * as React from "react";
 import * as ReactUtil from "./ReactUtil.js";
-import { useTheme } from "@material-ui/styles";
+import { useTheme } from "./Theme.js";
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
 
 export type LayoutMode = "desktop" | "tablet" | "phone";
@@ -42,7 +42,7 @@ export function useLayoutMode(): LayoutMode {
  */
 export function useDOMSize(): [
   ?{ height: number, width: number },
-  React.Ref<any>
+  React.Ref<any>,
 ] {
   let [size, setSize] = React.useState(null);
   let elementRef = React.useRef(null);
@@ -53,11 +53,11 @@ export function useDOMSize(): [
     let entry = entries[0];
     invariant(
       entry != null,
-      "useDOMSize: missing records in ResizeObserver callback"
+      "useDOMSize: missing records in ResizeObserver callback",
     );
     invariant(
       entry.target === elementRef.current,
-      "useDOMSize: invalid target in ResizeObserver callback entries"
+      "useDOMSize: invalid target in ResizeObserver callback entries",
     );
     let { width, height } = entry.contentRect;
     setSize({ width, height });
@@ -89,7 +89,7 @@ export function useDOMSize(): [
         elementRef.current = null;
       }
     },
-    []
+    [],
   );
 
   // Tear down ResizeObserver on unmount
@@ -108,18 +108,18 @@ export function useDOMSize(): [
 export function WithDOMSize<
   P: {
     setElementForDOMSize: React.Ref<any>,
-    DOMSize: ?{ width: number, height: number }
-  }
+    DOMSize: ?{ width: number, height: number },
+  },
 >(
-  Component: React.AbstractComponent<P>
+  Component: React.AbstractComponent<P>,
 ): React.AbstractComponent<
   $Diff<
     P,
     {
       setElementForDOMSize: React.Ref<any>,
-      DOMSize: ?{ width: number, height: number }
-    }
-  >
+      DOMSize: ?{ width: number, height: number },
+    },
+  >,
 > {
   let displayName = ReactUtil.getComponentDisplayName(Component) || "Component";
   function Wrapper(props) {

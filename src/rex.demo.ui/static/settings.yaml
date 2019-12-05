@@ -1,0 +1,3 @@
+db: pgsql:demo.ui
+attach_dir: "{sys_prefix}/data/attach"
+sendmail: "-"

@@ -22,7 +22,7 @@ type Props = {
   selectedDate: ?Moment,
   onSelectedDate: (?Moment) => void,
   minDate?: Moment,
-  maxDate?: Moment
+  maxDate?: Moment,
 };
 
 export let TimePicker = (props: Props) => {
@@ -32,7 +32,7 @@ export let TimePicker = (props: Props) => {
     selectedDate,
     onSelectedDate,
     viewDate,
-    onViewDate
+    onViewDate,
   } = props;
 
   let date = selectedDate != null ? selectedDate : Moment();

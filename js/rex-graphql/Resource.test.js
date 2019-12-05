@@ -6,10 +6,9 @@ import * as Resource from "./Resource.js";
 import { configure } from "./index.js";
 
 function mockFetch(status, data) {
-  let resp = new Promise(resolve => {
-    resolve(createResponse(status, data));
-  });
-  window.fetch = jest.fn().mockReturnValue(resp);
+  window.fetch = jest.fn(
+    () => new Promise(resolve => resolve(createResponse(status, data))),
+  );
 }
 
 let globalFetch = window.fetch;
@@ -20,7 +19,7 @@ afterEach(() => {
 
 function createResponse(status, data) {
   var blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
+    type: "application/json",
   });
   return new Response(blob, { status });
 }
@@ -48,7 +47,7 @@ let endpoint = configure("/graphql");
 test("query: happy path", async () => {
   let resource = Resource.defineQuery({
     endpoint,
-    query: ``
+    query: ``,
   });
 
   let rendered;
@@ -61,7 +60,7 @@ test("query: happy path", async () => {
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
       <Component resource={resource} latch={latch} />
-    </React.Suspense>
+    </React.Suspense>,
   );
 
   // first we should see a fallback rendered
@@ -94,7 +93,7 @@ test("query: happy path", async () => {
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
       <Component resource={resource} latch={latch} />
-    </React.Suspense>
+    </React.Suspense>,
   );
 
   expect(rendered.asFragment()).toMatchInlineSnapshot(`
@@ -111,12 +110,12 @@ test("query: happy path", async () => {
 test("query: re-fetching with a different resource", async () => {
   let resource1 = Resource.defineQuery({
     endpoint,
-    query: ``
+    query: ``,
   });
 
   let resource2 = Resource.defineQuery({
     endpoint,
-    query: ``
+    query: ``,
   });
 
   let rendered;
@@ -129,7 +128,7 @@ test("query: re-fetching with a different resource", async () => {
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
       <Component resource={resource1} latch={latch} />
-    </React.Suspense>
+    </React.Suspense>,
   );
 
   // first we should see a fallback rendered
@@ -163,7 +162,7 @@ test("query: re-fetching with a different resource", async () => {
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
       <Component resource={resource2} latch={latch} />
-    </React.Suspense>
+    </React.Suspense>,
   );
 
   // again, first we should see a fallback rendered
@@ -194,7 +193,7 @@ test("query: re-fetching with a different resource", async () => {
 test("query: re-fetching with different params", async () => {
   let resource = Resource.defineQuery({
     endpoint,
-    query: ``
+    query: ``,
   });
 
   let rendered;
@@ -206,8 +205,8 @@ test("query: re-fetching with different params", async () => {
 
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
-      <Component resource={resource} params={{a: 1}} latch={latch} />
-    </React.Suspense>
+      <Component resource={resource} params={{ a: 1 }} latch={latch} />
+    </React.Suspense>,
   );
 
   // first we should see a fallback rendered
@@ -240,8 +239,8 @@ test("query: re-fetching with different params", async () => {
   latch = createLatch();
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
-      <Component resource={resource} params={{a: 2}} latch={latch} />
-    </React.Suspense>
+      <Component resource={resource} params={{ a: 2 }} latch={latch} />
+    </React.Suspense>,
   );
 
   // again, first we should see a fallback rendered
@@ -272,12 +271,12 @@ test("query: re-fetching with different params", async () => {
 test("mutation: happy path", async () => {
   let resource = Resource.defineQuery({
     endpoint,
-    query: ``
+    query: ``,
   });
 
   let mutation = Resource.defineMutation({
     endpoint,
-    mutation: ``
+    mutation: ``,
   });
 
   let rendered;
@@ -290,7 +289,7 @@ test("mutation: happy path", async () => {
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
       <Component resource={resource} latch={latch} />
-    </React.Suspense>
+    </React.Suspense>,
   );
 
   expect(rendered.asFragment()).toMatchInlineSnapshot(`
@@ -318,12 +317,11 @@ test("mutation: happy path", async () => {
   await Resource.perform(mutation, {});
 
   // re-render and see it's refetching the resource
-  mockFetch(200, { data: { message: "Hello NEW" } });
   latch = createLatch();
   rendered = ReactTesting.render(
     <React.Suspense fallback={<Fallback />}>
       <Component resource={resource} latch={latch} />
-    </React.Suspense>
+    </React.Suspense>,
   );
 
   expect(rendered.asFragment()).toMatchInlineSnapshot(`
@@ -340,7 +338,7 @@ test("mutation: happy path", async () => {
 <DocumentFragment>
   <pre>
     {
-  "message": "Hello NEW"
+  "message": "done"
 }
   </pre>
 </DocumentFragment>

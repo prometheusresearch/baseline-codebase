@@ -7,6 +7,5 @@ import { Button } from "./Button";
 export default Fixture.fixture({
   component: Button,
   render: Fixture.renderButtonFixture,
-  props: {children: "Click me"}
+  props: { children: "Click me" },
 });
-

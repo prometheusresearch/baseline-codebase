@@ -18,15 +18,15 @@ export const buttonStyle = {
   justifyContent: "center",
   alignItems: "center",
   fontSize: "1rem",
-  padding: 4
+  padding: 4,
 };
 
 export let BackButtonWithTitle = ({
   onClose,
-  title
+  title,
 }: {|
   title: React.Node,
-  onClose: () => void
+  onClose: () => void,
 |}) => {
   let theme = rexui.useTheme();
   return (
@@ -52,7 +52,7 @@ export let Paginator = (props: {|
   onPrev: () => void,
   onNext: () => void,
   onUp?: () => void,
-  title: React.Node
+  title: React.Node,
 |}) => {
   let { onPrev, onNext, onUp, title } = props;
   let theme = rexui.useTheme();
@@ -62,7 +62,7 @@ export let Paginator = (props: {|
         height: 44,
         display: "flex",
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
       }}
     >
       <mui.Button
@@ -72,7 +72,7 @@ export let Paginator = (props: {|
           textAlign: "left",
           display: "flex",
           flexGrow: 1,
-          borderRadius: buttonSize / 2
+          borderRadius: buttonSize / 2,
         }}
       >
         <mui.Typography

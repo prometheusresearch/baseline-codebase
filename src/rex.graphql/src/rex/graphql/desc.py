@@ -697,7 +697,7 @@ def sort_from_function():
 
         >>> data = execute(sch, '''
         ... {
-        ...     region(sort_by: "name") { name }
+        ...     region(sort_by: name) { name }
         ... }
         ... ''')
         >>> [region['name'] for region in data.data['region']]
@@ -705,7 +705,7 @@ def sort_from_function():
 
         >>> data = execute(sch, '''
         ... {
-        ...     region(sort_by: "name", desc: true) { name }
+        ...     region(sort_by: name, desc: true) { name }
         ... }
         ... ''')
         >>> [region['name'] for region in data.data['region']]
@@ -713,7 +713,7 @@ def sort_from_function():
 
         >>> data = execute(sch, '''
         ... {
-        ...     region(sort_by: "comment") { name }
+        ...     region(sort_by: comment) { name }
         ... }
         ... ''')
         >>> [region['name'] for region in data.data['region']]
@@ -815,6 +815,17 @@ def connectiontype_uncached(
         fields = lambda entitytype, entitytype_complete: {}
     entitytype_complete = entitytype_complete or entitytype
     by_id = q.id == argument("id", EntityId(entitytype.name))
+
+    @filter_from_function()
+    def by_id_many(ids: argument("id", List(EntityId(entitytype.name)))):
+        if not ids:
+            yield False
+        else:
+            expr = q.id == ids[0]
+            for id in ids[1:]:
+                expr = expr | (q.id == id)
+            yield expr
+
     return Record(
         name=connectiontype_name(entitytype=entitytype, name=name),
         fields=lambda: {
@@ -822,6 +833,13 @@ def connectiontype_uncached(
                 q.entity.filter(by_id).first(),
                 type=entitytype_complete,
                 description=f"Get {entitytype.name} by id",
+                loc=None,
+            ),
+            "get_many": query(
+                q.entity,
+                filters=[by_id_many],
+                type=entitytype_complete,
+                description=f"Get multiple {entitytype.name} by id",
                 loc=None,
             ),
             "all": query(
@@ -1285,6 +1303,66 @@ def param(
 #:   ...    return parent.name
 #:
 parent_param = param(name="parent", type=None, f=lambda parent, ctx: parent)
+
+
+@cached
+def sort_direction_type(type, keys):
+
+    field_type = Enum(
+        name=f"sort_{type.name}_field",
+        values=[EnumValue(name=key) for key in keys],
+    )
+
+    sort_direction_type = InputObject(
+        name=f"sort_{type.name}_direction",
+        fields=lambda: {
+            "field": InputObjectField(field_type),
+            "desc": InputObjectField(scalar.Boolean, default_value=False),
+        },
+    )
+
+    return sort_direction_type
+
+
+def sort(type, **fields):
+    """ Define sort for a type.
+
+    Example::
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(
+        ...         q.region,
+        ...         type=region,
+        ...         sort=sort(
+        ...             region,
+        ...             name=q.name,
+        ...             nation_count=q.nation.count()
+        ...         )
+        ...     )
+        ... })
+
+        >>> res = execute(sch, "{ region(sort: {field: name}) { name } }")
+        >>> [region['name'] for region in res.data['region']]
+        ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+
+        >>> res = execute(sch, "{ region(sort: {field: name, desc: true}) { name } }")
+        >>> [region['name'] for region in res.data['region']]
+        ['MIDDLE EAST', 'EUROPE', 'ASIA', 'AMERICA', 'AFRICA']
+
+    """
+    sort_keys = tuple(fields.keys())
+    sort_type = sort_direction_type(type=type, keys=sort_keys)
+
+    @sort_from_function()
+    def sort(sort: sort_type = None):
+        q_sort = None
+        if sort is not None:
+            q_sort = fields[sort["field"]]
+            if sort["desc"]:
+                q_sort = q_sort.desc()
+        return q_sort
+
+    return sort
 
 
 class Mutation(Desc):

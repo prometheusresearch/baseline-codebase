@@ -33,7 +33,7 @@ from htsql.core import domain
 from htsql.core.model import HomeNode, TableNode, TableArc, ChainArc
 from htsql.core.util import to_name
 from htsql.core.classify import classify, localize, relabel
-from graphql import error
+from graphql import error, language
 from graphql.type import scalars as gql_scalars
 
 from rex.core import Error, guard
@@ -67,7 +67,9 @@ class QueryInputType(abc.ABC):
 
 
 def find_named_type(type):
-    while not isinstance(type, (EntityType, ObjectType, ScalarType, EnumType)):
+    while not isinstance(
+        type, (EntityType, ObjectType, ScalarType, InputObjectType, EnumType)
+    ):
         if isinstance(type, (ListType, NonNullType)):
             type = type.type
         else:
@@ -170,6 +172,9 @@ class EnumType(Type, InputType, QueryInputType):
 
     domain = domain.TextDomain()
 
+    def __str__(self):
+        return ", ".join(x for x in self._names)
+
     def bind_value(self, state, value):
         return state.bind_cast(self.domain, [LiteralSyntax(value)])
 
@@ -180,10 +185,11 @@ class EnumType(Type, InputType, QueryInputType):
         return value
 
     def parse_literal(self, ast):
-        v = gql_scalars.parse_string_literal(ast)
-        if v not in self._names:
-            return None
-        return v
+        if isinstance(ast, language.ast.EnumValue):
+            return self.coerce_value(ast.value)
+        elif isinstance(ast, language.ast.StringValue):
+            return self.coerce_value(ast.value)
+        return None
 
     def coerce_value(self, v):
         if v not in self._names:
@@ -783,10 +789,8 @@ def _(descriptor, ctx, name):
         vars = {}
         for param_name, param in params.items():
             if not is_query_input_type(param.type):
-                raise Error(
-                    f"Unsupported query argument type `{param_name} : {param.type}`:",
-                    param.loc,
-                )
+                # Some params might be from sort/filter functions.
+                continue
             # This is a "hack" to check usage of how we use arguments of entity
             # identity types. We can just wrap them in the cast expressions
             # (because of how rex.query/HTSQL works) and instead we synthesize a

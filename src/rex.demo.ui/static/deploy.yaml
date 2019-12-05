@@ -1,0 +1,143 @@
+---
+- table: user
+  with:
+  - column: remote_user
+    type: text
+  - column: expires
+    type: datetime
+    required: false
+  - column: system_admin
+    was: site_admin
+    type: boolean
+    required: true
+    default: false
+
+  - identity: [remote_user]
+
+- table: contact_info
+  with:
+  - column: code
+    type: integer
+  - link: user
+  - column: type
+    type: [phone, twitter, other]
+  - column: value
+    type: text
+
+  - identity: [user, code: offset]
+
+- table: patient
+  with:
+  - column: code
+    type: integer
+  - column: name
+    type: text
+  - link: caregiver
+    to: user
+    required: false
+  - column: date_of_birth
+    type: date
+
+  - identity: [code: offset]
+
+- table: site
+  with:
+  - column: code
+    type: text
+  - column: title
+    type: text
+
+  - identity: [code]
+
+- table: user_x_site
+  with:
+  - link: user
+  - link: site
+  - column: role
+    type: [admin, user]
+  - identity: [user, site]
+
+# DATA
+
+- table: user
+  with:
+  - data:
+    - remote_user: savitha@prometheusresearch.com
+      system_admin: true
+    - remote_user: jason@prometheusresearch.com
+      system_admin: true
+    - remote_user: xi@prometheusresearch.com
+      system_admin: true
+    - remote_user: andrey@prometheusresearch.com
+      system_admin: true
+    - remote_user: konstantin@prometheusresearch.com
+      system_admin: true
+    - remote_user: marcin@prometheusresearch.com
+      system_admin: true
+    - remote_user: leon@prometheusresearch.com
+      system_admin: true
+    - remote_user: john@prometheusresearch.com
+      system_admin: true
+    - remote_user: cce@prometheusresearch.com
+      system_admin: true
+    - remote_user: zindel@prometheusresearch.com
+      system_admin: true
+    - remote_user: ben@prometheusresearch.com
+      system_admin: false
+    - remote_user: alex@prometheusresearch.com
+      system_admin: false
+
+- include: ./deploy_user.yaml
+- include: ./deploy_patient.yaml
+
+- table: contact_info
+  with:
+  - data:
+    - user: "'savitha@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-55
+    - user: "'jason@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-44
+    - user: "'xi@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-33
+    - user: "'andrey@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-22
+    - user: "'andrey@prometheusresearch.com'"
+      code: 2
+      type: twitter
+      value: andreypopp
+    - user: "'konstantin@prometheusresearch.com'"
+      code: 1
+      type: phone
+      value: 555-55-11
+
+- table: site
+  with:
+  - data:
+    - code: acme
+      title: "ACME"
+    - code: pr-univ
+      title: "Prometheus University"
+
+- table: user_x_site
+  with:
+  - data:
+    - site: acme
+      user: "'andrey@prometheusresearch.com'"
+      role: admin
+    - site: acme
+      user: "'konstantin@prometheusresearch.com'"
+      role: user
+    - site: acme
+      user: "'jason@prometheusresearch.com'"
+      role: user
+    - site: pr-univ
+      user: "'andrey@prometheusresearch.com'"
+      role: admin

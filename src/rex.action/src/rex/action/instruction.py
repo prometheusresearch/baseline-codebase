@@ -341,7 +341,6 @@ class ExecuteShortcutVal(ValidateWithAction):
     def _check(self, value):
         from .wizard import WizardBase as Wizard
         if len(value) != 1:
-            return Execute(id='x', action='y', then=[], action_instance=None)
             raise Error('only mappings of a single key are allowed')
         action, then = next(iter(value.items()))
         action_instance = self.resolve_action(action)

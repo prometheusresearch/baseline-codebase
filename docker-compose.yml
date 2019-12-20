@@ -25,12 +25,18 @@ services:
     - type: volume
       source: appdocs
       target: /app/doc/build
+    - type: volume
+      source: cache
+      target: /cache
     links:
     - postgres
     environment:
     - PATH=/app/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     - PGHOST=postgres
     - PGUSER=postgres
+    - npm_config_cache=/cache/npm
+    - YARN_CACHE_FOLDER=/cache/yarn
+    - PIP_CACHE_DIR=/cache/pip
     cap_add:
     - NET_ADMIN
     sysctls:
@@ -99,3 +105,6 @@ volumes:
   apprun:
   appdocs:
   pgdata:
+  cache:
+    external:
+      name: rexdb-cache

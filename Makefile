@@ -12,8 +12,8 @@ REGISTRY ?=
 
 
 # Project name and version (codebase name / tag or revision id).
-PRJ_NAME ?= ${shell hg identify -b | cut -d / -f 1}
-PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg identify -i | tr + -}}
+PRJ_NAME ?= ${shell git symbolic-ref --short HEAD | cut -d / -f 1}
+PRJ_VER ?= ${firstword ${shell git tag --points-at=HEAD | cut -d / -f 2 -s} ${shell git rev-parse --short HEAD}}
 
 
 # Display available targets.
@@ -410,7 +410,7 @@ start: ./bin/activate #: start application daemons using development configurati
 
 sync-once:
 	${RSYNC} \
-		--exclude /.hg/ \
+		--exclude /.git/ \
 		--exclude /.st/ \
 		--exclude /.devmode \
 		--exclude /.kubeconfig \

@@ -14,20 +14,20 @@ For most projects, adding your project to Concourse can be done by using the
 ``add-project`` Makefile target in our configuration repository. This will
 create a pipeline with the default behaviors (described below).
 
-1. Clone the `prometheus/concourse
-   <https://bitbucket.org/prometheus/concourse>`_ repository::
+1. Clone the `prometheusresearch/concourse
+   <https://github.com/prometheusresearch/concourse>`_ repository::
 
-    $ hg clone ssh://hg@bitbucket.org/prometheus/concourse
+    $ git clone git@github.com:prometheusresearch/concourse.git
 
 2. Create a branch for your changes::
 
-    $ hg branch add-myproject
+    $ git checkout -b add-myproject
 
 3. Execute the Makefile::
 
     $ make add-project PROJECT=myproject
 
-4. Add, commit, and push the changes to Bitbucket. Send a pull request for your
+4. Add, commit, and push the changes to GitHub. Send a pull request for your
    branch to the Engineering team.
 
 
@@ -52,7 +52,7 @@ dist
 Every 5 minutes, Concourse will check your project's repository for new tags.
 If it sees any, it will clone your repository and build a Docker image using
 the ``Dockerfile`` found in the root of your repository. The tag for that image
-will be the same as the Mercurial tag.
+will be the same as the Git tag.
 
 doc
 ---

@@ -5,22 +5,36 @@ Start a New Project
 The steps below outline the basic procedure for starting a **brand new**
 codebase project.
 
-1. Create an empty Mercurial repository in Bitbucket. The name of this
-   repository should follow the convention ``<PROJECT NAME>-codebase``. For
-   this example, we'll use ``myproject-codebase``.
+1. Create an empty private repository in GitHub. The name of this repository
+   should follow the convention ``<PROJECT NAME>-codebase``. For this example,
+   we'll use ``myproject-codebase``.
 
-2. At a terminal, use ``props.codebase`` to initialize the new repository. When
-   you do so, you'll want to choose what other codebase repository you want to
-   establish as the dependency and what version of it to base your project
-   upon. For this example, we'll pretend our project is based on RexStudy::
+2. At a terminal, use ``git`` to create the repository and connect it to
+   GitHub::
 
-      $ props.codebase init myproject -r study/4.24.0
+      $ git init myproject
+      $ cd myproject
+      $ git remote add origin git@github.com:prometheusresearch/myproject-codebase.git
 
-3. After the project has been initialized (it may take a while), you can then
-   clone it to your development system to begin work::
+3. Next, you need to pull in the upstream template repository that you want to
+   base your project one. For this example, we'll pretend our project is based
+   on RexStudy::
 
-      $ props.codebase install myproject
+      $ git remote add study git@github.com:prometheusresearch/study-codebase.git
+      $ git fetch study
 
+4. Finally, you then need to create you project's master branch based off of
+   your desired version of the upstream template. All branches that you create
+   in your repository, including master, must be prefixed with your project
+   name (e.g., ``myproject/master``)::
+
+      $ git checkout --no-track -b myproject/master study/study/master
+      $ git push origin myproject/master
+
+   In this example, we started our project from the absolute most recent
+   version of RexStudy, which is located on the study/master branch. If you
+   instead wanted to base your project off of a tag or specific commit, you
+   can use that name or hash in place of the ``study/study/master`` above.
 
 Notes:
 
@@ -36,8 +50,8 @@ Notes:
     ``README.study.rst``). This will have quick-start instructions intended to
     get you moving in terms of booting up the application, etc.
 
-* In Bitbucket, for convenience's sake, you should set the "Main branch" of
-  your repository to be the default branch of your project (e.g.,
-  ``myproject/default``). You'll find this option in the "Repository details"
-  section of the Bitbucket project admin section.
+* In GitHub, for convenience's sake, you should set the "Default branch" of
+  your repository to be the master branch of your project (e.g.,
+  ``myproject/master``). You'll find this option in the "Branches" section of
+  the GitHub project Settings section.
 

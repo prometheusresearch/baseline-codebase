@@ -34,7 +34,6 @@ TODO
 .. toctree::
    :maxdepth: 1
 
-   props_codebase
    development_environment
    continuous_integration
 

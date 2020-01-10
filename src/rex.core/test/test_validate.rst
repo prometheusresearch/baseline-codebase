@@ -227,16 +227,16 @@ in UTF-8 encoding.  The output is always a Unicode string::
     rex.core.Error: Expected a string
     Got:
         None
-    >>> str_val('\N{CYRILLIC CAPITAL LETTER YA}')
-    'Я'
-    >>> str_val('\N{CYRILLIC CAPITAL LETTER YA}'.encode('utf-8'))
-    'Я'
-    >>> str_val('\N{CYRILLIC CAPITAL LETTER YA}'.encode('cp1251'))
+    >>> str_val('\N{LATIN SMALL LETTER O WITH DIAERESIS}')
+    'ö'
+    >>> str_val('\N{LATIN SMALL LETTER O WITH DIAERESIS}'.encode('utf-8'))
+    'ö'
+    >>> str_val('\N{LATIN SMALL LETTER O WITH DIAERESIS}'.encode('latin1'))
     Traceback (most recent call last):
       ...
     rex.core.Error: Expected a valid UTF-8 string
     Got:
-        b'\xdf'
+        b'\xf6'
 
 ``StrVal`` can also parse YAML documents::
 

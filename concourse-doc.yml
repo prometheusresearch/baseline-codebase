@@ -22,4 +22,6 @@ run:
   - -exc
   - |
     make -C codebase init-local
+    make -C codebase/doc latexpdf
     cp -a codebase/doc/build/html/. doc
+    cp -a codebase/doc/build/latex/Project.pdf doc

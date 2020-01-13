@@ -1,6 +1,6 @@
 .st
 *.sync-conflict-*
-.hg
+.git
 .*.sw?
 *.orig
 *.pyc

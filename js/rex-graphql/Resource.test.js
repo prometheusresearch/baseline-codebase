@@ -266,6 +266,30 @@ test("query: re-fetching with different params", async () => {
   </pre>
 </DocumentFragment>
 `);
+
+  // back to first set of params
+
+  mockFetch(200, { data: { message: "Hello" } });
+
+  latch = createLatch();
+
+  rendered = ReactTesting.render(
+    <React.Suspense fallback={<Fallback />}>
+      <Component resource={resource} params={{ a: 1 }} latch={latch} />
+    </React.Suspense>,
+  );
+
+  // we should see the data immediately
+
+  expect(rendered.asFragment()).toMatchInlineSnapshot(`
+<DocumentFragment>
+  <pre>
+    {
+  "message": "Hello"
+}
+  </pre>
+</DocumentFragment>
+`);
 });
 
 test("mutation: happy path", async () => {

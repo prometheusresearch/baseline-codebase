@@ -25,7 +25,8 @@ from .secret import SecretSetting, encrypt_and_sign, validate_and_decrypt
 from .services import ServicesSetting
 from .template import (
     get_jinja, render_to_response, HandleTemplate, jinja_filter_json,
-    jinja_filter_urlencode, jinja_filter_url, find_assets_bundle)
+    jinja_filter_urlencode, jinja_filter_url, find_assets_bundle,
+    get_assets_bundle)
 from .ctl import (
     HTTPHostGlobal, HTTPPortGlobal, UWSGIGlobal, ServeTask, WSGITask,
     ServeUWSGITask, StartTask, StopTask, StatusTask)

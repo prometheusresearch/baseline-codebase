@@ -44,9 +44,6 @@
       -webkit-flex-shrink: 0;
     }
   </style>
-  {% if bundle.css %}
-  <link id="__stylesheet__" media="not-applicable" rel="stylesheet" href="{{ bundle.css|url }}">
-  {% endif %}
 </head>
 <body class="rex-widget-app">
   <div id="__main__"></div>
@@ -79,11 +76,7 @@
       repeatCount="indefinite"/></circle></svg>'>
   </div>
   <script>
-    {% if bundle.root %}
-    var __PUBLIC_PATH__ = "{{ bundle.root|url }}/";
-    {% endif %}
     var __REX_USER__ = JSON.parse(JSON.parse({{ user|json }}));
-    var __MOUNT_POINTS__ = {{ REQUEST.environ['rex.mount']|json }};
     var __MOUNT_PREFIX__ = {{ REQUEST.script_name|json }};
     var __REX_WIDGET_MOUNT_PREFIX__ = {{ REQUEST.environ['rex.mount']['rex.widget']|json }};
     var __REX_WIDGET__;
@@ -93,9 +86,7 @@
     {{ render(REQUEST) }}
   {% endfor %}
 
-  {% if bundle.js %}
-  <script src="{{ bundle.js|url }}"></script>
-  {% endif %}
+  {{ BUNDLE_SCRIPT_TAG }}
 
   {% for render in after_bundle %}
     {{ render(REQUEST) }}

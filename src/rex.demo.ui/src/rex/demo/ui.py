@@ -7,7 +7,6 @@ from rex.web import (
     Command,
     authorize,
     render_to_response,
-    find_assets_bundle,
 )
 from rex.graphql import (
     schema,
@@ -244,9 +243,4 @@ class Index(Command):
     path = "/**"
 
     def render(self, req):
-        bundle = find_assets_bundle()
-        if bundle is None:
-            raise Error("No assets bundle found")
-        return render_to_response(
-            "rex.demo.ui:/templates/index.html", req, bundle=bundle
-        )
+        return render_to_response("rex.demo.ui:/templates/index.html", req)

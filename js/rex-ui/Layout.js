@@ -41,7 +41,14 @@ export function useLayoutMode(): LayoutMode {
  *   }
  */
 export function useDOMSize(): [
-  ?{ height: number, width: number },
+  ?{
+    width: number,
+    height: number,
+    left: number,
+    right: number,
+    top: number,
+    bottom: number,
+  },
   React.Ref<any>,
 ] {
   let [size, setSize] = React.useState(null);
@@ -59,8 +66,8 @@ export function useDOMSize(): [
       entry.target === elementRef.current,
       "useDOMSize: invalid target in ResizeObserver callback entries",
     );
-    let { width, height } = entry.contentRect;
-    setSize({ width, height });
+    let { width, height, left, top, bottom, right } = entry.contentRect;
+    setSize({ width, height, left, top, bottom, right });
   };
 
   // Handle element mount/unmount
@@ -74,8 +81,9 @@ export function useDOMSize(): [
       }
 
       if (element != null) {
-        let { width, height } = element.getBoundingClientRect();
-        setSize({ width, height });
+        let rect = element.getBoundingClientRect();
+        let { width, height, top, right, left, bottom } = rect;
+        setSize({ width, height, top, right, bottom, left });
 
         if (observerRef.current == null) {
           observerRef.current = new ResizeObserver(onResize);

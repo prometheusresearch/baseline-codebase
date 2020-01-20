@@ -17,7 +17,7 @@ from rex.instrument import Instrument, InstrumentVersion, Assessment, \
     ValidationError as InstrumentValidationError
 from rex.forms import PresentationAdaptor, Form, \
     ValidationError as FormValidationError
-from rex.web import Command, Parameter, render_to_response, find_assets_bundle
+from rex.web import Command, Parameter, render_to_response
 
 
 __all__ = (
@@ -166,7 +166,6 @@ class MenuCommand(BaseCommand):
             recons=get_recons(
                 self.package().abspath('examples/reconciliations'),
             ),
-            bundle=find_assets_bundle(),
         )
 
 
@@ -191,7 +190,6 @@ class DemoCommand(BaseCommand):
                 self.package().abspath('examples/reconciliations'),
             ),
             demo=demos[demo_id],
-            bundle=find_assets_bundle(),
         )
 
 
@@ -285,6 +283,5 @@ class ReconCommand(BaseCommand):
                 self.package().abspath('examples/reconciliations'),
             ),
             recon=recons[recon_id],
-            bundle=find_assets_bundle(),
         )
 

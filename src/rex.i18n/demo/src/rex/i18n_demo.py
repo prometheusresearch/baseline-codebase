@@ -1,5 +1,5 @@
 from rex.i18n import ngettext, gettext as _
-from rex.web import Command, render_to_response, find_assets_bundle
+from rex.web import Command, render_to_response, get_assets_bundle
 
 
 SOME_THING = _('apple')
@@ -16,6 +16,6 @@ class DemoCommand(Command):
         return render_to_response(
             'rex.i18n_demo:/www/index.html',
             request,
-            bundle=find_assets_bundle(),
+            bundle=get_assets_bundle(),
         )
 

@@ -3,7 +3,9 @@
 #
 
 
-from rex.core import get_packages, cached, get_settings, Error, RexJSONEncoder
+from rex.core import (
+    get_packages, cached, get_settings, Error, guard, RexJSONEncoder
+)
 from .handle import HandleFile
 from .route import url_for, make_sentry_script_tag
 from .auth import authenticate
@@ -15,7 +17,6 @@ import os.path
 import mimetypes
 import urllib.request, urllib.parse, urllib.error
 import json
-import re
 import jinja2
 
 
@@ -267,6 +268,8 @@ def render_to_response(package_path, req,
         The URL of the request, without the query string.
     `REQUEST`
         HTTP request object.
+    `BUNDLE_SCRIPT_TAG`
+        An HTML snippet which injects bundle with JS and CSS code into a page.
     `SENTRY_SCRIPT_TAG`
         An HTML snippet that enables front-end Sentry integration.
     `SETTINGS`
@@ -290,6 +293,7 @@ def render_to_response(package_path, req,
     PATH_URL = req.path_url
     REQUEST = req
     SENTRY_SCRIPT_TAG = lazy(lambda req=req: make_sentry_script_tag(req))
+    BUNDLE_SCRIPT_TAG = lazy(lambda req=req: make_bundle_script_tag(req))
     SETTINGS = get_settings()
     URL = req.url
     USER = authenticate(req)
@@ -306,6 +310,7 @@ def render_to_response(package_path, req,
             PATH_URL=PATH_URL,
             REQUEST=REQUEST,
             SENTRY_SCRIPT_TAG=SENTRY_SCRIPT_TAG,
+            BUNDLE_SCRIPT_TAG=BUNDLE_SCRIPT_TAG,
             URL=URL,
             USER=USER,
             SETTINGS=SETTINGS,
@@ -327,21 +332,33 @@ ASSET_BUNDLE_CSS_PATH = '/www/bundle/bundle.css'
 ASSET_BUNDLE_MANIFEST_PATH = '/www/bundle/asset-manifest.json'
 
 
-AssetsBundle = collections.namedtuple('AssetsBundle', ['root', 'js', 'css'])
+AssetsBundle = collections.namedtuple(
+    'AssetsBundle',
+    ['root', 'js', 'css', 'package']
+)
 
 
-def find_assets_bundle(package_name=None):
-    """ Return either a bundle description or ``None`` for the currently running app.
+class NoAssetsBundleFoundError(Error):
+    pass
+
+
+def get_assets_bundle(package_name=None):
+    """ Returns a bundle description for the currently running app.
 
     If ``package_name`` is provided then the bundle info from this package will be
     returned (if found), otherwise the first found bundle info is returned.
+
+    :raises NoAssetsBundleFoundError: in case bundle wasn't found
     """
     packages = get_packages()
     if package_name is not None:
         packages = [pkg for pkg in packages if pkg.name == package_name]
     root = css = js = None
     www = '/www'
+    paths = []
+    bundle = None
     for package in packages:
+        paths.append(f"{package.name}:{ASSET_BUNDLE_ROOT_PATH}")
         if not package.exists(ASSET_BUNDLE_ROOT_PATH):
             continue
 
@@ -358,7 +375,8 @@ def find_assets_bundle(package_name=None):
                 js = '%s:%s' % (package.name, make_public_path(js))
             if css:
                 css = '%s:%s' % (package.name, make_public_path(css))
-            return AssetsBundle(root=root, js=js, css=css)
+            bundle = AssetsBundle(root=root, js=js, css=css, package=package)
+            break
 
         # fallback to hardcoded paths
         else:
@@ -376,4 +394,63 @@ def find_assets_bundle(package_name=None):
                         package.name,
                         ASSET_BUNDLE_JS_PATH[len(www):],
                         dist.version)
-                return AssetsBundle(root=root, js=js, css=css)
+                bundle = AssetsBundle(root=root, js=js, css=css, package=package)
+                break
+
+    if not bundle:
+        paths = "\n".join(paths)
+        with guard("While looking for bundle the following paths were considered:", paths):
+            if package_name is not None:
+                raise NoAssetsBundleFoundError(
+                    f"Cannot find assets bundle inside `{package_name}` package"
+                )
+            else:
+                pkg = get_packages()[0]
+                raise NoAssetsBundleFoundError(
+                    f"Cannot find assets bundle for `{pkg.name}` app"
+                )
+
+    return bundle
+
+
+def find_assets_bundle(package_name=None):
+    """ Same as func:``get_assets_bundle`` but returns ``None`` in case bundle
+    wasn't found.
+    """
+    try:
+        return get_assets_bundle(package_name)
+    except NoAssetsBundleFoundError:
+        return None
+
+
+def make_bundle_script_tag(req):
+    bundle = get_assets_bundle()
+    lines = []
+
+    public_path = url_for(req, bundle.root) + "/"
+    lines.append(f'''
+    <script type="text/javascript">
+    window.__PUBLIC_PATH__ = {jinja_filter_json(public_path)};
+    </script>
+    ''')
+
+    mount_points = req.environ['rex.mount']
+    lines.append(f'''
+    <script type="text/javascript">
+    window.__MOUNT_POINTS__ = {jinja_filter_json(mount_points)};
+    </script>
+    ''')
+
+    if bundle.js:
+        js_url = url_for(req, bundle.js)
+        lines.append(f'''
+        <script type="text/javascript" src="{js_url}"></script>
+        ''')
+
+    if bundle.css:
+        css_url = url_for(req, bundle.css)
+        lines.append(f'''
+        <link rel="stylesheet" href="{css_url}">
+        ''')
+
+    return '\n'.join(lines)

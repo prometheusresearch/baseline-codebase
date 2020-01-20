@@ -19,7 +19,7 @@ from rex.forms import commands as forms_commands
 from rex.forms.util import preview_calculation_results
 from rex.web import (
     Command, Parameter, render_to_response, authenticate,
-    find_assets_bundle)
+    get_assets_bundle)
 
 
 __all__ = (
@@ -237,7 +237,7 @@ class BaseViewFormCommand(BaseCommand):
         )
         context['channels'] = [f.channel.as_dict() for f in all_forms]
         context['initial_channel'] = form.channel.uid
-        context['bundle'] = find_assets_bundle()
+        context['bundle'] = get_assets_bundle()
 
         return self.template_response(request, context, name='viewform')
 

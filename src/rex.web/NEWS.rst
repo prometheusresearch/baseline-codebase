@@ -4,6 +4,18 @@
 
 .. contents:: Table of Contents
 
+Next Version
+============
+
+* Add ``rex.web.get_assets_bundle`` which works like previously undocumented
+  ``rex.web.find_assets_bundle`` but raises if it cannot find a bundle.
+
+  ``rex.web.find_assets_bundle`` is not longer recommended to be used and will
+  remain undocumented.
+
+* Add ``BUNDLE_SCRIPT_TAG`` to Jinja2 template environment which calls
+  ``rex.web.get_assets_bundle()`` and produces a set of ``<script>`` and
+  ``<link>`` tags.
 
 4.1.0 (2019-11-11)
 ==================

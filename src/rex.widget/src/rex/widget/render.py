@@ -16,7 +16,7 @@ from webob.exc import HTTPBadRequest
 
 from rex.core import get_packages, get_settings, Extension
 from rex.db import get_db
-from rex.web import render_to_response, find_assets_bundle
+from rex.web import render_to_response
 
 from .keypath import KeyPathVal
 from .transitionable import encode, select, SelectError
@@ -113,7 +113,6 @@ def render(widget, request,
             return render_to_response(
                 template, request,
                 user=json.dumps(json.dumps(user)),
-                bundle=find_assets_bundle(),
                 theme=theme,
                 before_bundle=before_bundle,
                 after_bundle=after_bundle,

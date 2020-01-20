@@ -4,13 +4,7 @@
   <head>
     <title>rex.demo.forms</title>
     {{ polyfill() }}
-    {% if bundle.css %}
-    <link rel="stylesheet" href="{{ bundle.css|url }}">
-    {% endif %}
-    <script type="text/javascript">
-      var __PUBLIC_PATH__ = '{{ bundle.js|url }}/';
-    </script>
-    <script src="{{ bundle.js|url }}"></script>
+    {{ BUNDLE_SCRIPT_TAG }}
   </head>
   <body>
     <div id="main"></div>

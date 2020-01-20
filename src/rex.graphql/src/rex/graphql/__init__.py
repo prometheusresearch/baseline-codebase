@@ -44,6 +44,9 @@ __all__ = (
     "parent_param",
     # Mutations
     "mutation_from_function",
+    "create_entity_from_function",
+    "update_entity_from_function",
+    "delete_entity_from_function",
     # Execution
     "execute",
     "execute_exn",
@@ -78,6 +81,9 @@ from .desc import (
     filter_from_function,
     compute_from_function,
     mutation_from_function,
+    create_entity_from_function,
+    update_entity_from_function,
+    delete_entity_from_function,
     sort_from_function,
     sort,
 )

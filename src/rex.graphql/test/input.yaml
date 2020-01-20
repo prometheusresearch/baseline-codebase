@@ -15,5 +15,5 @@ tests:
 - sh: pip uninstall -q -y rex.graphql_demo
   ignore: true
 
-- coverage-check: 70.0
+- coverage-check: 80.0
 - coverage-report: ./build/coverage

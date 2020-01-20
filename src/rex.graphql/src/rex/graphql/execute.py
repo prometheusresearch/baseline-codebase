@@ -376,7 +376,7 @@ def get_param_values(
             arg_name = param.out_name or name
             arg_node = arg_node_map.get(name)
             if name not in arg_node_map:
-                if param.default_value is not None:
+                if param.default_value is not desc.no_default_value:
                     result[arg_name] = param.default_value
                 elif isinstance(arg_type, model.NonNullType):
                     raise error.GraphQLError(
@@ -397,7 +397,7 @@ def get_param_values(
                             nodes=[arg_node, variable.node],
                         )
                     result[arg_name] = variable.value
-                elif param.default_value is not None:
+                elif param.default_value is not desc.no_default_value:
                     result[arg_name] = param.default_value
                 elif isinstance(arg_type, model.NonNullType):
                     raise error.GraphQLError(
@@ -414,7 +414,7 @@ def get_param_values(
                     message=f'Argument "{arg_name} : {arg_type}"',
                 )
                 if value is None:
-                    if param.default_value is not None:
+                    if param.default_value is not desc.no_default_value:
                         value = param.default_value
                         result[arg_name] = value
                 else:
@@ -860,6 +860,10 @@ def resolve_field(
         resolve_fn = field_def.resolver
         try:
             result = resolve_fn(parent, info, params)
+        except error.GraphQLError as err:
+            ctx.raise_error(
+                msg=f"Error while executing {parent_type.name}.{field_name}: {err}",
+            )
         except Exception:
             get_sentry().captureException()
             ctx.raise_error(

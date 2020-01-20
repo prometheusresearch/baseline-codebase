@@ -12,17 +12,28 @@
 # copyright: 2019-present Prometheus Research, LLC
 
 from typing import Any
+import datetime
 import json
 
 from webob import Response, Request
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
+from rex.core.validate import RexJSONEncoder
 
-from . import model
 from .schema import Schema
 from .serve_graphiql import serve_graphiql
 from .execute import execute
 
 __all__ = ("serve",)
+
+
+class RexGraphQLJSONEncoder(RexJSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, datetime.date):
+            return o.strftime('%Y-%m-%d')
+        if isinstance(o, datetime.datetime):
+            return o.strftime('%Y-%m-%dT%H:%M:%S')
+        return super(RexGraphQLJSONEncoder, self).default(o)
 
 
 def serve(
@@ -66,8 +77,9 @@ def serve(
             if result.invalid:
                 status = 400
             result = result.to_dict()
+        body = json.dumps(result, cls=RexGraphQLJSONEncoder).encode('utf-8')
         return Response(
-            json=result, status=status, content_type="application/json"
+            body=body, status=status, content_type="application/json"
         )
 
 

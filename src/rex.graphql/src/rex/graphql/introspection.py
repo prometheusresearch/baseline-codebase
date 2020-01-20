@@ -13,6 +13,7 @@ from .desc import (
     scalar,
     Enum,
     EnumValue,
+    no_default_value,
 )
 from . import model, model_scalar
 
@@ -200,7 +201,8 @@ __InputValue = Object(
         "defaultValue": compute(
             type=scalar.String,
             f=lambda input_val, *_: None
-            if input_val.default_value is None
+            if input_val.default_value is no_default_value
+            or input_val.default_value is None
             else language.printer.print_ast(
                 ast_from_value(input_val.default_value, input_val)
             ),

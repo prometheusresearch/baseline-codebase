@@ -280,7 +280,7 @@ class Query(Field):
                 if (
                     isinstance(param, Argument)
                     and not isinstance(param.type, NonNull)
-                    and param.default_value is None
+                    and param.default_value is no_default_value
                 ):
                     param = param.with_type(NonNull(param.type))
                 self._add_param(param)
@@ -419,6 +419,9 @@ class ScalarTypeFactory:
     def __getattr__(self, name):
         return Scalar(name=name, loc=None)
 
+    def __getitem__(self, name):
+        return Scalar(name=name, loc=None)
+
 
 #: Namespace to describe GraphQL scalar types by its name.
 #:
@@ -439,6 +442,9 @@ class EntityId(Type):
 
 class EntityIdTypeFactory:
     def __getattr__(self, table_name):
+        return EntityId(table_name=table_name, loc=None)
+
+    def __getitem__(self, table_name):
         return EntityId(table_name=table_name, loc=None)
 
 
@@ -564,10 +570,16 @@ class FilterOfFunction(Filter):
     def apply(self, query, values):
         kwargs = {}
         for name, param in self.params.items():
-            # skip filter if some of the params are not defined
             if not param.name in values:
-                return query
-            kwargs[name] = values[param.name]
+                if (
+                    isinstance(param, Argument)
+                    and param.default_value is not no_default_value
+                ):
+                    continue
+                else:
+                    return query
+            else:
+                kwargs[name] = values[param.name]
         for clause in self.f(**kwargs):
             query = query.filter(clause)
         return query
@@ -602,7 +614,7 @@ def extract_params(f, mark_as_nonnull_if_no_default_value=False):
                     f"Annotation for argument {name} should be GraphQL type"
                 )
             type = param.annotation
-            default_value = None
+            default_value = no_default_value
             if param.default is not inspect._empty:
                 default_value = param.default
             else:
@@ -971,6 +983,9 @@ def connect(
     )
 
 
+no_default_value = object()
+
+
 class Argument(Param):
     """ Param passed an GraphQL argument."""
 
@@ -978,7 +993,7 @@ class Argument(Param):
         self,
         name,
         type,
-        default_value=None,
+        default_value=no_default_value,
         description=None,
         out_name=None,
         loc=autoloc,
@@ -1198,7 +1213,7 @@ def compute(
 def argument(
     name: str,
     type: Type,
-    default_value: t.Any = None,
+    default_value: t.Any = no_default_value,
     description: str = None,
     out_name: str = None,
     loc=autoloc,
@@ -1375,15 +1390,321 @@ class Mutation(Desc):
 
 
 def mutation_from_function(
-    description=None, deprecation_reason=None, loc=autoloc
+    description=None, deprecation_reason=None, loc=autoloc, name=None
 ):
+    """ Define a mutation."""
     make = compute_from_function(
         description=description, deprecation_reason=deprecation_reason, loc=loc
     )
 
     def decorate(f):
-        name = f.__name__
-        return Mutation(name=name, compute=make(f))
+        mutation_name = name or f.__name__
+        return Mutation(name=mutation_name, compute=make(f))
+
+    return decorate
+
+
+def create_entity_from_function(typ, query_entity=None, **kw):
+    """ Decorator to define a mutation which creates a new entity.
+
+    The function must perform database access to insert a new entity and return
+    either an ID of a newly created entity or a pair of ``None, error_message``,
+    in case of an error.
+
+    Note that you don't have to define a result type as it's fixed to a type
+    you've provided as an argument to the decorator.
+
+    Example::
+
+        >>> from rex.db import get_db
+
+        >>> @create_entity_from_function(region)
+        ... def create_region(name: scalar.String):
+        ...     exists = q.region.filter(q.name == name).exists().produce()
+        ...     if exists:
+        ...         return None, 'region with the same name already exists'
+        ...     res = get_db().produce('''
+        ...         /insert(region := {name := $name})
+        ...     ''', name=name)
+        ...     return res.data
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region)
+        ... }, mutations=[create_region])
+
+        >>> res = execute(sch, '''
+        ...     mutation {
+        ...         res: create_region(name: "ASIA") {
+        ...             error
+        ...             created { id }
+        ...         }
+        ...     }
+        ... ''')
+
+        >>> res.errors is None
+        True
+
+        >>> res.data['res']['error']
+        'region with the same name already exists'
+
+        >>> res.data['res']['created'] is None
+        True
+
+        >>> res = execute(sch, '''
+        ...     mutation {
+        ...         res: create_region(name: "ATLANTIDA") {
+        ...             error
+        ...             created { id }
+        ...         }
+        ...     }
+        ... ''')
+
+        >>> res.errors
+
+        >>> res.data['res']['error']
+
+        >>> res.data['res']['created']
+        OrderedDict([('id', 'ATLANTIDA')])
+
+    """
+
+    @compute_from_function(description="Error")
+    def error(parent: parent_param) -> scalar.String:
+        if not (isinstance(parent, tuple) and parent[0] is None):
+            return None
+        else:
+            return parent[1]
+
+    def get_id_param(parent, ctx):
+        if not (isinstance(parent, tuple) and parent[0] is None):
+            return str(parent)
+        else:
+            return None
+
+    id_param = param(name="id", type=scalar.String, f=get_id_param,)
+
+    if query_entity is None:
+        query_created = q[typ.name].filter(q.id.text() == id_param).first()
+    else:
+        query_created = query_entity.filter(q.id.text() == id_param).first()
+
+    def decorate(f):
+        description = kw.pop("description", None) or f"Create new {typ.name}"
+        name = kw.pop("name", None) or f.__name__ or f"create_{typ.name}"
+        params, return_type = extract_params(
+            f, mark_as_nonnull_if_no_default_value=True
+        )
+
+        Result = Object(
+            name=f"{name}_result",
+            fields=lambda: {
+                "error": error,
+                "created": query(query_created, type=typ),
+            },
+        )
+
+        def run(parent, info, values):
+            kwargs = {}
+            for name, param in params.items():
+                if param.name in values:
+                    kwargs[name] = values[param.name]
+            res = f(**kwargs)
+            return res
+
+        return Mutation(
+            name=name,
+            compute=compute(
+                params=params.values(),
+                f=run,
+                type=Result,
+                name=name,
+                description=description,
+                **kw,
+            ),
+        )
+
+    return decorate
+
+
+def update_entity_from_function(typ, query_entity=None, **kw):
+    """ Decorator to define a mutation which updated an entity.
+
+    Example::
+
+        >>> from rex.db import get_db
+
+        >>> @update_entity_from_function(region)
+        ... def update_region(id: entity_id.region, name: scalar.String):
+        ...     exists = q.region.filter(q.id == id).exists().produce()
+        ...     if not exists:
+        ...         return None, f'no region "{id}" exists in the database'
+        ...     res = get_db().produce('''
+        ...         /region.filter(id()=$id) {
+        ...             id(),
+        ...             name := $name
+        ...         }/:update
+        ...     ''', id=id, name=name)
+        ...     return res.data[0]
+
+        >>> sch = schema(fields=lambda: {
+        ...     'region': query(q.region, type=region)
+        ... }, mutations=[update_region])
+
+        >>> res = execute(sch, '''
+        ...     mutation {
+        ...         res: update_region(id: "UNKNOWN", name: "ASIA2") {
+        ...             error
+        ...             updated { id }
+        ...         }
+        ...     }
+        ... ''')
+
+        >>> res.errors
+
+        >>> res.data['res']['error']
+        'no region "UNKNOWN" exists in the database'
+
+        >>> res.data['res']['updated'] is None
+        True
+
+        >>> res = execute(sch, '''
+        ...     mutation {
+        ...         res: update_region(id: "ASIA", name: "ASIA2") {
+        ...             error
+        ...             updated { id }
+        ...         }
+        ...     }
+        ... ''')
+
+        >>> res.errors
+
+        >>> res.data['res']['error']
+
+        >>> res.data['res']['updated']
+        OrderedDict([('id', 'ASIA2')])
+
+    """
+
+    @compute_from_function(description="Error")
+    def error(parent: parent_param) -> scalar.String:
+        if not (isinstance(parent, tuple) and parent[0] is None):
+            return None
+        else:
+            return parent[1]
+
+    def get_id_param(parent, ctx):
+        if not (isinstance(parent, tuple) and parent[0] is None):
+            return str(parent)
+        else:
+            return None
+
+    id_param = param(name="id", type=scalar.String, f=get_id_param,)
+
+    if query_entity is None:
+        query_created = q[typ.name].filter(q.id.text() == id_param).first()
+    else:
+        query_created = query_entity.filter(q.id.text() == id_param).first()
+
+    def decorate(f):
+        description = kw.pop("description", None) or f"Update {typ.name}"
+        name = kw.pop("name", None) or f.__name__ or f"update_{typ.name}"
+
+        params, return_type = extract_params(
+            f, mark_as_nonnull_if_no_default_value=True
+        )
+
+        if "id" not in params:
+            raise Error(
+                "update_entity_from_function() mutation needs to access id argument"
+            )
+
+        Result = Object(
+            name=f"{name}_result",
+            fields=lambda: {
+                "error": error,
+                "updated": query(query_created, type=typ),
+            },
+        )
+
+        def run(parent, info, values):
+            kwargs = {}
+            for name, param in params.items():
+                if param.name in values:
+                    kwargs[name] = values[param.name]
+            res = f(**kwargs)
+            return res
+
+        return Mutation(
+            name=name,
+            compute=compute(
+                params=params.values(),
+                f=run,
+                type=Result,
+                name=name,
+                description=description,
+                **kw,
+            ),
+        )
+
+    return decorate
+
+
+def delete_entity_from_function(typ, query_entity=None, **kw):
+    """ Decorator to define a mutation which deletes an entity.
+    """
+
+    @compute_from_function(description="Error")
+    def error(parent: parent_param) -> scalar.String:
+        if not (isinstance(parent, tuple) and parent[0] is None):
+            return None
+        else:
+            return parent[1]
+
+    @compute_from_function(description="ID of the deleted entity")
+    def deleted(parent: parent_param) -> entity_id[typ.name]:
+        if not (isinstance(parent, tuple) and parent[0] is None):
+            return parent
+        else:
+            return None
+
+    def decorate(f):
+        description = kw.pop("description", None) or f"Delete {typ.name}"
+        name = kw.pop("name", None) or f.__name__ or f"delete_{typ.name}"
+
+        params, return_type = extract_params(
+            f, mark_as_nonnull_if_no_default_value=True
+        )
+        if "id" not in params:
+            raise Error(
+                "delete_entity_from_function() mutation needs to access id argument"
+            )
+
+        Result = Object(
+            name=f"{name}_result",
+            fields=lambda: {"error": error, "deleted": deleted},
+        )
+
+        def run(parent, info, values):
+            kwargs = {}
+            for name, param in params.items():
+                if param.name in values:
+                    kwargs[name] = values[param.name]
+            res = f(**kwargs)
+            if res is None:
+                res = True
+            return res
+
+        return Mutation(
+            name=name,
+            compute=compute(
+                params=params.values(),
+                f=run,
+                type=Result,
+                name=name,
+                description=description,
+                **kw,
+            ),
+        )
 
     return decorate
 

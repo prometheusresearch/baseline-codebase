@@ -5,6 +5,7 @@ import pytest
 def conf_doctest(doctest_namespace):
     from rex import graphql
     from rex.core import Rex
+    from rex.db import get_db
 
     db = "pgsql:graphql_demo"
     rex = Rex("rex.graphql_demo", db=db)
@@ -28,4 +29,9 @@ def conf_doctest(doctest_namespace):
     doctest_namespace["get_settings"] = get_settings
 
     with rex:
-        yield
+        db = get_db()
+        with db, db.transaction() as tx:
+            try:
+                yield
+            finally:
+                tx.rollback()

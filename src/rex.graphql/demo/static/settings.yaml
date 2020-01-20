@@ -1,6 +1,8 @@
 db: pgsql:graphql_demo
 htsql_extensions:
   rex_deploy:
+  rex_query:
+  tweak.etl:
 access:
   rex.graphql_demo: anybody
 mount:

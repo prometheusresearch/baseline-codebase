@@ -15,6 +15,7 @@ Menu integration
 ::
 
   >>> pkg = SandboxPackage()
+  >>> pkg.rewrite('www/bundle/asset-manifest.json', '{}')
   >>> pkg.rewrite('menu.yaml', """
   ... menu:
   ... - title: Home

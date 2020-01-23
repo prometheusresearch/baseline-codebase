@@ -12,7 +12,7 @@ afterEach(() => {
 
 function createResponse(status, data) {
   var blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
+    type: "application/json",
   });
   return new Response(blob, { status });
 }
@@ -50,7 +50,7 @@ test("happy path", async () => {
       renderData={renderData}
       renderError={renderError}
       onData={() => latch.resolve()}
-    />
+    />,
   );
 
   expect(rendered.asFragment()).toMatchInlineSnapshot(`
@@ -87,7 +87,7 @@ test("GraphQL error handling", async () => {
       renderData={renderData}
       renderError={renderError}
       onError={() => latch.resolve()}
-    />
+    />,
   );
 
   expect(rendered.asFragment()).toMatchInlineSnapshot(`
@@ -124,7 +124,7 @@ test("network error handling", async () => {
       renderData={renderData}
       renderError={renderError}
       onError={() => latch.resolve()}
-    />
+    />,
   );
 
   expect(rendered.asFragment()).toMatchInlineSnapshot(`

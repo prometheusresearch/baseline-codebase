@@ -10,14 +10,14 @@ declare module "history" {
     /** This is only valid for browser and memorty history */
     state?: {},
     /** This is only valid for browser and memorty history */
-    key?: string
+    key?: string,
   |};
 
   declare export function createLocation(
     path?: string,
     state?: {},
     key?: string,
-    currentLocation?: Location
+    currentLocation?: Location,
   ): Location;
 
   declare type History = {|
@@ -33,7 +33,7 @@ declare module "history" {
     goForward(): void,
     listen: ((location: Location, action: Action) => void) => release,
     block: (((location: Location, action: Action) => string) => release) &
-      ((message: string) => release)
+      ((message: string) => release),
   |};
 
   declare export type BrowserHistory = History;
@@ -46,7 +46,7 @@ declare module "history" {
     canGo(n: number): boolean,
     listen: ((location: Location, action: Action) => void) => release,
     block: (((location: Location, action: Action) => string) => release) &
-      ((message: string) => release)
+      ((message: string) => release),
   |};
 
   declare type BorserHistoryOptions = {
@@ -54,12 +54,12 @@ declare module "history" {
     forceRefresh?: boolean,
     getUserConfirmation?: (
       message: string,
-      callback: (willContinue: boolean) => void
-    ) => void
+      callback: (willContinue: boolean) => void,
+    ) => void,
   };
 
   declare export function createBrowserHistory(
-    opts?: BorserHistoryOptions
+    opts?: BorserHistoryOptions,
   ): BrowserHistory;
 
   declare type MemoryHistoryOptions = {
@@ -68,12 +68,12 @@ declare module "history" {
     keyLength?: number,
     getUserConfirmation?: (
       message: string,
-      callback: (willContinue: boolean) => void
-    ) => void
+      callback: (willContinue: boolean) => void,
+    ) => void,
   };
 
   declare export function createMemoryHistory(
-    opts?: MemoryHistoryOptions
+    opts?: MemoryHistoryOptions,
   ): MemoryHistory;
 
   declare type HashHistoryOptions = {
@@ -81,11 +81,11 @@ declare module "history" {
     hashType: "slash" | "noslash" | "hashbang",
     getUserConfirmation?: (
       message: string,
-      callback: (willContinue: boolean) => void
-    ) => void
+      callback: (willContinue: boolean) => void,
+    ) => void,
   };
 
   declare export function createHashHistory(
-    opts?: HashHistoryOptions
+    opts?: HashHistoryOptions,
   ): HashHistory;
 }

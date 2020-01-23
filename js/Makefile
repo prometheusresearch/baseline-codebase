@@ -1,4 +1,5 @@
 BIN = $(PWD)/node_modules/.bin
+FMT = flow-typed rex-graphql rex-ui rex-demo-ui
 
 test:
 	@yarn run jest --no-watch --no-watchman
@@ -12,3 +13,8 @@ showcase:
 check:
 	@yarn run flow
 
+fmt:
+	@yarn prettier --write $(FMT:%='%/**/*.js')
+
+check-fmt:
+	@yarn prettier --check $(FMT:%='%/**/*.js')

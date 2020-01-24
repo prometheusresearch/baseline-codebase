@@ -110,5 +110,4 @@ project, but at a minimum, you'll need things like:
 * Graphviz
 * LaTeX (with extras & recommended)
 * Git
-* Mercurial
 

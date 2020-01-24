@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:experimental
+
 ARG REXDB_TAG=2019.11.12
 
 FROM rexdb/build:$REXDB_TAG AS build
@@ -9,7 +11,13 @@ COPY pip.conf /app/
 COPY src /app/src/
 COPY js /app/js/
 
-RUN make dist-local && \
+RUN --mount=type=cache,target=/cache \
+    CI=true \
+    CONTINUOUS_INTEGRATION=true \
+    npm_config_cache=../cache/npm \
+    YARN_CACHE_FOLDER=../cache/yarn \
+    PIP_CACHE_DIR=../cache/pip \
+    make dist-local && \
     rm -f Makefile* pip.conf && \
     rm -rf src js
 

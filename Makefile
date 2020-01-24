@@ -379,7 +379,8 @@ test: ./bin/activate	#: test all source packages (specify PKG=<SRC> to test a si
 
 # Build the application docker image for distribution.
 dist:	#: build the application image
-	docker build --force-rm -t rexdb/${PRJ_NAME}:${PRJ_VER} .
+	DOCKER_BUILDKIT=1 \
+	docker build --progress plain --force-rm -t rexdb/${PRJ_NAME}:${PRJ_VER} .
 .PHONY: dist
 
 

@@ -9,9 +9,15 @@ image_resource:
 inputs:
 - name: codebase
 
+caches:
+- path: cache
+
 params:
   CI: "true"
   CONTINUOUS_INTEGRATION: "true"
+  npm_config_cache: ../cache/npm
+  YARN_CACHE_FOLDER: ../cache/yarn
+  PIP_CACHE_DIR: ../cache/pip
 
 run:
   path: /bin/sh

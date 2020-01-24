@@ -1,9 +1,0 @@
-syntax: glob
-build
-dist
-*.pyc
-*.egg-info/*
-filesys_test
-demo/static/js/node_modules
-demo/static/www/bundle
-

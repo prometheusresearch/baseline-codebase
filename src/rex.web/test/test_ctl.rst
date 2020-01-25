@@ -23,7 +23,7 @@ The server starts on localhost at the given port.  We can now make a request::
 
     >>> def get(path, port=random_port):
     ...     tries = 0
-    ...     while tries < 100:
+    ...     while tries < 600:
     ...         try:
     ...             return urllib.request.urlopen('http://localhost:%s%s' % (port, path)).read().decode('utf-8')
     ...         except IOError as exc:

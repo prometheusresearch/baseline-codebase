@@ -3,8 +3,8 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: vito/oci-build-task
-    tag: 0.1.0
+    repository: concourse/builder-task
+    tag: latest
 
 inputs:
 - name: codebase
@@ -16,6 +16,7 @@ caches:
 - path: cache
 
 params:
+  REPOSITORY: codebase
   CONTEXT: codebase
 
 run:

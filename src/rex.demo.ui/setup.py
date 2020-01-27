@@ -12,7 +12,7 @@ setup(
     description='Demo UI app for RexDB applications',
     maintainer='Prometheus Research, LLC',
     maintainer_email='contact@prometheusresearch.com',
-    license='AGPLv3',
+    license='Apache-2.0',
     url='https://bitbucket.org/rexdb/baseline-codebase',
     package_dir={'': 'src'},
     packages=find_packages('src'),

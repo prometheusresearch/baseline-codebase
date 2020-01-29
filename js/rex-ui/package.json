@@ -2,6 +2,9 @@
   "name": "rex-ui",
   "version": "1.0.0",
   "description": "A set of UI components for RexDB on top of material UI",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "dependencies": {
     "@material-ui/core": "*",
     "@material-ui/styles": "*",

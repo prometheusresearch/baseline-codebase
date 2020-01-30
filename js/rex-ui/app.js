@@ -6,7 +6,7 @@
 import invariant from "invariant";
 
 let ABSOLUTE_URL_RE = /^https?:\/\//;
-let PACKAGE_ROUTE_RE = /^([a-zA-Z0-9_\.\-]+):(.+)$/;
+let PACKAGE_ROUTE_RE = /^([a-zA-Z0-9_.-]+):(.+)$/;
 
 /**
  * Resolve URL specification of shape package:/path to an absolute URL.

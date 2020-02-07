@@ -1,3 +1,4 @@
+import datetime
 import pytest
 from rex.query import Q, q
 from rex.query.builder import to_htsql_syntax, Param
@@ -150,6 +151,20 @@ def test_with_db():
 def test_to_data():
     """ We can use ``.to_data()`` method to produce data."""
     assert q.region.count().to_data() == 5
+
+
+def test_fn_today():
+    query = q.today()
+    data = query.to_data()
+    # not doing any more checks than that as the output is not deterministic
+    assert isinstance(data, datetime.date)
+
+
+def test_fn_now():
+    query = q.now()
+    data = query.to_data()
+    # not doing any more checks than that as the output is not deterministic
+    assert isinstance(data, datetime.datetime)
 
 
 def test_to_copy_stream(db):

@@ -40,7 +40,7 @@ from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
         AggregateSig, QuantifySig, ExistsSig, CountSig, MinMaxSig, SumSig,
         AvgSig, ExtractYearSig, ExtractMonthSig, ExtractDaySig, ExtractHourSig,
-        ExtractMinuteSig, ExtractSecondSig)
+        ExtractMinuteSig, ExtractSecondSig, TodaySig, NowSig)
 from htsql_rex_query import (
         lookup_name,
         SelectionBinding, BindingRecipe, DefinitionRecipe, SelectSyntaxRecipe)
@@ -711,6 +711,23 @@ class RexBindingState(BindingState):
 
     def bind_datetime_op(self, args):
         return self.bind_cast(DateTimeDomain(), args, fn="datetime")
+
+    def bind_today_op(self, args):
+        return self.bind_fn("today", TodaySig(), DateDomain(), args)
+
+    def bind_now_op(self, args):
+        return self.bind_fn("now", NowSig(), DateTimeDomain(), args)
+
+    def bind_fn(self, name, signature, codomain, args):
+        args = self.bind_parameters(signature, args)
+        syntax = FunctionSyntax(IdentifierSyntax(name), [])
+        binding = FormulaBinding(
+            base=self.scope,
+            signature=signature,
+            domain=codomain,
+            syntax=syntax
+        )
+        return Output(binding)
 
     def bind_exists_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)

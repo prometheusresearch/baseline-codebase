@@ -187,7 +187,7 @@ It's an error not to pass ``name`` argument now::
    ...   }
    ... """)
    >>> result.errors
-   [GraphQLError('Argument "name" of required type String!" was not provided.',)]
+   [GraphQLError('Argument "name" of required type String!" was not provided. At Root.region.',)]
 
 But if we pass ``name`` then everything is ok::
 

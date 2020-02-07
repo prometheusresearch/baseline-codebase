@@ -17,7 +17,7 @@
     "debug": "^2.6.0",
     "downloadjs": "^1.4.6",
     "invariant": "^2.2.1",
-    "lodash": "^4.15.0",
+    "lodash": "^4.17.12",
     "moment": "^2.15.2",
     "prop-types": "^15.5.8",
     "qs": "^6.2.1",

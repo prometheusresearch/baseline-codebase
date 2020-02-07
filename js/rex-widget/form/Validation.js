@@ -4,7 +4,6 @@
 
 import moment from 'moment';
 import {toSnakeCase} from '../lang';
-import {isPlainObject} from 'lodash/lang';
 
 export const DATETIME_ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 export const DATETIME_ISO_FORMAT_MILLIS = 'YYYY-MM-DD HH:mm:ss.SSSS';
@@ -19,8 +18,12 @@ export function string(value, node) {
   return true;
 }
 
+function isObject(v) {
+  return typeof v === 'object' && !Array.isArray(v) && v !== null;
+}
+
 export function json(value, node) {
-  if (!isPlainObject(value)) {
+  if (!isObject(value)) {
     try {
       JSON.parse(value);
     } catch (exc) {

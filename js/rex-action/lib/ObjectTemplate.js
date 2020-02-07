@@ -4,17 +4,19 @@
 
 import * as KeyPath from 'rex-widget/KeyPath';
 import invariant from 'invariant';
-import isPlainObject from 'lodash/lang/isPlainObject';
-import isArray from 'lodash/lang/isArray';
 import {isEntity} from './model/Entity';
+
+function isObject(v: mixed) {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
 
 /**
  * Render object `template` with the provided `context`.
  */
 export function render(template: mixed, context: Object): mixed {
-  if (isArray(template)) {
+  if (Array.isArray(template)) {
     return renderArray(template, context);
-  } else if (isPlainObject(template)) {
+  } else if (isObject(template)) {
     return renderObject(template, context);
   } else {
     invariant(
@@ -40,7 +42,7 @@ function renderObject(template, context) {
       rendered[key] = value;
     } else {
       rendered[key] = item;
-      if (isPlainObject(rendered[key])) {
+      if (isObject(rendered[key])) {
         rendered[key] = render(rendered[key], context);
       }
     }

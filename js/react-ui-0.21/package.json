@@ -35,7 +35,7 @@
     "@prometheusresearch/react-box": "^0.10.0",
     "color-js": "^1.0.3",
     "invariant": "^2.2.1",
-    "lodash": "^4.13.0",
+    "lodash": "^4.17.12",
     "react-dom-stylesheet": "*",
     "react-stylesheet-old": "*"
   }

@@ -40,7 +40,7 @@
   "dependencies": {
     "inline-style-prefix-all": "^2.0.2",
     "prop-types": "^15.0.0",
-    "lodash": "^4.13.1",
+    "lodash": "^4.17.12",
     "murmurhash-js": "^1.0.0",
     "react-css-property-operations": "^15.4.1",
     "react": "*",

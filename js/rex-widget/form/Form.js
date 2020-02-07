@@ -5,7 +5,7 @@
 
 import * as React from "react";
 import { createValue, type schema, type value, type error } from "react-forms";
-import debounce from "lodash/function/debounce";
+import debounce from "lodash/debounce";
 import * as rexui from "rex-ui";
 import {
   ConfirmNavigation,

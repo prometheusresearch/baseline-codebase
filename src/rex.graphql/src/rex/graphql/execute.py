@@ -204,16 +204,18 @@ class ExecutionContext:
         self._subfields_cache = {}
 
     def get_field_params(
-        self, parent, field: model.Field, field_node: language.ast.Field
+        self, parent, parent_type, field: model.Field, field_node: language.ast.Field
     ):
         k = field, field_node, id(parent)
         if k not in self._arguments_cache:
             self._arguments_cache[k] = get_param_values(
                 self,
-                parent,
-                field.params,
-                field_node.arguments,
-                self.variable_values,
+                field=field,
+                parent=parent,
+                parent_type=parent_type,
+                params=field.params,
+                arg_nodes=field_node.arguments,
+                variables=self.variable_values,
                 allow_computed_params=True,
             )
 
@@ -224,7 +226,9 @@ class ExecutionContext:
         if k not in self._arguments_cache:
             self._arguments_cache[k] = get_param_values(
                 self,
+                field=None,
                 parent=None,
+                parent_type=None,
                 params=directive.params,
                 arg_nodes=directive_node.arguments,
                 variables=self.variable_values,
@@ -355,7 +359,9 @@ def should_include_node(ctx: ExecutionContext, directives) -> bool:
 
 def get_param_values(
     ctx: ExecutionContext,
+    field,
     parent: t.Any,
+    parent_type,
     params: t.Dict[str, desc.Param],
     arg_nodes: t.List[language.ast.Argument],
     variables: t.Optional[t.Dict[str, t.Any]] = None,
@@ -370,6 +376,10 @@ def get_param_values(
     arg_node_map = {arg.name.value: arg for arg in arg_nodes}
     result = {}
 
+    msg_ctx = ""
+    if field and parent_type:
+        msg_ctx = f" At {parent_type.name}.{field.name}."
+
     for name, param in params.items():
         if isinstance(param, desc.Argument):
             arg_type = param.type
@@ -379,10 +389,12 @@ def get_param_values(
                 if param.default_value is not desc.no_default_value:
                     result[arg_name] = param.default_value
                 elif isinstance(arg_type, model.NonNullType):
-                    raise error.GraphQLError(
+                    msg = (
                         f'Argument "{name}" of required type {arg_type}"'
-                        f" was not provided.",
-                        nodes=arg_nodes,
+                        f" was not provided."
+                    )
+                    raise error.GraphQLError(
+                        msg + msg_ctx, nodes=arg_nodes,
                     )
             elif isinstance(arg_node.value, language.ast.Variable):
                 variable_name = arg_node.value.name.value
@@ -391,20 +403,24 @@ def get_param_values(
                     if not are_types_compatible(
                         var_type=variable.type, loc_type=arg_type
                     ):
-                        raise error.GraphQLError(
+                        msg = (
                             f'Variable "${variable_name} : {variable.type}" is attempted'
-                            f' to be used as a value of incompatible type "{arg_type}"',
-                            nodes=[arg_node, variable.node],
+                            f' to be used as a value of incompatible type "{arg_type}".'
+                        )
+                        raise error.GraphQLError(
+                            msg + msg_ctx, nodes=[arg_node, variable.node],
                         )
                     result[arg_name] = variable.value
                 elif param.default_value is not desc.no_default_value:
                     result[arg_name] = param.default_value
                 elif isinstance(arg_type, model.NonNullType):
-                    raise error.GraphQLError(
+                    msg = (
                         f'Argument "{name} : {arg_type}"'
                         f' (supplied by "${variable_name}" variable)'
-                        f" was not provided",
-                        nodes=arg_nodes,
+                        f" was not provided."
+                    )
+                    raise error.GraphQLError(
+                        msg + msg_ctx, nodes=arg_nodes,
                     )
             else:
                 value = coerce_input_node(
@@ -856,7 +872,7 @@ def resolve_field(
     if isinstance(field_def, model.ComputedField):
         # Build a dict of arguments from the field.arguments AST, using the
         # variables scope to fulfill any variable references.
-        params = ctx.get_field_params(parent, field_def, field_node)
+        params = ctx.get_field_params(parent, parent_type, field_def, field_node)
         resolve_fn = field_def.resolver
         try:
             result = resolve_fn(parent, info, params)
@@ -871,7 +887,7 @@ def resolve_field(
                 exc_info=sys.exc_info(),
             )
     elif isinstance(field_def, model.QueryField):
-        result = execute_query_field(ctx, parent, field_def, field_nodes)
+        result = execute_query_field(ctx, parent, parent_type, field_def, field_nodes)
         if field_def.descriptor.transform:
             result = field_def.descriptor.transform(result)
     else:
@@ -880,17 +896,17 @@ def resolve_field(
     return result, info, return_type
 
 
-def execute_query_field(ctx, parent, field: model.QueryField, field_nodes):
+def execute_query_field(ctx, parent, parent_type, field: model.QueryField, field_nodes):
     state = RexBindingState()
-    binding = bind_query_field(state, ctx, parent, field, field_nodes)
+    binding = bind_query_field(state, ctx, parent, parent_type, field, field_nodes)
     pipe = translate(binding)
     product = pipe()(None)
     return product.data
 
 
-def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
+def bind_query_field(state, ctx, parent, parent_type, field: model.QueryField, field_nodes):
     field_node = field_nodes[0]
-    params = ctx.get_field_params(parent, field, field_node)
+    params = ctx.get_field_params(parent, parent_type, field, field_node)
 
     # Bind GraphQL arguments
     vars = {}
@@ -964,7 +980,7 @@ def bind_query_field(state, ctx, parent, field: model.QueryField, field_nodes):
             continue
 
         element = bind_query_field(
-            state, ctx, parent, subfield, subfield_nodes
+            state, ctx, parent, entity_type, subfield, subfield_nodes
         )
         element = binding.AliasBinding(element, syntax.IdentifierSyntax(name))
         elements.append(element)

@@ -1017,7 +1017,7 @@ def test_enum():
             )
         }
     )
-    assert execute(sch, '{sameday(day: sun)}') == {"sameday": "sun"}
+    assert execute(sch, "{sameday(day: sun)}") == {"sameday": "sun"}
     # XXX(andreypopp): this is for backward compat: we allow string literals as
     # well.
     assert execute(sch, '{sameday(day: "sun")}') == {"sameday": "sun"}
@@ -1187,7 +1187,7 @@ def test_err_query_arg_type_mismatch():
         )
     assert (
         info.value.message
-        == 'Argument "count : Int!" (supplied by "$count" variable) was not provided'
+        == 'Argument "count : Int!" (supplied by "$count" variable) was not provided. At Root.region.'
     )
 
     with pytest.raises(GraphQLError) as info:
@@ -1198,7 +1198,8 @@ def test_err_query_arg_type_mismatch():
         )
     assert (
         info.value.message
-        == 'Variable "$count : String" is attempted to be used as a value of incompatible type "Int!"'
+        == ('Variable "$count : String" is attempted to be used as a value of incompatible type "Int!".'
+            ' At Root.region.')
     )
 
 

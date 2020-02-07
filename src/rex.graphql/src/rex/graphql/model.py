@@ -308,6 +308,12 @@ class Field(SchemaNode):
 
     params = NotImplemented
 
+    def __init__(self, name, descriptor, type, params):
+        self.name = name
+        self.descriptor = descriptor
+        self.type = type
+        self.params = params
+
     @cached_property.cached_property
     def args(self):
         return {
@@ -319,11 +325,6 @@ class Field(SchemaNode):
 
 class ComputedField(Field):
     """ Fields computed with resolver."""
-
-    def __init__(self, descriptor, type, params):
-        self.descriptor = descriptor
-        self.type = type
-        self.params = params
 
     resolver = property(lambda self: self.descriptor.resolver)
     description = property(lambda self: self.descriptor.description)
@@ -341,12 +342,10 @@ class ComputedField(Field):
 
 
 class QueryField(Field):
-    def __init__(self, descriptor, type, plural, optional, params):
-        self.descriptor = descriptor
+    def __init__(self, name, descriptor, type, params, plural, optional):
+        super(QueryField, self).__init__(name, descriptor, type, params)
         self.plural = plural
         self.optional = optional
-        self.type = type
-        self.params = params
 
     loc = property(lambda self: self.descriptor.loc)
     description = property(lambda self: self.descriptor.description)
@@ -743,7 +742,7 @@ def _(descriptor, ctx, name):
         for param_name, param in descriptor.params.items():
             params[param_name] = construct(param, ctx)
 
-        return ComputedField(descriptor=descriptor, type=type, params=params)
+        return ComputedField(name=name, descriptor=descriptor, type=type, params=params)
 
 
 def synthesize_id(d):
@@ -929,11 +928,12 @@ def _(descriptor, ctx, name):
             ctx.root.types[named_type.name] = named_type
 
         return QueryField(
+            name=name,
             descriptor=descriptor,
-            optional=output.optional,
-            plural=output.plural,
             type=type,
             params=params,
+            optional=output.optional,
+            plural=output.plural,
         )
 
 

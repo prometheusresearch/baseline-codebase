@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.13.0
+======
+
+* Added ``width_bucket()`` function.
+
+
 2.12.0
 ======
 

@@ -496,7 +496,7 @@ class BindWidthBucket(BindPolyFunction):
     signature = WidthBucketSig
 
 
-class CorrelateIntegerWidthBucket(CorrelateFunction):
+class CorrelateWidthBucket(CorrelateFunction):
 
     match(WidthBucketSig, (NumberDomain, NumberDomain, NumberDomain, IntegerDomain))
 
@@ -505,7 +505,7 @@ class CorrelateIntegerWidthBucket(CorrelateFunction):
     codomain = IntegerDomain()
 
 
-class CorrelateFloatWidthBucket(CorrelateFunction):
+class CorrelateFloatWidthBucket(CorrelateWidthBucket):
 
     match(WidthBucketSig,
         (FloatDomain, NumberDomain, NumberDomain, IntegerDomain),
@@ -513,6 +513,4 @@ class CorrelateFloatWidthBucket(CorrelateFunction):
         (NumberDomain, NumberDomain, FloatDomain, IntegerDomain),
     )
 
-    signature = WidthBucketSig
     domains = [FloatDomain(), FloatDomain(), FloatDomain(), IntegerDomain()]
-    codomain = IntegerDomain()

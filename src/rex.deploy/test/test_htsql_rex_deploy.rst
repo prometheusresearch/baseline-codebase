@@ -477,6 +477,21 @@ Function ``random()`` generates a random value::
     >>> 0 <= r <= 1
     True
 
+Function ``width_bucket()`` returns the bucket in a histogram to which the
+operand would be assigned.
+
+    >>> q = Query(''' width_bucket(6, 4, 8, 16) ''')
+    >>> print(q.format('txt').decode('utf-8'))          # doctest: +NORMALIZE_WHITESPACE
+     | width_bucket(6,4,8,16) |
+    -+------------------------+-
+     |                      9 |
+
+    >>> q = Query(''' width_bucket(6e1, 40, 80, 160) ''')
+    >>> print(q.format('txt').decode('utf-8'))          # doctest: +NORMALIZE_WHITESPACE
+     | width_bucket(6e1,40,80,160) |
+    -+-----------------------------+-
+     |                          81 |
+
 
 Identity Conversion
 ===================

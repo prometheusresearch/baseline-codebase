@@ -1440,24 +1440,26 @@ PostgreSQL functions:
     Smallest integer not less than ``x``.
 ``floor(x)``
     Largest integer not greater than ``x``.
-``div(x,y)``
+``div(x, y)``
     Integer quotient of ``x/y``.
-``mod(x,y)``
+``mod(x, y)``
     Remainder of ``x/y``.
 ``exp(x)``
     Exponential.
-``pow(x,y)``
+``pow(x, y)``
     ``x`` raised to the power of ``y``.
 ``ln(x)``
     Natural logarithm.
 ``log10(x)``
     Base 10 logarithm.
-``log(x,y)``
+``log(x, y)``
     Logarithm to base ``y``.
-``pi()``, ``acos(x)``, ``asin(x)``, ``atan(x)``, ``atan2(y,x)``, ``cos(x)``, ``cot(x)``, ``sin(x)``, ``tan(x)``
+``pi()``, ``acos(x)``, ``asin(x)``, ``atan(x)``, ``atan2(y, x)``, ``cos(x)``, ``cot(x)``, ``sin(x)``, ``tan(x)``
     Trigonometric functions.
 ``random()``
     Random value in the range from 0 to 1.
+``width_bucket(op, b1, b2, count)``
+    For ``count`` buckets between ``b1`` and ``b2``, returns the bucket to which ``op`` would be assigned.
 
 :mod:`rex.deploy` also provides an identity-to-text conversion operation.
 

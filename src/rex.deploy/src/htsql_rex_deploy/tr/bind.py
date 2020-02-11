@@ -6,7 +6,7 @@
 from htsql.core.adapter import adapt, call
 from htsql.core.error import Error, translate_guard
 from htsql.core.domain import (UntypedDomain, BooleanDomain, TextDomain,
-        IntegerDomain, DecimalDomain, FloatDomain, EntityDomain)
+        IntegerDomain, NumberDomain, DecimalDomain, FloatDomain, EntityDomain)
 from htsql.core.syn.syntax import StringSyntax
 from htsql.core.tr.binding import TitleBinding, FormulaBinding
 from htsql.core.tr.bind import SelectRecord
@@ -22,7 +22,7 @@ from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
         CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig,
-        MedianSig)
+        MedianSig, WidthBucketSig)
 
 
 class SelectEntity(SelectRecord):
@@ -490,3 +490,27 @@ class BindFloatMedian(CorrelateFunction):
     codomain = FloatDomain()
 
 
+class BindWidthBucket(BindPolyFunction):
+
+    call('width_bucket')
+    signature = WidthBucketSig
+
+
+class CorrelateWidthBucket(CorrelateFunction):
+
+    match(WidthBucketSig, (NumberDomain, NumberDomain, NumberDomain, IntegerDomain))
+
+    signature = WidthBucketSig
+    domains = [DecimalDomain(), DecimalDomain(), DecimalDomain(), IntegerDomain()]
+    codomain = IntegerDomain()
+
+
+class CorrelateFloatWidthBucket(CorrelateWidthBucket):
+
+    match(WidthBucketSig,
+        (FloatDomain, NumberDomain, NumberDomain, IntegerDomain),
+        (NumberDomain, FloatDomain, NumberDomain, IntegerDomain),
+        (NumberDomain, NumberDomain, FloatDomain, IntegerDomain),
+    )
+
+    domains = [FloatDomain(), FloatDomain(), FloatDomain(), IntegerDomain()]

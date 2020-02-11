@@ -153,3 +153,11 @@ class MedianSig(UnarySig):
     pass
 
 
+class WidthBucketSig(Signature):
+
+    slots = [
+            Slot('op'),
+            Slot('b1'),
+            Slot('b2'),
+            Slot('count'),
+    ]

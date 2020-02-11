@@ -16,7 +16,7 @@ from .signature import (
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
         CosSig, CotSig, SinSig, TanSig, RandomSig, ToJSONSig, JSONGetSig,
-        JSONGetJSONSig, MedianSig)
+        JSONGetJSONSig, MedianSig, WidthBucketSig)
 
 
 class DeployDumpDateIncrement(PGSQLDumpDateIncrement):
@@ -256,3 +256,7 @@ class DumpMedian(DumpFunction):
     template = "(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY {op}))"
 
 
+class DumpWidthBucket(DumpFunction):
+
+    adapt(WidthBucketSig)
+    template = "WIDTH_BUCKET({op}, {b1}, {b2}, {count})"

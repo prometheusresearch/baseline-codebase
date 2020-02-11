@@ -35,12 +35,13 @@ from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
 from htsql.core.tr.signature import (
         IsEqualSig, IsAmongSig, CompareSig, AndSig, OrSig, NotSig, IsNullSig)
-from htsql.core.tr.fn.bind import Correlate, Comparable, BindAmong, BindNotAmong
+from htsql.core.tr.fn.bind import (
+        BindFunction, Correlate, Comparable, BindAmong, BindNotAmong)
 from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
         AggregateSig, QuantifySig, ExistsSig, CountSig, MinMaxSig, SumSig,
         AvgSig, ExtractYearSig, ExtractMonthSig, ExtractDaySig, ExtractHourSig,
-        ExtractMinuteSig, ExtractSecondSig)
+        ExtractMinuteSig, ExtractSecondSig, TodaySig, NowSig)
 from htsql_rex_query import (
         lookup_name,
         SelectionBinding, BindingRecipe, DefinitionRecipe, SelectSyntaxRecipe)
@@ -712,6 +713,12 @@ class RexBindingState(BindingState):
     def bind_datetime_op(self, args):
         return self.bind_cast(DateTimeDomain(), args, fn="datetime")
 
+    def bind_today_op(self, args):
+        return self.bind_mono(TodaySig(), [], DateDomain(), args, fn="today")
+
+    def bind_now_op(self, args):
+        return self.bind_mono(NowSig(), [], DateTimeDomain(), args, fn="now")
+
     def bind_exists_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)
         output = parameters['op']
@@ -891,12 +898,43 @@ class RexBindingState(BindingState):
                     syntax, lop=lop, rop=rop),
                 optional=optional, plural=plural)
 
+    def bind_mono(self, signature, domains, codomain, args, fn=None):
+        if isinstance(signature, type):
+            signature = signature()
+        parameters = self.bind_parameters(signature, args)
+        optional = False
+        plural = False
+        args = []
+        for domain, slot in zip(domains, signature.slots):
+            value = parameters[slot.name]
+            if value:
+                if slot.is_singular:
+                    optional = optional or value.optional
+                    plural = plural or value.plural
+                    value = ImplicitCastBinding(value.binding, domain, value.syntax)
+                    args.append(value.syntax)
+                else:
+                    optional = optional or \
+                            any([item.optional for item in value])
+                    plural = plural or any([item.plural for item in value])
+                    value = [ImplicitCastBinding(item.binding, domain, item.syntax)
+                             for item in value]
+                    args.extend([item.syntax for item in value])
+                parameters[slot.name] = value
+        syntax = VoidSyntax()
+        if fn is not None:
+            syntax = FunctionSyntax(IdentifierSyntax(fn), args)
+        binding = FormulaBinding(
+                self.scope, signature, codomain, syntax, **parameters)
+        return Output(binding, optional=optional, plural=plural)
+
     def bind_poly(self, signature, args, op=None):
         if isinstance(signature, type):
             signature = signature()
         parameters = self.bind_parameters(signature, args)
         optional = False
         plural = False
+        args = []
         for slot in signature.slots:
             value = parameters[slot.name]
             if value:
@@ -904,18 +942,17 @@ class RexBindingState(BindingState):
                     optional = optional or value.optional
                     plural = plural or value.plural
                     value = value.binding
+                    args.append(value.syntax)
                 else:
                     optional = optional or \
                             any([item.optional for item in value])
                     plural = plural or any([item.plural for item in value])
                     value = [item.binding for item in value]
+                    args.extend([item.syntax for item in value])
                 parameters[slot.name] = value
         syntax = VoidSyntax()
         if op is not None:
-            syntax = OperatorSyntax(
-                    op,
-                    *[parameters[slot.name].syntax
-                      for slot in signature.slots])
+            syntax = OperatorSyntax(op, *args)
         binding = FormulaBinding(
                 self.scope, signature, UntypedDomain(), syntax, **parameters)
         return Output(

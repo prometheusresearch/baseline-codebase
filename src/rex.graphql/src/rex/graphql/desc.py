@@ -438,6 +438,39 @@ class ScalarTypeFactory:
 scalar = ScalarTypeFactory()
 
 
+class OpaqueType(Type):
+    def __init__(self, name, type, loc=autoloc):
+        self.name = name
+        self.type = type
+        self.loc = code_location.here() if loc is autoloc else loc
+
+    def __str__(self):
+        return f"opaque {self.name}"
+
+    __repr__ = __str__
+
+
+class OpaqueTypeFactory:
+    def __getattr__(self, name):
+        loc = code_location.here()
+        return lambda type: OpaqueType(name=name, type=type, loc=loc)
+
+    def __getitem__(self, name):
+        loc = code_location.here()
+        return lambda type: OpaqueType(name=name, type=type, loc=loc)
+
+
+#: Namespace to define GraphQL opaque types:
+#:
+#: Example::
+#:
+#:   SomeStructure = opaque.SomeStructure(AnyVal())
+#:
+
+
+opaque = OpaqueTypeFactory()
+
+
 class EntityId(Type):
     def __init__(self, table_name, loc=autoloc):
         self.name = f"{table_name}_id"
@@ -1754,6 +1787,7 @@ def _(descriptor):
 
 @seal.register(Enum)
 @seal.register(Scalar)
+@seal.register(OpaqueType)
 @seal.register(EntityId)
 def _(descriptor):
     pass

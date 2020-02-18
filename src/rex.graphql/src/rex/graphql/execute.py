@@ -692,7 +692,9 @@ def complete_data(
             )
         return result
 
-    assert isinstance(return_type, (model.ScalarType, model.EnumType))
+    assert isinstance(
+        return_type, (model.ScalarType, model.EnumType, model.OpaqueType)
+    )
 
     return complete_value(
         ctx=ctx,
@@ -782,7 +784,9 @@ def complete_value(
 
     # If field type is Scalar or Enum, serialize to a valid value, returning
     # null if coercion is not possible.
-    if isinstance(return_type, (model.ScalarType, model.EnumType)):
+    if isinstance(
+        return_type, (model.ScalarType, model.EnumType, model.OpaqueType)
+    ):
         assert hasattr(
             return_type, "serialize"
         ), f"Missing serialize method on type {return_type}"

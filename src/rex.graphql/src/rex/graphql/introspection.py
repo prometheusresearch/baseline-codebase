@@ -243,6 +243,7 @@ class TypeFieldResolvers:
     def _kinds(cls):
         return (
             (model.ScalarType, TypeKind.SCALAR),
+            (model.OpaqueType, TypeKind.SCALAR),
             (model.ObjectType, TypeKind.OBJECT),
             # (GraphQLInterfaceType, TypeKind.INTERFACE),
             # (GraphQLUnionType, TypeKind.UNION),

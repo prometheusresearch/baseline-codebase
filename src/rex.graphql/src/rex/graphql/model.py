@@ -68,7 +68,15 @@ class QueryInputType(abc.ABC):
 
 def find_named_type(type):
     while not isinstance(
-        type, (EntityType, ObjectType, ScalarType, InputObjectType, EnumType)
+        type,
+        (
+            EntityType,
+            ObjectType,
+            ScalarType,
+            OpaqueType,
+            InputObjectType,
+            EnumType,
+        ),
     ):
         if isinstance(type, (ListType, NonNullType)):
             type = type.type
@@ -248,6 +256,28 @@ class ScalarType(Type, InputType, QueryInputType):
         return self.name
 
 
+class OpaqueType(Type, InputType):
+    def __init__(self, descriptor, type):
+        self.name = descriptor.name
+        self.type = type
+        self.descriptor = descriptor
+
+    def parse_literal(self, v):
+        return self.type.parse_literal(v)
+
+    def coerce_value(self, v):
+        return self.type.coerce_value(v)
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.name == other.name
+
+    def __repr__(self):
+        return f"OpaqueType({self.name!r})"
+
+    def __str__(self):
+        return self.name
+
+
 class EntityIdType(ScalarType):
     def __init__(self, descriptor, domain):
         super(EntityIdType, self).__init__(
@@ -412,7 +442,11 @@ def type_from_domain(ctx, dom: domain.Domain):
 
 
 def is_input_type(type: Type):
-    return isinstance(type, InputType)
+    return (
+        isinstance(type, InputType)
+        or isinstance(type, OpaqueType)
+        and isinstance(type.type, InputType)
+    )
 
 
 def is_query_input_type(type: Type):
@@ -678,6 +712,22 @@ def _(descriptor, ctx):
         raise Error(f"No type with name {descriptor.name} defined")
     if not isinstance(type, ScalarType):
         raise Error(f"Type {descriptor.name} is not a scalar type")
+    return type
+
+
+@construct.register(desc.OpaqueType)
+def _(descriptor, ctx):
+    type = ctx.root.types.get(descriptor.name)
+    if type is None:
+        type = OpaqueType(
+            descriptor=descriptor, type=construct(descriptor.type, ctx)
+        )
+        ctx.root.types[descriptor.name] = type
+    if not isinstance(type, OpaqueType) or type.descriptor is not descriptor:
+        raise Error(
+            f"Error trying to define {descriptor.name} opaque type:",
+            f"Type with the same name already define: {type!r}",
+        )
     return type
 
 

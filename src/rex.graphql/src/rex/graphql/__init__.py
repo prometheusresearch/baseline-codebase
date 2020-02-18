@@ -10,6 +10,7 @@
 __all__ = (
     "schema",
     "Schema",
+    "SchemaConfig",
     # Abstract Base Classes
     "Type",
     "Field",
@@ -88,4 +89,4 @@ from .desc import (
     sort,
 )
 from .execute import execute, execute_exn, Result
-from .schema import schema, Schema
+from .schema import schema, Schema, SchemaConfig

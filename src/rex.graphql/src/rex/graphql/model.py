@@ -735,6 +735,8 @@ def _(descriptor, ctx, name):
         ctx = ComputeSchemaContext(parent=ctx, loc=descriptor.loc)
         type = construct(descriptor.type, ctx)
         named_type = find_named_type(type)
+        if named_type is None:
+            raise Error(f"Unknown type found {descriptor.type}")
         if named_type.name not in ctx.root.types:
             ctx.root.types[named_type.name] = named_type
 
@@ -918,10 +920,10 @@ def _(descriptor, ctx, name):
 
             table = None
 
-        if not output.optional:
-            type = NonNullType(type)
         if output.plural:
-            type = ListType(type)
+            type = NonNullType(ListType(NonNullType(type)))
+        elif not output.optional:
+            type = NonNullType(type)
 
         named_type = find_named_type(type)
         if named_type.name not in ctx.root.types:

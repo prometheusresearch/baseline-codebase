@@ -13,9 +13,7 @@ import datetime
 import decimal
 
 from graphql import error, type
-from htsql_rex_deploy import domain as domain_extra
 from htsql.core import domain
-from rex.query.query import LiteralSyntax
 
 from . import model
 
@@ -77,7 +75,7 @@ json_type = model.ScalarType(
     serialize=lambda v: v,
     coerce_value=lambda v: v,
     parse_literal=raise_error("unable to parse JSON value"),
-    domain=None,  # TODO: domain_extra.JSONDomain()
+    domain=None,
 )
 
 ISO_FORMAT_DATE = "%Y-%m-%d"

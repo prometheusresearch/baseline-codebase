@@ -63,8 +63,8 @@ class Schema:
         self.types = types
         self.directives = directives
         self.loc = loc
-        self.skip_directive = self.directives['skip']
-        self.include_directive = self.directives['include']
+        self.skip_directive = self.directives["skip"]
+        self.include_directive = self.directives["include"]
 
     def __getitem__(self, name):
         return self.types[name]

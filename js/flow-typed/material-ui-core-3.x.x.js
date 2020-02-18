@@ -1,8 +1,13 @@
 declare module "@material-ui/styles" {
   import type { AbstractComponent, Node } from "react";
 
+  declare export function install(): void;
+
   declare type color = string;
   declare export opaque type Theme: {|
+    shape: {
+      borderRadius: number,
+    },
     accent: {
       success: Accent,
     },
@@ -24,7 +29,19 @@ declare module "@material-ui/styles" {
         xl: number,
       },
     },
+    typography: {
+      fontWeightMedium: string,
+      fontFamily: string,
+      h1: Object,
+      h2: Object,
+      h3: Object,
+      h4: Object,
+      h5: Object,
+      h6: Object,
+      pxToRem: number => string,
+    },
     palette: {
+      divider: string,
       type: string,
       common: { black: color, white: color },
       error: Palette,
@@ -41,7 +58,7 @@ declare module "@material-ui/styles" {
         disabled: string,
         disabledBackground: string,
         hover: string,
-        selected: stirng,
+        selected: string,
       },
       text: {
         primary: color,
@@ -49,9 +66,14 @@ declare module "@material-ui/styles" {
         disabled: color,
         hint: color,
       },
+      grey: TonalPalette,
     },
+    shadows: string[],
     transitions: {|
-      create(string[], {| easing?: string, duration?: number |}): string,
+      create(
+        props: string[] | string,
+        options?: {| easing?: string, duration?: number |},
+      ): string,
       duration: {|
         complex: number,
         enteringScreen: number,
@@ -68,17 +90,35 @@ declare module "@material-ui/styles" {
         sharp: string,
       |},
     |},
-    mixins: {|
-      toolbar: any,
+    mixins: {| toolbar: Object, gutters: () => Object |},
+    zIndex: {|
+      drawer: number,
     |},
   |};
 
-  declare type Palette = {
+  declare type Palette = {|
     light: color,
     main: color,
     dark: color,
     contrastText: color,
-  };
+  |};
+
+  declare type TonalPalette = {|
+    "50": string,
+    "100": string,
+    "200": string,
+    "300": string,
+    "400": string,
+    "500": string,
+    "600": string,
+    "700": string,
+    "800": string,
+    "900": string,
+    A100: string,
+    A200: string,
+    A300: string,
+    A400: string,
+  |};
 
   declare type Accent = {
     color: color,
@@ -105,6 +145,7 @@ declare module "@material-ui/core" {
   import type { AbstractComponent, Node, ElementType } from "react";
 
   declare export type TypographyProps = {|
+    ...DOMProps,
     children: ?Node,
     className?: string,
     id?: string,
@@ -146,9 +187,12 @@ declare module "@material-ui/core" {
   declare export var Typography: AbstractComponent<TypographyProps>;
 
   declare export type DOMProps = {|
-    onClick?: UIEvent => void,
-    onFocus?: UIEvent => void,
-    onBlur?: UIEvent => void,
+    onClick?: UIEvent => any,
+    onMouseDown?: MouseEvent => any,
+    onMouseUp?: MouseEvent => any,
+    onMouseMove?: MouseEvent => any,
+    onFocus?: UIEvent => any,
+    onBlur?: UIEvent => any,
     title?: string,
     style?: Object,
     className?: string,

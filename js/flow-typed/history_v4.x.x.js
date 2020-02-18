@@ -20,7 +20,7 @@ declare module "history" {
     currentLocation?: Location,
   ): Location;
 
-  declare type History = {|
+  declare export type History = {|
     length: number,
     location: Location,
     action: Action,
@@ -32,7 +32,9 @@ declare module "history" {
     goBack(): void,
     goForward(): void,
     listen: ((location: Location, action: Action) => void) => release,
-    block: (((location: Location, action: Action) => string) => release) &
+    block: ((
+      (location: Location, action: Action) => void | string,
+    ) => release) &
       ((message: string) => release),
   |};
 

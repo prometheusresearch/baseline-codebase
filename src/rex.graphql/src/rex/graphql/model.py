@@ -105,17 +105,28 @@ class ObjectLikeType(Type):
 
 
 class ObjectType(ObjectLikeType):
-    pass
+    def __str__(self):
+        return f"Object({self.name})"
+
+    __repr__ = __str__
 
 
 class RecordType(ObjectType):
-    pass
+    def __str__(self):
+        return f"Record({self.name})"
+
+    __repr__ = __str__
 
 
 class EntityType(RecordType):
     def __init__(self, descriptor, table, fields):
         super(EntityType, self).__init__(descriptor=descriptor, fields=fields)
         self.table = table
+
+    def __str__(self):
+        return f"Entity({self.name})"
+
+    __repr__ = __str__
 
 
 class InputObjectType(ObjectLikeType, InputType):
@@ -143,6 +154,8 @@ class ListType(Type, InputType, QueryInputType):
     def __str__(self):
         return f"[{self.type}]"
 
+    __repr__ = __str__
+
 
 class NonNullType(Type, InputType, QueryInputType):
     def __init__(self, type: SchemaNode):
@@ -158,6 +171,8 @@ class NonNullType(Type, InputType, QueryInputType):
 
     def __str__(self):
         return f"{self.type}!"
+
+    __repr__ = __str__
 
 
 class EnumType(Type, InputType, QueryInputType):

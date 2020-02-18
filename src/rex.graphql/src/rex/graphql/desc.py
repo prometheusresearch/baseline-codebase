@@ -414,6 +414,11 @@ class Scalar(Type):
         self.name = name
         self.loc = code_location.here() if loc is autoloc else loc
 
+    def __str__(self):
+        return f"scalar {self.name}"
+
+    __repr__ = __str__
+
 
 class ScalarTypeFactory:
     def __getattr__(self, name):
@@ -481,6 +486,11 @@ class Enum(Type):
         self.values = values
         self.description = description
 
+    def __str__(self):
+        return f"enum self.name"
+
+    __repr__ = __str__
+
 
 class EnumValue:
     def __init__(
@@ -504,6 +514,11 @@ class List(Type):
     def __init__(self, type):
         self.type = type
 
+    def __str__(self):
+        return f"[{self.type}]"
+
+    __repr__ = __str__
+
 
 class NonNull(Type):
     """ Define a non-null type for a specified type.
@@ -516,6 +531,11 @@ class NonNull(Type):
 
     def __init__(self, type):
         self.type = type
+
+    def __str__(self):
+        return f"{self.type}!"
+
+    __repr__ = __str__
 
 
 class Sort(abc.ABC):

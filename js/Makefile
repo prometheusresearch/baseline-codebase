@@ -14,7 +14,7 @@ check:
 	@yarn run flow
 
 fmt:
-	@yarn prettier --write $(FMT:%='%/**/*.js')
+	@yarn prettier --write $(FMT:%='%/**/*.{js,gql}')
 
 check-fmt:
 	@yarn prettier --check $(FMT:%='%/**/*.js')

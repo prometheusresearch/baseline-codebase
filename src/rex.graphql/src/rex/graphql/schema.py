@@ -9,10 +9,49 @@
 
 import typing as t
 
-from rex.core import Error
+from rex.core import Error, Extension
 from rex.db import get_db, RexHTSQL
 
 from . import introspection, model, model_scalar, desc, code_location
+
+
+class SchemaConfig(Extension):
+    """ Configurator for GraphQL schema."""
+
+    @classmethod
+    def sanitize(cls):
+        # Do not check Endpoint itself.
+        if cls.__bases__ == (Extension,):
+            return
+        name = cls.name or f"{cls.__module__}.{cls.__qualname__}"
+        assert (
+            cls.__call__ is not NotImplemented
+        ), f"{name}: missing .__call__(self) method"
+
+    @classmethod
+    def enabled(cls):
+        return cls.__call__ is not NotImplemented
+
+    @classmethod
+    def signature(cls):
+        return cls.name or f"{cls.__module__}.{cls.__qualname__}"
+
+    @classmethod
+    def get(cls, name):
+        if isinstance(name, type) and issubclass(name, SchemaConfig):
+            name = name.signature()
+        make_schema_cls = cls.mapped().get(name)
+        if make_schema_cls is None:
+            raise Error("No such GraphQL schema defined:", name)
+        db = get_db()
+        make_schema = make_schema_cls(db)
+        return make_schema()
+
+    def __init__(self, db):
+        self.db = db
+
+    name = None
+    __call__ = NotImplemented
 
 
 class Schema:
@@ -24,8 +63,8 @@ class Schema:
         self.types = types
         self.directives = directives
         self.loc = loc
-        self.skip_directive = self.directives['skip']
-        self.include_directive = self.directives['include']
+        self.skip_directive = self.directives["skip"]
+        self.include_directive = self.directives["include"]
 
     def __getitem__(self, name):
         return self.types[name]

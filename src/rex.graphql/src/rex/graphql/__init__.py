@@ -10,6 +10,7 @@
 __all__ = (
     "schema",
     "Schema",
+    "SchemaConfig",
     # Abstract Base Classes
     "Type",
     "Field",
@@ -19,6 +20,7 @@ __all__ = (
     "List",
     "NonNull",
     "scalar",
+    "opaque",
     "entity_id",
     "InputObject",
     "InputObjectField",
@@ -63,6 +65,7 @@ from .desc import (
     Param,
     entity_id,
     scalar,
+    opaque,
     Object,
     Entity,
     Record,
@@ -88,4 +91,6 @@ from .desc import (
     sort,
 )
 from .execute import execute, execute_exn, Result
-from .schema import schema, Schema
+from .schema import schema, Schema, SchemaConfig
+
+import rex.graphql.ctl

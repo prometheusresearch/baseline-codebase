@@ -68,7 +68,15 @@ class QueryInputType(abc.ABC):
 
 def find_named_type(type):
     while not isinstance(
-        type, (EntityType, ObjectType, ScalarType, InputObjectType, EnumType)
+        type,
+        (
+            EntityType,
+            ObjectType,
+            ScalarType,
+            OpaqueType,
+            InputObjectType,
+            EnumType,
+        ),
     ):
         if isinstance(type, (ListType, NonNullType)):
             type = type.type
@@ -105,17 +113,28 @@ class ObjectLikeType(Type):
 
 
 class ObjectType(ObjectLikeType):
-    pass
+    def __str__(self):
+        return f"Object({self.name})"
+
+    __repr__ = __str__
 
 
 class RecordType(ObjectType):
-    pass
+    def __str__(self):
+        return f"Record({self.name})"
+
+    __repr__ = __str__
 
 
 class EntityType(RecordType):
     def __init__(self, descriptor, table, fields):
         super(EntityType, self).__init__(descriptor=descriptor, fields=fields)
         self.table = table
+
+    def __str__(self):
+        return f"Entity({self.name})"
+
+    __repr__ = __str__
 
 
 class InputObjectType(ObjectLikeType, InputType):
@@ -143,6 +162,8 @@ class ListType(Type, InputType, QueryInputType):
     def __str__(self):
         return f"[{self.type}]"
 
+    __repr__ = __str__
+
 
 class NonNullType(Type, InputType, QueryInputType):
     def __init__(self, type: SchemaNode):
@@ -158,6 +179,8 @@ class NonNullType(Type, InputType, QueryInputType):
 
     def __str__(self):
         return f"{self.type}!"
+
+    __repr__ = __str__
 
 
 class EnumType(Type, InputType, QueryInputType):
@@ -228,6 +251,28 @@ class ScalarType(Type, InputType, QueryInputType):
 
     def __repr__(self):
         return f"ScalarType({self.name!r})"
+
+    def __str__(self):
+        return self.name
+
+
+class OpaqueType(Type, InputType):
+    def __init__(self, descriptor, type):
+        self.name = descriptor.name
+        self.type = type
+        self.descriptor = descriptor
+
+    def parse_literal(self, v):
+        return self.type.parse_literal(v)
+
+    def coerce_value(self, v):
+        return self.type.coerce_value(v)
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.name == other.name
+
+    def __repr__(self):
+        return f"OpaqueType({self.name!r})"
 
     def __str__(self):
         return self.name
@@ -397,7 +442,11 @@ def type_from_domain(ctx, dom: domain.Domain):
 
 
 def is_input_type(type: Type):
-    return isinstance(type, InputType)
+    return (
+        isinstance(type, InputType)
+        or isinstance(type, OpaqueType)
+        and isinstance(type.type, InputType)
+    )
 
 
 def is_query_input_type(type: Type):
@@ -666,6 +715,22 @@ def _(descriptor, ctx):
     return type
 
 
+@construct.register(desc.OpaqueType)
+def _(descriptor, ctx):
+    type = ctx.root.types.get(descriptor.name)
+    if type is None:
+        type = OpaqueType(
+            descriptor=descriptor, type=construct(descriptor.type, ctx)
+        )
+        ctx.root.types[descriptor.name] = type
+    if not isinstance(type, OpaqueType) or type.descriptor is not descriptor:
+        raise Error(
+            f"Error trying to define {descriptor.name} opaque type:",
+            f"Type with the same name already define: {type!r}",
+        )
+    return type
+
+
 def identify(node):
     arcs = localize(node)
     if arcs is None:
@@ -735,6 +800,8 @@ def _(descriptor, ctx, name):
         ctx = ComputeSchemaContext(parent=ctx, loc=descriptor.loc)
         type = construct(descriptor.type, ctx)
         named_type = find_named_type(type)
+        if named_type is None:
+            raise Error(f"Unknown type found {descriptor.type}")
         if named_type.name not in ctx.root.types:
             ctx.root.types[named_type.name] = named_type
 
@@ -918,10 +985,10 @@ def _(descriptor, ctx, name):
 
             table = None
 
-        if not output.optional:
-            type = NonNullType(type)
         if output.plural:
-            type = ListType(type)
+            type = NonNullType(ListType(NonNullType(type)))
+        elif not output.optional:
+            type = NonNullType(type)
 
         named_type = find_named_type(type)
         if named_type.name not in ctx.root.types:

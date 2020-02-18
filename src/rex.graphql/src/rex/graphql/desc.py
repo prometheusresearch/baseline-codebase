@@ -414,6 +414,11 @@ class Scalar(Type):
         self.name = name
         self.loc = code_location.here() if loc is autoloc else loc
 
+    def __str__(self):
+        return f"scalar {self.name}"
+
+    __repr__ = __str__
+
 
 class ScalarTypeFactory:
     def __getattr__(self, name):
@@ -431,6 +436,39 @@ class ScalarTypeFactory:
 #:   Int = scalar.Int
 #:
 scalar = ScalarTypeFactory()
+
+
+class OpaqueType(Type):
+    def __init__(self, name, type, loc=autoloc):
+        self.name = name
+        self.type = type
+        self.loc = code_location.here() if loc is autoloc else loc
+
+    def __str__(self):
+        return f"opaque {self.name}"
+
+    __repr__ = __str__
+
+
+class OpaqueTypeFactory:
+    def __getattr__(self, name):
+        loc = code_location.here()
+        return lambda type: OpaqueType(name=name, type=type, loc=loc)
+
+    def __getitem__(self, name):
+        loc = code_location.here()
+        return lambda type: OpaqueType(name=name, type=type, loc=loc)
+
+
+#: Namespace to define GraphQL opaque types:
+#:
+#: Example::
+#:
+#:   SomeStructure = opaque.SomeStructure(AnyVal())
+#:
+
+
+opaque = OpaqueTypeFactory()
 
 
 class EntityId(Type):
@@ -481,6 +519,11 @@ class Enum(Type):
         self.values = values
         self.description = description
 
+    def __str__(self):
+        return f"enum self.name"
+
+    __repr__ = __str__
+
 
 class EnumValue:
     def __init__(
@@ -504,6 +547,11 @@ class List(Type):
     def __init__(self, type):
         self.type = type
 
+    def __str__(self):
+        return f"[{self.type}]"
+
+    __repr__ = __str__
+
 
 class NonNull(Type):
     """ Define a non-null type for a specified type.
@@ -516,6 +564,11 @@ class NonNull(Type):
 
     def __init__(self, type):
         self.type = type
+
+    def __str__(self):
+        return f"{self.type}!"
+
+    __repr__ = __str__
 
 
 class Sort(abc.ABC):
@@ -1516,7 +1569,7 @@ def create_entity_from_function(typ, query_entity=None, **kw):
             compute=compute(
                 params=params.values(),
                 f=run,
-                type=Result,
+                type=NonNull(Result),
                 name=name,
                 description=description,
                 **kw,
@@ -1639,7 +1692,7 @@ def update_entity_from_function(typ, query_entity=None, **kw):
             compute=compute(
                 params=params.values(),
                 f=run,
-                type=Result,
+                type=NonNull(Result),
                 name=name,
                 description=description,
                 **kw,
@@ -1699,7 +1752,7 @@ def delete_entity_from_function(typ, query_entity=None, **kw):
             compute=compute(
                 params=params.values(),
                 f=run,
-                type=Result,
+                type=NonNull(Result),
                 name=name,
                 description=description,
                 **kw,
@@ -1734,6 +1787,7 @@ def _(descriptor):
 
 @seal.register(Enum)
 @seal.register(Scalar)
+@seal.register(OpaqueType)
 @seal.register(EntityId)
 def _(descriptor):
     pass

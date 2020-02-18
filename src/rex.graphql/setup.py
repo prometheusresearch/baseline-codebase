@@ -17,9 +17,15 @@ setup(
     package_dir={"": "src"},
     packages=find_packages("src"),
     namespace_packages=["rex"],
+    entry_points={
+        'rex.ctl': [
+            'graphql = rex.graphql.ctl',
+        ],
+    },
     install_requires=[
         "rex.core",
         "rex.db",
+        "rex.ctl",
         "rex.web",
         "rex.logging",
         "rex.query",

@@ -12,6 +12,7 @@ import {
   type Action,
   createLocation,
 } from "history";
+import { useEffect } from "react";
 
 export type { Location, Action };
 
@@ -83,6 +84,17 @@ export function confirmNavigation() {
   } else {
     return window.confirm(reason.message);
   }
+}
+
+export function usePreventNavigation(shouldPrevent: boolean, message: string) {
+  useEffect(() => {
+    let reason = null;
+    if (shouldPrevent) {
+      reason = preventNavigation(message);
+    }
+
+    return () => allowNavigation(reason);
+  }, [shouldPrevent]);
 }
 
 const REASONS: PreventReason[] = [];

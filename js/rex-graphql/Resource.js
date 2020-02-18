@@ -101,6 +101,7 @@ export function defineQuery<P, V>(config: QueryConfig<P, V>): Resource<P, V> {
 export type MutationConfig<P, V> = {
   +endpoint: Endpoint,
   +mutation: string,
+  +map?: any => V,
 };
 
 export function defineMutation<P, V>(
@@ -109,6 +110,7 @@ export function defineMutation<P, V>(
   return defineQuery({
     endpoint: config.endpoint,
     query: config.mutation,
+    map: config.map,
   });
 }
 

@@ -1516,7 +1516,7 @@ def create_entity_from_function(typ, query_entity=None, **kw):
             compute=compute(
                 params=params.values(),
                 f=run,
-                type=Result,
+                type=NonNull(Result),
                 name=name,
                 description=description,
                 **kw,
@@ -1639,7 +1639,7 @@ def update_entity_from_function(typ, query_entity=None, **kw):
             compute=compute(
                 params=params.values(),
                 f=run,
-                type=Result,
+                type=NonNull(Result),
                 name=name,
                 description=description,
                 **kw,
@@ -1699,7 +1699,7 @@ def delete_entity_from_function(typ, query_entity=None, **kw):
             compute=compute(
                 params=params.values(),
                 f=run,
-                type=Result,
+                type=NonNull(Result),
                 name=name,
                 description=description,
                 **kw,

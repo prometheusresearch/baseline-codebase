@@ -90,3 +90,5 @@ from .desc import (
 )
 from .execute import execute, execute_exn, Result
 from .schema import schema, Schema, SchemaConfig
+
+import rex.graphql.ctl

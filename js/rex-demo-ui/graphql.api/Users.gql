@@ -1,4 +1,4 @@
-query User(
+query Users(
   $offset: Int
   $limit: Int
   $system_admin: Boolean
@@ -21,8 +21,9 @@ query User(
       expires
       expired
       system_admin
-      phone
-      value
+      phone {
+        value
+      }
       id
     }
   }

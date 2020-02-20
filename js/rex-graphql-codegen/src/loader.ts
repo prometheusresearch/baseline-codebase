@@ -66,7 +66,9 @@ function getConfig(source: string): Config {
   let config: Config = {};
   let m: RegExpExecArray;
   while ((m = parser.exec(source)) != null) {
-    config[m[1]] = m[2];
+    let key = m[1];
+    let value = key === "generateUnions" ? m[2] === "true" : m[2];
+    config[key] = value;
   }
   return config;
 }

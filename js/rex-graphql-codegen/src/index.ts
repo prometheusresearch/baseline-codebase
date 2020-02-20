@@ -34,11 +34,13 @@ interface Context {
 
   shouldGenerateResourceAPI: boolean;
   shouldGenerateTypesAPI: boolean;
+  generateUnions: boolean;
 }
 
 export interface Config {
   generateResourceAPI?: string;
   generateTypesAPI?: string;
+  generateUnions?: boolean;
 }
 
 type Promisable<T> = T | Promise<T>;
@@ -90,7 +92,7 @@ function emitNamespaceImport(
 export const plugin: PluginFunction<Config> = (
   schema,
   documents,
-  { generateResourceAPI, generateTypesAPI },
+  { generateResourceAPI, generateTypesAPI, generateUnions },
   { outputFile },
 ) => {
   const printedSchema = gql.printSchema(schema);
@@ -146,6 +148,7 @@ export const plugin: PluginFunction<Config> = (
     schema,
     shouldGenerateResourceAPI: generateResourceAPI != null,
     shouldGenerateTypesAPI: generateTypesAPI != null,
+    generateUnions,
   };
 
   for (let node of allAst.definitions) {
@@ -173,6 +176,46 @@ export const plugin: PluginFunction<Config> = (
   emitCollection(chunks, ctx.scalars);
   emitCollection(chunks, ctx.fragments);
   emitCollection(chunks, ctx.operations);
+
+  if (generateUnions) {
+    let variablesUnion: string[] = [];
+    let resultsUnion: string[] = [];
+    ctx.operations.forEach(({ value }) => {
+      if (value) {
+        let [variables, result] = value as t.ExportNamedDeclaration[];
+        variablesUnion.push(variables.declaration.id.name);
+        resultsUnion.push(result.declaration.id.name);
+      }
+    });
+    chunks.push(
+      generate(
+        t.exportNamedDeclaration(
+          t.typeAlias(
+            t.identifier("QueryVariables"),
+            null,
+            t.unionTypeAnnotation(
+              variablesUnion.map(type =>
+                t.genericTypeAnnotation(t.identifier(type)),
+              ),
+            ),
+          ),
+        ) as any,
+      ).code,
+      generate(
+        t.exportNamedDeclaration(
+          t.typeAlias(
+            t.identifier("QueryResult"),
+            null,
+            t.unionTypeAnnotation(
+              resultsUnion.map(type =>
+                t.genericTypeAnnotation(t.identifier(type)),
+              ),
+            ),
+          ),
+        ) as any,
+      ).code,
+    );
+  }
 
   return chunks.join("\n\n");
 };

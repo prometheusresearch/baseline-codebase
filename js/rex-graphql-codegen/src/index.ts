@@ -107,6 +107,7 @@ export const plugin: PluginFunction<Config> = (
     switch (node.kind) {
       case "EnumTypeDefinition":
       case "ScalarTypeDefinition":
+      case "InputObjectTypeDefinition":
         definitions.scalars.set(node.name.value, node);
         break;
       case "FragmentDefinition": {
@@ -257,6 +258,28 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
           ),
         ),
         [],
+      );
+      ctx.scalars.set(node.name.value, { value: [value] });
+      break;
+    }
+    case "InputObjectTypeDefinition": {
+      if (ctx.scalars.has(node.name.value)) {
+        break;
+      }
+      ctx.scalars.set(node.name.value, { value: null });
+      let value = t.exportNamedDeclaration(
+        t.typeAlias(
+          scalarTypeName(node.name.value),
+          null,
+          t.objectTypeAnnotation(
+            node.fields.map(field =>
+              t.objectTypeProperty(
+                t.identifier(field.name.value),
+                printVariableType(ctx, field.type),
+              ),
+            ),
+          ),
+        ),
       );
       ctx.scalars.set(node.name.value, { value: [value] });
       break;

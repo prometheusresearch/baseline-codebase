@@ -22,7 +22,7 @@ export type ShowScreen = {|
   RenderToolbar?: ?Rapid.ShowRenderToolbar,
 |};
 
-export type PickScreen<V: any, R: any> = {|
+export type PickScreen<V, R> = {|
   type: "pick",
   title: string,
   resource: Resource<V, R>,

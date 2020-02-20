@@ -12,6 +12,8 @@ import * as ShowUser from "./ShowUser.js";
 import * as PickUser from "./PickUser.js";
 import * as API from "./API.js";
 
+import * as gapi from "./graphql.api.js";
+
 export let pickUser = Router.route("/", PickUser.screen);
 export let showUser = Router.route("/:id", ShowUser.screen);
 

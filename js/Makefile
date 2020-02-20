@@ -21,3 +21,7 @@ fmt:
 
 check-fmt:
 	@yarn prettier --check $(FMT:%='%/**/*.js')
+
+graphql-schema-dump:
+	../bin/rex graphql-schema-dump rex.demo.ui rex.demo.ui.Schema > \
+		./rex-demo-ui/graphql.api/schema.gql

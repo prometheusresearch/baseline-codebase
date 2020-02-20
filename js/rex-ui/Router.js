@@ -10,6 +10,7 @@ import * as History from "history";
 import * as React from "react";
 import * as RoutePattern from "./RoutePattern.js";
 import * as Rapid from "./rapid";
+import { type Resource } from "rex-graphql/Resource2";
 
 export type ShowScreen = {|
   type: "show",
@@ -21,9 +22,10 @@ export type ShowScreen = {|
   RenderToolbar?: ?Rapid.ShowRenderToolbar,
 |};
 
-export type PickScreen = {|
+export type PickScreen<V: any, R: any> = {|
   type: "pick",
   title: string,
+  resource: Resource<V, R>,
   fetch: string,
   description: string,
   fields?: ?{ [name: string]: Rapid.FieldConfig },

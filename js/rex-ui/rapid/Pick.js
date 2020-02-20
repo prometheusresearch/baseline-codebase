@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { useQuery, type Endpoint, type Result } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource";
+import * as Resource2 from "rex-graphql/Resource2";
 
 import * as QueryPath from "./QueryPath.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
@@ -23,9 +24,21 @@ export type PickProps = {|
   ...PickRendererConfigProps,
 |};
 
-export let PickBase = (props: PickProps) => {
-  let { endpoint, fields, fetch, filters, ...rest } = props;
+export type PickProps2<V, R, O: { [key: string]: any }> = {|
+  endpoint: Endpoint,
+  fields?: ?{ [name: string]: Field.FieldConfig },
+  resource: Resource2.Resource<V, R>,
+  getRows: R => Array<O>,
+  fieldSpecs: { [name: $Keys<O>]: Field.FieldSpec },
+  filters?: ?Array<Field.FilterConfig>,
+  ...PickRendererConfigProps,
+|};
+
+export let PickBase = (props: PickProps2<any, any, any>) => {
+  let { endpoint, fields, fetch, filters, resource: res2, ...rest } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
+
+  console.log(res2);
 
   let {
     resource,
@@ -78,7 +91,7 @@ export let PickBase = (props: PickProps) => {
   );
 };
 
-export let Pick = (props: PickProps) => (
+export let Pick = (props: PickProps2<any, any, any>) => (
   <ErrorBoundary>
     <PickBase {...props} />
   </ErrorBoundary>

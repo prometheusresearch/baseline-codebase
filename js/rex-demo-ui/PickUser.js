@@ -11,6 +11,8 @@ import * as Resource from "rex-graphql/Resource";
 import * as API from "./API.js";
 import * as routes from "./index.js";
 
+import * as API2 from "./graphql.api";
+
 let phoneField = {
   title: "Phone",
   require: {
@@ -39,9 +41,10 @@ function ShowOnlyAdminsFilter(props) {
   );
 }
 
-export let screen: Router.PickScreen = {
+export let screen: Router.PickScreen<API2.UsersVariables, API2.UsersResult> = {
   type: "pick",
   fetch: "user.paginated",
+  resource: API2.Users,
   title: "Users",
   description: "List of users",
   fields: {

@@ -94,7 +94,7 @@ function App() {
   let match = Router.useMatch(router);
 
   let renderPickView = React.useCallback(
-    (screen: Router.PickScreen, params) => {
+    (screen: Router.PickScreen<any, any>, params) => {
       let onRowClick;
       if (screen.onSelect != null) {
         let onSelect = screen.onSelect;
@@ -108,6 +108,7 @@ function App() {
         <Rapid.Pick
           key={JSON.stringify(screen)}
           endpoint={API.endpoint}
+          resource={screen.resource}
           fetch={screen.fetch}
           onRowClick={onRowClick}
           fields={screen.fields}

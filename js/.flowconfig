@@ -21,6 +21,7 @@
 [lints]
 
 [options]
+module.name_mapper.extension='gql' -> '<PROJECT_ROOT>/rex-graphql/module-gql'
 
 [strict]
 nonstrict-import

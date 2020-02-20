@@ -53,10 +53,10 @@ type PluginOutput =
       append?: string[];
     };
 
-type PluginFunction<T = any> = (
+type PluginFunction = (
   schema: gql.GraphQLSchema,
   documents: gql.DocumentNode[],
-  config: T,
+  config: Config,
   info?: {
     outputFile?: string;
   },
@@ -89,7 +89,7 @@ function emitNamespaceImport(
   chunks.push(generate(node as any).code);
 }
 
-export const plugin: PluginFunction<Config> = (
+export const plugin: PluginFunction = (
   schema,
   documents,
   { generateResourceAPI, generateTypesAPI, generateUnions },

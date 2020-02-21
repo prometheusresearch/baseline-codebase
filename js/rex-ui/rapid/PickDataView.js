@@ -28,7 +28,7 @@ import * as Field from "./Field.js";
 import { type PickState } from "./PickRenderer";
 import { LoadingIndicator } from "./LoadingIndicator";
 
-import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
+import { makeStyles, type Theme } from "@material-ui/styles";
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, capitalize } from "./helpers";
 

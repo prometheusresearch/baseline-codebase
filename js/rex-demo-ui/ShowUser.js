@@ -7,7 +7,7 @@ import AddBoxIcon from "@material-ui/icons/AddBox";
 
 import { Button } from "rex-ui/Button";
 import * as Router from "rex-ui/Router";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 import { Select, List, LoadingIndicator } from "rex-ui/rapid";
 
 import * as routes from "./index.js";
@@ -108,9 +108,11 @@ function PatientList(props) {
 function RemoveAction({ data, onRemove }) {
   let onClick = () => {
     let id = data.id;
-    Resource.perform(API.removeUser, { userIds: [id] }).then(() => {
-      onRemove ? onRemove() : null;
-    });
+    Resource.perform(API.endpoint, API.removeUser, { userIds: [id] }).then(
+      () => {
+        onRemove && onRemove();
+      },
+    );
   };
   return (
     <Button size="small" onClick={onClick} icon={<DeleteIcon />}>
@@ -126,11 +128,12 @@ function AddToSiteActionDialog({ data, onClose }) {
       return;
     }
     let userIds = [data.id];
-    Resource.perform(API.addUserToSite, { userIds, siteId: site }).finally(
-      () => {
-        onClose(true);
-      },
-    );
+    Resource.perform(API.endpoint, API.addUserToSite, {
+      userIds,
+      siteId: site,
+    }).finally(() => {
+      onClose(true);
+    });
   };
   return (
     <React.Suspense fallback={<LoadingIndicator />}>
@@ -166,7 +169,7 @@ function AddToSiteAction({ data, onAdd }) {
   let [open, setOpen] = React.useState(false);
   let onClose = done => {
     if (done) {
-      onAdd ? onAdd() : null;
+      onAdd && onAdd();
     }
     setOpen(false);
   };

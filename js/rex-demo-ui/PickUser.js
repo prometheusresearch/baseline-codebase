@@ -7,11 +7,9 @@ import AddBoxIcon from "@material-ui/icons/AddBox";
 import { Select, List, LoadingIndicator } from "rex-ui/rapid";
 import { Button } from "rex-ui/Button";
 import * as Router from "rex-ui/Router";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 import * as API from "./API.js";
 import * as routes from "./index.js";
-
-import * as API2 from "./graphql.api";
 
 let phoneField = {
   title: "Phone",
@@ -41,10 +39,10 @@ function ShowOnlyAdminsFilter(props) {
   );
 }
 
-export let screen: Router.PickScreen<> = {
+export let screen: Router.PickScreen<API.UsersVariables, API.UsersResult> = {
   type: "pick",
   fetch: "user.paginated",
-  resource: API2.Users,
+  resource: API.Users,
   getRows: data => data.user.paginated,
   title: "Users",
   description: "List of users",
@@ -95,7 +93,7 @@ export let screen: Router.PickScreen<> = {
 function RemoveAction({ selected, onSelected }) {
   let onClick = () => {
     let userIds = [...selected];
-    Resource.perform(API.removeUser, { userIds }).then(() => {
+    Resource.perform(API.endpoint, API.removeUser, { userIds }).then(() => {
       onSelected(new Set());
     });
   };
@@ -119,7 +117,10 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
       return;
     }
     let userIds = [...selected];
-    Resource.perform(API.addUserToSite, { userIds, siteId: site }).then(() => {
+    Resource.perform(API.endpoint, API.addUserToSite, {
+      userIds,
+      siteId: site,
+    }).then(() => {
       onClose(true);
     });
   };
@@ -170,7 +171,6 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
 }
 
 function AddToSiteAction({ selected, onSelected }) {
-  let [site, setSite] = React.useState(null);
   let [open, setOpen] = React.useState(false);
   let onClose = done => {
     if (done) {

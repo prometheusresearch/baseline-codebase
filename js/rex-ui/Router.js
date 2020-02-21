@@ -42,8 +42,7 @@ export type CustomScreen = {|
   Render: React.AbstractComponent<{| params: Object |}>,
 |};
 
-// TODO(andreypopp): check if * usage is ok here
-export type Screen = PickScreen<*, *> | ShowScreen | CustomScreen;
+export type Screen = PickScreen<any, any> | ShowScreen | CustomScreen;
 
 export opaque type RouteGroup: {
   +type: "route-group",

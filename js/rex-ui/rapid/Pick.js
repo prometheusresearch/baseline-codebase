@@ -22,34 +22,28 @@ export type PickProps = {|
   ...PickRendererConfigProps,
 |};
 
-export type PickProps2<V, R, O: { [name: string]: mixed }> = {|
+export type PickProps2<V, R, O = *> = {|
   endpoint: Endpoint,
-  fields?: ?{ [name: string]: Field.FieldConfig },
   resource: Resource.Resource<V, R>,
+  fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
   getRows: R => Array<O>,
-  fieldSpecs: { [name: $Keys<O>]: Field.FieldSpec },
   filters?: ?Array<Field.FilterConfig>,
   ...PickRendererConfigProps,
 |};
 
-export let PickBase = <V, R, O: { [name: string]: mixed }>(
-  props: PickProps2<V, R, O>,
-) => {
+export let PickBase = <V, R>(props: PickProps2<V, R>) => {
   let {
     endpoint,
     fields,
     fetch,
     filters,
-    resource: res2,
+    resource,
     getRows: _getRows,
     ...rest
   } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
-  console.log(res2);
-
   let {
-    resource,
     fieldSpecs,
     filterSpecs,
     description: fieldDescription,
@@ -58,7 +52,6 @@ export let PickBase = <V, R, O: { [name: string]: mixed }>(
   } = React.useMemo(() => {
     let path = QueryPath.make(fetch);
     let {
-      query,
       fieldSpecs,
       description,
       filterSpecs,
@@ -70,9 +63,7 @@ export let PickBase = <V, R, O: { [name: string]: mixed }>(
       fields,
       filters,
     });
-    let resource = Resource.defineQuery({ query });
     return {
-      resource,
       fieldSpecs,
       filterSpecs,
       description,
@@ -91,7 +82,7 @@ export let PickBase = <V, R, O: { [name: string]: mixed }>(
       onSelected={setSelected}
       fetch={fetch}
       filterSpecs={filterSpecs}
-      resource={res2}
+      resource={resource}
       variablesMap={variablesMap}
       fieldSpecs={fieldSpecs}
       fieldDescription={fieldDescription}

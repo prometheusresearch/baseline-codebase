@@ -110,9 +110,9 @@ export type PickRendererConfigProps = {|
   onRowClick?: (row: any) => void,
 |};
 
-export type PickRendererProps = {|
+export type PickRendererProps<V, R> = {|
   endpoint: Endpoint,
-  resource: Resource<any, any>,
+  resource: Resource<V, R>,
   fieldSpecs: { [name: string]: Field.FieldSpec },
   variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
@@ -211,7 +211,7 @@ export type PickState = {|
   filter: { [key: string]: ?boolean },
 |};
 
-export const PickRenderer = ({
+export const PickRenderer = <V, R>({
   endpoint,
   resource,
   fieldSpecs,
@@ -231,7 +231,7 @@ export const PickRenderer = ({
   onSelected,
   sortingConfig,
   filterSpecs,
-}: PickRendererProps) => {
+}: PickRendererProps<V, R>) => {
   const isTabletWidth = useMinWindowWidth(720);
 
   const defaultPickState = {

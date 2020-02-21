@@ -161,7 +161,7 @@ const PickCardListView = ({
   );
 };
 
-const PickTableBody = ({
+const PickTableBody = <V, R>({
   fieldSpecs,
   sortingConfig,
   setSortingState,
@@ -190,7 +190,7 @@ const PickTableBody = ({
   columnsMap: Map<string, Field.FieldSpec>,
   pickState: PickState,
   endpoint: Endpoint,
-  resource: Resource<any, any>,
+  resource: Resource<V, R>,
   fetch: string,
   onDataReceive: any => void,
   setTableFullHeight: (is: boolean) => void,
@@ -208,11 +208,10 @@ const PickTableBody = ({
   const [, resourceData] = useResource(endpoint, resource, params);
   setTableFullHeight(false);
 
-  if (resourceData == null) {
-    return null;
-  }
-
   const data = React.useMemo(() => {
+  if (resourceData == null) {
+      return [];
+  }
     const data = _get(resourceData, fetch);
     /**
      * Used for pagination to have idea if received date length equal to limit
@@ -332,7 +331,7 @@ const buildParams = (pickState: PickState) => {
   return params;
 };
 
-export const PickDataView = ({
+export const PickDataView = <V, R>({
   onDataReceive: _onDataReceive,
   args,
   endpoint,
@@ -352,7 +351,7 @@ export const PickDataView = ({
   onSelected,
 }: {|
   endpoint: Endpoint,
-  resource: Resource<any, any>,
+  resource: Resource<V, R>,
   onDataReceive: any => any,
   fieldSpecs: { [name: string]: Field.FieldSpec },
   args?: { [key: string]: any },

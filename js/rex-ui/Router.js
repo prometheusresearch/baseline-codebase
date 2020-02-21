@@ -23,7 +23,7 @@ export type ShowScreen = {|
 |};
 
 // TODO(andreypopp): check if * usage is ok here
-export type PickScreen<V = *, R = *, O = *> = {|
+export type PickScreen<V, R, O = *> = {|
   type: "pick",
   title: string,
   resource: Resource<V, R>,

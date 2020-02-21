@@ -59,34 +59,34 @@ export let screen: Router.PickScreen<API.UsersVariables, API.UsersResult> = {
       require: { field: "system_admin" },
     },
   },
-  // filters: [
-  //   {
-  //     name: "system_admin",
-  //     render: ShowOnlyAdminsFilter,
-  //   },
-  // ],
-  // RenderToolbar: props => {
-  //   let caption = "No users selected";
-  //   if (props.selected.size > 0) {
-  //     caption = `Selected ${props.selected.size} users`;
-  //   }
-  //   let disabled = props.selected.size === 0;
-  //   return (
-  //     <>
-  //       <mui.Typography variant="caption">{caption}</mui.Typography>
-  //       <div>
-  //         <RemoveAction
-  //           selected={props.selected}
-  //           onSelected={props.onSelected}
-  //         />
-  //         <AddToSiteAction
-  //           selected={props.selected}
-  //           onSelected={props.onSelected}
-  //         />
-  //       </div>
-  //     </>
-  //   );
-  // },
+  filters: [
+    {
+      name: "system_admin",
+      render: ShowOnlyAdminsFilter,
+    },
+  ],
+  RenderToolbar: props => {
+    let caption = "No users selected";
+    if (props.selected.size > 0) {
+      caption = `Selected ${props.selected.size} users`;
+    }
+    // let disabled = props.selected.size === 0;
+    return (
+      <>
+        <mui.Typography variant="caption">{caption}</mui.Typography>
+        <div>
+          <RemoveAction
+            selected={props.selected}
+            onSelected={props.onSelected}
+          />
+          <AddToSiteAction
+            selected={props.selected}
+            onSelected={props.onSelected}
+          />
+        </div>
+      </>
+    );
+  },
   onSelect: id => [routes.showUser, { id }],
 };
 

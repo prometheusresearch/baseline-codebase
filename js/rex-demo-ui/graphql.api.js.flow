@@ -3,6 +3,8 @@
 
 import * as __resource from "rex-graphql/Resource2";
 import UsersQuery from "./graphql.api/Users.gql";
+import addUserToSiteMutation from "./graphql.api/addUserToSite.gql";
+import removeUserMutation from "./graphql.api/removeUser.gql";
 
 export type sort_user_direction = {
   field: ?sort_user_field,
@@ -12,6 +14,8 @@ export type sort_user_direction = {
 export type sort_user_field = "remote_user" | "expires";
 
 export type user_id = mixed;
+
+export type site_id = mixed;
 
 export type UsersVariables = {|
   offset?: ?number,
@@ -42,6 +46,33 @@ export let Users = __resource.defineQuery<UsersVariables, UsersResult>({
   query: UsersQuery,
 });
 
-export type QueryVariables = UsersVariables;
+export type addUserToSiteVariables = {|
+  userIds: Array<?user_id>,
+  siteId: site_id,
+|};
 
-export type QueryResult = UsersResult;
+export type addUserToSiteResult = {|
+  add_user_to_site: ?boolean,
+|};
+
+export let addUserToSite = __resource.defineMutation<
+  addUserToSiteVariables,
+  addUserToSiteResult,
+>({
+  mutation: addUserToSiteMutation,
+});
+
+export type removeUserVariables = {|
+  userIds: Array<?user_id>,
+|};
+
+export type removeUserResult = {|
+  remove_user: ?boolean,
+|};
+
+export let removeUser = __resource.defineMutation<
+  removeUserVariables,
+  removeUserResult,
+>({
+  mutation: removeUserMutation,
+});

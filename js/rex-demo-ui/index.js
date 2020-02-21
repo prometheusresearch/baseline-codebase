@@ -107,6 +107,7 @@ function App() {
           key={JSON.stringify(screen)}
           endpoint={API.endpoint}
           resource={screen.resource}
+          getRows={screen.getRows}
           fetch={screen.fetch}
           onRowClick={onRowClick}
           fields={screen.fields}

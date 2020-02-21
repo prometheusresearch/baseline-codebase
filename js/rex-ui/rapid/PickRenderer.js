@@ -11,8 +11,8 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 
 import FilterListIcon from "@material-ui/icons/FilterList";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { type Resource } from "rex-graphql/Resource";
+import { type Endpoint } from "rex-graphql";
+import { type Resource } from "rex-graphql/Resource2";
 import { IconButton } from "rex-ui/IconButton";
 
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
@@ -111,6 +111,7 @@ export type PickRendererConfigProps = {|
 |};
 
 export type PickRendererProps = {|
+  endpoint: Endpoint,
   resource: Resource<any, any>,
   fieldSpecs: { [name: string]: Field.FieldSpec },
   variablesMap: ?Map<string, VariableDefinitionNode>,
@@ -211,6 +212,7 @@ export type PickState = {|
 |};
 
 export const PickRenderer = ({
+  endpoint,
   resource,
   fieldSpecs,
   fetch,
@@ -391,6 +393,7 @@ export const PickRenderer = ({
         fieldSpecs={fieldSpecs}
         isTabletWidth={isTabletWidth}
         fetch={fetch}
+        endpoint={endpoint}
         resource={resource}
         onRowClick={onRowClick}
         showAs={showAs}

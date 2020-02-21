@@ -17,10 +17,8 @@ import SwapVertIcon from "@material-ui/icons/SwapVert";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
-import {
-  type Resource,
-  unstable_useResource as useResource,
-} from "rex-graphql/Resource";
+import { type Endpoint } from "rex-graphql";
+import { type Resource, useResource } from "rex-graphql/Resource2";
 import _get from "lodash/get";
 
 import { ShowCard } from "./ShowRenderer.js";
@@ -175,6 +173,7 @@ const PickTableBody = ({
   columnsNames,
   columnsMap,
   pickState,
+  endpoint,
   resource,
   fetch,
   onDataReceive,
@@ -190,6 +189,7 @@ const PickTableBody = ({
   columnsNames: string[],
   columnsMap: Map<string, Field.FieldSpec>,
   pickState: PickState,
+  endpoint: Endpoint,
   resource: Resource<any, any>,
   fetch: string,
   onDataReceive: any => void,
@@ -205,7 +205,7 @@ const PickTableBody = ({
   const params = buildParams(pickState);
 
   setTableFullHeight(true);
-  const resourceData = useResource(resource, params);
+  const [, resourceData] = useResource(endpoint, resource, params);
   setTableFullHeight(false);
 
   if (resourceData == null) {
@@ -335,6 +335,7 @@ const buildParams = (pickState: PickState) => {
 export const PickDataView = ({
   onDataReceive: _onDataReceive,
   args,
+  endpoint,
   resource,
   fieldSpecs,
   fetch,
@@ -350,6 +351,7 @@ export const PickDataView = ({
   selected,
   onSelected,
 }: {|
+  endpoint: Endpoint,
   resource: Resource<any, any>,
   onDataReceive: any => any,
   fieldSpecs: { [name: string]: Field.FieldSpec },
@@ -517,6 +519,7 @@ export const PickDataView = ({
           <PickTableBody
             pickState={state}
             onDataReceive={onDataReceive}
+            endpoint={endpoint}
             resource={resource}
             fieldSpecs={fieldSpecs}
             sortingConfig={sortingConfig}

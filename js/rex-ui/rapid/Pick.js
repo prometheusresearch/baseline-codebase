@@ -5,7 +5,7 @@
 import * as React from "react";
 
 import { type Endpoint } from "rex-graphql";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 
 import * as QueryPath from "./QueryPath.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
@@ -25,7 +25,7 @@ export type PickProps = {|
 export type PickProps2<V, R, O: { [name: string]: mixed }> = {|
   endpoint: Endpoint,
   fields?: ?{ [name: string]: Field.FieldConfig },
-  resource: Resource2.Resource<V, R>,
+  resource: Resource.Resource<V, R>,
   getRows: R => Array<O>,
   fieldSpecs: { [name: $Keys<O>]: Field.FieldSpec },
   filters?: ?Array<Field.FilterConfig>,
@@ -70,7 +70,7 @@ export let PickBase = <V, R, O: { [name: string]: mixed }>(
       fields,
       filters,
     });
-    let resource = Resource.defineQuery({ query, endpoint });
+    let resource = Resource.defineQuery({ query });
     return {
       resource,
       fieldSpecs,
@@ -86,11 +86,12 @@ export let PickBase = <V, R, O: { [name: string]: mixed }>(
   return (
     <PickRenderer
       {...rest}
+      endpoint={endpoint}
       selected={selected}
       onSelected={setSelected}
       fetch={fetch}
       filterSpecs={filterSpecs}
-      resource={resource}
+      resource={res2}
       variablesMap={variablesMap}
       fieldSpecs={fieldSpecs}
       fieldDescription={fieldDescription}

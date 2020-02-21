@@ -22,13 +22,15 @@ export type ShowScreen = {|
   RenderToolbar?: ?Rapid.ShowRenderToolbar,
 |};
 
-export type PickScreen<V, R> = {|
+// TODO(andreypopp): check if * usage is ok here
+export type PickScreen<V = *, R = *, O = *> = {|
   type: "pick",
   title: string,
   resource: Resource<V, R>,
+  getRows: R => Array<O>,
   fetch: string,
   description: string,
-  fields?: ?{ [name: string]: Rapid.FieldConfig },
+  fields?: ?{ [name: $Keys<O>]: Rapid.FieldConfig },
   filters?: ?(Rapid.PickFilterConfig[]),
   onSelect?: (id: string) => [Route, Params],
   RenderToolbar?: Rapid.PickRenderToolbar,
@@ -40,7 +42,8 @@ export type CustomScreen = {|
   Render: React.AbstractComponent<{| params: Object |}>,
 |};
 
-export type Screen = PickScreen | ShowScreen | CustomScreen;
+// TODO(andreypopp): check if * usage is ok here
+export type Screen = PickScreen<*, *> | ShowScreen | CustomScreen;
 
 export opaque type RouteGroup: {
   +type: "route-group",

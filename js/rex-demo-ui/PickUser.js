@@ -41,10 +41,11 @@ function ShowOnlyAdminsFilter(props) {
   );
 }
 
-export let screen: Router.PickScreen<API2.UsersVariables, API2.UsersResult> = {
+export let screen: Router.PickScreen<> = {
   type: "pick",
   fetch: "user.paginated",
   resource: API2.Users,
+  getRows: data => data.user.paginated,
   title: "Users",
   description: "List of users",
   fields: {
@@ -60,34 +61,34 @@ export let screen: Router.PickScreen<API2.UsersVariables, API2.UsersResult> = {
       require: { field: "system_admin" },
     },
   },
-  filters: [
-    {
-      name: "system_admin",
-      render: ShowOnlyAdminsFilter,
-    },
-  ],
-  RenderToolbar: props => {
-    let caption = "No users selected";
-    if (props.selected.size > 0) {
-      caption = `Selected ${props.selected.size} users`;
-    }
-    let disabled = props.selected.size === 0;
-    return (
-      <>
-        <mui.Typography variant="caption">{caption}</mui.Typography>
-        <div>
-          <RemoveAction
-            selected={props.selected}
-            onSelected={props.onSelected}
-          />
-          <AddToSiteAction
-            selected={props.selected}
-            onSelected={props.onSelected}
-          />
-        </div>
-      </>
-    );
-  },
+  // filters: [
+  //   {
+  //     name: "system_admin",
+  //     render: ShowOnlyAdminsFilter,
+  //   },
+  // ],
+  // RenderToolbar: props => {
+  //   let caption = "No users selected";
+  //   if (props.selected.size > 0) {
+  //     caption = `Selected ${props.selected.size} users`;
+  //   }
+  //   let disabled = props.selected.size === 0;
+  //   return (
+  //     <>
+  //       <mui.Typography variant="caption">{caption}</mui.Typography>
+  //       <div>
+  //         <RemoveAction
+  //           selected={props.selected}
+  //           onSelected={props.onSelected}
+  //         />
+  //         <AddToSiteAction
+  //           selected={props.selected}
+  //           onSelected={props.onSelected}
+  //         />
+  //       </div>
+  //     </>
+  //   );
+  // },
   onSelect: id => [routes.showUser, { id }],
 };
 

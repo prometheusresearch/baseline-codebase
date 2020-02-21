@@ -94,7 +94,10 @@ function App() {
   let match = Router.useMatch(router);
 
   let renderPickView = React.useCallback(
-    (screen: Router.PickScreen<any, any>, params) => {
+    <V, R>(
+      screen: Router.PickScreen<V, R>,
+      params,
+    ) => {
       let onRowClick;
       if (screen.onSelect != null) {
         let onSelect = screen.onSelect;

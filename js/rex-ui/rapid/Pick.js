@@ -24,7 +24,7 @@ export type PickProps = {|
   ...PickRendererConfigProps,
 |};
 
-export type PickProps2<V, R, O: { [key: string]: any }> = {|
+export type PickProps2<V, R, O: { [name: string]: mixed }> = {|
   endpoint: Endpoint,
   fields?: ?{ [name: string]: Field.FieldConfig },
   resource: Resource2.Resource<V, R>,
@@ -34,8 +34,18 @@ export type PickProps2<V, R, O: { [key: string]: any }> = {|
   ...PickRendererConfigProps,
 |};
 
-export let PickBase = (props: PickProps2<any, any, any>) => {
-  let { endpoint, fields, fetch, filters, resource: res2, ...rest } = props;
+export let PickBase = <V, R, O: { [name: string]: mixed }>(
+  props: PickProps2<V, R, O>,
+) => {
+  let {
+    endpoint,
+    fields,
+    fetch,
+    filters,
+    resource: res2,
+    getRows: _getRows,
+    ...rest
+  } = props;
   let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
   console.log(res2);
@@ -91,7 +101,9 @@ export let PickBase = (props: PickProps2<any, any, any>) => {
   );
 };
 
-export let Pick = (props: PickProps2<any, any, any>) => (
+export let Pick = <V, R, O: { [name: string]: mixed }>(
+  props: PickProps2<V, R, O>,
+) => (
   <ErrorBoundary>
     <PickBase {...props} />
   </ErrorBoundary>

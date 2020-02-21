@@ -4,19 +4,13 @@
 
 import * as React from "react";
 
-import { type VariableDefinitionNode } from "graphql/language/ast";
-
 import Typography from "@material-ui/core/Typography";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Table from "@material-ui/core/Table";
-import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import TableBody from "@material-ui/core/TableBody";
 import TableHead from "@material-ui/core/TableHead";
-import TextField from "@material-ui/core/TextField";
-import FormGroup from "@material-ui/core/FormGroup";
-import InputLabel from "@material-ui/core/InputLabel";
 import Grid from "@material-ui/core/Grid";
 
 import SwapVertIcon from "@material-ui/icons/SwapVert";
@@ -142,8 +136,6 @@ const PickCardListView = ({
   fieldSpecs: { [name: string]: Field.FieldSpec },
   onClick?: (row: any) => void,
 |}) => {
-  const classes = useDataViewStyles();
-
   return (
     <Grid container>
       {data.map((row, index) => {

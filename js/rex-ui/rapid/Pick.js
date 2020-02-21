@@ -4,9 +4,8 @@
 
 import * as React from "react";
 
-import { useQuery, type Endpoint, type Result } from "rex-graphql";
+import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource";
-import * as Resource2 from "rex-graphql/Resource2";
 
 import * as QueryPath from "./QueryPath.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
@@ -14,7 +13,6 @@ import { introspect } from "./Introspection";
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
 import * as Field from "./Field.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
-import { buildSortingConfig } from "./buildSortingConfig.js";
 
 export type PickProps = {|
   endpoint: Endpoint,

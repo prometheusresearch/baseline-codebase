@@ -1,14 +1,12 @@
 /**
  * @flow
  */
-import { type AbstractComponent } from "react";
 import invariant from "invariant";
 import * as introspection from "graphql/utilities/introspectionQuery";
 import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
 import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
-import { capitalize } from "./helpers.js";
 import { ConfigError } from "./ErrorBoundary";
 import { buildSortingConfig } from "./buildSortingConfig.js";
 
@@ -434,7 +432,7 @@ const buildTypeNode = (
         name: { kind: "Name", value: introType.name },
       };
     default:
-      (introType.kind: empty);
+      // (introType.kind: empty);
       invariant(false, `Unknown GraphQL introspection type: ${introType.kind}`);
   }
 };
@@ -497,7 +495,7 @@ export const resolveField = (
         nextType = typesMap.get(typeRef.name);
         break;
       default:
-        (typeRef.kind: empty);
+        // (typeRef.kind: empty);
         invariant(false, "Impossible");
     }
     invariant(

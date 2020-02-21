@@ -3,57 +3,25 @@
  */
 
 import * as React from "react";
-import classNames from "classnames";
-import invariant from "invariant";
-import {
-  type DocumentNode,
-  type FieldNode,
-  type OperationDefinitionNode,
-  type VariableDefinitionNode,
-} from "graphql/language/ast";
+import { type VariableDefinitionNode } from "graphql/language/ast";
 
-import {
-  type IntrospectionType,
-  type IntrospectionInputObjectType,
-  type IntrospectionInputValue,
-  type IntrospectionEnumType,
-} from "graphql/utilities/introspectionQuery";
-
-import {
-  makeStyles,
-  useTheme,
-  ThemeProvider,
-  type Theme,
-} from "@material-ui/styles";
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
-import Grid from "@material-ui/core/Grid";
+import { makeStyles, type Theme } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
-import Select from "@material-ui/core/Select";
 
 import Typography from "@material-ui/core/Typography";
-import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import {
-  type Resource,
-  unstable_useResource as useResource,
-} from "rex-graphql/Resource";
+import { type Resource } from "rex-graphql/Resource";
 import { IconButton } from "rex-ui/IconButton";
 
-import { LoadingIndicator } from "./LoadingIndicator.js";
-
-import { buildSortingConfig } from "./buildSortingConfig";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
 import * as Field from "./Field.js";
 
 import { DEFAULT_THEME } from "./themes";
-import { isEmptyObject, capitalize, useDebouncedCallback } from "./helpers";
+import { isEmptyObject, useDebouncedCallback } from "./helpers";
 import { PickSearchToolbar } from "./PickSearchToolbar.js";
 
 export const useRendererStyles = makeStyles((theme: Theme) => {
@@ -103,7 +71,6 @@ const useMinWindowWidth = (minWidth: number) => {
   return doesMatch;
 };
 
-type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
 
 export type RenderToolbarProps = {|

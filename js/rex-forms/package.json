@@ -10,15 +10,6 @@
       "prometheusresearch"
     ]
   },
-  "eslintConfig": {
-    "extends": "prometheusresearch",
-    "globals": {
-      "$Shape": true
-    },
-    "env": {
-      "mocha": true
-    }
-  },
   "dependencies": {
     "react": "*",
     "react-dom": "*",

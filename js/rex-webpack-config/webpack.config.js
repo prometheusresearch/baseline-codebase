@@ -46,14 +46,12 @@ module.exports = function(webpackEnv) {
 
   const rexGraphQLLoader = {
     loader: require.resolve("rex-graphql-codegen/dist/loader.js"),
-  }
+  };
 
   const babelLoader = {
     loader: require.resolve("babel-loader"),
     options: {
-      customize: require.resolve(
-        "babel-preset-react-app/webpack-overrides",
-      ),
+      customize: require.resolve("babel-preset-react-app/webpack-overrides"),
       presets: ["react-app"],
       plugins: [
         [
@@ -61,8 +59,7 @@ module.exports = function(webpackEnv) {
           {
             loaderMap: {
               svg: {
-                ReactComponent:
-                  "@svgr/webpack?-prettier,-svgo![path]",
+                ReactComponent: "@svgr/webpack?-prettier,-svgo![path]",
               },
             },
           },
@@ -76,7 +73,7 @@ module.exports = function(webpackEnv) {
       compact: isEnvProduction,
       sourceMaps: false,
     },
-  }
+  };
 
   // Webpack uses `publicPath` to determine where the app is being served from.
   // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -335,18 +332,22 @@ module.exports = function(webpackEnv) {
         // It's important to do this before Babel processes the JS.
         {
           test: /\.(js|mjs|jsx)$/,
-          exclude: vendoredJsRegex,
+          include: paths.workspace,
+          exclude: [/node_modules/, vendoredJsRegex],
           enforce: "pre",
           use: [
             {
               options: {
                 formatter: require.resolve("react-dev-utils/eslintFormatter"),
                 eslintPath: require.resolve("eslint"),
+                cache: true,
+                eslint: {
+                  configFile: path.join(__dirname, "..", ".eslintrc"),
+                },
               },
               loader: require.resolve("eslint-loader"),
             },
           ],
-          include: paths.appSrc,
         },
         {
           // "oneOf" will traverse all following loaders until one will
@@ -387,10 +388,7 @@ module.exports = function(webpackEnv) {
               test: /\.api\.js/,
               include: paths.workspace,
               exclude: [/node_modules/, vendoredJsRegex],
-              use: [
-                babelLoader,
-                rexGraphQLLoader,
-              ]
+              use: [babelLoader, rexGraphQLLoader],
             },
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
@@ -520,7 +518,12 @@ module.exports = function(webpackEnv) {
               // its runtime that would otherwise be processed through "file" loader.
               // Also exclude `html` and `json` extensions so they get processed
               // by webpacks internal loaders.
-              exclude: [/\.(js|mjs|jsx|ts|tsx|ejs)$/, /\.html$/, /\.json$/, graphqlRegex],
+              exclude: [
+                /\.(js|mjs|jsx|ts|tsx|ejs)$/,
+                /\.html$/,
+                /\.json$/,
+                graphqlRegex,
+              ],
               options: {
                 name: "static/media/[name].[hash:8].[ext]",
               },
@@ -532,9 +535,7 @@ module.exports = function(webpackEnv) {
       ],
     },
     plugins: [
-      new webpack.WatchIgnorePlugin([
-        /\.js\.flow$/,
-      ]),
+      new webpack.WatchIgnorePlugin([/\.js\.flow$/]),
 
       // This gives some necessary context to module not found errors, such as
       // the requesting resource.

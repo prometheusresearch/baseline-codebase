@@ -10,6 +10,9 @@ install:
 showcase:
 	@yarn run cosmos
 
+lint:
+	@yarn run eslint --config ./.eslintrc .
+
 check:
 	@yarn run flow
 

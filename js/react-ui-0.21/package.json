@@ -3,33 +3,8 @@
   "version": "0.21.3",
   "description": "Configurable and styleable UI components",
   "main": "src/index.js",
-  "scripts": {
-    "test": "make lint test"
-  },
-  "babel": {
-    "presets": [
-      "prometheusresearch"
-    ]
-  },
-  "eslintConfig": {
-    "extends": "prometheusresearch",
-    "env": {
-      "mocha": true
-    }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/prometheusresearch/react-ui.git"
-  },
-  "keywords": [
-    "react-component"
-  ],
   "author": "Prometheus Research, LLC",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/prometheusresearch/react-ui/issues"
-  },
-  "homepage": "https://github.com/prometheusresearch/react-ui#readme",
   "dependencies": {
     "react": "*",
     "@prometheusresearch/react-box": "^0.10.0",

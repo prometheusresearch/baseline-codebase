@@ -1,0 +1,312 @@
+{
+  "root": true,
+  "extends": "react-app",
+  "ignorePatterns": [
+    "/node_modules",
+    "/*/node_modules",
+    "/*/build",
+    "/rex-formbuilder/test/",
+    "/rex-forms/tests/",
+    "/rex-action/lib/vendor-no-process/",
+    "/rex-widget/vendor/",
+    "/rex-webpack-config",
+    "/rex-conf-jest",
+    "/rex-graphql-codegen",
+    "/flow-typed"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "rex-formbuilder/**/*.js"
+      ],
+      "rules": {
+        "import/first": "off",
+        "strict": "off",
+        "no-unused-vars": "off",
+        "default-case": "off",
+        "no-useless-constructor": "off",
+        "react/no-is-mounted": "off",
+        "jsx-a11y/alt-text": "off",
+        "eqeqeq": "off",
+        "array-callback-return": "off",
+        "no-unused-expressions": "off"
+      }
+    },
+    {
+      "files": [
+        "react-forms/**/*.js"
+      ],
+      "rules": {
+        "import/first": "off",
+        "no-mixed-operators": "off",
+        "no-useless-escape": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "react-forms-old/**/*.js"
+      ],
+      "rules": {
+        "strict": "off",
+        "no-mixed-operators": "off",
+        "no-undef": "off",
+        "no-use-before-define": "off",
+        "no-unused-vars": "off",
+        "no-unused-expressions": "off",
+        "no-redeclare": "off",
+        "eqeqeq": "off"
+      }
+    },
+    {
+      "files": [
+        "react-stylesheet/**/*.js"
+      ],
+      "rules": {
+        "no-use-before-define": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "react-dom-stylesheet/**/*.js"
+      ],
+      "rules": {
+        "strict": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "react-stylesheet-old/**/*.js"
+      ],
+      "rules": {
+        "import/first": "off",
+        "no-mixed-operators": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "react-ui/**/*.js"
+      ],
+      "rules": {
+        "default-case": "off",
+        "no-useless-escape": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "react-ui-0.21/**/*.js"
+      ],
+      "rules": {
+        "import/first": "off",
+        "no-useless-escape": "off",
+        "default-case": "off",
+        "no-useless-computed-key": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-about/**/*.js"
+      ],
+      "rules": {
+        "no-use-before-define": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-acquire-actions/**/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off",
+        "eqeqeq": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-action/**/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off",
+        "no-use-before-define": "off",
+        "no-useless-escape": "off",
+        "no-useless-rename": "off",
+        "no-new-func": "off",
+        "no-loop-func": "off",
+        "react-hooks/exhaustive-deps": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-dbgui/**/*.js"
+      ],
+      "rules": {
+        "eqeqeq": "off",
+        "array-callback-return": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-demo-baseline/**/*.js"
+      ],
+      "rules": {
+        "strict": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-demo-ui/**/*.js"
+      ],
+      "rules": {
+        "no-unused-expressions": "off",
+        "no-unused-vars": "off",
+        "react-hooks/exhaustive-deps": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-expression/**/*.js"
+      ],
+      "rules": {
+        "no-undef": "off",
+        "no-extend-native": "off",
+        "no-new-wrappers": "off",
+        "array-callback-return": "off",
+        "no-unused-vars": "off",
+        "no-use-before-define": "off",
+        "no-useless-escape": "off",
+        "no-redeclare": "off",
+        "no-eval": "off",
+        "no-cond-assign": "off",
+        "default-case": "off",
+        "no-mixed-operators": "off",
+        "new-parens": "off",
+        "eqeqeq": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-form-previewer/**/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off",
+        "default-case": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-forms/**/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off",
+        "no-use-before-define": "off",
+        "no-dupe-keys": "off",
+        "no-useless-escape": "off",
+        "no-loop-func": "off",
+        "default-case": "off",
+        "eqeqeq": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-graphql/**/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off",
+        "eqeqeq": "off",
+        "react-hooks/exhaustive-deps": "off",
+        "react-hooks/rules-of-hooks": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-i18n/**/*.js"
+      ],
+      "rules": {
+        "no-unused-expressions": "off",
+        "no-unused-vars": "off",
+        "no-loop-func": "off",
+        "no-useless-escape": "off",
+        "eqeqeq": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-mart-actions/**/*.js"
+      ],
+      "rules": {
+        "eqeqeq": "off",
+        "no-dupe-keys": "off",
+        "no-unused-vars": "off",
+        "no-use-before-define": "off",
+        "react/no-direct-mutation-state": "off",
+        "react/jsx-no-undef": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-query/**/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off",
+        "no-use-before-define": "off",
+        "no-undef": "off",
+        "import/first": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-ui/**/*.js"
+      ],
+      "rules": {
+        "no-unused-vars": "off",
+        "no-unused-expressions": "off",
+        "no-use-before-define": "off",
+        "no-undef": "off",
+        "default-case": "off",
+        "eqeqeq": "off",
+        "react-hooks/exhaustive-deps": "off",
+        "react-hooks/rules-of-hooks": "off",
+        "import/first": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-widget/**/*.js"
+      ],
+      "rules": {
+        "import/first": "off",
+        "eqeqeq": "off",
+        "no-useless-escape": "off",
+        "no-use-before-define": "off",
+        "no-self-compare": "off",
+        "react-hooks/rules-of-hooks": "off",
+        "react-hooks/exhaustive-deps": "off",
+        "no-undef": "off",
+        "no-labels": "off",
+        "react/jsx-no-duplicate-props": "off",
+        "no-unused-labels": "off",
+        "no-unused-expressions": "off",
+        "jsx-a11y/iframe-has-title": "off",
+        "jsx-a11y/anchor-has-content": "off",
+        "default-case": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-widget-chrome/**/*.js"
+      ],
+      "rules": {
+        "no-undef": "off",
+        "no-unused-vars": "off",
+        "no-use-before-define": "off",
+        "strict": "off"
+      }
+    }
+  ]
+}

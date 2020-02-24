@@ -12,7 +12,6 @@ import FormGroup from "@material-ui/core/FormGroup";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 
-import { type VariableDefinitionNode } from "graphql/language/ast";
 import { type PickState } from "./PickRenderer";
 
 import * as Field from "./Field.js";
@@ -41,7 +40,6 @@ export const useFilterStyles = makeStyles((theme: Theme) => {
 
 type Props = {|
   state: PickState,
-  variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setFilterState: (name: string, value: ?boolean) => void,
   setSortingState: (value: string) => void,
@@ -50,7 +48,6 @@ type Props = {|
 |};
 
 const PickFilterToolbarBase = ({
-  variablesMap,
   state,
   sortingConfig,
   setFilterState,
@@ -58,10 +55,6 @@ const PickFilterToolbarBase = ({
   isTabletWidth,
   filterSpecs,
 }: Props) => {
-  if (variablesMap == null) {
-    return null;
-  }
-
   const classes = useFilterStyles();
 
   const classNames = [classes.tableControl];
@@ -132,68 +125,53 @@ const PickFilterToolbarBase = ({
             </Grid>
           ) : null}
 
-          {Array.from(variablesMap.keys())
-            .filter(key => {
-              const varDef = variablesMap.get(key);
+          {filterSpecs
+            ? Array.from(filterSpecs.keys()).map((booleanFilterName, index) => {
+                let CustomBooleanRenderer: ?React.ComponentType<{
+                  onChange: (newValue: any) => void,
+                  value: any,
+                  values?: Array<any>,
+                }> = null;
 
-              if (!varDef) {
-                return false;
-              }
-
-              const value = varDef.type.name
-                ? // $FlowFixMe
-                  varDef.type.name.value
-                : undefined;
-
-              return value === "Boolean";
-            })
-            .map((key, index) => {
-              const varDef = variablesMap.get(key);
-              if (!varDef) {
-                return null;
-              }
-
-              const booleanFilterName = varDef.variable.name.value;
-
-              let CustomBooleanRenderer: ?React.ComponentType<{
-                onChange: (newValue: any) => void,
-                value: any,
-                values?: Array<any>,
-              }> = null;
-
-              if (filterSpecs != null) {
-                if (filterSpecs.get(booleanFilterName) != null) {
-                  // $FlowFixMe
-                  if (filterSpecs.get(booleanFilterName).render != null) {
+                if (filterSpecs != null) {
+                  if (filterSpecs.get(booleanFilterName) != null) {
                     // $FlowFixMe
-                    CustomBooleanRenderer = (filterSpecs.get(booleanFilterName)
-                      .render: any);
+                    if (filterSpecs.get(booleanFilterName).render != null) {
+                      // $FlowFixMe
+                      CustomBooleanRenderer = (filterSpecs.get(
+                        booleanFilterName,
+                      ).render: any);
+                    }
                   }
                 }
-              }
 
-              return filterSpecs == null ||
-                (filterSpecs.get(booleanFilterName) != null &&
-                  //$FlowFixMe
-                  filterSpecs.get(booleanFilterName).render == null) ? (
-                <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
-                  <BooleanFilter
-                    key={booleanFilterName}
-                    value={state.filter[booleanFilterName]}
-                    onValue={value => setFilterState(booleanFilterName, value)}
-                    name={booleanFilterName}
-                  />
-                </Grid>
-              ) : CustomBooleanRenderer ? (
-                <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
-                  <CustomBooleanRenderer
-                    key={booleanFilterName}
-                    value={state.filter[booleanFilterName]}
-                    onChange={value => setFilterState(booleanFilterName, value)}
-                  />
-                </Grid>
-              ) : null;
-            })}
+                return filterSpecs == null ||
+                  (filterSpecs.get(booleanFilterName) != null &&
+                    //$FlowFixMe
+                    filterSpecs.get(booleanFilterName).render == null) ? (
+                  <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
+                    <BooleanFilter
+                      key={booleanFilterName}
+                      value={state.filter[booleanFilterName]}
+                      onValue={value =>
+                        setFilterState(booleanFilterName, value)
+                      }
+                      name={booleanFilterName}
+                    />
+                  </Grid>
+                ) : CustomBooleanRenderer ? (
+                  <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
+                    <CustomBooleanRenderer
+                      key={booleanFilterName}
+                      value={state.filter[booleanFilterName]}
+                      onChange={value =>
+                        setFilterState(booleanFilterName, value)
+                      }
+                    />
+                  </Grid>
+                ) : null;
+              })
+            : null}
         </FormGroup>
       </Grid>
     </Grid>

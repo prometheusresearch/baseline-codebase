@@ -175,7 +175,7 @@ const PickTableBody = <V, R>({
   pickState,
   endpoint,
   resource,
-  fetch,
+  getRows,
   onDataReceive,
   setTableFullHeight,
   selected,
@@ -191,7 +191,7 @@ const PickTableBody = <V, R>({
   pickState: PickState,
   endpoint: Endpoint,
   resource: Resource<V, R>,
-  fetch: string,
+  getRows: R => Array<any>,
   onDataReceive: any => void,
   setTableFullHeight: (is: boolean) => void,
 
@@ -209,10 +209,10 @@ const PickTableBody = <V, R>({
   setTableFullHeight(false);
 
   const data = React.useMemo(() => {
-  if (resourceData == null) {
+    if (resourceData == null) {
       return [];
-  }
-    const data = _get(resourceData, fetch);
+    }
+    const data = getRows(resourceData);
     /**
      * Used for pagination to have idea if received date length equal to limit
      * to know if incremention of page is allowed
@@ -221,7 +221,7 @@ const PickTableBody = <V, R>({
     const dataTrimmed =
       data.length < pickState.limit ? data : data.slice(0, data.length - 1);
     return dataTrimmed;
-  }, [resourceData, fetch, onDataReceive, pickState]);
+  }, [resourceData, onDataReceive, pickState]);
 
   if (data.length === 0) {
     return <PickNoDataPlaceholder fieldSpecs={fieldSpecs} />;
@@ -331,13 +331,13 @@ const buildParams = (pickState: PickState) => {
   return params;
 };
 
-export const PickDataView = <V, R>({
+export const PickDataView = <V, R, O = *>({
   onDataReceive: _onDataReceive,
   args,
   endpoint,
   resource,
+  getRows,
   fieldSpecs,
-  fetch,
   isTabletWidth,
   sortingConfig,
   setSortingState,
@@ -352,6 +352,7 @@ export const PickDataView = <V, R>({
 }: {|
   endpoint: Endpoint,
   resource: Resource<V, R>,
+  getRows: R => Array<O>,
   onDataReceive: any => any,
   fieldSpecs: { [name: string]: Field.FieldSpec },
   args?: { [key: string]: any },
@@ -520,6 +521,7 @@ export const PickDataView = <V, R>({
             onDataReceive={onDataReceive}
             endpoint={endpoint}
             resource={resource}
+            getRows={getRows}
             fieldSpecs={fieldSpecs}
             sortingConfig={sortingConfig}
             setSortingState={setSortingState}
@@ -527,7 +529,6 @@ export const PickDataView = <V, R>({
             RenderRow={RenderRow}
             RenderRowCell={RenderRowCell}
             onRowClick={onRowClick}
-            fetch={fetch}
             isTabletWidth={isTabletWidth}
             columnsMap={columnsMap}
             columnsNames={columnsNames}

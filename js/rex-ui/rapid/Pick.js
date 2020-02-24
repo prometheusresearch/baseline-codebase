@@ -7,9 +7,6 @@ import * as React from "react";
 import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource2";
 
-import * as QueryPath from "./QueryPath.js";
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import { introspect } from "./Introspection";
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
 import * as Field from "./Field.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
@@ -25,9 +22,10 @@ export type PickProps = {|
 export type PickProps2<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource.Resource<V, R>,
-  fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
   getRows: R => Array<O>,
+  fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
   filters?: ?Array<Field.FilterConfig>,
+  sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   ...PickRendererConfigProps,
 |};
 
@@ -35,44 +33,17 @@ export let PickBase = <V, R>(props: PickProps2<V, R>) => {
   let {
     endpoint,
     fields,
-    fetch,
     filters,
     resource,
-    getRows: _getRows,
+    getRows,
+    sortingConfig,
     ...rest
   } = props;
-  let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
-
-  let {
-    fieldSpecs,
-    filterSpecs,
-    description: fieldDescription,
-    sortingConfig,
-    variablesMap,
-  } = React.useMemo(() => {
-    let path = QueryPath.make(fetch);
-    let {
-      fieldSpecs,
-      description,
-      filterSpecs,
-      sortingConfig,
-      variablesMap,
-    } = introspect({
-      schema,
-      path,
-      fields,
-      filters,
-    });
-    return {
-      fieldSpecs,
-      filterSpecs,
-      description,
-      sortingConfig,
-      variablesMap,
-    };
-  }, [fetch, schema, endpoint, filters]);
 
   let [selected, setSelected] = React.useState(new Set());
+
+  let fieldSpecs = Field.configureFields(fields);
+  let filterSpecs = Field.configureFilters(filters);
 
   return (
     <PickRenderer
@@ -80,12 +51,10 @@ export let PickBase = <V, R>(props: PickProps2<V, R>) => {
       endpoint={endpoint}
       selected={selected}
       onSelected={setSelected}
-      fetch={fetch}
+      fieldSpecs={fieldSpecs}
       filterSpecs={filterSpecs}
       resource={resource}
-      variablesMap={variablesMap}
-      fieldSpecs={fieldSpecs}
-      fieldDescription={fieldDescription}
+      getRows={getRows}
       sortingConfig={sortingConfig}
     />
   );

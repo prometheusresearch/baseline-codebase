@@ -68,21 +68,15 @@ export const useFilterStyles = makeStyles((theme: Theme) => {
 
 type Props = {|
   state: PickState,
-  variablesMap: ?Map<string, VariableDefinitionNode>,
   setSearchState: (val: string) => void,
   filterSpecs: ?Field.FilterSpecMap,
 |};
 
 const PickSearchToolbarBase = ({
-  variablesMap,
   state,
   setSearchState,
   filterSpecs,
 }: Props) => {
-  if (variablesMap == null) {
-    return null;
-  }
-
   const classes = useFilterStyles();
 
   const classNames = [classes.tableControl];

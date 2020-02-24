@@ -87,10 +87,7 @@ export function configureField(config: FieldConfig): FieldSpec {
 
 export function configureFields<T: { [name: string]: FieldConfig }>(
   configs: ?T,
-): ?$ObjMap<T, <V>(V) => FieldSpec> {
-  if (configs == null) {
-    return null;
-  }
+): $ObjMap<T, <V>(V) => FieldSpec> {
   let specs = {};
   for (let name in configs) {
     specs[name] = configureField(configs[name]);

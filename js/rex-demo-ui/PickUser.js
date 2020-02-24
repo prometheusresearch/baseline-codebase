@@ -41,7 +41,6 @@ function ShowOnlyAdminsFilter(props) {
 
 export let screen: Router.PickScreen<API.UsersVariables, API.UsersResult> = {
   type: "pick",
-  fetch: "user.paginated",
   resource: API.Users,
   getRows: data => data.user.paginated,
   title: "Users",
@@ -65,6 +64,11 @@ export let screen: Router.PickScreen<API.UsersVariables, API.UsersResult> = {
       render: ShowOnlyAdminsFilter,
     },
   ],
+  // sortingConfig: [
+  //   {
+  //     name: ""
+  //   }
+  // ],
   RenderToolbar: props => {
     let caption = "No users selected";
     if (props.selected.size > 0) {

@@ -28,10 +28,10 @@ export type PickScreen<V, R, O = *> = {|
   title: string,
   resource: Resource<V, R>,
   getRows: R => Array<O>,
-  fetch: string,
   description: string,
   fields?: ?{ [name: $Keys<O>]: Rapid.FieldConfig },
   filters?: ?(Rapid.PickFilterConfig[]),
+  sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   onSelect?: (id: string) => [Route, Params],
   RenderToolbar?: Rapid.PickRenderToolbar,
 |};

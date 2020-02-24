@@ -81,7 +81,6 @@ export type RenderToolbarProps = {|
 export type RenderToolbar = React.AbstractComponent<RenderToolbarProps>;
 
 export type PickRendererConfigProps = {|
-  fetch: string,
   title?: string,
   description?: string,
   fieldDescription?: ?string,
@@ -110,11 +109,11 @@ export type PickRendererConfigProps = {|
   onRowClick?: (row: any) => void,
 |};
 
-export type PickRendererProps<V, R> = {|
+export type PickRendererProps<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource<V, R>,
+  getRows: R => Array<O>,
   fieldSpecs: { [name: string]: Field.FieldSpec },
-  variablesMap: ?Map<string, VariableDefinitionNode>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
   theme?: Theme,
@@ -214,9 +213,8 @@ export type PickState = {|
 export const PickRenderer = <V, R>({
   endpoint,
   resource,
+  getRows,
   fieldSpecs,
-  fetch,
-  variablesMap,
   RenderColumnCell,
   RenderRowCell,
   RenderRow,
@@ -306,22 +304,23 @@ export const PickRenderer = <V, R>({
   };
 
   // Initialize search state if there's SEARCH_VAR_NAME
-  React.useEffect(() => {
-    if (variablesMap != null && variablesMap.get(SEARCH_VAR_NAME)) {
-      setState(state => ({
-        ...state,
-        search: "",
-        searchText: "",
-      }));
-    }
-  }, []);
+  // React.useEffect(() => {
+  //   if (variablesMap != null && variablesMap.get(SEARCH_VAR_NAME)) {
+  //     setState(state => ({
+  //       ...state,
+  //       search: "",
+  //       searchText: "",
+  //     }));
+  //   }
+  // }, []);
+  //TODO(vladimir.khapalov): check if we need this
 
   /**
    * Decide if filters block is opened via state from localStorage
    */
-  const filtersLocalStorageKey = variablesMap
-    ? `rapidFiltersState__${Array.from(variablesMap.keys()).join("_")}`
-    : null;
+  const filtersLocalStorageKey = null; //variablesMap
+  // ? `rapidFiltersState__${Array.from(variablesMap.keys()).join("_")}`
+  // : null;
   let filtersLocalStorageOpened = false;
   if (filtersLocalStorageKey != null) {
     filtersLocalStorageOpened = localStorage.getItem(filtersLocalStorageKey);
@@ -366,7 +365,6 @@ export const PickRenderer = <V, R>({
             <PickSearchToolbar
               state={state}
               setSearchState={setSearchState}
-              variablesMap={variablesMap}
               filterSpecs={filterSpecs}
             />
           }
@@ -379,7 +377,6 @@ export const PickRenderer = <V, R>({
             sortingConfig={sortingConfig}
             setSortingState={setSortingState}
             isTabletWidth={isTabletWidth}
-            variablesMap={variablesMap}
             filterSpecs={filterSpecs}
           />
         ) : null}
@@ -392,9 +389,9 @@ export const PickRenderer = <V, R>({
         onDataReceive={setViewData}
         fieldSpecs={fieldSpecs}
         isTabletWidth={isTabletWidth}
-        fetch={fetch}
         endpoint={endpoint}
         resource={resource}
+        getRows={getRows}
         onRowClick={onRowClick}
         showAs={showAs}
         selected={selected}

@@ -108,7 +108,6 @@ function App() {
           endpoint={API.endpoint}
           resource={screen.resource}
           getRows={screen.getRows}
-          fetch={screen.fetch}
           onRowClick={onRowClick}
           fields={screen.fields}
           filters={screen.filters}

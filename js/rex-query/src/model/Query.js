@@ -880,7 +880,7 @@ export function transformExpression<A, B, C, R>(
 
 function mapQueryPipeline(
   query: QueryPipeline,
-  f: (q: Query) => Query
+  f: <Q: Query>(q: Q) => Q
 ): QueryPipeline {
   let pipeline = query.pipeline.map(q => {
     let nextQ = mapQuery(q, f);
@@ -890,7 +890,7 @@ function mapQueryPipeline(
   return { name: "pipeline", ...f(query), pipeline };
 }
 
-export function mapQuery(query: Query, f: (q: Query) => Query): Query {
+export function mapQuery(query: Query, f: <Q: Query>(q: Q) => Q): Query {
   return transformQuery(query, {
     pipeline(query) {
       return mapQueryPipeline(query, f);
@@ -930,7 +930,7 @@ export function mapQueryWithTransform<A, B, C>(
   b: B,
   c: C
 ): Query {
-  return mapQuery(query, query => transformQuery(query, transform, a, b, c));
+  return mapQuery(query, query => (transformQuery(query, transform, a, b, c): any));
 }
 
 export function mapExpression(

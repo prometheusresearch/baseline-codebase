@@ -63,9 +63,9 @@ function createButton({ displayName, theme }) {
   };
 }
 
-type RaisedButtonProps = {
+type RaisedButtonProps = {|
   selected: boolean
-};
+|};
 
 function createRaisedButton({ displayName, Button, Pane }) {
   return (props: RaisedButtonProps) => {

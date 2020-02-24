@@ -38,10 +38,14 @@ function updateFetchOptions(
   options: FetchOptions,
   update: $Shape<FetchOptions>,
 ): FetchOptions {
+  let headers: Headers = {...options.headers};
+  if (update.headers != null) {
+    headers = {...headers, ...update.headers};
+  }
   return ({
     ...options,
     ...update,
-    headers: {...options.headers, ...update.headers},
+    headers: headers,
   }: any);
 }
 

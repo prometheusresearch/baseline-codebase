@@ -39,7 +39,7 @@ function defineStyleProp(spec, name, valueSet?: Array<string>) {
   let normalStrategy = valueSet == null ? "dynamic-inline" : "static";
   let stateStrategy = valueSet == null ? "dynamic" : "static";
   Object.assign(spec, {
-    [name]: new PropSpec(name, "normal", normalStrategy, valueSet),
+    [(name: string)]: new PropSpec(name, "normal", normalStrategy, valueSet),
     [nameOnHover]: new PropSpec(name, "hover", stateStrategy, valueSet),
     [nameOnFocus]: new PropSpec(name, "focus", stateStrategy, valueSet),
     [nameOnActive]: new PropSpec(name, "active", stateStrategy, valueSet),

@@ -29,3 +29,6 @@ unsafe-getters-setters
 untyped-import
 untyped-type-import
 sketchy-null
+
+[declarations]
+<PROJECT_ROOT>/node_modules/react-window/.*

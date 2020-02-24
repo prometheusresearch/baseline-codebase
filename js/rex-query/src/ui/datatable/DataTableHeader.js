@@ -26,10 +26,10 @@ type DataTableHeaderProps = {
   onColumnResize?: (resize: { column: ColumnField<*>, width: number }) => *,
   onColumnClick?: (column: ColumnField<*>) => *,
   onColumnSort?: (column: ColumnField<*>) => *,
-  headerCellProps?: {
+  headerCellProps?: {|
     renderColumnMenu?: (column: ColumnField<*>) => *,
     onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *
-  }
+  |}
 };
 
 export default function DataTableHeader(props: DataTableHeaderProps) {
@@ -79,10 +79,10 @@ type DataTableHeaderItemProps = {
   onClick?: (column: ColumnField<*>) => *,
   onSort?: (column: ColumnField<*>) => *,
   resizeable?: boolean,
-  headerCellProps?: {
+  headerCellProps?: {|
     renderColumnMenu?: (column: ColumnField<*>) => *,
     onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *
-  }
+  |}
 };
 
 function DataTableHeaderItem({

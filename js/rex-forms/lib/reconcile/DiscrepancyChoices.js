@@ -28,14 +28,18 @@ function Value(props, context) {
     question,
     "view",
   );
-  return (
-    <div style={{ textAlign: "initial", lineHeight: "initial" }}>
+  let widget = (
+      // $FlowFixMe: ...
       <Widget
         {...props}
         readOnly={true}
         asDiscrepancy={true}
         options={options}
       />
+  );
+  return (
+    <div style={{ textAlign: "initial", lineHeight: "initial" }}>
+      {widget}
     </div>
   );
 }

@@ -33,6 +33,7 @@ export default function compile(name: string, stylesheet: StylesheetSpec): Compi
   if (stylesheet.base == null) {
     stylesheet = {
       base: {},
+      // $FlowFixMe: ...
       ...stylesheet,
     };
   }

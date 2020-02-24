@@ -6,15 +6,17 @@
 import * as React from "react";
 import { Input } from "./Input";
 import tryParseFloat from "../tryParseFloat";
+import type { InputProps } from "./Field.js";
 
-type Props = {
+type Props = {|
+  ...InputProps,
   value: string,
   onChange: (?(number | string)) => void
-};
+|};
 
-type State = {
+type State = {|
   value: ?string
-};
+|};
 
 export default class NumberInput extends React.Component<Props, State> {
   static defaultProps = {

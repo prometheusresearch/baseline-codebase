@@ -14,7 +14,7 @@ function needExtract(submitTo) {
   return submitTo instanceof Port || submitTo instanceof Mutation;
 }
 
-type Props = {
+type Props = {|
   ...FormProps,
 
   /**
@@ -46,7 +46,7 @@ type Props = {
   children: React.Node,
   transformValueOnSubmit?: mixed => mixed,
   validate?: (mixed, error[]) => Promise<{ [key: string]: error }>
-};
+|};
 
 /**
  * Form which operates on a single entity within the port response.

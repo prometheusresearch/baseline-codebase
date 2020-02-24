@@ -189,7 +189,7 @@ function transformQueryByPath(
           continue;
         }
       } else {
-        select[item.key] = cur;
+        select[item.key] = (cur : any);
       }
       cur = {
         name: "select",

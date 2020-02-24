@@ -5,13 +5,13 @@
 import * as React from "react";
 import { Element } from "react-stylesheet";
 
-type HeaderProps = {
+type HeaderProps = {|
   children?: React.Node,
   paddingLeft?: number,
   paddingRight?: number,
   paddingTop?: number,
   paddingBottom?: number
-};
+|};
 
 export default function Header({
   paddingLeft = 20,

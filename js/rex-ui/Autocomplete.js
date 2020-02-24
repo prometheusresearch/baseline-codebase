@@ -44,10 +44,10 @@ export type Item = {
 
 let noopRef = _node => {};
 
-type InputProps = {
+type InputProps = {|
   ref: React.Ref<React.AbstractComponent<{}>>,
   inputRef: React.Ref<React.AbstractComponent<{}>>,
-};
+|};
 
 export let Input = React.forwardRef<InputProps, HTMLElement>((props, ref) => {
   let { inputRef = noopRef, ...other } = props;

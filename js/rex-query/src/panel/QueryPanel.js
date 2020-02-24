@@ -18,7 +18,7 @@ import { ErrorPanel } from "../ui";
 type QueryPanelProps = {
   query: Query,
   onClose: () => *,
-  onSearch?: SearchCallback
+  onSearch: SearchCallback
 };
 
 export default function QueryPanel(props: QueryPanelProps) {

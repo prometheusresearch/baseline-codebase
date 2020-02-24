@@ -5,7 +5,13 @@
 import React from "react";
 import { Element } from "react-stylesheet";
 
-type ArrowDownProps = { color?: string, size?: number };
+type ArrowDownProps = {|
+  top?: number,
+  left?: number,
+  bottom?: number,
+  color?: string,
+  size?: number
+|};
 
 export default function ArrowDown({
   color = "red",

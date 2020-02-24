@@ -358,7 +358,7 @@ export type Context = {|
   title: ?string
 |};
 
-export type QueryNavigation = {
+export type QueryNavigation = {|
   type: "record" | "attribute",
   card: TypeCardinality,
   context: Context,
@@ -368,7 +368,7 @@ export type QueryNavigation = {
 
   groupBy?: boolean,
   fromQuery?: boolean
-};
+|};
 
 export type QueryLoc<Q: QueryAtom = QueryAtom> = {
   +rootQuery: QueryPipeline,

@@ -117,27 +117,27 @@ class BasicBinaryComparator {
     switch (type.name) {
       case "record":
         Component = operands.TextOperand;
-        break;
+        return <Component {...props} />;
 
       case "text":
         Component = operands.TextOperand;
-        break;
+        return <Component {...props} />;
 
       case "number":
         Component = operands.NumberOperand;
-        break;
+        return <Component {...props} />;
 
       case "date":
         Component = operands.DateOperand;
-        break;
+        return <Component {...props} />;
 
       case "time":
         Component = operands.TimeOperand;
-        break;
+        return <Component {...props} />;
 
       case "datetime":
         Component = operands.DateTimeOperand;
-        break;
+        return <Component {...props} />;
 
       case "enumeration":
         Component = operands.EnumerationOperand;
@@ -150,7 +150,7 @@ class BasicBinaryComparator {
             };
           })
         };
-        break;
+        return <Component {...props} />;
 
       default:
         invariant(
@@ -160,7 +160,6 @@ class BasicBinaryComparator {
         );
     }
 
-    return <Component {...props} />;
   }
 
   query(field, operand, operandIsField) {

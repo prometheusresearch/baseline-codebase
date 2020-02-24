@@ -4,10 +4,10 @@
 
 import type { QueryNavigation } from "../model/types";
 
-export type SearchResult = {
+export type SearchResult = {|
   value: string,
   label: string
-};
+|};
 
 export type SearchCallbackParams = {
   searchTerm: ?string,
@@ -21,7 +21,10 @@ export type SearchCallback = SearchCallbackParams => Promise<
 export let dummySearch: SearchCallback = ({ searchTerm, navigation }) => {
   return new Promise((resolve, reject) => {
     if (searchTerm == null) {
-      let searchResultList = Array.from(navigation.values());
+      let searchResultList = Array.from(navigation.values()).map(nav => ({
+        label: nav.label,
+        value: nav.value,
+      }));
       resolve(searchResultList);
     } else {
       let searchTermRe = new RegExp(searchTerm, "ig");

@@ -14,7 +14,7 @@ import * as ReactForms from "react-forms";
 export type Props = {|
   ...mui.InputProps,
 
-  value: null | string,
+  value: ?string,
 
   onChange: (null | string) => void,
 

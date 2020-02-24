@@ -1,4 +1,4 @@
-// @flow
+// @no-flow
 
 import Moment from "moment";
 import * as mui from "@material-ui/core";

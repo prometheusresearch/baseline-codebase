@@ -100,14 +100,14 @@ function expandProp(name: string, value: mixed): Object {
 
 function expandSingleProp(name, value) {
   return {
-    [name]: Array.isArray(value) ? value : compileValue(name, value),
+    [(name: string)]: Array.isArray(value) ? value : compileValue(name, value),
   };
 }
 
 function expandBorderSyntax(name, value) {
   let {width = 'medium', style = 'none', color = 'currentColor'} = value;
   return {
-    [name]: `${compileValue('borderWidth', width)} ${String(style)} ${String(color)}`,
+    [(name: string)]: `${compileValue('borderWidth', width)} ${String(style)} ${String(color)}`,
   };
 }
 
@@ -121,7 +121,7 @@ function compileLayoutSyntax(name, value) {
     left = horizontal,
   } = value;
   return {
-    [name]: `${compileValue('margin', top)} ${compileValue('margin', right)}  ${compileValue('margin', bottom)} ${compileValue('margin', left)}`,
+    [(name: string)]: `${compileValue('margin', top)} ${compileValue('margin', right)}  ${compileValue('margin', bottom)} ${compileValue('margin', left)}`,
   };
 }
 

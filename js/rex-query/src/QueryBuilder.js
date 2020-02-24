@@ -49,7 +49,7 @@ type QueryBuilderProps = {
   limitSelectQuery: number,
   onQuery: (query?: ?Query) => *,
   onState?: (payload: { query: ?Query, chartList: Array<ChartSpec<>> }) => *,
-  onSearch?: SearchCallback,
+  onSearch: SearchCallback,
   exportFormats: Array<ExportFormat>,
   chartConfigs: Array<ChartConfig<>>,
   toolbar?: ?React.Element<*>

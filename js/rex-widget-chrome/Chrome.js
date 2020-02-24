@@ -26,7 +26,7 @@ export let PageContext = React.createContext<PageContextType>({
 
 export let usePageContext = () => React.useContext(PageContext);
 
-type Props = {
+type Props = {|
   title: string,
   username: string,
   userProfileUrl: string,
@@ -37,7 +37,7 @@ type Props = {
   settings: any,
   menu: Menu,
   siteRoot: string
-};
+|};
 
 type State = {
   hasError: boolean,

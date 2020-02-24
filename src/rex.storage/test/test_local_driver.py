@@ -72,10 +72,10 @@ def test_object_list():
         'dir2/5.txt',
     ]
 
-    objects = [
+    objects = sorted([
         obj.name
         for obj in get_storage().object_list('/other-p/dir2')
-    ]
+    ])
     assert objects == [
         '4.txt',
         '5.txt',
@@ -210,4 +210,18 @@ def test_blob_cdn_url():
     container = get_storage().mounts['/other-p/'].container
     blob = container.get_blob("1.txt")
     assert blob.cdn_url.endswith("test-storage/test-input/1.txt")
+
+
+def test_delete():
+    target_file = '/other-p/delete-me.txt'
+    file = get_storage().put(target_file, "foobar")
+    assert get_storage().exists(target_file) is True
+    get_storage().delete(target_file)
+    assert get_storage().exists(target_file) is False
+
+def test_delete_nonexistant():
+    target_file = '/other-p/doesntexist'
+    assert get_storage().exists(target_file) is False
+    get_storage().delete(target_file)
+    assert get_storage().exists(target_file) is False
 

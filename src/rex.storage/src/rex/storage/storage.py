@@ -152,6 +152,12 @@ class Path:
         """
         return get_storage().get(self, encoding=encoding)
 
+    def delete(self):
+        """
+        Deletes the object from the container.
+        """
+        return get_storage().delete(self)
+
     def join(self, *parts):
         """
         Returns a new Path object with the specified parts appended.
@@ -405,6 +411,22 @@ class Storage:
         :type storage_path: str|rex.storage.Path
         """
         return len(list(self.object_list(storage_path))) == 1
+
+    def delete(self, storage_path):
+        """
+        Deletes the object at the specified path from the container.
+
+        :param storage_path: the path of the object to delete
+        :type storage_path: str|rex.storage.Path
+        """
+
+        path = self.parse_path(storage_path)
+
+        try:
+            blob = path.mount.container.get_blob(path.container_location)
+            blob.delete()
+        except cloudstorage.exceptions.NotFoundError:
+            pass
 
     def object_list(self, storage_path):
         """

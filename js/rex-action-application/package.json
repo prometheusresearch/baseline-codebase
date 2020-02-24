@@ -31,9 +31,6 @@
     "build": "rex-webpack-build",
     "watch": "rex-webpack-watch"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "browserslist": [
     ">0.2%",
     "not dead",

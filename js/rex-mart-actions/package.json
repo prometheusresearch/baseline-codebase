@@ -5,9 +5,6 @@
   "rex": {
     "bundleAll": true
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "dependencies": {
     "@prometheusresearch/react-ui": "*",
     "react-stylesheet": "*",

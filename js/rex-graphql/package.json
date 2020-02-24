@@ -8,8 +8,5 @@
     "deep-is": "^0.1.3",
     "react": "*",
     "react-dom": "*"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }

@@ -113,7 +113,7 @@ export default class CheckboxGroupBase extends React.Component {
           onBlur={this.props.onBlur}
           onFocus={this.props.onFocus}
           onChange={this.onChange.bind(this, option)}
-          />
+        />
       </CheckboxWrapper>
     );
   }

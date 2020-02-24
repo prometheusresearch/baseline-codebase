@@ -3,44 +3,8 @@
   "version": "2.2.2",
   "description": "Style React component",
   "main": "src/index.js",
-  "scripts": {
-    "test": "make test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/prometheusresearch/react-stylesheet.git"
-  },
-  "keywords": [
-    "react",
-    "stylesheet",
-    "dom"
-  ],
-  "babel": {
-    "presets": [
-      "prometheusresearch"
-    ]
-  },
-  "eslintConfig": {
-    "extends": "prometheusresearch",
-    "globals": {
-      "ReactClass": true,
-      "$Abstract": true
-    }
-  },
-  "nyc": {
-    "exclude": [
-      "*.js",
-      "lib/*.js",
-      "coverage/*.js",
-      "**/__tests__/*.js"
-    ]
-  },
   "author": "Prometheus Research, LLC",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/prometheusresearch/react-stylesheet/issues"
-  },
-  "homepage": "https://github.com/prometheusresearch/react-stylesheet#readme",
   "jest": {
     "testEnvironment": "node"
   },

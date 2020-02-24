@@ -65,6 +65,8 @@ const resolveModule = (resolveFn, filePath) => {
   return resolveFn(`${filePath}.js`);
 };
 
+// TODO(andreypopp): remove try for src/index once we port all apps not to use
+// this, the convention going forward is just index.js at the root of a package.
 let appIndexJs = resolveModule(resolveApp, 'src/index');
 if (!fs.existsSync(appIndexJs)) {
   appIndexJs = resolveModule(resolveApp, 'index');
@@ -73,7 +75,7 @@ if (!fs.existsSync(appIndexJs)) {
 // config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp('.env'),
-  workspace: resolveApp('../..'),
+  workspace: resolveApp('../'),
   appPath: resolveApp('.'),
   appBuild: resolveApp('build'),
   appPublic: resolveApp('public'),

@@ -2,17 +2,6 @@
   "name": "rex-widget",
   "version": "3.1.1",
   "main": "lib/index.js",
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "nyc": {
-    "exclude": [
-      "**/__tests__/*.js",
-      "**/coverage/*.js",
-      "**/vendor/*.js",
-      "*.js"
-    ]
-  },
   "rex": {
     "bundleAll": true
   },

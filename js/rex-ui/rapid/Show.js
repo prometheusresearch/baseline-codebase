@@ -6,7 +6,7 @@ import invariant from "invariant";
 import * as React from "react";
 
 import { type Endpoint } from "rex-graphql";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 
 import { introspect } from "./Introspection";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
@@ -15,10 +15,12 @@ import { ShowRenderer, type ShowRendererConfigProps } from "./ShowRenderer.js";
 import * as Field from "./Field.js";
 import { ErrorBoundary } from "./ErrorBoundary";
 
-export type ShowProps = {|
+export type ShowProps<V, R, O = *> = {|
   endpoint: Endpoint,
   fetch: string,
-  fields?: ?{ [name: string]: Field.FieldConfig },
+  resource: Resource.Resource<V, R>,
+  getRows: R => O,
+  fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
   titleField?: ?Field.FieldConfig,
   args?: { [key: string]: any },
   onAdd?: () => void,
@@ -26,26 +28,28 @@ export type ShowProps = {|
   ...ShowRendererConfigProps,
 |};
 
-export let Show = (props: ShowProps) => {
-  let { fetch, endpoint, fields = null, ...rest } = props;
-  let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
+export let Show = <V, R>(props: ShowProps<V, R>) => {
+  let { fetch, endpoint, resource, fields = null, ...rest } = props;
+  // let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
-  let { resource, fieldSpecs, path } = React.useMemo(() => {
-    let path = QueryPath.make(fetch);
-    let { query, fieldSpecs } = introspect({
-      schema,
-      path,
-      fields,
-    });
-    let resource = Resource.defineQuery<void, any>({ endpoint, query });
-    return { path, resource, fieldSpecs };
-  }, [fetch, fields, endpoint, schema]);
+  let fieldSpecs = Field.configureFields(fields);
+
+  // let { resource, fieldSpecs, path } = React.useMemo(() => {
+  //   let path = QueryPath.make(fetch);
+  //   let { query, fieldSpecs } = introspect({
+  //     schema,
+  //     path,
+  //     fields,
+  //   });
+  //   let resource = Resource.defineQuery<void, any>({ endpoint, query });
+  //   return { path, resource, fieldSpecs };
+  // }, [fetch, fields, endpoint, schema]);
 
   return (
     <ErrorBoundary>
       <ShowRenderer
         {...rest}
-        path={path}
+        // path={path}
         resource={resource}
         fieldSpecs={fieldSpecs}
       />

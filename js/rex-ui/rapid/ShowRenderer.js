@@ -14,10 +14,8 @@ import Typography from "@material-ui/core/Typography";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 
-import {
-  type Resource,
-  unstable_useResource as useResource,
-} from "rex-graphql/Resource";
+import { type Endpoint } from "rex-graphql";
+import { type Resource, useResource } from "rex-graphql/Resource2";
 import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
 import * as QueryPath from "./QueryPath.js";
@@ -37,8 +35,10 @@ export type RenderToolbarProps = {|
 
 export type RenderToolbar = React.AbstractComponent<RenderToolbarProps>;
 
-export type ShowRendererProps = {|
-  resource: Resource<any, any>,
+export type ShowRendererProps<V, R> = {|
+  endpoint: Endpoint,
+  resource: Resource<V, R>,
+  getRows: R => any,
   path: QueryPath.QueryPath,
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
@@ -51,9 +51,11 @@ export type ShowRendererProps = {|
   ...ShowRendererConfigProps,
 |};
 
-export let ShowRenderer = (props: ShowRendererProps) => {
+export let ShowRenderer = <V, R>(props: ShowRendererProps<V, R>) => {
   let {
+    endpoint,
     resource,
+    getRows,
     path,
     args = {},
     RenderTitle,
@@ -65,13 +67,13 @@ export let ShowRenderer = (props: ShowRendererProps) => {
     onRemove,
   } = props;
 
-  let resourceData = useResource(resource, { ...args });
+  let resourceData = useResource(endpoint, resource, (args: any));
 
   if (resourceData == null) {
     return <ShowCard404 />;
   }
 
-  let data = resourceData;
+  let data = getRows(resourceData);
   for (let seg of QueryPath.toArray(path)) {
     data = data[seg];
     if (data == null) {

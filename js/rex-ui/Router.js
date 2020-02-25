@@ -12,11 +12,13 @@ import * as RoutePattern from "./RoutePattern.js";
 import * as Rapid from "./rapid";
 import { type Resource } from "rex-graphql/Resource2";
 
-export type ShowScreen = {|
+export type ShowScreen<V, R, O = *> = {|
   type: "show",
   title: string,
   fetch: string,
-  fields?: ?{ [name: string]: Rapid.FieldConfig },
+  resource: Resource<V, R>,
+  getRows: R => O,
+  fields?: ?{ [name: $Keys<O>]: Rapid.FieldConfig },
   titleField?: ?Rapid.FieldConfig,
   RenderTitle?: ?Rapid.ShowRenderTitle,
   RenderToolbar?: ?Rapid.ShowRenderToolbar,
@@ -42,7 +44,7 @@ export type CustomScreen = {|
   Render: React.AbstractComponent<{| params: Object |}>,
 |};
 
-export type Screen = PickScreen<any, any> | ShowScreen | CustomScreen;
+export type Screen = PickScreen<any, any> | ShowScreen<any, any> | CustomScreen;
 
 export opaque type RouteGroup: {
   +type: "route-group",

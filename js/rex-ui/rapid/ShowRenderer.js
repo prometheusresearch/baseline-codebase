@@ -65,8 +65,6 @@ export let ShowRenderer = <V, R>(props: ShowRendererProps<V, R>) => {
     onRemove,
   } = props;
 
-  let resourceData = useResource(endpoint, resource, (args: any));
-
   let [isFetching, resourceData] = useResource(endpoint, resource, (args: any));
 
   if (isFetching || resourceData == null) {

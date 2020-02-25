@@ -15,7 +15,6 @@ import { type Resource } from "rex-graphql/Resource2";
 export type ShowScreen<V, R, O = *> = {|
   type: "show",
   title: string,
-  fetch: string,
   resource: Resource<V, R>,
   getRows: R => ?O,
   fields?: ?{ [name: $Keys<O>]: Rapid.FieldConfig },

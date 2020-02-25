@@ -17,7 +17,6 @@ import { ErrorBoundary } from "./ErrorBoundary";
 
 export type ShowProps<V, R, O = *> = {|
   endpoint: Endpoint,
-  fetch: string,
   resource: Resource.Resource<V, R>,
   getRows: R => ?O,
   fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
@@ -29,7 +28,7 @@ export type ShowProps<V, R, O = *> = {|
 |};
 
 export let Show = <V, R>(props: ShowProps<V, R>) => {
-  let { fetch, endpoint, resource, fields = null, ...rest } = props;
+  let { endpoint, resource, fields = null, ...rest } = props;
 
   let fieldSpecs = Field.configureFields(fields);
 

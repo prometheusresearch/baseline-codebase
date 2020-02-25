@@ -1,0 +1,26 @@
+query User($id: user_id!) {
+  user {
+    get(id: $id) {
+      remote_user
+      expired
+      system_admin
+      contact_info {
+        id
+        type
+        value
+      }
+      patients {
+        id
+        name
+      }
+      sites {
+        site {
+          id
+          title
+        }
+        role
+      }
+      id
+    }
+  }
+}

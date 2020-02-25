@@ -8,6 +8,7 @@ build
 dist
 node_modules
 js/coverage
+/js/yarn-error.log
 *.sync-conflict-*
 __pycache__
 .pytest_cache

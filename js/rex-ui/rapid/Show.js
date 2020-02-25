@@ -30,26 +30,14 @@ export type ShowProps<V, R, O = *> = {|
 
 export let Show = <V, R>(props: ShowProps<V, R>) => {
   let { fetch, endpoint, resource, fields = null, ...rest } = props;
-  // let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
 
   let fieldSpecs = Field.configureFields(fields);
-
-  // let { resource, fieldSpecs, path } = React.useMemo(() => {
-  //   let path = QueryPath.make(fetch);
-  //   let { query, fieldSpecs } = introspect({
-  //     schema,
-  //     path,
-  //     fields,
-  //   });
-  //   let resource = Resource.defineQuery<void, any>({ endpoint, query });
-  //   return { path, resource, fieldSpecs };
-  // }, [fetch, fields, endpoint, schema]);
 
   return (
     <ErrorBoundary>
       <ShowRenderer
         {...rest}
-        // path={path}
+        endpoint={endpoint}
         resource={resource}
         fieldSpecs={fieldSpecs}
       />

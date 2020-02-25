@@ -39,7 +39,6 @@ export type ShowRendererProps<V, R> = {|
   endpoint: Endpoint,
   resource: Resource<V, R>,
   getRows: R => any,
-  path: QueryPath.QueryPath,
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
   fieldSpecs: { [name: string]: Field.FieldSpec },
@@ -56,7 +55,6 @@ export let ShowRenderer = <V, R>(props: ShowRendererProps<V, R>) => {
     endpoint,
     resource,
     getRows,
-    path,
     args = {},
     RenderTitle,
     fieldSpecs,
@@ -69,16 +67,15 @@ export let ShowRenderer = <V, R>(props: ShowRendererProps<V, R>) => {
 
   let resourceData = useResource(endpoint, resource, (args: any));
 
-  if (resourceData == null) {
+  let [isFetching, resourceData] = useResource(endpoint, resource, (args: any));
+
+  if (isFetching || resourceData == null) {
     return <ShowCard404 />;
   }
 
   let data = getRows(resourceData);
-  for (let seg of QueryPath.toArray(path)) {
-    data = data[seg];
-    if (data == null) {
-      return <ShowCard404 />;
-    }
+  if (data == null) {
+    return <ShowCard404 />;
   }
 
   let title = null;

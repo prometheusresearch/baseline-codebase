@@ -19,7 +19,7 @@ export type ShowProps<V, R, O = *> = {|
   endpoint: Endpoint,
   fetch: string,
   resource: Resource.Resource<V, R>,
-  getRows: R => O,
+  getRows: R => ?O,
   fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
   titleField?: ?Field.FieldConfig,
   args?: { [key: string]: any },

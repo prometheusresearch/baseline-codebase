@@ -17,7 +17,7 @@ export type ShowScreen<V, R, O = *> = {|
   title: string,
   fetch: string,
   resource: Resource<V, R>,
-  getRows: R => O,
+  getRows: R => ?O,
   fields?: ?{ [name: $Keys<O>]: Rapid.FieldConfig },
   titleField?: ?Rapid.FieldConfig,
   RenderTitle?: ?Rapid.ShowRenderTitle,

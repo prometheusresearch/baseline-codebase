@@ -23,10 +23,12 @@ function RenderToolbar(props) {
   );
 }
 
-export let screen: Router.ShowScreen = {
+export let screen: Router.ShowScreen<API.UserVariables, API.UserResult> = {
   type: "show",
   title: "User",
   fetch: "user.get",
+  resource: API.User,
+  getRows: data => data.user.get,
   fields: {
     title: { title: "Remote User", require: { field: "remote_user" } },
     system_admin: "system_admin",

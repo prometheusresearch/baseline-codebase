@@ -122,7 +122,7 @@ function App() {
   );
 
   let renderShowView = React.useCallback(
-    (screen: Router.ShowScreen, params) => {
+    <V, R>(screen: Router.ShowScreen<V, R>, params) => {
       let onRemove = () => {
         router.replace(pickUser);
       };

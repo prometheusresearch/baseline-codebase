@@ -107,6 +107,7 @@ function App() {
           key={JSON.stringify(screen)}
           endpoint={API.endpoint}
           resource={screen.resource}
+          sortingConfig={screen.sortingConfig}
           getRows={screen.getRows}
           onRowClick={onRowClick}
           fields={screen.fields}

@@ -163,7 +163,6 @@ const PickCardListView = ({
 
 const PickTableBody = <V, R>({
   fieldSpecs,
-  sortingConfig,
   setSortingState,
   RenderColumnCell,
   RenderRow,
@@ -183,7 +182,6 @@ const PickTableBody = <V, R>({
   showAs,
 }: {|
   fieldSpecs: { [name: string]: Field.FieldSpec },
-  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   setSortingState: (value: string) => void,
   isTabletWidth: boolean,
   columnsNames: string[],
@@ -523,7 +521,6 @@ export const PickDataView = <V, R, O = *>({
             resource={resource}
             getRows={getRows}
             fieldSpecs={fieldSpecs}
-            sortingConfig={sortingConfig}
             setSortingState={setSortingState}
             RenderColumnCell={RenderColumnCell}
             RenderRow={RenderRow}

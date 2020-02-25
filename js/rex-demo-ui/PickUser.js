@@ -64,11 +64,16 @@ export let screen: Router.PickScreen<API.UsersVariables, API.UsersResult> = {
       render: ShowOnlyAdminsFilter,
     },
   ],
-  // sortingConfig: [
-  //   {
-  //     name: ""
-  //   }
-  // ],
+  sortingConfig: [
+    {
+      desc: true,
+      field: "expires",
+    },
+    {
+      desc: false,
+      field: "expires",
+    },
+  ],
   RenderToolbar: props => {
     let caption = "No users selected";
     if (props.selected.size > 0) {

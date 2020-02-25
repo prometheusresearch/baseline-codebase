@@ -30,7 +30,7 @@ export let screen: Router.ShowScreen<API.UserVariables, API.UserResult> = {
   resource: API.User,
   getRows: data => data.user.get,
   fields: {
-    title: { title: "Remote User", require: { field: "remote_user" } },
+    remote_user: { title: "Remote User", require: { field: "remote_user" } },
     system_admin: "system_admin",
     expired: "expired",
     contact_info: {
@@ -64,7 +64,7 @@ export let screen: Router.ShowScreen<API.UserVariables, API.UserResult> = {
       render: PatientList,
     },
   },
-  titleField: "title",
+  titleField: "remote_user",
   RenderToolbar,
 };
 

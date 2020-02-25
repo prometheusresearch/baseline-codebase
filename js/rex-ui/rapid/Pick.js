@@ -60,9 +60,7 @@ export let PickBase = <V, R>(props: PickProps2<V, R>) => {
   );
 };
 
-export let Pick = <V, R, O: { [name: string]: mixed }>(
-  props: PickProps2<V, R, O>,
-) => (
+export let Pick = <V, R>(props: PickProps2<V, R>) => (
   <ErrorBoundary>
     <PickBase {...props} />
   </ErrorBoundary>

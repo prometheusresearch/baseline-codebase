@@ -17,7 +17,6 @@ export let showUser = Router.route("/:id", ShowUser.screen);
 
 export let pickSite = Router.route("/", {
   type: "pick",
-  fetch: "site.paginated",
   title: "Sites",
   description: "List of sites",
   onSelect: id => [showSite, { id }],
@@ -27,7 +26,6 @@ export let showSite = Router.route("/:id", ShowSite.screen);
 
 export let pickPatient = Router.route("/", {
   type: "pick",
-  fetch: "patient.paginated",
   title: "Patients",
   description: "List of patients",
   onSelect: id => [showPatient, { id }],
@@ -35,7 +33,6 @@ export let pickPatient = Router.route("/", {
 
 export let showPatient = Router.route("/:id", {
   type: "show",
-  fetch: "patient.get",
   title: "Patient",
 });
 
@@ -129,7 +126,6 @@ function App() {
       return (
         <Rapid.Show
           endpoint={API.endpoint}
-          fetch={screen.fetch}
           resource={screen.resource}
           getRows={screen.getRows}
           args={{ id: params.id }}

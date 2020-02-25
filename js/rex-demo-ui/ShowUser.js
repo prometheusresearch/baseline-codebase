@@ -26,7 +26,6 @@ function RenderToolbar(props) {
 export let screen: Router.ShowScreen<API.UserVariables, API.UserResult> = {
   type: "show",
   title: "User",
-  fetch: "user.get",
   resource: API.User,
   getRows: data => data.user.get,
   fields: {

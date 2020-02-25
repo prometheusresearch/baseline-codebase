@@ -130,6 +130,8 @@ function App() {
         <Rapid.Show
           endpoint={API.endpoint}
           fetch={screen.fetch}
+          resource={screen.resource}
+          getRows={screen.getRows}
           args={{ id: params.id }}
           fields={screen.fields}
           titleField={screen.titleField}

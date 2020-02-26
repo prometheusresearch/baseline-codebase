@@ -12,7 +12,7 @@ import * as RoutePattern from "./RoutePattern.js";
 import * as Rapid from "./rapid";
 import { type Resource } from "rex-graphql/Resource2";
 
-export type ShowScreen<V, R, O = *> = {|
+export type ShowScreen<V, R, O: { id: mixed } = *> = {|
   type: "show",
   title: string,
   resource: Resource<V, R>,

@@ -1,0 +1,8 @@
+query getManyUsers($id: [user_id]) {
+  user {
+    get_many(id: $id) {
+      remote_user
+      id
+    }
+  }
+}

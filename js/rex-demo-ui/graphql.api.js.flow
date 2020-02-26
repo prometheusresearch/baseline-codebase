@@ -3,6 +3,7 @@
 
 import * as __resource from "rex-graphql/Resource2";
 import addUserToSiteMutation from "./graphql.api/addUserToSite.gql";
+import getManyUsersQuery from "./graphql.api/getManyUsers.gql";
 import getPatientQuery from "./graphql.api/getPatient.gql";
 import getPatientsQuery from "./graphql.api/getPatients.gql";
 import getSiteQuery from "./graphql.api/getSite.gql";
@@ -44,6 +45,26 @@ export let addUserToSite = __resource.defineMutation<
   addUserToSiteResult,
 >({
   mutation: addUserToSiteMutation,
+});
+
+export type getManyUsersVariables = {|
+  id?: ?Array<?user_id>,
+|};
+
+export type getManyUsersResult = {|
+  user: {|
+    get_many: Array<{|
+      remote_user: string,
+      id: user_id,
+    |}>,
+  |},
+|};
+
+export let getManyUsers = __resource.defineQuery<
+  getManyUsersVariables,
+  getManyUsersResult,
+>({
+  query: getManyUsersQuery,
 });
 
 export type getPatientVariables = {|

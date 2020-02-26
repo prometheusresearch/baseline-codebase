@@ -131,6 +131,7 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
       onClose(true);
     });
   };
+  let getListRows = (r: API.getManyUsersResult) => r.user.get_many;
   return (
     <React.Suspense fallback={<LoadingIndicator />}>
       <mui.DialogTitle>Add users to a site</mui.DialogTitle>
@@ -153,8 +154,9 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
           </mui.DialogContentText>
           <List
             endpoint={API.endpoint}
-            fetch="user.get_many"
-            id={[...initialSelected]}
+            resource={API.getManyUsers}
+            getRows={getListRows}
+            params={{ id: [...initialSelected] }}
             primaryTextField="remote_user"
             selected={selected}
             onSelected={setSelected}

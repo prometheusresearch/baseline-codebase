@@ -16,7 +16,7 @@ export type PickProps<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource.Resource<V, R>,
   getRows: R => Array<O>,
-  fields: Array<Field.FieldConfig<>>,
+  fields: Array<Field.FieldConfig<$Keys<O>>>,
   filters?: ?Array<Filter.FilterConfig>,
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   ...PickRendererConfigProps,

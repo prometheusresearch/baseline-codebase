@@ -41,6 +41,8 @@ export type addUserToSiteResult = {|
   add_user_to_site: ?boolean,
 |};
 
+export let addUserToSiteVariablesSet = new Set<string>(["userIds", "siteId"]);
+
 export let addUserToSite = __resource.defineMutation<
   addUserToSiteVariables,
   addUserToSiteResult,
@@ -58,6 +60,8 @@ export type getAllSitesResult = {|
     |}>,
   |},
 |};
+
+export let getAllSitesVariablesSet = new Set<string>([]);
 
 export let getAllSites = __resource.defineQuery<
   getAllSitesVariables,
@@ -79,6 +83,8 @@ export type getManyUsersResult = {|
   |},
 |};
 
+export let getManyUsersVariablesSet = new Set<string>(["id"]);
+
 export let getManyUsers = __resource.defineQuery<
   getManyUsersVariables,
   getManyUsersResult,
@@ -99,6 +105,8 @@ export type getPatientResult = {|
     |},
   |},
 |};
+
+export let getPatientVariablesSet = new Set<string>(["id"]);
 
 export let getPatient = __resource.defineQuery<
   getPatientVariables,
@@ -122,6 +130,8 @@ export type getPatientsResult = {|
   |},
 |};
 
+export let getPatientsVariablesSet = new Set<string>(["offset", "limit"]);
+
 export let getPatients = __resource.defineQuery<
   getPatientsVariables,
   getPatientsResult,
@@ -143,6 +153,8 @@ export type getSiteResult = {|
   |},
 |};
 
+export let getSiteVariablesSet = new Set<string>(["id"]);
+
 export let getSite = __resource.defineQuery<getSiteVariables, getSiteResult>({
   query: getSiteQuery,
 });
@@ -161,6 +173,8 @@ export type getSitesResult = {|
     |}>,
   |},
 |};
+
+export let getSitesVariablesSet = new Set<string>(["offset", "limit"]);
 
 export let getSites = __resource.defineQuery<getSitesVariables, getSitesResult>(
   {
@@ -199,6 +213,8 @@ export type getUserResult = {|
   |},
 |};
 
+export let getUserVariablesSet = new Set<string>(["id"]);
+
 export let getUser = __resource.defineQuery<getUserVariables, getUserResult>({
   query: getUserQuery,
 });
@@ -228,6 +244,16 @@ export type getUsersResult = {|
   |},
 |};
 
+export let getUsersVariablesSet = new Set<string>([
+  "offset",
+  "limit",
+  "system_admin",
+  "expired",
+  "has_phone",
+  "search",
+  "sort",
+]);
+
 export let getUsers = __resource.defineQuery<getUsersVariables, getUsersResult>(
   {
     query: getUsersQuery,
@@ -241,6 +267,8 @@ export type removeUserVariables = {|
 export type removeUserResult = {|
   remove_user: ?boolean,
 |};
+
+export let removeUserVariablesSet = new Set<string>(["userIds"]);
 
 export let removeUser = __resource.defineMutation<
   removeUserVariables,

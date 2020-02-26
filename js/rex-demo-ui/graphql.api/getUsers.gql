@@ -1,4 +1,4 @@
-query Users(
+query getUsers(
   $offset: Int
   $limit: Int
   $system_admin: Boolean

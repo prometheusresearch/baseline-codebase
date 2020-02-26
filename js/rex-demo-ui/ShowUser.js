@@ -23,10 +23,10 @@ function RenderToolbar(props) {
   );
 }
 
-export let screen = Router.showScreen<API.UserVariables, API.UserResult>({
+export let screen = Router.showScreen<API.getUserVariables, API.getUserResult>({
   type: "show",
   title: "User",
-  resource: API.User,
+  resource: API.getUser,
   getRows: data => data.user.get,
   fields: [
     { name: "remote_user", title: "Remote User" },

@@ -3,6 +3,7 @@ query getSite(
 ) {
   site {
     get(id: $id) {
+      id
       title
       code
     }

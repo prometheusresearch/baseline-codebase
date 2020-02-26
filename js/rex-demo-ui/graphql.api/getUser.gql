@@ -1,4 +1,4 @@
-query User($id: user_id!) {
+query getUser($id: user_id!) {
   user {
     get(id: $id) {
       remote_user

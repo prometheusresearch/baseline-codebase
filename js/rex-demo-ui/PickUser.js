@@ -43,6 +43,7 @@ export let screen = Router.pickScreen<
   type: "pick",
   resource: API.getUsers,
   getRows: data => data.user.paginated,
+  variablesSet: API.getUsersVariablesSet,
   title: "Users",
   description: "List of users",
   fields: [

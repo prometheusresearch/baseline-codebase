@@ -19,6 +19,7 @@ let pickSiteScreen = Router.pickScreen({
   type: "pick",
   resource: API.getSites,
   getRows: data => data.site.paginated,
+  variablesSet: API.getSitesVariablesSet,
   fields: ["code"],
   title: "Sites",
   description: "List of sites",
@@ -29,6 +30,7 @@ let pickPatientScreen = Router.pickScreen({
   type: "pick",
   resource: API.getPatients,
   getRows: data => data.patient.paginated,
+  variablesSet: API.getPatientsVariablesSet,
   fields: ["name", "date_of_birth"],
   title: "Patients",
   description: "List of patients",
@@ -125,6 +127,7 @@ function App() {
           resource={screen.resource}
           sortingConfig={screen.sortingConfig}
           getRows={screen.getRows}
+          variablesSet={screen.variablesSet}
           onRowClick={onRowClick}
           fields={screen.fields}
           filters={screen.filters}

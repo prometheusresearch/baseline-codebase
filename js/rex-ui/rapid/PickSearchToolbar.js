@@ -16,7 +16,7 @@ import FormLabel from "@material-ui/core/FormLabel";
 import { type VariableDefinitionNode } from "graphql/language/ast";
 import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
 
-import * as Field from "./FieldLegacy.js";
+import * as Filter from "./Filter.js";
 
 import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
 import SearchIcon from "@material-ui/icons/Search";
@@ -69,7 +69,7 @@ export const useFilterStyles = makeStyles((theme: Theme) => {
 type Props = {|
   state: PickState,
   setSearchState: (val: string) => void,
-  filterSpecs: ?Field.FilterSpecMap,
+  filterSpecs: ?Filter.FilterSpecMap,
 |};
 
 const PickSearchToolbarBase = ({

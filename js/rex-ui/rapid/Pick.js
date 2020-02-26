@@ -8,8 +8,8 @@ import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource2";
 
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
-import * as FieldLegacy from "./FieldLegacy.js";
 import * as Field from "./Field.js";
+import * as Filter from "./Filter.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
 
 export type PickProps<V, R, O = *> = {|
@@ -17,7 +17,7 @@ export type PickProps<V, R, O = *> = {|
   resource: Resource.Resource<V, R>,
   getRows: R => Array<O>,
   fields: Array<Field.FieldConfig<>>,
-  filters?: ?Array<FieldLegacy.FilterConfig>,
+  filters?: ?Array<Filter.FilterConfig>,
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   ...PickRendererConfigProps,
 |};
@@ -36,7 +36,7 @@ export let PickBase = <V, R>(props: PickProps<V, R>) => {
   let [selected, setSelected] = React.useState(new Set());
 
   let fieldSpecs = Field.configureFields(fields);
-  let filterSpecs = FieldLegacy.configureFilters(filters);
+  let filterSpecs = Filter.configureFilters(filters);
 
   return (
     <PickRenderer

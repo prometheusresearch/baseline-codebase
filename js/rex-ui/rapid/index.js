@@ -12,4 +12,4 @@ export { Select } from "./Select.js";
 export { Autocomplete } from "./Autocomplete.js";
 export { LoadingIndicator } from "./LoadingIndicator.js";
 export type { FieldConfig } from "./Field.js";
-export type { FilterConfig as PickFilterConfig } from "./FieldLegacy.js";
+export type { FilterConfig as PickFilterConfig } from "./Filter.js";

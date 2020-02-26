@@ -14,7 +14,8 @@ import FormControl from "@material-ui/core/FormControl";
 
 import { type PickState } from "./PickRenderer";
 
-import * as Field from "./FieldLegacy.js";
+import * as Field from "./Field.js";
+import * as Filter from "./Filter.js";
 
 import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
 import { DEFAULT_THEME } from "./themes";
@@ -44,7 +45,7 @@ type Props = {|
   setFilterState: (name: string, value: ?boolean) => void,
   setSortingState: (value: string) => void,
   isTabletWidth?: boolean,
-  filterSpecs: ?Field.FilterSpecMap,
+  filterSpecs: ?Filter.FilterSpecMap,
 |};
 
 const PickFilterToolbarBase = ({
@@ -65,7 +66,7 @@ const PickFilterToolbarBase = ({
     values?: Array<any>,
   }> = null;
   if (filterSpecs != null) {
-    if (filterSpecs.get(Field.SORTING_VAR_NAME) != null) {
+    if (filterSpecs.get(Filter.SORT_FIELD) != null) {
       // $FlowFixMe
       if (filtersSpecs.get(SORTING_VAR_NAME).render != null) {
         // $FlowFixMe
@@ -79,16 +80,14 @@ const PickFilterToolbarBase = ({
         onChange={(newValue: string) => {
           setSortingState(newValue);
         }}
-        value={state.sort ? JSON.stringify(state.sort) : Field.FILTER_NO_VALUE}
-        values={[Field.FILTER_NO_VALUE, ...(sortingConfig || [])]}
+        value={state.sort ? JSON.stringify(state.sort) : Filter.NO_VALUE}
+        values={[Filter.NO_VALUE, ...(sortingConfig || [])]}
       />
     ) : (
       <FormControl className={classes.formControl}>
         <InputLabel htmlFor={`sorting`}>{"Sorting"}</InputLabel>
         <Select
-          value={
-            state.sort ? JSON.stringify(state.sort) : Field.FILTER_NO_VALUE
-          }
+          value={state.sort ? JSON.stringify(state.sort) : Filter.NO_VALUE}
           onChange={ev => {
             setSortingState(ev.target.value);
           }}
@@ -96,7 +95,7 @@ const PickFilterToolbarBase = ({
             name: `sorting`,
           }}
         >
-          <MenuItem key={Field.FILTER_NO_VALUE} value={Field.FILTER_NO_VALUE} />
+          <MenuItem key={Filter.NO_VALUE} value={Filter.NO_VALUE} />
           {sortingConfig.map((obj, index) => {
             const value = JSON.stringify(obj);
             return (
@@ -197,17 +196,15 @@ function BooleanFilter({
         {label || Field.guessFieldTitle(name)}
       </InputLabel>
       <Select
-        value={value == null ? Field.FILTER_NO_VALUE : value}
+        value={value == null ? Filter.NO_VALUE : value}
         onChange={ev => {
-          onValue(
-            ev.target.value === Field.FILTER_NO_VALUE ? null : ev.target.value,
-          );
+          onValue(ev.target.value === Filter.NO_VALUE ? null : ev.target.value);
         }}
         inputProps={{
           name: `boolean-filter-${name}`,
         }}
       >
-        <MenuItem value={Field.FILTER_NO_VALUE} />
+        <MenuItem value={Filter.NO_VALUE} />
         <MenuItem value={false}>No</MenuItem>
         <MenuItem value={true}>Yes</MenuItem>
       </Select>

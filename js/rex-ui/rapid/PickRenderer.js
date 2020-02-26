@@ -18,8 +18,8 @@ import { IconButton } from "rex-ui/IconButton";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
-import * as FieldLegacy from "./FieldLegacy.js";
 import * as Field from "./Field.js";
+import * as Filter from "./Filter.js";
 
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, useDebouncedCallback } from "./helpers";
@@ -118,7 +118,7 @@ export type PickRendererProps<V, R, O = *> = {|
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
   theme?: Theme,
-  filterSpecs?: ?FieldLegacy.FilterSpecMap,
+  filterSpecs?: ?Filter.FilterSpecMap,
 
   selected: Set<string>,
   onSelected: (nextSelected: Set<string>) => void,
@@ -273,8 +273,7 @@ export const PickRenderer = <V, R>({
     setState(state => ({
       ...state,
       offset: 0,
-      sort:
-        value === FieldLegacy.FILTER_NO_VALUE ? undefined : JSON.parse(value),
+      sort: value === Filter.NO_VALUE ? undefined : JSON.parse(value),
     }));
   };
 

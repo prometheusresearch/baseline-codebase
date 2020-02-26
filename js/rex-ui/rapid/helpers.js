@@ -24,7 +24,8 @@ export function useDebouncedCallback<
         timer.current = null;
       }
     },
-    [dependencies],
+    // eslint-disable-next-line
+    dependencies, //TODO(vladimir.khapalov): we need a better way to use dependencies here
   );
   let cbWithDebounce: any = React.useCallback(
     (...args: $ReadOnlyArray<empty>) => {

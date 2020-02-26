@@ -16,6 +16,7 @@ export type PickProps<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource.Resource<V, R>,
   getRows: R => Array<O>,
+  variablesSet: Set<string>,
   fields: Array<Field.FieldConfig<$Keys<O>>>,
   filters?: ?Array<Filter.FilterConfig>,
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
@@ -29,6 +30,7 @@ export let PickBase = <V, R>(props: PickProps<V, R>) => {
     filters,
     resource,
     getRows,
+    variablesSet,
     sortingConfig,
     ...rest
   } = props;
@@ -48,6 +50,7 @@ export let PickBase = <V, R>(props: PickProps<V, R>) => {
       filterSpecs={filterSpecs}
       resource={resource}
       getRows={getRows}
+      variablesSet={variablesSet}
       sortingConfig={sortingConfig}
     />
   );

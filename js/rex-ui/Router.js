@@ -29,6 +29,7 @@ export type PickScreen<V, R, O: { id: mixed } = *> = {|
   title: string,
   resource: Resource<V, R>,
   getRows: R => Array<O>,
+  variablesSet: Set<string>,
   fields: Rapid.FieldConfig<$Keys<O>>[],
   description?: string,
   filters?: ?(Rapid.PickFilterConfig[]),
@@ -230,7 +231,7 @@ export function useMatch(router: Router): ?Match {
   React.useEffect(
     () =>
       router.history.listen(location => setMatched(match(router, location))),
-    [],
+    [router],
   );
   return matched;
 }

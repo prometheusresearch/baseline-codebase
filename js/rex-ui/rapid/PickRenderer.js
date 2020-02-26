@@ -114,6 +114,7 @@ export type PickRendererProps<V, R> = {|
   endpoint: Endpoint,
   resource: Resource<V, R>,
   getRows: R => any,
+  variablesSet: Set<string>,
   fieldSpecs: Array<Field.FieldSpec>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
@@ -215,6 +216,7 @@ export const PickRenderer = <V, R>({
   endpoint,
   resource,
   getRows,
+  variablesSet,
   fieldSpecs,
   RenderColumnCell,
   RenderRowCell,
@@ -301,27 +303,21 @@ export const PickRenderer = <V, R>({
   };
 
   // Initialize search state if there's SEARCH_VAR_NAME
-  // React.useEffect(() => {
-  //   if (variablesMap != null && variablesMap.get(SEARCH_VAR_NAME)) {
-  //     setState(state => ({
-  //       ...state,
-  //       search: "",
-  //       searchText: "",
-  //     }));
-  //   }
-  // }, []);
-  //TODO(vladimir.khapalov): check if we need this
+  React.useEffect(() => {
+    if (variablesSet != null && variablesSet.has(SEARCH_VAR_NAME)) {
+      setState(state => ({
+        ...state,
+        search: "",
+        searchText: "",
+      }));
+    }
+  }, [variablesSet]);
 
   /**
    * Decide if filters block is opened via state from localStorage
    */
-  const filtersLocalStorageKey = null; //variablesMap
-  // ? `rapidFiltersState__${Array.from(variablesMap.keys()).join("_")}`
-  // : null;
-  let filtersLocalStorageOpened = false;
-  if (filtersLocalStorageKey != null) {
-    filtersLocalStorageOpened = localStorage.getItem(filtersLocalStorageKey);
-  }
+  const filtersLocalStorageKey = Array.from(variablesSet.values()).join("_");
+  let filtersLocalStorageOpened = localStorage.getItem(filtersLocalStorageKey);
   const initialShowFilterValue =
     filtersLocalStorageOpened === "true" ? true : false;
   const [showFilters, _setShowFilters] = React.useState(initialShowFilterValue);

@@ -22,6 +22,8 @@
 
 [options]
 module.name_mapper.extension='gql' -> '<PROJECT_ROOT>/rex-graphql/module-gql'
+esproposal.optional_chaining=enable
+esproposal.nullish_coalescing=enable
 
 [strict]
 nonstrict-import

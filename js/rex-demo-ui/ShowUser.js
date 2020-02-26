@@ -114,6 +114,7 @@ function AddToSiteActionDialog({ data, onClose }) {
       onClose(true);
     });
   };
+  let getSelectRows = (r: API.getAllSitesResult) => r.site.all;
   return (
     <React.Suspense fallback={<LoadingIndicator />}>
       <mui.DialogTitle>Add user to a site</mui.DialogTitle>
@@ -124,7 +125,8 @@ function AddToSiteActionDialog({ data, onClose }) {
           </mui.DialogContentText>
           <Select
             endpoint={API.endpoint}
-            fetch="site.all"
+            resource={API.getAllSites}
+            getRows={getSelectRows}
             labelField="title"
             value={site}
             onValue={setSite}

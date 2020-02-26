@@ -17,8 +17,8 @@ import * as Field from "./Field.js";
 export type ListProps<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource.Resource<V, R>,
-  getRows: R => O,
-  primaryTextField: Field.FieldConfig<>,
+  getRows: R => Array<O>,
+  primaryTextField: Field.FieldConfig<$Keys<O>>,
   params: V,
   selected?: Set<string>,
   onSelected?: (Set<string>) => void,

@@ -20,14 +20,14 @@ export type SelectProps<V, R, O = *> = {|
   endpoint: Endpoint,
   /** Resource to get data from GraphQL. */
   resource: Resource.Resource<V, R>,
-  getRows: R => O,
+  getRows: R => Array<O>,
 
   /** Field which specifies the label. */
-  labelField: Field.FieldConfig<>,
+  labelField: Field.FieldConfig<$Keys<O>>,
   /** Field which specifies the id. */
-  idField?: Field.FieldConfig<>,
+  idField?: Field.FieldConfig<$Keys<O>>,
   /** Additional fields to query. */
-  fields?: Array<Field.FieldConfig<>>,
+  fields?: Array<Field.FieldConfig<$Keys<O>>>,
 
   /** Currently selected value. */
   value: ?string,

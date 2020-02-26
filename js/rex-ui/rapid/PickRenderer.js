@@ -251,10 +251,6 @@ export const PickRenderer = <V, R>({
     }));
   }, [isTabletWidth]);
 
-  React.useEffect(() => {
-    setState(defaultPickState);
-  }, [defaultPickState]);
-
   const debouncedSetState = useDebouncedCallback(256, setState, []);
 
   const [viewData, setViewData] = React.useState<Array<any>>([]);

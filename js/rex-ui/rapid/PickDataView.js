@@ -203,7 +203,7 @@ const PickTableBody = <V, R>({
   const params = buildParams(pickState);
 
   setTableFullHeight(true);
-  const [, resourceData] = useResource(endpoint, resource, params);
+  const [, resourceData] = useResource(endpoint, resource, (params: any));
   setTableFullHeight(false);
 
   const data = React.useMemo(() => {

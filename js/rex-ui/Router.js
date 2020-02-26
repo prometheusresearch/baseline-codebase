@@ -17,20 +17,20 @@ export type ShowScreen<V, R, O = *> = {|
   title: string,
   resource: Resource<V, R>,
   getRows: R => ?O,
-  fields?: ?{ [name: $Keys<O>]: Rapid.FieldConfig },
+  fields: { [name: $Keys<O>]: Rapid.FieldConfig },
   titleField?: ?Rapid.FieldConfig,
   RenderTitle?: ?Rapid.ShowRenderTitle,
   RenderToolbar?: ?Rapid.ShowRenderToolbar,
 |};
 
 // TODO(andreypopp): check if * usage is ok here
-export type PickScreen<V, R, O = *> = {|
+export type PickScreen<V, R, O: { id: mixed } = *> = {|
   type: "pick",
   title: string,
   resource: Resource<V, R>,
   getRows: R => Array<O>,
-  description: string,
-  fields?: ?{ [name: $Keys<O>]: Rapid.FieldConfig },
+  fields: { [name: $Keys<O>]: Rapid.FieldConfig },
+  description?: string,
   filters?: ?(Rapid.PickFilterConfig[]),
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   onSelect?: (id: string) => [Route, Params],
@@ -42,6 +42,18 @@ export type CustomScreen = {|
   title: string,
   Render: React.AbstractComponent<{| params: Object |}>,
 |};
+
+export function pickScreen<V, R>(screen: PickScreen<V, R>): Screen {
+  return screen;
+}
+
+export function showScreen<V, R>(screen: ShowScreen<V, R>): Screen {
+  return screen;
+}
+
+export function customScreen(screen: CustomScreen): Screen {
+  return screen;
+}
 
 export type Screen = PickScreen<any, any> | ShowScreen<any, any> | CustomScreen;
 

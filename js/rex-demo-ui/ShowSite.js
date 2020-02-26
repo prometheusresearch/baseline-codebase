@@ -12,15 +12,9 @@ export let screen = Router.showScreen<API.getSiteVariables, API.getSiteResult>({
   resource: API.getSite,
   getRows: data => data.site.get,
   title: "Site",
-  fields: {
-    title: {
-      title: "Title",
-      require: { field: "title" },
-    },
-    code: {
-      title: "Code",
-      require: { field: "code" },
-    },
+  fields: [
+    { name: "title", title: "Title" },
+    "code",
     // users: {
     //   title: "Users",
     //   require: {
@@ -35,7 +29,7 @@ export let screen = Router.showScreen<API.getSiteVariables, API.getSiteResult>({
     //   },
     //   render: UserList,
     // },
-  },
+  ],
 });
 
 function UserList(props) {

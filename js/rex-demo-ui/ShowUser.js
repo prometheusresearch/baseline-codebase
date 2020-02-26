@@ -28,41 +28,19 @@ export let screen = Router.showScreen<API.UserVariables, API.UserResult>({
   title: "User",
   resource: API.User,
   getRows: data => data.user.get,
-  fields: {
-    remote_user: { title: "Remote User", require: { field: "remote_user" } },
-    system_admin: "system_admin",
-    expired: "expired",
-    contact_info: {
+  fields: [
+    { name: "remote_user", title: "Remote User" },
+    "system_admin",
+    "expired",
+
+    {
+      name: "contact_info",
       title: "Contact Info",
-      require: {
-        field: "contact_info",
-        require: [{ field: "id" }, { field: "type" }, { field: "value" }],
-      },
       render: ContactInfoList,
     },
-    sites: {
-      title: "Sites",
-      require: {
-        field: "sites",
-        require: [
-          {
-            field: "site",
-            require: [{ field: "id" }, { field: "title" }],
-          },
-          { field: "role" },
-        ],
-      },
-      render: SiteList,
-    },
-    patients: {
-      title: "Patients",
-      require: {
-        field: "patients",
-        require: [{ field: "id" }, { field: "name" }],
-      },
-      render: PatientList,
-    },
-  },
+    { name: "sites", title: "Sites", render: SiteList },
+    { name: "patients", title: "Patients", render: PatientList },
+  ],
   titleField: "remote_user",
   RenderToolbar,
 });

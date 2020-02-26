@@ -12,11 +12,8 @@ import * as API from "./API.js";
 import * as routes from "./index.js";
 
 let phoneField = {
+  name: "phone",
   title: "Phone",
-  require: {
-    field: "phone",
-    require: [{ field: "value" }],
-  },
   render({ value }) {
     return value != null ? <div>tel: {value.value}</div> : "—";
   },
@@ -45,19 +42,17 @@ export let screen = Router.pickScreen<API.UsersVariables, API.UsersResult>({
   getRows: data => data.user.paginated,
   title: "Users",
   description: "List of users",
-  fields: {
-    remote_user: {
-      require: { field: "remote_user" },
+  fields: [
+    {
+      name: "remote_user",
       sortable: false,
       width: 256,
     },
-    phone: phoneField,
-    expires: "expires",
-    expired: "expired",
-    system_admin: {
-      require: { field: "system_admin" },
-    },
-  },
+    phoneField,
+    "expires",
+    "expired",
+    "system_admin",
+  ],
   filters: [
     {
       name: "system_admin",

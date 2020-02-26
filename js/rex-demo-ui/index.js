@@ -19,9 +19,7 @@ let pickSiteScreen = Router.pickScreen({
   type: "pick",
   resource: API.getSites,
   getRows: data => data.site.paginated,
-  fields: {
-    code: "code",
-  },
+  fields: ["code"],
   title: "Sites",
   description: "List of sites",
   onSelect: id => [showSite, { id }],
@@ -31,10 +29,7 @@ let pickPatientScreen = Router.pickScreen({
   type: "pick",
   resource: API.getPatients,
   getRows: data => data.patient.paginated,
-  fields: {
-    name: "name",
-    date_of_birth: "date_of_birth",
-  },
+  fields: ["name", "date_of_birth"],
   title: "Patients",
   description: "List of patients",
   onSelect: id => [showPatient, { id }],
@@ -45,10 +40,7 @@ let showPatientScreen = Router.showScreen({
   resource: API.getPatient,
   getRows: data => data.patient.get,
   title: "Patient",
-  fields: {
-    name: "name",
-    date_of_birth: "date_of_birth",
-  },
+  fields: ["name", "date_of_birth"],
 });
 
 export let pickSite = Router.route("/", pickSiteScreen);

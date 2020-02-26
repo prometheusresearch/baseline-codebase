@@ -17,7 +17,7 @@ import CardContent from "@material-ui/core/CardContent";
 import { type Endpoint } from "rex-graphql";
 import { type Resource, useResource } from "rex-graphql/Resource2";
 import { RenderValue } from "./RenderValue.js";
-import * as Field from "./FieldLegacy.js";
+import * as Field from "./Field.js";
 import * as QueryPath from "./QueryPath.js";
 
 export type ShowRenderTitle = React.AbstractComponent<{| data: any |}>;
@@ -41,8 +41,8 @@ export type ShowRendererProps<V, R> = {|
   getRows: R => any,
   args?: { [key: string]: any },
   catcher?: (err: Error) => void,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
-  titleField?: ?Field.FieldConfig,
+  fieldSpecs: Field.FieldSpec[],
+  titleField?: ?Field.FieldSpec,
   onClick?: (row: any) => void,
   onAdd?: () => void,
   onRemove?: () => void,
@@ -155,39 +155,20 @@ export let ShowCard = ({
 }: {|
   data: any,
   title: React.Node,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
-  titleField?: ?Field.FieldConfig,
+  fieldSpecs: Field.FieldSpec[],
+  titleField?: ?Field.FieldSpec,
 
   onClick?: () => void,
   toolbar?: React.Node,
 |}) => {
   let classes = useStyles();
 
-  let titleFieldName: string | null = null;
-  if (titleField != null) {
-    // Flow couldn't resolve switch/case types
-    if (typeof titleField === "object") {
-      titleFieldName = titleField.require.field;
-    }
-    if (typeof titleField === "string") {
-      titleFieldName = titleField;
-    }
-  }
-
   let content = [];
-  for (let name in fieldSpecs) {
-    if (name === titleFieldName) {
-      continue;
-    }
-
-    let spec = fieldSpecs[name];
-    let key = spec.require.field;
-    let value = data[key];
+  for (let spec of fieldSpecs) {
+    let value = data[spec.name];
     content.push(
-      <div key={key} className={classes.contentWrapper}>
-        <Typography variant={"caption"}>
-          {(spec && spec.title) || key}
-        </Typography>
+      <div key={spec.name} className={classes.contentWrapper}>
+        <Typography variant={"caption"}>{spec.title}</Typography>
         <Typography component="p">
           {spec && spec.render ? (
             <spec.render value={value} />
@@ -199,13 +180,9 @@ export let ShowCard = ({
     );
   }
 
-  let titleRender = null;
-  if (title != null) {
-    titleRender = title;
-  }
-  if (titleFieldName != null) {
-    let fieldSpec = fieldSpecs[titleFieldName];
-    titleRender = data[fieldSpec.require.field];
+  let titleNode: React.Node = title;
+  if (titleField != null) {
+    titleNode = data[titleField.name];
   }
 
   return (
@@ -221,7 +198,7 @@ export let ShowCard = ({
           >
             <CardContent>
               <Typography variant="h5" gutterBottom className={classes.title}>
-                {titleRender}
+                {titleNode}
               </Typography>
               {content}
               {toolbar != null ? <div>{toolbar}</div> : null}

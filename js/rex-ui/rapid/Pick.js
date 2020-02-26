@@ -8,28 +8,21 @@ import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource2";
 
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
-import * as Field from "./FieldLegacy.js";
+import * as FieldLegacy from "./FieldLegacy.js";
+import * as Field from "./Field.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
 
-export type PickProps = {|
-  endpoint: Endpoint,
-  fields?: ?{ [name: string]: Field.FieldConfig },
-  args?: { [key: string]: any },
-  filters?: ?Array<Field.FilterConfig>,
-  ...PickRendererConfigProps,
-|};
-
-export type PickProps2<V, R, O = *> = {|
+export type PickProps<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource.Resource<V, R>,
   getRows: R => Array<O>,
-  fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
-  filters?: ?Array<Field.FilterConfig>,
+  fields: Array<Field.FieldConfig<>>,
+  filters?: ?Array<FieldLegacy.FilterConfig>,
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   ...PickRendererConfigProps,
 |};
 
-export let PickBase = <V, R>(props: PickProps2<V, R>) => {
+export let PickBase = <V, R>(props: PickProps<V, R>) => {
   let {
     endpoint,
     fields,
@@ -43,7 +36,7 @@ export let PickBase = <V, R>(props: PickProps2<V, R>) => {
   let [selected, setSelected] = React.useState(new Set());
 
   let fieldSpecs = Field.configureFields(fields);
-  let filterSpecs = Field.configureFilters(filters);
+  let filterSpecs = FieldLegacy.configureFilters(filters);
 
   return (
     <PickRenderer
@@ -60,7 +53,7 @@ export let PickBase = <V, R>(props: PickProps2<V, R>) => {
   );
 };
 
-export let Pick = <V, R>(props: PickProps2<V, R>) => (
+export let Pick = <V, R>(props: PickProps<V, R>) => (
   <ErrorBoundary>
     <PickBase {...props} />
   </ErrorBoundary>

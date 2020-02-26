@@ -12,15 +12,15 @@ import { introspect } from "./Introspection";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
 import { ShowRenderer, type ShowRendererConfigProps } from "./ShowRenderer.js";
-import * as Field from "./FieldLegacy.js";
+import * as Field from "./Field.js";
 import { ErrorBoundary } from "./ErrorBoundary";
 
 export type ShowProps<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource.Resource<V, R>,
   getRows: R => ?O,
-  fields?: ?{ [name: $Keys<O>]: Field.FieldConfig },
-  titleField?: ?Field.FieldConfig,
+  fields: Field.FieldConfig<>[],
+  titleField?: ?Field.FieldConfig<>,
   args?: { [key: string]: any },
   onAdd?: () => void,
   onRemove?: () => void,
@@ -28,9 +28,17 @@ export type ShowProps<V, R, O = *> = {|
 |};
 
 export let Show = <V, R>(props: ShowProps<V, R>) => {
-  let { endpoint, resource, fields = null, ...rest } = props;
+  let {
+    endpoint,
+    resource,
+    fields,
+    titleField: titleFieldConfig,
+    ...rest
+  } = props;
 
   let fieldSpecs = Field.configureFields(fields);
+  let titleField =
+    titleFieldConfig != null ? Field.configureField(titleFieldConfig) : null;
 
   return (
     <ErrorBoundary>
@@ -38,6 +46,7 @@ export let Show = <V, R>(props: ShowProps<V, R>) => {
         {...rest}
         endpoint={endpoint}
         resource={resource}
+        titleField={titleField}
         fieldSpecs={fieldSpecs}
       />
     </ErrorBoundary>

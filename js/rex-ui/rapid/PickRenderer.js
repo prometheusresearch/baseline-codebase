@@ -18,7 +18,8 @@ import { IconButton } from "rex-ui/IconButton";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
-import * as Field from "./FieldLegacy.js";
+import * as FieldLegacy from "./FieldLegacy.js";
+import * as Field from "./Field.js";
 
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, useDebouncedCallback } from "./helpers";
@@ -113,11 +114,11 @@ export type PickRendererProps<V, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource<V, R>,
   getRows: R => Array<O>,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
+  fieldSpecs: Array<Field.FieldSpec>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
   theme?: Theme,
-  filterSpecs?: ?Field.FilterSpecMap,
+  filterSpecs?: ?FieldLegacy.FilterSpecMap,
 
   selected: Set<string>,
   onSelected: (nextSelected: Set<string>) => void,
@@ -272,7 +273,7 @@ export const PickRenderer = <V, R>({
     setState(state => ({
       ...state,
       offset: 0,
-      sort: value === Field.FILTER_NO_VALUE ? undefined : JSON.parse(value),
+      sort: value === FieldLegacy.FILTER_NO_VALUE ? undefined : JSON.parse(value),
     }));
   };
 

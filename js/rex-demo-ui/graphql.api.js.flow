@@ -5,7 +5,11 @@ import * as __resource from "rex-graphql/Resource2";
 import UserQuery from "./graphql.api/User.gql";
 import UsersQuery from "./graphql.api/Users.gql";
 import addUserToSiteMutation from "./graphql.api/addUserToSite.gql";
+import getPatientQuery from "./graphql.api/getPatient.gql";
+import getPatientsQuery from "./graphql.api/getPatients.gql";
+import getSitesQuery from "./graphql.api/getSites.gql";
 import removeUserMutation from "./graphql.api/removeUser.gql";
+import getSiteQuery from "./graphql.api/showSite.gql";
 
 export type user_id = mixed;
 
@@ -106,6 +110,69 @@ export let addUserToSite = __resource.defineMutation<
   mutation: addUserToSiteMutation,
 });
 
+export type getPatientVariables = {|
+  id: patient_id,
+|};
+
+export type getPatientResult = {|
+  patient: {|
+    get: ?{|
+      name: string,
+      date_of_birth: string,
+    |},
+  |},
+|};
+
+export let getPatient = __resource.defineQuery<
+  getPatientVariables,
+  getPatientResult,
+>({
+  query: getPatientQuery,
+});
+
+export type getPatientsVariables = {|
+  offset?: ?number,
+  limit?: ?number,
+|};
+
+export type getPatientsResult = {|
+  patient: {|
+    paginated: Array<{|
+      id: patient_id,
+      name: string,
+      date_of_birth: string,
+    |}>,
+  |},
+|};
+
+export let getPatients = __resource.defineQuery<
+  getPatientsVariables,
+  getPatientsResult,
+>({
+  query: getPatientsQuery,
+});
+
+export type getSitesVariables = {|
+  offset?: ?number,
+  limit?: ?number,
+|};
+
+export type getSitesResult = {|
+  site: {|
+    paginated: Array<{|
+      id: site_id,
+      title: string,
+      code: string,
+    |}>,
+  |},
+|};
+
+export let getSites = __resource.defineQuery<getSitesVariables, getSitesResult>(
+  {
+    query: getSitesQuery,
+  },
+);
+
 export type removeUserVariables = {|
   userIds: Array<?user_id>,
 |};
@@ -119,4 +186,21 @@ export let removeUser = __resource.defineMutation<
   removeUserResult,
 >({
   mutation: removeUserMutation,
+});
+
+export type getSiteVariables = {|
+  id: site_id,
+|};
+
+export type getSiteResult = {|
+  site: {|
+    get: ?{|
+      title: string,
+      code: string,
+    |},
+  |},
+|};
+
+export let getSite = __resource.defineQuery<getSiteVariables, getSiteResult>({
+  query: getSiteQuery,
 });

@@ -39,7 +39,7 @@ function ShowOnlyAdminsFilter(props) {
   );
 }
 
-export let screen: Router.PickScreen<API.UsersVariables, API.UsersResult> = {
+export let screen = Router.pickScreen<API.UsersVariables, API.UsersResult>({
   type: "pick",
   resource: API.Users,
   getRows: data => data.user.paginated,
@@ -97,7 +97,7 @@ export let screen: Router.PickScreen<API.UsersVariables, API.UsersResult> = {
     );
   },
   onSelect: id => [routes.showUser, { id }],
-};
+});
 
 function RemoveAction({ selected, onSelected }) {
   let onClick = () => {

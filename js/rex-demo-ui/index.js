@@ -15,68 +15,104 @@ import * as API from "./API.js";
 export let pickUser = Router.route("/", PickUser.screen);
 export let showUser = Router.route("/:id", ShowUser.screen);
 
-export let pickSite = Router.route("/", {
+let pickSiteScreen = Router.pickScreen<
+  API.getSitesVariables,
+  API.getSitesResult,
+>({
   type: "pick",
+  resource: API.getSites,
+  getRows: data => data.site.paginated,
+  fields: {
+    code: "code",
+  },
   title: "Sites",
   description: "List of sites",
   onSelect: id => [showSite, { id }],
 });
 
-export let showSite = Router.route("/:id", ShowSite.screen);
-
-export let pickPatient = Router.route("/", {
+let pickPatientScreen = Router.pickScreen<
+  API.getPatientsVariables,
+  API.getPatientsResult,
+>({
   type: "pick",
+  resource: API.getPatients,
+  getRows: data => data.patient.paginated,
+  fields: {
+    name: "name",
+    date_of_birth: "date_of_birth",
+  },
   title: "Patients",
   description: "List of patients",
   onSelect: id => [showPatient, { id }],
 });
 
-export let showPatient = Router.route("/:id", {
+let showPatientScreen = Router.showScreen<
+  API.getPatientVariables,
+  API.getPatientResult,
+>({
   type: "show",
+  resource: API.getPatient,
+  getRows: data => data.patient.get,
   title: "Patient",
-});
-
-let home = Router.route("/", {
-  type: "custom",
-  title: "Home",
-  Render(props) {
-    let [value, setValue] = React.useState(null);
-    let onValue = value => {
-      setValue(value);
-      if (value != null) {
-        if (value.type === "user") {
-          router.push(showUser, { id: value.id });
-        } else if (value.type === "patient") {
-          router.push(showPatient, { id: value.id });
-        } else if (value.type === "site") {
-          router.push(showSite, { id: value.id });
-        }
-      }
-    };
-    let RenderItem = React.useCallback(props => {
-      return (
-        <div>
-          <mui.Typography>{props.label}</mui.Typography>
-          <mui.Typography variant="caption">{props.item.type}</mui.Typography>
-        </div>
-      );
-    }, []);
-    return (
-      <div style={{ padding: 24 }}>
-        <Rapid.Autocomplete
-          endpoint={API.endpoint}
-          fetch="search"
-          label="Search"
-          labelField="label"
-          fields={{ type: "type" }}
-          value={value}
-          onValue={onValue}
-          RenderItem={RenderItem}
-        />
-      </div>
-    );
+  fields: {
+    name: "name",
+    date_of_birth: "date_of_birth",
   },
 });
+
+export let pickSite = Router.route("/", pickSiteScreen);
+
+export let showSite = Router.route("/:id", ShowSite.screen);
+
+export let pickPatient = Router.route("/", pickPatientScreen);
+
+export let showPatient = Router.route("/:id", showPatientScreen);
+
+let home = Router.route(
+  "/",
+  Router.customScreen({
+    type: "custom",
+    title: "Home",
+    Render(props) {
+      let [value, setValue] = React.useState(null);
+      let onValue = value => {
+        setValue(value);
+        if (value != null) {
+          if (value.type === "user") {
+            router.push(showUser, { id: value.id });
+          } else if (value.type === "patient") {
+            router.push(showPatient, { id: value.id });
+          } else if (value.type === "site") {
+            router.push(showSite, { id: value.id });
+          }
+        }
+      };
+      let RenderItem = React.useCallback(props => {
+        return (
+          <div>
+            <mui.Typography>{props.label}</mui.Typography>
+            <mui.Typography variant="caption">{props.item.type}</mui.Typography>
+          </div>
+        );
+      }, []);
+      return (
+        <div style={{ padding: 24 }}>
+          <Rapid.Autocomplete
+            endpoint={API.endpoint}
+            fetch="search"
+            label="Search"
+            labelField="label"
+            fields={{ type: "type" }}
+            value={value}
+            onValue={onValue}
+            RenderItem={RenderItem}
+          />
+        </div>
+      );
+    },
+  }),
+);
+
 let users = Router.group("/users", pickUser, showUser);
 let sites = Router.group("/sites", pickSite, showSite);
 let patients = Router.group("/patients", pickPatient, showPatient);

@@ -5,10 +5,12 @@ import * as Router from "rex-ui/Router";
 import * as Rapid from "rex-ui/rapid";
 import * as mui from "@material-ui/core";
 import * as routes from "./index.js";
+import * as API from "./API.js";
 
-export let screen: Router.ShowScreen = {
+export let screen = Router.showScreen<API.getSiteVariables, API.getSiteResult>({
   type: "show",
-  fetch: "site.get",
+  resource: API.getSite,
+  getRows: data => data.site.get,
   title: "Site",
   fields: {
     title: {
@@ -19,22 +21,22 @@ export let screen: Router.ShowScreen = {
       title: "Code",
       require: { field: "code" },
     },
-    users: {
-      title: "Users",
-      require: {
-        field: "users",
-        require: [
-          {
-            field: "user",
-            require: [{ field: "id" }, { field: "remote_user" }],
-          },
-          { field: "role" },
-        ],
-      },
-      render: UserList,
-    },
+    // users: {
+    //   title: "Users",
+    //   require: {
+    //     field: "users",
+    //     require: [
+    //       {
+    //         field: "user",
+    //         require: [{ field: "id" }, { field: "remote_user" }],
+    //       },
+    //       { field: "role" },
+    //     ],
+    //   },
+    //   render: UserList,
+    // },
   },
-};
+});
 
 function UserList(props) {
   let RenderPrimaryText = React.useCallback(

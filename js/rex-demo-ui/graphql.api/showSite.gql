@@ -1,0 +1,11 @@
+query getSite(
+  $id: site_id!
+) {
+  site {
+    get(id: $id) {
+      title
+      code
+    }
+  }
+}
+

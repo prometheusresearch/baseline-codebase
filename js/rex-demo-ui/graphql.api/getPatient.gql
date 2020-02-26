@@ -1,0 +1,11 @@
+query getPatient(
+  $id: patient_id!
+) {
+  patient {
+    get(id: $id) {
+      name
+      date_of_birth
+    }
+  }
+}
+

@@ -23,7 +23,7 @@ function RenderToolbar(props) {
   );
 }
 
-export let screen: Router.ShowScreen<API.UserVariables, API.UserResult> = {
+export let screen = Router.showScreen<API.UserVariables, API.UserResult>({
   type: "show",
   title: "User",
   resource: API.User,
@@ -65,7 +65,7 @@ export let screen: Router.ShowScreen<API.UserVariables, API.UserResult> = {
   },
   titleField: "remote_user",
   RenderToolbar,
-};
+});
 
 function ContactInfoList(props) {
   let items = props.value.map((item, index) => {

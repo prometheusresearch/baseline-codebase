@@ -75,16 +75,16 @@ function ListRenderer<V, R>({
     params,
   );
 
+  let RenderPrimaryText = React.useCallback(
+    props => props.item[primaryTextFieldSpec.name],
+    [primaryTextFieldSpec],
+  );
+
   if (resourceData == null) {
     return null;
   }
 
   let data = getRows(resourceData);
-
-  let RenderPrimaryText = React.useCallback(
-    props => props.item[primaryTextFieldSpec.name],
-    [primaryTextFieldSpec],
-  );
 
   return (
     <ListOfData

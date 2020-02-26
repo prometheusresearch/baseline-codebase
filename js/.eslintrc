@@ -269,8 +269,6 @@
         "no-undef": "off",
         "default-case": "off",
         "eqeqeq": "off",
-        "react-hooks/exhaustive-deps": "off",
-        "react-hooks/rules-of-hooks": "off",
         "import/first": "off"
       }
     },

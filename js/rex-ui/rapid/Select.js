@@ -54,7 +54,7 @@ export function Select(props: SelectProps) {
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { path, resource, fieldSpecs };
-  }, [fetch, endpoint, schema, labelField]);
+  }, [fetch, endpoint, schema, labelField, fields, idField]);
 
   return (
     <SelectRenderer

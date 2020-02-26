@@ -219,7 +219,7 @@ const PickTableBody = <V, R>({
     const dataTrimmed =
       data.length < pickState.limit ? data : data.slice(0, data.length - 1);
     return dataTrimmed;
-  }, [resourceData, onDataReceive, pickState]);
+  }, [getRows, resourceData, onDataReceive, pickState]);
 
   if (data.length === 0) {
     return <PickNoDataPlaceholder fieldSpecs={fieldSpecs} />;
@@ -382,7 +382,7 @@ export const PickDataView = <V, R, O = *>({
     if (wrapperRef.current != null) {
       wrapperRef.current.scrollTop = 0;
     }
-  }, [state]);
+  }, [state, wrapperRef]);
 
   const columnsMap = new Map();
   const columnsNames = [];

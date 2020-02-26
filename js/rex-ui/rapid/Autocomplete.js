@@ -70,7 +70,7 @@ export function Autocomplete(props: AutocompleteProps) {
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { path, resource, fieldSpecs };
-  }, [fetch, endpoint, schema, labelField, fields]);
+  }, [fetch, endpoint, schema, labelField, fields, idField]);
 
   return (
     <AutocompleteRenderer

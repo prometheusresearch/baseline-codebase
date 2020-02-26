@@ -253,7 +253,7 @@ export const PickRenderer = <V, R>({
 
   React.useEffect(() => {
     setState(defaultPickState);
-  }, [fetch]);
+  }, [defaultPickState]);
 
   const debouncedSetState = useDebouncedCallback(256, setState, []);
 

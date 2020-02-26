@@ -1,7 +1,7 @@
 /**
  * @flow
  */
-import { createMuiTheme, type Theme } from "@material-ui/core/styles";
+import { createMuiTheme } from "@material-ui/core/styles";
 import brown from "@material-ui/core/colors/brown";
 import deepPurple from "@material-ui/core/colors/deepPurple";
 

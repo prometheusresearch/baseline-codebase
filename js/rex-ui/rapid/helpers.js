@@ -2,7 +2,6 @@
  * @flow
  */
 import * as React from "react";
-import invariant from "invariant";
 
 export function capitalize(value: string) {
   if (value.length === 0) {
@@ -25,7 +24,7 @@ export function useDebouncedCallback<
         timer.current = null;
       }
     },
-    dependencies,
+    [dependencies],
   );
   let cbWithDebounce: any = React.useCallback(
     (...args: $ReadOnlyArray<empty>) => {
@@ -36,7 +35,7 @@ export function useDebouncedCallback<
         cb(...args);
       }, ms);
     },
-    dependencies,
+    [ms, cb],
   );
   return cbWithDebounce;
 }

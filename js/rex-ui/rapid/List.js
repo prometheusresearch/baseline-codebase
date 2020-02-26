@@ -12,7 +12,7 @@ import * as mui from "@material-ui/core";
 import { introspect } from "./Introspection";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 
 export type ListProps = {|
   endpoint: Endpoint,

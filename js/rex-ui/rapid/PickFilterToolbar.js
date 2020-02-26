@@ -14,7 +14,7 @@ import FormControl from "@material-ui/core/FormControl";
 
 import { type PickState } from "./PickRenderer";
 
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 
 import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
 import { DEFAULT_THEME } from "./themes";

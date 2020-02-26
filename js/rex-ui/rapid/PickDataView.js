@@ -24,7 +24,7 @@ import _get from "lodash/get";
 import { ShowCard } from "./ShowRenderer.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
 import { RenderValue } from "./RenderValue.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 import { type PickState } from "./PickRenderer";
 import { LoadingIndicator } from "./LoadingIndicator";
 

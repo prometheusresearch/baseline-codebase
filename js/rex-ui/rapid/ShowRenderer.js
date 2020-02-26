@@ -17,7 +17,7 @@ import CardContent from "@material-ui/core/CardContent";
 import { type Endpoint } from "rex-graphql";
 import { type Resource, useResource } from "rex-graphql/Resource2";
 import { RenderValue } from "./RenderValue.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 import * as QueryPath from "./QueryPath.js";
 
 export type ShowRenderTitle = React.AbstractComponent<{| data: any |}>;

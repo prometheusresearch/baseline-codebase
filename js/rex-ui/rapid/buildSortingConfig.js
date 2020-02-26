@@ -11,7 +11,7 @@ import {
   type IntrospectionInputValue,
   type IntrospectionEnumType,
 } from "graphql/utilities/introspectionQuery";
-import * as Field from "./Field";
+import * as Field from "./FieldLegacy.js";
 import { ConfigError } from "./ErrorBoundary";
 
 export type SortableFieldObjectsInput = {|

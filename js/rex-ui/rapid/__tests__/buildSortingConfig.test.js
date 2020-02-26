@@ -8,10 +8,10 @@ import {
   type SortableFieldObjectsInput,
   getInputFieldsFromVariable,
 } from "../buildSortingConfig";
-import { configureField, configureFields } from "../Field";
+import { configureField, configureFields } from "../FieldLegacy.js";
 import { buildQueryAST } from "../Introspection";
 import * as QueryPath from "../QueryPath";
-import * as Field from "../Field";
+import * as Field from "../FieldLegacy.js";
 import { TEST_SCHEMA } from "./test_schema";
 
 describe("Testing buildSortableFieldObjects function", function() {

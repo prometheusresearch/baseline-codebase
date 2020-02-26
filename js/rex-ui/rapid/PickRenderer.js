@@ -18,7 +18,7 @@ import { IconButton } from "rex-ui/IconButton";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, useDebouncedCallback } from "./helpers";

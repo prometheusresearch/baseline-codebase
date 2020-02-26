@@ -6,7 +6,7 @@ import * as introspection from "graphql/utilities/introspectionQuery";
 import * as ast from "graphql/language/ast";
 import { print } from "graphql/language/printer";
 import * as QueryPath from "./QueryPath.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 import { ConfigError } from "./ErrorBoundary";
 import { buildSortingConfig } from "./buildSortingConfig.js";
 

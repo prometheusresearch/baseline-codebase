@@ -8,7 +8,7 @@ import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource2";
 
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
 
 export type PickProps = {|

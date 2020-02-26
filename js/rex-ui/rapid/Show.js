@@ -12,7 +12,7 @@ import { introspect } from "./Introspection";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
 import { ShowRenderer, type ShowRendererConfigProps } from "./ShowRenderer.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 import { ErrorBoundary } from "./ErrorBoundary";
 
 export type ShowProps<V, R, O = *> = {|

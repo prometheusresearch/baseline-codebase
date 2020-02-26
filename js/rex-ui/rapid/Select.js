@@ -12,7 +12,6 @@ import * as mui from "@material-ui/core";
 import { introspect } from "./Introspection";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
-import * as FieldLegacy from "./FieldLegacy.js";
 import * as Field from "./Field.js";
 import * as Filter from "./Filter.js";
 

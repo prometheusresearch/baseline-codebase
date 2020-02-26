@@ -110,10 +110,10 @@ export type PickRendererConfigProps = {|
   onRowClick?: (row: any) => void,
 |};
 
-export type PickRendererProps<V, R, O = *> = {|
+export type PickRendererProps<V, R> = {|
   endpoint: Endpoint,
   resource: Resource<V, R>,
-  getRows: R => Array<O>,
+  getRows: R => any,
   fieldSpecs: Array<Field.FieldSpec>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },

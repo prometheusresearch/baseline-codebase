@@ -34,13 +34,13 @@ interface Context {
 
   shouldGenerateResourceAPI: boolean;
   shouldGenerateTypesAPI: boolean;
-  generateUnions: boolean;
+  shouldGenerateVariablesSet: boolean;
 }
 
 export interface Config {
   generateResourceAPI?: string;
   generateTypesAPI?: string;
-  generateUnions?: boolean;
+  generateVariablesSet?: boolean;
 }
 
 type Promisable<T> = T | Promise<T>;
@@ -92,7 +92,7 @@ function emitNamespaceImport(
 export const plugin: PluginFunction = (
   schema,
   documents,
-  { generateResourceAPI, generateTypesAPI, generateUnions },
+  { generateResourceAPI, generateTypesAPI, generateVariablesSet },
   { outputFile },
 ) => {
   const printedSchema = gql.printSchema(schema);
@@ -148,7 +148,7 @@ export const plugin: PluginFunction = (
     schema,
     shouldGenerateResourceAPI: generateResourceAPI != null,
     shouldGenerateTypesAPI: generateTypesAPI != null,
-    generateUnions,
+    shouldGenerateVariablesSet: generateVariablesSet,
   };
 
   for (let node of allAst.definitions) {
@@ -177,46 +177,6 @@ export const plugin: PluginFunction = (
   emitCollection(chunks, ctx.fragments);
   emitCollection(chunks, ctx.operations);
 
-  if (generateUnions) {
-    let variablesUnion: string[] = [];
-    let resultsUnion: string[] = [];
-    ctx.operations.forEach(({ value }) => {
-      if (value) {
-        let [variables, result] = value as t.ExportNamedDeclaration[];
-        variablesUnion.push(variables.declaration.id.name);
-        resultsUnion.push(result.declaration.id.name);
-      }
-    });
-    chunks.push(
-      generate(
-        t.exportNamedDeclaration(
-          t.typeAlias(
-            t.identifier("QueryVariables"),
-            null,
-            t.unionTypeAnnotation(
-              variablesUnion.map(type =>
-                t.genericTypeAnnotation(t.identifier(type)),
-              ),
-            ),
-          ),
-        ) as any,
-      ).code,
-      generate(
-        t.exportNamedDeclaration(
-          t.typeAlias(
-            t.identifier("QueryResult"),
-            null,
-            t.unionTypeAnnotation(
-              resultsUnion.map(type =>
-                t.genericTypeAnnotation(t.identifier(type)),
-              ),
-            ),
-          ),
-        ) as any,
-      ).code,
-    );
-  }
-
   return chunks.join("\n\n");
 };
 
@@ -242,6 +202,9 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
         generateVariablesDeclaration(ctx, node),
         generateResultDeclaration(ctx, node, type),
       ];
+      if (ctx.shouldGenerateVariablesSet) {
+        value.push(generateVariablesSet(node));
+      }
       if (ctx.shouldGenerateResourceAPI) {
         value.push(generateResourceAPI(node));
       }
@@ -343,6 +306,27 @@ function generateVariablesDeclaration(
       null,
       printVariables(ctx, variableDefinitions),
     ),
+    [],
+  );
+}
+
+function generateVariablesSet({
+  name: { value: name },
+  variableDefinitions,
+}: gql.OperationDefinitionNode) {
+  return t.exportNamedDeclaration(
+    t.variableDeclaration("let", [
+      t.variableDeclarator(operationVariablesSetName(name), {
+        ...t.newExpression(t.identifier("Set"), [
+          t.arrayExpression(
+            variableDefinitions.map(varDef =>
+              t.stringLiteral(varDef.variable.name.value),
+            ),
+          ),
+        ]),
+        typeArguments: t.typeParameterInstantiation([t.stringTypeAnnotation()]),
+      }),
+    ]),
     [],
   );
 }
@@ -600,6 +584,10 @@ function operationResultTypeName(name: string) {
 
 function operationVariablesTypeName(name: string) {
   return t.identifier(`${name}Variables`);
+}
+
+function operationVariablesSetName(name: string) {
+  return t.identifier(`${name}VariablesSet`);
 }
 
 function fragmentTypeName(name: string) {

@@ -12,18 +12,23 @@ import * as Field from "./Field.js";
 import * as Filter from "./Filter.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
 
-export type PickProps<V, R, O = *> = {|
+export type PickProps<V: { [key: string]: any }, R, O = *> = {|
   endpoint: Endpoint,
   resource: Resource.Resource<V, R>,
   getRows: R => Array<O>,
   variablesSet: Set<string>,
   fields: Array<Field.FieldConfig<$Keys<O>>>,
-  filters?: ?Array<Filter.FilterConfig>,
+  filters?: ?Array<Filter.FilterConfig<$Keys<V>>>,
+  //TODO(vladimir.khapalov): do we need to use it like
+  // filters?: ?Array<Filter.FilterConfig<$Keys<V>>>
+  // if yes then we have to mention that V is an object
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   ...PickRendererConfigProps,
 |};
 
-export let PickBase = <V, R>(props: PickProps<V, R>) => {
+export let PickBase = <V: { [key: string]: any }, R>(
+  props: PickProps<V, R>,
+) => {
   let {
     endpoint,
     fields,
@@ -56,7 +61,7 @@ export let PickBase = <V, R>(props: PickProps<V, R>) => {
   );
 };
 
-export let Pick = <V, R>(props: PickProps<V, R>) => (
+export let Pick = <V: { [key: string]: any }, R>(props: PickProps<V, R>) => (
   <ErrorBoundary>
     <PickBase {...props} />
   </ErrorBoundary>

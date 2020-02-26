@@ -131,6 +131,7 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
       onClose(true);
     });
   };
+  let getSelectRows = (r: API.getAllSitesResult) => r.site.all;
   let getListRows = (r: API.getManyUsersResult) => r.user.get_many;
   return (
     <React.Suspense fallback={<LoadingIndicator />}>
@@ -142,7 +143,8 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
           </mui.DialogContentText>
           <Select
             endpoint={API.endpoint}
-            fetch="site.all"
+            resource={API.getAllSites}
+            getRows={getSelectRows}
             labelField="title"
             value={site}
             onValue={setSite}

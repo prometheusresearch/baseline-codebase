@@ -3,6 +3,7 @@
 
 import * as __resource from "rex-graphql/Resource2";
 import addUserToSiteMutation from "./graphql.api/addUserToSite.gql";
+import getAllSitesQuery from "./graphql.api/getAllSites.gql";
 import getManyUsersQuery from "./graphql.api/getManyUsers.gql";
 import getPatientQuery from "./graphql.api/getPatient.gql";
 import getPatientsQuery from "./graphql.api/getPatients.gql";
@@ -45,6 +46,24 @@ export let addUserToSite = __resource.defineMutation<
   addUserToSiteResult,
 >({
   mutation: addUserToSiteMutation,
+});
+
+export type getAllSitesVariables = {||};
+
+export type getAllSitesResult = {|
+  site: {|
+    all: Array<{|
+      id: site_id,
+      title: string,
+    |}>,
+  |},
+|};
+
+export let getAllSites = __resource.defineQuery<
+  getAllSitesVariables,
+  getAllSitesResult,
+>({
+  query: getAllSitesQuery,
 });
 
 export type getManyUsersVariables = {|

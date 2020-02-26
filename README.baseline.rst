@@ -17,6 +17,16 @@ built-in demo application by doing::
 The application can then be accessed at: `<http://localhost:8080/>`_
 
 
+Forms Demo
+==========
+To launch the ``rex.forms`` demo app (after ``make init`` has occurred)::
+
+    $ ./bin/rex --config=demo.forms.yaml deploy
+    $ ./bin/rex --config=demo.forms.yaml serve-uwsgi
+
+The application can then be accessed at: `<http://localhost:8080/@forms>`_
+
+
 Documentation
 =============
 After initializing this codebase (``make init``), documentation for this

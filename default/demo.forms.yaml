@@ -2,7 +2,7 @@ project: rex.demo.forms
 parameters:
   db: pgsql:demo.forms
 uwsgi:
-  socket: ./run/forms
+  socket: ./run/forms.socket
   chmod-socket: 777
   buffer-size: 65535
   processes: 2

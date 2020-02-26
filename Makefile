@@ -415,6 +415,8 @@ sync-once:
 		--exclude /.st/ \
 		--exclude /.devmode \
 		--exclude /.kubeconfig \
+		--exclude /js/node_modules \
+		--exclude '/js/*/node_modules' \
 		--exclude '.*.sw?' \
 		--exclude /bin/ \
 		./ develop:/app/

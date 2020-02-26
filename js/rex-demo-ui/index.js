@@ -15,10 +15,7 @@ import * as API from "./API.js";
 export let pickUser = Router.route("/", PickUser.screen);
 export let showUser = Router.route("/:id", ShowUser.screen);
 
-let pickSiteScreen = Router.pickScreen<
-  API.getSitesVariables,
-  API.getSitesResult,
->({
+let pickSiteScreen = Router.pickScreen({
   type: "pick",
   resource: API.getSites,
   getRows: data => data.site.paginated,
@@ -30,10 +27,7 @@ let pickSiteScreen = Router.pickScreen<
   onSelect: id => [showSite, { id }],
 });
 
-let pickPatientScreen = Router.pickScreen<
-  API.getPatientsVariables,
-  API.getPatientsResult,
->({
+let pickPatientScreen = Router.pickScreen({
   type: "pick",
   resource: API.getPatients,
   getRows: data => data.patient.paginated,
@@ -46,10 +40,7 @@ let pickPatientScreen = Router.pickScreen<
   onSelect: id => [showPatient, { id }],
 });
 
-let showPatientScreen = Router.showScreen<
-  API.getPatientVariables,
-  API.getPatientResult,
->({
+let showPatientScreen = Router.showScreen({
   type: "show",
   resource: API.getPatient,
   getRows: data => data.patient.get,

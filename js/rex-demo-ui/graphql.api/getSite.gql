@@ -1,6 +1,4 @@
-query getSite(
-  $id: site_id!
-) {
+query getSite($id: site_id!) {
   site {
     get(id: $id) {
       id
@@ -9,4 +7,3 @@ query getSite(
     }
   }
 }
-

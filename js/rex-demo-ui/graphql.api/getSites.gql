@@ -1,9 +1,6 @@
-query getSites(
-  $offset: Int
-  $limit: Int
-) {
+query getSites($offset: Int, $limit: Int) {
   site {
-    paginated(offset: $offset limit: $limit) {
+    paginated(offset: $offset, limit: $limit) {
       id
       title
       code

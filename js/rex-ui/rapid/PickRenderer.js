@@ -273,7 +273,8 @@ export const PickRenderer = <V, R>({
     setState(state => ({
       ...state,
       offset: 0,
-      sort: value === FieldLegacy.FILTER_NO_VALUE ? undefined : JSON.parse(value),
+      sort:
+        value === FieldLegacy.FILTER_NO_VALUE ? undefined : JSON.parse(value),
     }));
   };
 

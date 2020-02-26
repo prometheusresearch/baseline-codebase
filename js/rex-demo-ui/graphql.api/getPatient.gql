@@ -1,6 +1,4 @@
-query getPatient(
-  $id: patient_id!
-) {
+query getPatient($id: patient_id!) {
   patient {
     get(id: $id) {
       id
@@ -9,4 +7,3 @@ query getPatient(
     }
   }
 }
-

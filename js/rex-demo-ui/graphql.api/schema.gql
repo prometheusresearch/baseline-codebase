@@ -15,7 +15,11 @@ scalar JSON
 
 type Mutations {
   remove_user(user_ids: [user_id]!): Boolean
-  add_user_to_site(user_ids: [user_id]!, site_id: site_id!, role: user_x_site_role): Boolean
+  add_user_to_site(
+    user_ids: [user_id]!
+    site_id: site_id!
+    role: user_x_site_role
+  ): Boolean
 }
 
 type Root {
@@ -47,7 +51,12 @@ type patient_connection {
   get(id: patient_id!): patient
   get_many(id: [patient_id]): [patient!]!
   all(caregiver: user_id, search: String): [patient!]!
-  paginated(offset: Int = 0, limit: Int = 20, caregiver: user_id, search: String): [patient!]!
+  paginated(
+    offset: Int = 0
+    limit: Int = 20
+    caregiver: user_id
+    search: String
+  ): [patient!]!
   count(caregiver: user_id, search: String): Int!
 }
 
@@ -101,9 +110,28 @@ type user {
 type user_connection {
   get(id: user_id!): user
   get_many(id: [user_id]): [user!]!
-  all(system_admin: Boolean, expired: Boolean, has_phone: Boolean, search: String, sort: sort_user_direction): [user!]!
-  paginated(offset: Int = 0, limit: Int = 20, system_admin: Boolean, expired: Boolean, has_phone: Boolean, search: String, sort: sort_user_direction): [user!]!
-  count(system_admin: Boolean, expired: Boolean, has_phone: Boolean, search: String): Int!
+  all(
+    system_admin: Boolean
+    expired: Boolean
+    has_phone: Boolean
+    search: String
+    sort: sort_user_direction
+  ): [user!]!
+  paginated(
+    offset: Int = 0
+    limit: Int = 20
+    system_admin: Boolean
+    expired: Boolean
+    has_phone: Boolean
+    search: String
+    sort: sort_user_direction
+  ): [user!]!
+  count(
+    system_admin: Boolean
+    expired: Boolean
+    has_phone: Boolean
+    search: String
+  ): Int!
 }
 
 scalar user_id
@@ -121,4 +149,3 @@ enum user_x_site_role {
   admin
   user
 }
-

@@ -36,7 +36,10 @@ function ShowOnlyAdminsFilter(props) {
   );
 }
 
-export let screen = Router.pickScreen<API.getUsersVariables, API.getUsersResult>({
+export let screen = Router.pickScreen<
+  API.getUsersVariables,
+  API.getUsersResult,
+>({
   type: "pick",
   resource: API.getUsers,
   getRows: data => data.user.paginated,

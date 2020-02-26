@@ -6,6 +6,7 @@ test:
 
 install:
 	@yarn
+	@yarn --cwd ./rex-graphql-codegen run build
 
 showcase:
 	@yarn run cosmos

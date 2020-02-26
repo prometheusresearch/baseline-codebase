@@ -41,13 +41,21 @@ class RexTestSuite:
         cls.rex = None
 
 
-class any:
+class anything:
     """
     A value that can be used in assertions to allow a variable to be "equal" to
     anything. E.g.:
 
-        my_variable = 'foo'
-        assert my_variable == any()  # True
+        my_variable = {
+            'foo': 1,
+            'bar': datetime.now(),
+            'baz': 'red',
+        }
+        assert my_variable == {  # True
+            'foo': 1,
+            'bar': any(),
+            'baz': 'red',
+        }
     """
 
     def __eq__(self, other):
@@ -59,10 +67,23 @@ class not_none:
     A value that can be used in assertions to allow a variable to be "equal" to
     anything except None. E.g.:
 
-        my_variable = 'foo'
-        assert my_variable == not_none()  # True
-        my_variable = None
-        assert my_variable == not_none()  # False
+        my_variable = {
+            'foo': 1,
+            'bar': datetime.now(),
+            'baz': 'red',
+        }
+        assert my_variable == {  # True
+            'foo': 1,
+            'bar': not_none(),
+            'baz': 'red',
+        }
+
+        my_variable['bar'] = None
+        assert my_variable == {  # False
+            'foo': 1,
+            'bar': not_none(),
+            'baz': 'red',
+        }
     """
 
     def __eq__(self, other):

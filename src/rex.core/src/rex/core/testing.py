@@ -53,7 +53,7 @@ class anything:
         }
         assert my_variable == {  # True
             'foo': 1,
-            'bar': any(),
+            'bar': anything(),
             'baz': 'red',
         }
     """

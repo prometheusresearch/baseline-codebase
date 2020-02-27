@@ -18,8 +18,8 @@ export type FilterSpec = {|
   +render: ?RenderFilter<any>,
 |};
 
-type RenderFilter<V> = AbstractComponent<{
-  value: V,
+export type RenderFilter<V> = AbstractComponent<{
+  value: ?V,
   values?: Array<V>,
   onChange: (nextValue: V) => void,
 }>;

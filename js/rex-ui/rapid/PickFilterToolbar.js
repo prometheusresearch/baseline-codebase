@@ -122,29 +122,20 @@ const PickFilterToolbarBase = ({
           ) : null}
 
           {filterSpecs
-            ? Array.from(filterSpecs.keys()).map((booleanFilterName, index) => {
-                let CustomBooleanRenderer: ?React.ComponentType<{
-                  onChange: (newValue: any) => void,
-                  value: any,
-                  values?: Array<any>,
-                }> = null;
+            ? // TODO(andreypopp): why is this specific to boolean?
+              Array.from(filterSpecs.keys()).map((booleanFilterName, index) => {
+                let CustomBooleanRenderer: ?Filter.RenderFilter<boolean> = null;
 
                 if (filterSpecs != null) {
-                  if (filterSpecs.get(booleanFilterName) != null) {
-                    // $FlowFixMe
-                    if (filterSpecs.get(booleanFilterName).render != null) {
-                      // $FlowFixMe
-                      CustomBooleanRenderer = (filterSpecs.get(
-                        booleanFilterName,
-                      ).render: any);
+                  let filter = filterSpecs.get(booleanFilterName);
+                  if (filter != null) {
+                    if (filter.render != null) {
+                      CustomBooleanRenderer = filter.render;
                     }
                   }
                 }
 
-                return filterSpecs == null ||
-                  (filterSpecs.get(booleanFilterName) != null &&
-                    //$FlowFixMe
-                    filterSpecs.get(booleanFilterName).render == null) ? (
+                return CustomBooleanRenderer == null ? (
                   <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
                     <BooleanFilter
                       key={booleanFilterName}
@@ -155,7 +146,7 @@ const PickFilterToolbarBase = ({
                       name={booleanFilterName}
                     />
                   </Grid>
-                ) : CustomBooleanRenderer ? (
+                ) : (
                   <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
                     <CustomBooleanRenderer
                       key={booleanFilterName}
@@ -165,7 +156,7 @@ const PickFilterToolbarBase = ({
                       }
                     />
                   </Grid>
-                ) : null;
+                );
               })
             : null}
         </FormGroup>

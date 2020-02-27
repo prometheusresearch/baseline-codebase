@@ -18,6 +18,7 @@ import { type Resource, useResource } from "rex-graphql/Resource2";
 import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
 
+// TODO(andreypopp): we need to type it
 export type ShowRenderTitle = React.AbstractComponent<{| data: any |}>;
 
 export type ShowRendererConfigProps = {|
@@ -25,6 +26,7 @@ export type ShowRendererConfigProps = {|
   RenderToolbar?: ?RenderToolbar,
 |};
 
+// TODO(andreypopp): we need to type it
 export type RenderToolbarProps = {|
   data: any,
   onAdd?: () => void,

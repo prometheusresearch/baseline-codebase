@@ -68,11 +68,7 @@ const PickSearchToolbarBase = ({
 
   const classNames = [classes.tableControl];
 
-  let CustomSearchRenderer: ?React.ComponentType<{
-    onChange: (newValue: any) => void,
-    value: any,
-    values?: Array<any>,
-  }> = null;
+  let CustomSearchRenderer: ?Filter.RenderFilter<string> = null;
   if (filterSpecs != null) {
     let search = filterSpecs.get(Filter.SEARCH_FIELD);
     if (search != null) {
@@ -83,7 +79,7 @@ const PickSearchToolbarBase = ({
   }
 
   const SearchRenderer =
-    state.search == null ? null : CustomSearchRenderer ? (
+    state.search == null ? null : CustomSearchRenderer != null ? (
       <CustomSearchRenderer
         onChange={(newValue: string) => {
           setSearchState(newValue);
@@ -91,6 +87,7 @@ const PickSearchToolbarBase = ({
         value={state.searchText}
       />
     ) : (
+      // TODO(andreypopp): move this into a separate component
       <FormLabel className={classes.formLabel}>
         <div className={classes.search}>
           <InputBase

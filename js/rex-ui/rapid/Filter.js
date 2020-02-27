@@ -1,41 +1,48 @@
-export type FilterConfig<+T = string> =
+/**
+ * This describes filter configuration.
+ *
+ * @flow
+ */
+
+import type { AbstractComponent } from "react";
+
+export type FilterConfig<+T: string = string, V = any> =
   | T
   | {
-      name: T,
-      render?: AbstractComponent<{
-        value: any,
-        values?: Array<any>,
-        onChange: (newValue: any) => void,
-      }>,
+      +name: T,
+      +render?: ?RenderFilter<V>,
     };
 
 export type FilterSpec = {|
-  render: ?ComponentType<{
-    value: any,
-    values?: Array<any>,
-    onChange: (newValue: any) => void,
-  }>,
+  +name: string,
+  +render: ?RenderFilter<any>,
 |};
+
+type RenderFilter<V> = AbstractComponent<{
+  value: V,
+  values?: Array<V>,
+  onChange: (nextValue: V) => void,
+}>;
 
 export type FilterSpecMap = Map<string, FilterSpec>;
 
-export type FiltersConfig = Array<FilterConfig>;
-
-export const configureFilters = (configs?: ?FiltersConfig): ?FilterSpecMap => {
+export const configureFilters = (
+  configs: ?Array<FilterConfig<>>,
+): ?FilterSpecMap => {
   if (configs == null || configs.length === 0) {
     return null;
   }
-  let SpecMap: FilterSpecMap = new Map();
+  let map: FilterSpecMap = new Map();
 
-  for (let config of configs) {
+  configs.forEach(config => {
     if (typeof config === "string") {
-      SpecMap.set(config, { render: null });
+      map.set(config, { name: config, render: null });
     } else if (typeof config === "object") {
-      SpecMap.set(config.name, { render: config.render });
+      map.set(config.name, { name: config.name, render: config.render });
     }
-  }
+  });
 
-  return SpecMap;
+  return map;
 };
 
 export const NO_VALUE = "undefined";

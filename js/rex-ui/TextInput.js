@@ -35,13 +35,7 @@ export type Props = {|
  * @public
  */
 export let TextInput = React.forwardRef<Props, HTMLElement>((props, ref) => {
-  let {
-    value,
-    Component = mui.Input,
-    type = "text",
-    onChange,
-    ...rest
-  } = props;
+  let { value, Component = mui.Input, onChange, ...rest } = props;
   if (value == null) {
     value = "";
   }

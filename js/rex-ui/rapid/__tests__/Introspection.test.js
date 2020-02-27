@@ -48,7 +48,7 @@ const queryNestedFields = `query ConstructedQuery($system_admin: Boolean, $expir
 
 describe("Testing introspect", function() {
   it("Should be equal to queryNestedFields reference value", function() {
-    let { query, fieldSpecs, description, filterSpecs } = introspect({
+    let { query } = introspect({
       schema: TEST_SCHEMA,
       path: QueryPath.make(["user", "all"]),
       fields: {
@@ -86,7 +86,7 @@ describe("Testing introspect", function() {
   });
 
   it("Should be equal to queryUser reference value", function() {
-    let { query, fieldSpecs, description, filterSpecs } = introspect({
+    let { query, fieldSpecs, description } = introspect({
       schema: TEST_SCHEMA,
       path: QueryPath.make(["user"]),
       fields: null,

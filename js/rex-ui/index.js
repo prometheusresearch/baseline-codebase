@@ -3,6 +3,8 @@
  * @flow
  */
 
+import { type Theme } from "./Theme";
+
 export { SuccessButton } from "./SuccessButton.js";
 export { DangerButton } from "./DangerButton.js";
 export { Button } from "./Button.js";
@@ -23,7 +25,6 @@ export {
   Input as AutocompleteInput,
 } from "./Autocomplete.js";
 
-import { type Theme } from "./Theme";
 export type { Theme };
 export { useTheme, ThemeProvider } from "./Theme";
 export { useLayoutMode, useDOMSize } from "./Layout";

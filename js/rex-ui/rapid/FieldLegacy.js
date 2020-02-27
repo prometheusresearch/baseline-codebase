@@ -89,6 +89,7 @@ export function configureFields<T: { [name: string]: FieldConfig }>(
   configs: ?T,
 ): $ObjMap<T, <V>(V) => FieldSpec> {
   let specs = {};
+  // eslint-disable-next-line no-unused-vars
   for (let name in configs) {
     specs[name] = configureField(configs[name]);
   }
@@ -115,6 +116,7 @@ export const configureFilters = (configs?: ?FiltersConfig): ?FilterSpecMap => {
   }
   let SpecMap: FilterSpecMap = new Map();
 
+  // eslint-disable-next-line no-unused-vars
   for (let config of configs) {
     if (typeof config === "string") {
       SpecMap.set(config, { render: null });

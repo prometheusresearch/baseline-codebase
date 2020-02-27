@@ -3,28 +3,15 @@
  */
 import * as React from "react";
 
-import Grid from "@material-ui/core/Grid";
-import Table from "@material-ui/core/Table";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import TextField from "@material-ui/core/TextField";
-import FormGroup from "@material-ui/core/FormGroup";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import FormLabel from "@material-ui/core/FormLabel";
-
-import { type VariableDefinitionNode } from "graphql/language/ast";
-import { type PickState, SEARCH_VAR_NAME } from "./PickRenderer";
-
-import * as Filter from "./Filter.js";
-
-import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
+import { InputBase, FormGroup, FormLabel, Grid } from "@material-ui/core";
+import { makeStyles, type Theme } from "@material-ui/styles";
 import SearchIcon from "@material-ui/icons/Search";
 import ClearIcon from "@material-ui/icons/Clear";
 
+import { type PickState } from "./PickRenderer";
+import * as Filter from "./Filter.js";
 import { DEFAULT_THEME } from "./themes";
-import { isEmptyObject, capitalize } from "./helpers";
-import { IconButton, InputBase } from "@material-ui/core";
+import { isEmptyObject } from "./helpers";
 
 export const useFilterStyles = makeStyles((theme: Theme) => {
   if (theme.palette == null || isEmptyObject(theme)) {
@@ -87,11 +74,10 @@ const PickSearchToolbarBase = ({
     values?: Array<any>,
   }> = null;
   if (filterSpecs != null) {
-    if (filterSpecs.get(SEARCH_VAR_NAME) != null) {
-      // $FlowFixMe
-      if (filtersSpecs.get(SEARCH_VAR_NAME).render != null) {
-        // $FlowFixMe
-        CustomSearchRenderer = (filtersSpecs.get(SEARCH_VAR_NAME).render: any);
+    let search = filterSpecs.get(Filter.SEARCH_FIELD);
+    if (search != null) {
+      if (search.render != null) {
+        CustomSearchRenderer = search.render;
       }
     }
   }
@@ -124,7 +110,7 @@ const PickSearchToolbarBase = ({
             name={"site-search"}
           />
 
-          {state.searchText == "" ? (
+          {state.searchText === "" ? (
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>

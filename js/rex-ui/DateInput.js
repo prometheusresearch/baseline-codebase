@@ -5,6 +5,7 @@
  * @flow
  */
 
+import invariant from "invariant";
 import Moment from "moment";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
@@ -58,14 +59,16 @@ export let DateTimePicker = ({
     onChange(value, date);
   };
 
-  let minDateP = null;
-  if (minDate) {
-    minDateP = Moment(minDate, format, true);
-  }
-  let maxDateP = null;
-  if (maxDate) {
-    maxDateP = Moment(maxDate, format, true);
-  }
+  // TODO(andreypopp): use this
+  // let minDateP = null;
+  // if (minDate) {
+  //   minDateP = Moment(minDate, format, true);
+  // }
+  // TODO(andreypopp): use this
+  // let maxDateP = null;
+  // if (maxDate) {
+  //   maxDateP = Moment(maxDate, format, true);
+  // }
 
   return (
     <DateTimePickerBase
@@ -116,14 +119,16 @@ export let DatePicker = ({
     onChange(value, date);
   };
 
-  let minDateP = null;
-  if (minDate) {
-    minDateP = Moment(minDate, format, true);
-  }
-  let maxDateP = null;
-  if (maxDate) {
-    maxDateP = Moment(maxDate, format, true);
-  }
+  // TODO(andreypopp): use this
+  // let minDateP = null;
+  // if (minDate) {
+  //   minDateP = Moment(minDate, format, true);
+  // }
+  // TODO(andreypopp): use this
+  // let maxDateP = null;
+  // if (maxDate) {
+  //   maxDateP = Moment(maxDate, format, true);
+  // }
 
   return (
     <DatePickerBase
@@ -294,7 +299,7 @@ export let DateInput = ({
         onChange(value, null);
       }
     },
-    [onChange, inputFormat],
+    [onChange, inputFormat, format],
   );
 
   let endAdornment = React.useMemo(() => {
@@ -337,6 +342,8 @@ export let DateInput = ({
         />
       );
       break;
+    default:
+      invariant(false, `Unknown mode: ${mode}`);
   }
 
   return (

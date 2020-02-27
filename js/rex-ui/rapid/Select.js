@@ -2,18 +2,13 @@
  * @flow
  */
 
-import invariant from "invariant";
 import * as React from "react";
 
 import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource2";
 import * as mui from "@material-ui/core";
 
-import { introspect } from "./Introspection";
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
-import * as Filter from "./Filter.js";
 
 export type SelectProps<V, R, O = *> = {|
   /** GraphQL endpoint. */

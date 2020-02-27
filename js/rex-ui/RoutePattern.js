@@ -43,7 +43,6 @@ let regexpForSegment = (repeat, optional, prefix) => {
 export function compile(pattern: string): compiledPattern {
   let groupRx = /:([A-Za-z0-9_]+)([?+*]?)/g;
 
-  let match = null;
   let lastIndex = 0;
   let keys = [];
   let result = "";
@@ -85,6 +84,7 @@ let endSepRegExp = /\/+$/;
 
 export function concat(patterns: pattern[]) {
   let pattern = "";
+  // eslint-disable-next-line no-unused-vars
   for (let p of patterns) {
     p = p.replace(startSepRegExp, "");
     p = p.replace(endSepRegExp, "");

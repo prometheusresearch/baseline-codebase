@@ -53,26 +53,7 @@ export let ButtonIcon = ({
 };
 
 export let Button = (props: Props) => {
-  let theme = useTheme();
   let { icon, children, size, style, ...rest } = props;
-
-  let iconElement = null;
-  if (icon != null) {
-    let paddingRight = 0;
-    if (children != null) {
-      if (size === "small") {
-        paddingRight = theme.spacing.unit / 4;
-      } else {
-        paddingRight = theme.spacing.unit;
-      }
-    }
-    let iconStyle = {
-      paddingRight,
-      height: "1em",
-      transform: size === "small" ? "scale(0.75)" : null,
-    };
-    iconElement = <div style={iconStyle}>{icon}</div>;
-  }
 
   return (
     <mui.Button {...rest} size={size} style={{ ...style, alignItems: "unset" }}>

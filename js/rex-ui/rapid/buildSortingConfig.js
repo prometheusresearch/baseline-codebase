@@ -2,7 +2,6 @@
  * @flow
  */
 
-import * as React from "react";
 import invariant from "invariant";
 import { type VariableDefinitionNode } from "graphql/language/ast";
 import {
@@ -54,6 +53,7 @@ export const buildSortableFieldObjects = ({
   );
 
   let sortableFieldObjects = [];
+  // eslint-disable-next-line no-unused-vars
   for (let name of sortableFieldNames) {
     let spec = fieldSpecs[name];
     if (spec == null || !spec.sortable) {

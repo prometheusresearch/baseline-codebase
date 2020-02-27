@@ -81,6 +81,7 @@ export function introspect<T: { [name: string]: Field.FieldConfig }>({
     queryDefinition.variableDefinitions.length > 0
   ) {
     variablesMap = new Map();
+    // eslint-disable-next-line no-unused-vars
     for (let variable of queryDefinition.variableDefinitions) {
       variablesMap.set(variable.variable.name.value, variable);
     }
@@ -110,6 +111,7 @@ export const buildQueryAST = (
   description: ?string,
 |} => {
   let typesMap: Map<string, introspection.IntrospectionType> = new Map();
+  // eslint-disable-next-line no-unused-vars
   for (let t of schema.types) {
     typesMap.set(t.name, t);
   }
@@ -166,6 +168,7 @@ export const makeSelectionSetFromQueryFieldSpec = (
   let selections = [];
 
   if (queryFieldSpec.require != null) {
+    // eslint-disable-next-line no-unused-vars
     for (let query of queryFieldSpec.require) {
       selections.push({
         kind: "Field",
@@ -192,6 +195,7 @@ export const makeSelectionSetFromSpec = (
 ): ast.SelectionSetNode => {
   let selections = [];
   if (fieldSpec.require.require != null) {
+    // eslint-disable-next-line no-unused-vars
     for (let obj of fieldSpec.require.require) {
       selections.push({
         kind: "Field",
@@ -229,6 +233,7 @@ export const buildSelectionSet = (
     let fieldSpecs: { [name: string]: Field.FieldSpec } = {};
 
     if (fieldSpecsRequested != null) {
+      // eslint-disable-next-line no-unused-vars
       for (let name in fieldSpecsRequested) {
         let fieldSpec = fieldSpecsRequested[name];
         fieldSpecsMap.set(fieldSpec.require.field, fieldSpec);
@@ -239,6 +244,7 @@ export const buildSelectionSet = (
         return fieldSpecsMap.get(field.name) || field.name === "id";
       });
     } else {
+      // eslint-disable-next-line no-unused-vars
       for (let field of type.fields) {
         if (!isFieldNodeScalarLike(field)) {
           continue;
@@ -264,6 +270,7 @@ export const buildSelectionSet = (
       ];
 
       let seen = new Set();
+      // eslint-disable-next-line no-unused-vars
       for (let name of COMMON_NAMES) {
         let spec = fieldSpecsMap.get(name);
         if (spec == null) {
@@ -273,6 +280,7 @@ export const buildSelectionSet = (
         seen.add(name);
       }
 
+      // eslint-disable-next-line no-unused-vars
       for (let spec of fieldSpecsMap.values()) {
         if (!seen.has(spec.require.field)) {
           fieldSpecs[spec.require.field] = spec;
@@ -283,8 +291,10 @@ export const buildSelectionSet = (
     const selections: ast.FieldNode[] = [];
     const inputValues: introspection.IntrospectionInputValue[] = [];
 
+    // eslint-disable-next-line no-unused-vars
     for (let field of fieldIntros) {
       let args = [];
+      // eslint-disable-next-line no-unused-vars
       for (let arg of field.args) {
         args.push(buildArgumentNode(arg));
         inputValues.push(arg);
@@ -322,6 +332,7 @@ export const buildSelectionSet = (
 
     const args = [];
     const inputValues = [];
+    // eslint-disable-next-line no-unused-vars
     for (let arg of field.args) {
       args.push(buildArgumentNode(arg));
       inputValues.push(arg);
@@ -441,20 +452,6 @@ function isFieldNodeScalarLike(field) {
   return (
     field.type.kind === "SCALAR" ||
     (field.type.kind === "NON_NULL" && field.type.ofType.kind === "SCALAR")
-  );
-}
-
-function isFieldNodeObjectLike(field) {
-  return (
-    field.type.kind === "OBJECT" ||
-    (field.type.kind === "NON_NULL" && field.type.ofType.kind === "OBJECT")
-  );
-}
-
-function isFieldNodeListLike(field) {
-  return (
-    field.type.kind === "LIST" ||
-    (field.type.kind === "NON_NULL" && field.type.ofType.kind === "LIST")
   );
 }
 

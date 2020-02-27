@@ -4,10 +4,8 @@
 import * as React from "react";
 
 import Grid from "@material-ui/core/Grid";
-import Table from "@material-ui/core/Table";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
@@ -17,9 +15,9 @@ import { type PickState } from "./PickRenderer";
 import * as Field from "./Field.js";
 import * as Filter from "./Filter.js";
 
-import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
+import { makeStyles, type Theme } from "@material-ui/styles";
 import { DEFAULT_THEME } from "./themes";
-import { isEmptyObject, capitalize } from "./helpers";
+import { isEmptyObject } from "./helpers";
 
 export const useFilterStyles = makeStyles((theme: Theme) => {
   if (theme.palette == null || isEmptyObject(theme)) {
@@ -66,11 +64,10 @@ const PickFilterToolbarBase = ({
     values?: Array<any>,
   }> = null;
   if (filterSpecs != null) {
-    if (filterSpecs.get(Filter.SORT_FIELD) != null) {
-      // $FlowFixMe
-      if (filtersSpecs.get(SORTING_VAR_NAME).render != null) {
-        // $FlowFixMe
-        CustomSortRenderer = (filtersSpecs.get(SORTING_VAR_NAME).render: any);
+    let sort = filterSpecs.get(Filter.SORT_FIELD);
+    if (sort != null) {
+      if (sort.render != null) {
+        CustomSortRenderer = sort.render;
       }
     }
   }

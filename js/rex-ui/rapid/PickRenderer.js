@@ -3,7 +3,6 @@
  */
 
 import * as React from "react";
-import { type VariableDefinitionNode } from "graphql/language/ast";
 
 import { makeStyles, type Theme } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
@@ -126,9 +125,6 @@ export type PickRendererProps<V, R> = {|
 
   ...PickRendererConfigProps,
 |};
-
-// TODO: We can make those constants -> props passed from component user
-export const SEARCH_VAR_NAME = "search";
 
 let usePickHeaderStyles = makeStyles(theme => ({
   root: {
@@ -302,9 +298,9 @@ export const PickRenderer = <V, R>({
     }));
   };
 
-  // Initialize search state if there's SEARCH_VAR_NAME
+  // TODO(andreypopp): move it to useState init
   React.useEffect(() => {
-    if (variablesSet != null && variablesSet.has(SEARCH_VAR_NAME)) {
+    if (variablesSet != null && variablesSet.has(Filter.SEARCH_FIELD)) {
       setState(state => ({
         ...state,
         search: "",

@@ -26,14 +26,7 @@ type Props = {
 };
 
 export let TimePicker = (props: Props) => {
-  let {
-    mode,
-    onMode,
-    selectedDate,
-    onSelectedDate,
-    viewDate,
-    onViewDate,
-  } = props;
+  let { mode, onMode, selectedDate, onSelectedDate } = props;
 
   let date = selectedDate != null ? selectedDate : Moment();
 

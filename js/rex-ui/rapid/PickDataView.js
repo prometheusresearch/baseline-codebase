@@ -19,7 +19,6 @@ import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
 import { type Endpoint } from "rex-graphql";
 import { type Resource, useResource } from "rex-graphql/Resource2";
-import _get from "lodash/get";
 
 import { ShowCard } from "./ShowRenderer.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
@@ -386,6 +385,7 @@ export const PickDataView = <V, R, O = *>({
 
   const columnsMap = new Map();
   const columnsNames = [];
+  // eslint-disable-next-line no-unused-vars
   for (let spec of fieldSpecs) {
     columnsMap.set(spec.name, spec);
     columnsNames.push(spec.name);

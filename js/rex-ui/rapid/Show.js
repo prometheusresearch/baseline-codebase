@@ -2,15 +2,11 @@
  * @flow
  */
 
-import invariant from "invariant";
 import * as React from "react";
 
 import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource2";
 
-import { introspect } from "./Introspection";
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import * as QueryPath from "./QueryPath.js";
 import { ShowRenderer, type ShowRendererConfigProps } from "./ShowRenderer.js";
 import * as Field from "./Field.js";
 import { ErrorBoundary } from "./ErrorBoundary";

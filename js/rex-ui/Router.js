@@ -197,6 +197,7 @@ export function make(
   };
 
   let onlyRoutes: Route[] = [];
+  // eslint-disable-next-line no-unused-vars
   for (let [_1, _2, route, _screen] of pairs) {
     onlyRoutes.push(route);
   }

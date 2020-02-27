@@ -4,7 +4,7 @@
  * @flow
  */
 
-import { type AbstractComponent, type ComponentType } from "react";
+import { type AbstractComponent } from "react";
 import { capitalize } from "./helpers.js";
 
 /**

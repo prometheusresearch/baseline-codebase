@@ -9,7 +9,6 @@ import * as React from "react";
 import { DayView, type RenderDay } from "./DayView";
 import { MonthView, type RenderMonth } from "./MonthView";
 import { YearView } from "./YearView";
-import * as Common from "./Common";
 
 export type DatePickerMode = "days" | "months" | "years";
 

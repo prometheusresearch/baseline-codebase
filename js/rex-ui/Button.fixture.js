@@ -1,6 +1,5 @@
 // @flow
 
-import * as React from "react";
 import * as Fixture from "./Fixture";
 import { Button } from "./Button";
 

@@ -3,10 +3,9 @@
  */
 
 import * as React from "react";
-import invariant from "invariant";
 import classNames from "classnames";
 
-import { makeStyles, useTheme } from "../Theme.js";
+import { makeStyles } from "../Theme.js";
 
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -18,7 +17,6 @@ import { type Endpoint } from "rex-graphql";
 import { type Resource, useResource } from "rex-graphql/Resource2";
 import { RenderValue } from "./RenderValue.js";
 import * as Field from "./Field.js";
-import * as QueryPath from "./QueryPath.js";
 
 export type ShowRenderTitle = React.AbstractComponent<{| data: any |}>;
 
@@ -164,6 +162,7 @@ export let ShowCard = ({
   let classes = useStyles();
 
   let content = [];
+  // eslint-disable-next-line no-unused-vars
   for (let spec of fieldSpecs) {
     let value = data[spec.name];
     content.push(

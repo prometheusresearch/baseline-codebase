@@ -7,7 +7,7 @@ import * as React from "react";
 import * as mui from "@material-ui/core";
 import * as styles from "@material-ui/styles";
 import { fade } from "@material-ui/core/styles/colorManipulator";
-import { useTheme, type Theme } from "./Theme.js";
+import { type Theme } from "./Theme.js";
 import { type Props, ButtonIcon } from "./Button";
 
 let useStyles = styles.makeStyles((theme: Theme) => {
@@ -46,7 +46,6 @@ let useStyles = styles.makeStyles((theme: Theme) => {
 });
 
 export let SuccessButton = (props: Props) => {
-  let theme = useTheme();
   let { icon, children, size, ...rest } = props;
   let classes = useStyles();
   return (

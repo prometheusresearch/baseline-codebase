@@ -2,16 +2,12 @@
  * @flow
  */
 
-import invariant from "invariant";
 import * as React from "react";
 
 import { type Endpoint } from "rex-graphql";
 import * as Resource from "rex-graphql/Resource2";
 import * as mui from "@material-ui/core";
 
-import { introspect } from "./Introspection";
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
 
 export type ListProps<V, R, O = *> = {|
@@ -69,7 +65,7 @@ function ListRenderer<V, R>({
   selected,
   onSelected,
 }: ListRendererProps<V, R>) {
-  let [isFetching, resourceData] = Resource.useResource(
+  let [_isFetching, resourceData] = Resource.useResource(
     endpoint,
     resource,
     params,

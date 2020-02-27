@@ -47,3 +47,4 @@ export const configureFilters = (
 
 export const NO_VALUE = "undefined";
 export const SORT_FIELD = "sort";
+export const SEARCH_FIELD = "search";

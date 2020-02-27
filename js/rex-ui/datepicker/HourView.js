@@ -6,10 +6,8 @@
 
 import type Moment from "moment";
 import * as React from "react";
-import * as icons from "@material-ui/icons";
 import * as mui from "@material-ui/core";
 import * as Common from "./Common";
-import * as rexui from "rex-ui";
 
 let Hour = ({ hour, onClick }) => {
   let handleClick = () => {
@@ -32,7 +30,6 @@ type Props = {|
 
 export let HourView = (props: Props) => {
   let { selectedDate, onSelectedDate, onClose } = props;
-  let theme = rexui.useTheme();
   let onHourClick = hour => {
     onSelectedDate(selectedDate.hours(hour));
     onClose();

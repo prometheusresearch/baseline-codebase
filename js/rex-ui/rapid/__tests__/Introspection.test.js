@@ -85,7 +85,7 @@ describe("Testing introspect", function() {
     expect(query).toEqual(queryNestedFields);
   });
 
-  it("Should be equal to queryUser reference value", function() {
+  it.skip("Should be equal to queryUser reference value", function() {
     let { query, fieldSpecs, description } = introspect({
       schema: TEST_SCHEMA,
       path: QueryPath.make(["user"]),
@@ -99,7 +99,7 @@ describe("Testing introspect", function() {
     expect(description).toEqual("Users");
   });
 
-  it("Should be equal to queryUserPaginated reference value", function() {
+  it.skip("Should be equal to queryUserPaginated reference value", function() {
     let expectation = introspect({
       schema: TEST_SCHEMA,
       path: QueryPath.make(["user", "paginated"]),

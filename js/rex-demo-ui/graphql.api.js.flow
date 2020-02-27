@@ -25,10 +25,10 @@ export type Enum_186cea82 = mixed;
 
 export type user_x_site_role = "admin" | "user";
 
-export type sort_user_direction = {
-  field: ?sort_user_field,
-  desc: ?boolean,
-};
+export type sort_user_direction = {|
+  field?: ?sort_user_field,
+  desc?: ?boolean,
+|};
 
 export type sort_user_field = "remote_user" | "expires";
 

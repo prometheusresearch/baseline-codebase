@@ -19,9 +19,6 @@ export type PickProps<V: { [key: string]: any }, R, O = *> = {|
   variablesSet: Set<string>,
   fields: Array<Field.FieldConfig<$Keys<O>>>,
   filters?: ?Array<Filter.FilterConfig<$Keys<V>>>,
-  //TODO(vladimir.khapalov): do we need to use it like
-  // filters?: ?Array<Filter.FilterConfig<$Keys<V>>>
-  // if yes then we have to mention that V is an object
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   ...PickRendererConfigProps,
 |};

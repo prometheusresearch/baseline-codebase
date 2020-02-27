@@ -1,4 +1,6 @@
 /**
+ * This describes field configuration.
+ *
  * @flow
  */
 

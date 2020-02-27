@@ -24,7 +24,7 @@ export type ShowScreen<V, R, O: { id: mixed } = *> = {|
 |};
 
 // TODO(andreypopp): check if * usage is ok here
-export type PickScreen<V, R, O: { id: mixed } = *> = {|
+export type PickScreen<V: { [key: string]: any }, R, O: { id: mixed } = *> = {|
   type: "pick",
   title: string,
   resource: Resource<V, R>,
@@ -32,7 +32,7 @@ export type PickScreen<V, R, O: { id: mixed } = *> = {|
   variablesSet: Set<string>,
   fields: Rapid.FieldConfig<$Keys<O>>[],
   description?: string,
-  filters?: ?(Rapid.PickFilterConfig[]),
+  filters?: ?Array<Rapid.PickFilterConfig<$Keys<V>>>,
   sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   onSelect?: (id: string) => [Route, Params],
   RenderToolbar?: Rapid.PickRenderToolbar,
@@ -44,7 +44,9 @@ export type CustomScreen = {|
   Render: React.AbstractComponent<{| params: Object |}>,
 |};
 
-export function pickScreen<V, R>(screen: PickScreen<V, R>): Screen {
+export function pickScreen<V: { [key: string]: any }, R>(
+  screen: PickScreen<V, R>,
+): Screen {
   return screen;
 }
 

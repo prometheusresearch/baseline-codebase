@@ -131,7 +131,9 @@ def schema(
             loc=None,
         )
     else:
-        mutation_type = None
+        mutation_type = desc.Object(
+            name="Mutations", fields=lambda: {}, description=None, loc=None
+        )
 
     types = {}
 

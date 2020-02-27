@@ -2,89 +2,85 @@
  * @flow
  */
 
-import invariant from "invariant";
 import * as React from "react";
 
 import { type Endpoint } from "rex-graphql";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 import * as mui from "@material-ui/core";
 
-import { introspect } from "./Introspection";
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import * as QueryPath from "./QueryPath.js";
 import * as Field from "./Field.js";
 
-export type ListProps = {|
+export type ListProps<V, R, O = *> = {|
   endpoint: Endpoint,
-  fetch: string,
-  primaryTextField: Field.FieldConfig,
-  id: string[],
+  resource: Resource.Resource<V, R>,
+  getRows: R => Array<O>,
+  primaryTextField: Field.FieldConfig<$Keys<O>>,
+  params: V,
   selected?: Set<string>,
   onSelected?: (Set<string>) => void,
 |};
 
-export function List(props: ListProps) {
-  let { fetch, endpoint, primaryTextField, id, selected, onSelected } = props;
-  let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
+export function List<V, R>(props: ListProps<V, R>) {
+  let {
+    endpoint,
+    resource,
+    getRows,
+    primaryTextField,
+    params,
+    selected,
+    onSelected,
+  } = props;
 
-  let { resource, path, fieldSpecs } = React.useMemo(() => {
-    let path = QueryPath.make(fetch);
-    let { query, fieldSpecs } = introspect({
-      schema,
-      path,
-      fields: {
-        id: "id",
-        primaryText: primaryTextField,
-      },
-    });
-    let resource = Resource.defineQuery<void, any>({ endpoint, query });
-    return { path, resource, fieldSpecs };
-  }, [fetch, endpoint, schema, primaryTextField]);
+  let primaryTextFieldSpec = Field.configureField(primaryTextField);
 
   return (
     <ListRenderer
-      path={path}
+      endpoint={endpoint}
       resource={resource}
-      fieldSpecs={fieldSpecs}
-      id={id}
+      getRows={getRows}
+      primaryTextFieldSpec={primaryTextFieldSpec}
+      params={params}
       selected={selected}
       onSelected={onSelected}
     />
   );
 }
 
-type ListRendererProps = {|
-  path: QueryPath.QueryPath,
-  resource: Resource.Resource<any, any>,
-  fieldSpecs: { id: Field.FieldSpec, primaryText: Field.FieldSpec },
-  id: string[],
+type ListRendererProps<V, R, O = *> = {|
+  endpoint: Endpoint,
+  resource: Resource.Resource<V, R>,
+  getRows: R => O,
+  primaryTextFieldSpec: Field.FieldSpec,
+  params: V,
   selected?: Set<string>,
   onSelected?: (Set<string>) => void,
 |};
 
-function ListRenderer({
-  path,
+function ListRenderer<V, R>({
+  endpoint,
   resource,
-  fieldSpecs,
-  id,
+  getRows,
+  primaryTextFieldSpec,
+  params,
   selected,
   onSelected,
-}: ListRendererProps) {
-  let data = Resource.unstable_useResource(resource, { id: id });
-
-  for (let key of QueryPath.toArray(path)) {
-    if (data == null) {
-      break;
-    }
-    data = data[key];
-  }
+}: ListRendererProps<V, R>) {
+  let [_isFetching, resourceData] = Resource.useResource(
+    endpoint,
+    resource,
+    params,
+  );
 
   let RenderPrimaryText = React.useCallback(
-    props => {
-      return props.item[fieldSpecs.primaryText.require.field];
-    },
-    [fieldSpecs.primaryText],
+    props => props.item[primaryTextFieldSpec.name],
+    [primaryTextFieldSpec],
   );
+
+  if (resourceData == null) {
+    return null;
+  }
+
+  let data = getRows(resourceData);
 
   return (
     <ListOfData

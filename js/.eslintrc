@@ -1,6 +1,16 @@
 {
   "root": true,
   "extends": "react-app",
+  "rules": {
+    "no-unused-vars": [
+      "warn",
+      {
+        "args": "none",
+        "ignoreRestSiblings": true,
+        "varsIgnorePattern": "^_"
+      }
+    ],
+  },
   "ignorePatterns": [
     "/node_modules",
     "/*/node_modules",
@@ -263,15 +273,15 @@
         "rex-ui/**/*.js"
       ],
       "rules": {
-        "no-unused-vars": "off",
-        "no-unused-expressions": "off",
-        "no-use-before-define": "off",
-        "no-undef": "off",
-        "default-case": "off",
-        "eqeqeq": "off",
-        "react-hooks/exhaustive-deps": "off",
-        "react-hooks/rules-of-hooks": "off",
-        "import/first": "off"
+        "no-use-before-define": "off"
+      }
+    },
+    {
+      "files": [
+        "rex-ui/**/*.fixture.js"
+      ],
+      "rules": {
+        "react-hooks/rules-of-hooks": "off"
       }
     },
     {

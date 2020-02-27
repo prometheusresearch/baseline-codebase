@@ -4,81 +4,61 @@
 
 import * as React from "react";
 
-import { useQuery, type Endpoint, type Result } from "rex-graphql";
-import * as Resource from "rex-graphql/Resource";
+import { type Endpoint } from "rex-graphql";
+import * as Resource from "rex-graphql/Resource2";
 
-import * as QueryPath from "./QueryPath.js";
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import { introspect } from "./Introspection";
 import { PickRenderer, type PickRendererConfigProps } from "./PickRenderer.js";
 import * as Field from "./Field.js";
+import * as Filter from "./Filter.js";
 import { ErrorBoundary } from "./ErrorBoundary.js";
-import { buildSortingConfig } from "./buildSortingConfig.js";
 
-export type PickProps = {|
+export type PickProps<V: { [key: string]: any }, R, O = *> = {|
   endpoint: Endpoint,
-  fields?: ?{ [name: string]: Field.FieldConfig },
-  args?: { [key: string]: any },
-  filters?: ?Array<Field.FilterConfig>,
+  resource: Resource.Resource<V, R>,
+  getRows: R => Array<O>,
+  variablesSet: Set<string>,
+  fields: Array<Field.FieldConfig<$Keys<O>>>,
+  filters?: ?Array<Filter.FilterConfig<$Keys<V>>>,
+  sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   ...PickRendererConfigProps,
 |};
 
-export let PickBase = (props: PickProps) => {
-  let { endpoint, fields, fetch, filters, ...rest } = props;
-  let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
-
+export let PickBase = <V: { [key: string]: any }, R>(
+  props: PickProps<V, R>,
+) => {
   let {
+    endpoint,
+    fields,
+    filters,
     resource,
-    fieldSpecs,
-    filterSpecs,
-    description: fieldDescription,
+    getRows,
+    variablesSet,
     sortingConfig,
-    variablesMap,
-  } = React.useMemo(() => {
-    let path = QueryPath.make(fetch);
-    let {
-      query,
-      fieldSpecs,
-      description,
-      filterSpecs,
-      sortingConfig,
-      variablesMap,
-    } = introspect({
-      schema,
-      path,
-      fields,
-      filters,
-    });
-    let resource = Resource.defineQuery({ query, endpoint });
-    return {
-      resource,
-      fieldSpecs,
-      filterSpecs,
-      description,
-      sortingConfig,
-      variablesMap,
-    };
-  }, [fetch, schema, endpoint, filters]);
+    ...rest
+  } = props;
 
   let [selected, setSelected] = React.useState(new Set());
+
+  let fieldSpecs = Field.configureFields(fields);
+  let filterSpecs = Filter.configureFilters(filters);
 
   return (
     <PickRenderer
       {...rest}
+      endpoint={endpoint}
       selected={selected}
       onSelected={setSelected}
-      fetch={fetch}
+      fieldSpecs={fieldSpecs}
       filterSpecs={filterSpecs}
       resource={resource}
-      variablesMap={variablesMap}
-      fieldSpecs={fieldSpecs}
-      fieldDescription={fieldDescription}
+      getRows={getRows}
+      variablesSet={variablesSet}
       sortingConfig={sortingConfig}
     />
   );
 };
 
-export let Pick = (props: PickProps) => (
+export let Pick = <V: { [key: string]: any }, R>(props: PickProps<V, R>) => (
   <ErrorBoundary>
     <PickBase {...props} />
   </ErrorBoundary>

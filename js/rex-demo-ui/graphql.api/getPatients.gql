@@ -1,0 +1,9 @@
+query getPatients($offset: Int, $limit: Int) {
+  patient {
+    paginated(offset: $offset, limit: $limit) {
+      id
+      name
+      date_of_birth
+    }
+  }
+}

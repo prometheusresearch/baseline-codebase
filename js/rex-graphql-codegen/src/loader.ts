@@ -12,7 +12,6 @@ import {
 import { plugin as generate, Config } from "./index";
 import { loadDocuments } from "./loadDocuments";
 import { loadSchema } from "./loadSchema";
-import promisifyWithContext from "./promisifyWithContext";
 
 type EmitError = (error: Error | GraphQLError) => void;
 
@@ -28,8 +27,6 @@ type WebpackLoaderContext = {
 
 async function process(ctx: WebpackLoaderContext, source: string) {
   ctx.cacheable();
-
-  let stat = promisifyWithContext(ctx.fs.stat, ctx.fs);
 
   let { dir, name } = path.parse(ctx.resource);
   let docsPath = path.join(dir, name);
@@ -66,7 +63,9 @@ function getConfig(source: string): Config {
   let config: Config = {};
   let m: RegExpExecArray;
   while ((m = parser.exec(source)) != null) {
-    config[m[1]] = m[2];
+    let key = m[1];
+    let value = key === "generateVariablesSet" ? m[2] === "true" : m[2];
+    config[key] = value;
   }
   return config;
 }

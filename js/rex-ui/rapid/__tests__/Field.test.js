@@ -2,7 +2,11 @@
  * @flow
  */
 
-import { configureField, configureFilters, guessFieldTitle } from "../Field";
+import {
+  configureField,
+  configureFilters,
+  guessFieldTitle,
+} from "../FieldLegacy.js";
 
 describe("Testing guessFieldTitle function", function() {
   it("Should be equal to reference value after processing", function() {

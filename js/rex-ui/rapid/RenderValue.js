@@ -2,8 +2,6 @@
  * @flow
  */
 
-import * as React from "react";
-
 export let RenderValue = ({ value }: {| value: any |}) => {
   switch (value) {
     case undefined:

@@ -11,9 +11,11 @@ import * as mui from "@material-ui/core";
 import * as Common from "./Common";
 
 let Year = props => {
-  let { year, outOfRange, active, onClick, disabled } = props;
+  let { year, active, onClick, disabled } = props;
   let handleClick = () => {
-    disabled ? null : onClick(props.year);
+    if (!disabled) {
+      onClick(props.year);
+    }
   };
 
   // dimmed={outOfRange}

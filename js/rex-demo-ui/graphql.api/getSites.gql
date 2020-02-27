@@ -1,0 +1,9 @@
+query getSites($offset: Int, $limit: Int) {
+  site {
+    paginated(offset: $offset, limit: $limit) {
+      id
+      title
+      code
+    }
+  }
+}

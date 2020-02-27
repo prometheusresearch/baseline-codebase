@@ -1,0 +1,8 @@
+query getAllSites {
+  site {
+    all {
+      id
+      title
+    }
+  }
+}

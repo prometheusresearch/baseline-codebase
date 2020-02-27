@@ -7,16 +7,13 @@ import AddBoxIcon from "@material-ui/icons/AddBox";
 import { Select, List, LoadingIndicator } from "rex-ui/rapid";
 import { Button } from "rex-ui/Button";
 import * as Router from "rex-ui/Router";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 import * as API from "./API.js";
 import * as routes from "./index.js";
 
 let phoneField = {
+  name: "phone",
   title: "Phone",
-  require: {
-    field: "phone",
-    require: [{ field: "value" }],
-  },
   render({ value }) {
     return value != null ? <div>tel: {value.value}</div> : "—";
   },
@@ -39,28 +36,41 @@ function ShowOnlyAdminsFilter(props) {
   );
 }
 
-export let screen: Router.PickScreen = {
+export let screen = Router.pickScreen<
+  API.getUsersVariables,
+  API.getUsersResult,
+>({
   type: "pick",
-  fetch: "user.paginated",
+  resource: API.getUsers,
+  getRows: data => data.user.paginated,
+  variablesSet: API.getUsersVariablesSet,
   title: "Users",
   description: "List of users",
-  fields: {
-    remote_user: {
-      require: { field: "remote_user" },
+  fields: [
+    {
+      name: "remote_user",
       sortable: false,
       width: 256,
     },
-    phone: phoneField,
-    expires: "expires",
-    expired: "expired",
-    system_admin: {
-      require: { field: "system_admin" },
-    },
-  },
+    phoneField,
+    "expires",
+    "expired",
+    "system_admin",
+  ],
   filters: [
     {
       name: "system_admin",
       render: ShowOnlyAdminsFilter,
+    },
+  ],
+  sortingConfig: [
+    {
+      desc: true,
+      field: "expires",
+    },
+    {
+      desc: false,
+      field: "expires",
     },
   ],
   RenderToolbar: props => {
@@ -68,7 +78,7 @@ export let screen: Router.PickScreen = {
     if (props.selected.size > 0) {
       caption = `Selected ${props.selected.size} users`;
     }
-    let disabled = props.selected.size === 0;
+    // let disabled = props.selected.size === 0;
     return (
       <>
         <mui.Typography variant="caption">{caption}</mui.Typography>
@@ -86,12 +96,12 @@ export let screen: Router.PickScreen = {
     );
   },
   onSelect: id => [routes.showUser, { id }],
-};
+});
 
 function RemoveAction({ selected, onSelected }) {
   let onClick = () => {
     let userIds = [...selected];
-    Resource.perform(API.removeUser, { userIds }).then(() => {
+    Resource.perform(API.endpoint, API.removeUser, { userIds }).then(() => {
       onSelected(new Set());
     });
   };
@@ -115,10 +125,15 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
       return;
     }
     let userIds = [...selected];
-    Resource.perform(API.addUserToSite, { userIds, siteId: site }).then(() => {
+    Resource.perform(API.endpoint, API.addUserToSite, {
+      userIds,
+      siteId: site,
+    }).then(() => {
       onClose(true);
     });
   };
+  let getSelectRows = (r: API.getAllSitesResult) => r.site.all;
+  let getListRows = (r: API.getManyUsersResult) => r.user.get_many;
   return (
     <React.Suspense fallback={<LoadingIndicator />}>
       <mui.DialogTitle>Add users to a site</mui.DialogTitle>
@@ -129,7 +144,8 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
           </mui.DialogContentText>
           <Select
             endpoint={API.endpoint}
-            fetch="site.all"
+            resource={API.getAllSites}
+            getRows={getSelectRows}
             labelField="title"
             value={site}
             onValue={setSite}
@@ -141,8 +157,9 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
           </mui.DialogContentText>
           <List
             endpoint={API.endpoint}
-            fetch="user.get_many"
-            id={[...initialSelected]}
+            resource={API.getManyUsers}
+            getRows={getListRows}
+            params={{ id: [...initialSelected] }}
             primaryTextField="remote_user"
             selected={selected}
             onSelected={setSelected}
@@ -166,7 +183,6 @@ function AddToSiteActionDialog({ selected: initialSelected, onClose }) {
 }
 
 function AddToSiteAction({ selected, onSelected }) {
-  let [site, setSite] = React.useState(null);
   let [open, setOpen] = React.useState(false);
   let onClose = done => {
     if (done) {

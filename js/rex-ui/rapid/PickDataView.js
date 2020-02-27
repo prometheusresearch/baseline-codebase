@@ -4,30 +4,21 @@
 
 import * as React from "react";
 
-import { type VariableDefinitionNode } from "graphql/language/ast";
-
 import Typography from "@material-ui/core/Typography";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Table from "@material-ui/core/Table";
-import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import TableBody from "@material-ui/core/TableBody";
 import TableHead from "@material-ui/core/TableHead";
-import TextField from "@material-ui/core/TextField";
-import FormGroup from "@material-ui/core/FormGroup";
-import InputLabel from "@material-ui/core/InputLabel";
 import Grid from "@material-ui/core/Grid";
 
 import SwapVertIcon from "@material-ui/icons/SwapVert";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
-import {
-  type Resource,
-  unstable_useResource as useResource,
-} from "rex-graphql/Resource";
-import _get from "lodash/get";
+import { type Endpoint } from "rex-graphql";
+import { type Resource, useResource } from "rex-graphql/Resource2";
 
 import { ShowCard } from "./ShowRenderer.js";
 import { type PickRendererConfigProps } from "./PickRenderer.js";
@@ -36,7 +27,7 @@ import * as Field from "./Field.js";
 import { type PickState } from "./PickRenderer";
 import { LoadingIndicator } from "./LoadingIndicator";
 
-import { makeStyles, type Theme, useTheme } from "@material-ui/styles";
+import { makeStyles, type Theme } from "@material-ui/styles";
 import { DEFAULT_THEME } from "./themes";
 import { isEmptyObject, capitalize } from "./helpers";
 
@@ -116,14 +107,14 @@ const useDataViewStyles = makeStyles((theme: Theme) => {
 const PickNoDataPlaceholder = ({
   fieldSpecs,
 }: {
-  fieldSpecs: { [name: string]: Field.FieldSpec },
+  fieldSpecs: Field.FieldSpec[],
 }) => {
   let classes = useDataViewStyles();
 
   return (
     <TableBody>
       <TableRow>
-        <TableCell colSpan={Object.keys(fieldSpecs).length + 1}>
+        <TableCell colSpan={fieldSpecs.length + 1}>
           <div className={classes.center}>
             <Typography variant={"caption"}>No data</Typography>
           </div>
@@ -139,11 +130,9 @@ const PickCardListView = ({
   onClick,
 }: {|
   data: Array<any>,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
+  fieldSpecs: Field.FieldSpec[],
   onClick?: (row: any) => void,
 |}) => {
-  const classes = useDataViewStyles();
-
   return (
     <Grid container>
       {data.map((row, index) => {
@@ -171,9 +160,8 @@ const PickCardListView = ({
   );
 };
 
-const PickTableBody = ({
+const PickTableBody = <V, R>({
   fieldSpecs,
-  sortingConfig,
   setSortingState,
   RenderColumnCell,
   RenderRow,
@@ -183,23 +171,24 @@ const PickTableBody = ({
   columnsNames,
   columnsMap,
   pickState,
+  endpoint,
   resource,
-  fetch,
+  getRows,
   onDataReceive,
   setTableFullHeight,
   selected,
   onSelected,
   showAs,
 }: {|
-  fieldSpecs: { [name: string]: Field.FieldSpec },
-  sortingConfig: ?Array<{| desc: boolean, field: string |}>,
+  fieldSpecs: Field.FieldSpec[],
   setSortingState: (value: string) => void,
   isTabletWidth: boolean,
   columnsNames: string[],
   columnsMap: Map<string, Field.FieldSpec>,
   pickState: PickState,
-  resource: Resource<any, any>,
-  fetch: string,
+  endpoint: Endpoint,
+  resource: Resource<V, R>,
+  getRows: R => Array<any>,
   onDataReceive: any => void,
   setTableFullHeight: (is: boolean) => void,
 
@@ -213,15 +202,14 @@ const PickTableBody = ({
   const params = buildParams(pickState);
 
   setTableFullHeight(true);
-  const resourceData = useResource(resource, params);
+  const [, resourceData] = useResource(endpoint, resource, (params: any));
   setTableFullHeight(false);
 
-  if (resourceData == null) {
-    return null;
-  }
-
   const data = React.useMemo(() => {
-    const data = _get(resourceData, fetch);
+    if (resourceData == null) {
+      return [];
+    }
+    const data = getRows(resourceData);
     /**
      * Used for pagination to have idea if received date length equal to limit
      * to know if incremention of page is allowed
@@ -230,7 +218,7 @@ const PickTableBody = ({
     const dataTrimmed =
       data.length < pickState.limit ? data : data.slice(0, data.length - 1);
     return dataTrimmed;
-  }, [resourceData, fetch, onDataReceive, pickState]);
+  }, [getRows, resourceData, onDataReceive, pickState]);
 
   if (data.length === 0) {
     return <PickNoDataPlaceholder fieldSpecs={fieldSpecs} />;
@@ -340,12 +328,13 @@ const buildParams = (pickState: PickState) => {
   return params;
 };
 
-export const PickDataView = ({
+export const PickDataView = <V, R, O = *>({
   onDataReceive: _onDataReceive,
   args,
+  endpoint,
   resource,
+  getRows,
   fieldSpecs,
-  fetch,
   isTabletWidth,
   sortingConfig,
   setSortingState,
@@ -358,9 +347,11 @@ export const PickDataView = ({
   selected,
   onSelected,
 }: {|
-  resource: Resource<any, any>,
+  endpoint: Endpoint,
+  resource: Resource<V, R>,
+  getRows: R => Array<O>,
   onDataReceive: any => any,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
+  fieldSpecs: Array<Field.FieldSpec>,
   args?: { [key: string]: any },
   isTabletWidth: boolean,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
@@ -390,14 +381,14 @@ export const PickDataView = ({
     if (wrapperRef.current != null) {
       wrapperRef.current.scrollTop = 0;
     }
-  }, [state]);
+  }, [state, wrapperRef]);
 
   const columnsMap = new Map();
   const columnsNames = [];
-  for (let name in fieldSpecs) {
-    let spec = fieldSpecs[name];
-    columnsMap.set(spec.require.field, spec);
-    columnsNames.push(spec.require.field);
+  // eslint-disable-next-line no-unused-vars
+  for (let spec of fieldSpecs) {
+    columnsMap.set(spec.name, spec);
+    columnsNames.push(spec.name);
   }
 
   const TableHeadRows = columnsNames.map((columnName, index) => {
@@ -513,7 +504,7 @@ export const PickDataView = ({
           fallback={
             <TableBody>
               <TableRow>
-                <TableCell colSpan={Object.keys(fieldSpecs).length + 1}>
+                <TableCell colSpan={fieldSpecs.length + 1}>
                   <div className={classes.center}>
                     <LoadingIndicator />
                   </div>
@@ -525,15 +516,15 @@ export const PickDataView = ({
           <PickTableBody
             pickState={state}
             onDataReceive={onDataReceive}
+            endpoint={endpoint}
             resource={resource}
+            getRows={getRows}
             fieldSpecs={fieldSpecs}
-            sortingConfig={sortingConfig}
             setSortingState={setSortingState}
             RenderColumnCell={RenderColumnCell}
             RenderRow={RenderRow}
             RenderRowCell={RenderRowCell}
             onRowClick={onRowClick}
-            fetch={fetch}
             isTabletWidth={isTabletWidth}
             columnsMap={columnsMap}
             columnsNames={columnsNames}

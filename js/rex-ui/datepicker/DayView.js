@@ -6,7 +6,6 @@
 
 import Moment from "moment";
 import * as mui from "@material-ui/core";
-import * as icons from "@material-ui/icons";
 import * as React from "react";
 import * as Common from "./Common";
 
@@ -39,7 +38,7 @@ export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
     if (onClick != null && !disabled) {
       onClick(date);
     }
-  }, [onClick, disabled]);
+  }, [onClick, disabled, date]);
 
   let activeStyle = Common.useActiveColors();
 
@@ -50,7 +49,7 @@ export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
       opacity: disabled ? 0.5 : 1,
       cursor: disabled ? "not-allowed" : "pointer",
     }),
-    [active],
+    [active, activeStyle.backgroundColor, disabled],
   );
 
   let textStyle = React.useMemo(
@@ -58,7 +57,7 @@ export let Day = (props: {| ...DayPropsBase, disabled?: boolean |}) => {
       color: active ? activeStyle.color : outOfRange ? "#AAA" : "#222",
       fontWeight: active || (showToday && today) ? "900" : undefined,
     }),
-    [active, outOfRange, showToday, today],
+    [active, outOfRange, showToday, today, activeStyle.color],
   );
 
   return (
@@ -101,13 +100,13 @@ export let DayView = (props: DayViewProps) => {
     maxDate,
   } = props;
 
-  let onNextMonth = () => {
+  let onNextMonth = React.useCallback(() => {
     onViewDate(viewDate.clone().add(1, "months"));
-  };
+  }, [onViewDate, viewDate]);
 
-  let onPrevMonth = () => {
+  let onPrevMonth = React.useCallback(() => {
     onViewDate(viewDate.clone().subtract(1, "months"));
-  };
+  }, [onViewDate, viewDate]);
 
   let cells = React.useMemo(() => {
     const today = Moment();
@@ -166,7 +165,15 @@ export let DayView = (props: DayViewProps) => {
     }
 
     return rows;
-  }, [selectedDate, viewDate, showToday, onSelectedDate]);
+  }, [
+    selectedDate,
+    viewDate,
+    showToday,
+    onSelectedDate,
+    maxDate,
+    minDate,
+    renderDay,
+  ]);
 
   let toolbarElement = React.useMemo(() => {
     let title = (
@@ -185,11 +192,6 @@ export let DayView = (props: DayViewProps) => {
   }, [viewDate, onPrevMonth, onNextMonth, showMonths]);
 
   let weekDaysElement = React.useMemo(() => {
-    let weekDayStyle = {
-      fontFamily: "inherit",
-      textAlign: "center",
-      padding: 5,
-    };
     let render = day => (
       <mui.Typography
         display="block"

@@ -51,7 +51,6 @@ type InputProps = {|
 
 export let Input = React.forwardRef<InputProps, HTMLElement>((props, ref) => {
   let { inputRef = noopRef, ...other } = props;
-  let classes = useStyles();
 
   return (
     <mui.Input

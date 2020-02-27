@@ -5,7 +5,6 @@
  */
 
 import type Moment from "moment";
-import * as icons from "@material-ui/icons";
 import * as mui from "@material-ui/core";
 import * as React from "react";
 import * as Common from "./Common";

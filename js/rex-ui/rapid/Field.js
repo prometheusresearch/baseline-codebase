@@ -1,101 +1,69 @@
 /**
+ * This describes field configuration.
+ *
  * @flow
  */
 
-import { type AbstractComponent, type ComponentType } from "react";
-import { type VariableDefinitionNode } from "graphql/language/ast";
+import { type AbstractComponent } from "react";
 import { capitalize } from "./helpers.js";
 
-/** Configure visual fields (columns in a table, fields in a card) */
-export type FieldConfig =
-  | string
+/**
+ * This configures how we render fields in pick/show screens.
+ */
+export type FieldConfig<+T = string> =
+  /** Render field in default configuration. */
+  | T
+  /** Specify field rendering configuration. */
   | {|
-      require: QueryFieldSpec,
-      sortable?: boolean,
-      title?: string,
-      render?: AbstractComponent<{ value: any }>,
-      width?: number,
+      +name: T,
+      +title?: string,
+      +sortable?: boolean,
+      +render?: AbstractComponent<{ value: any }>,
+      +width?: number,
     |};
 
-export type FieldSpec = {
-  /**
-   * TODO: Maybe change to prevent things like:
-   * "specName.require.require" -> "specName.subfields.require"
-   */
+export opaque type FieldSpec: {
+  name: string,
   title: string,
-  require: QueryFieldSpec,
-  sortable?: boolean,
-  render?: AbstractComponent<{ value: any }>,
-  width?: number,
-};
-
-export type QueryFieldSpec = {|
-  field: string,
-  require?: QueryFieldSpec[],
+  sortable: boolean,
+  render: ?AbstractComponent<{ value: any }>,
+  width: ?number,
+} = {|
+  name: string,
+  title: string,
+  sortable: boolean,
+  render: ?AbstractComponent<{ value: any }>,
+  width: ?number,
 |};
 
-export type FilterConfig =
-  | string
-  | {
-      name: string,
-      render?: AbstractComponent<{
-        value: any,
-        values?: Array<any>,
-        onChange: (newValue: any) => void,
-      }>,
-    };
-
-export type FilterSpec = {|
-  render: ?ComponentType<{
-    value: any,
-    values?: Array<any>,
-    onChange: (newValue: any) => void,
-  }>,
-|};
-
-export type FilterSpecMap = Map<string, FilterSpec>;
-
-export type FiltersConfig = FilterConfig[];
-
-export type VariableDefinition = VariableDefinitionNode;
-
-export function configureField(config: FieldConfig): FieldSpec {
+export function configureField(config: FieldConfig<>): FieldSpec {
   switch (typeof config) {
     case "string": {
       return {
+        name: config,
         title: guessFieldTitle(config),
-        require: {
-          field: config,
-          require: [],
-        },
-        // Allow sorting by default for string fields
         sortable: true,
+        render: null,
+        width: null,
       };
     }
 
     default: {
       return {
-        title: config.title || guessFieldTitle(config.require.field),
-        require: config.require,
+        name: config.name,
+        title: config.title || guessFieldTitle(config.name),
         render: config.render,
         width: config.width,
-        sortable: config.sortable,
+        sortable: config.sortable || false,
       };
     }
   }
 }
 
-export function configureFields<T: { [name: string]: FieldConfig }>(
-  configs: ?T,
-): ?$ObjMap<T, <V>(V) => FieldSpec> {
-  if (configs == null) {
-    return null;
-  }
-  let specs = {};
-  for (let name in configs) {
-    specs[name] = configureField(configs[name]);
-  }
-  return specs;
+export function configureFields(
+  configs: Array<FieldConfig<>>,
+): Array<FieldSpec> {
+  return configs.map(c => configureField(c));
 }
 
 export function guessFieldTitle(field: string) {
@@ -111,23 +79,3 @@ export function guessFieldTitle(field: string) {
         .join(" ");
   }
 }
-
-export const configureFilters = (configs?: ?FiltersConfig): ?FilterSpecMap => {
-  if (configs == null || configs.length === 0) {
-    return null;
-  }
-  let SpecMap: FilterSpecMap = new Map();
-
-  for (let config of configs) {
-    if (typeof config === "string") {
-      SpecMap.set(config, { render: null });
-    } else if (typeof config === "object") {
-      SpecMap.set(config.name, { render: config.render });
-    }
-  }
-
-  return SpecMap;
-};
-
-export const FILTER_NO_VALUE = "undefined";
-export const SORTING_VAR_NAME = "sort";

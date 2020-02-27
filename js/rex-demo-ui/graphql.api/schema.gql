@@ -1,0 +1,151 @@
+schema {
+  query: Root
+  mutation: Mutations
+}
+
+scalar Date
+
+scalar Datetime
+
+scalar Decimal
+
+scalar Enum_186cea82
+
+scalar JSON
+
+type Mutations {
+  remove_user(user_ids: [user_id]!): Boolean
+  add_user_to_site(
+    user_ids: [user_id]!
+    site_id: site_id!
+    role: user_x_site_role
+  ): Boolean
+}
+
+type Root {
+  user: user_connection!
+  patient: patient_connection!
+  site: site_connection!
+  search(search: String!): [search_result]
+}
+
+scalar Time
+
+type contact_info {
+  user: user!
+  type: Enum_186cea82!
+  value: String!
+  id: contact_info_id!
+}
+
+scalar contact_info_id
+
+type patient {
+  name: String!
+  date_of_birth: Date!
+  caregiver: user
+  id: patient_id!
+}
+
+type patient_connection {
+  get(id: patient_id!): patient
+  get_many(id: [patient_id]): [patient!]!
+  all(caregiver: user_id, search: String): [patient!]!
+  paginated(
+    offset: Int = 0
+    limit: Int = 20
+    caregiver: user_id
+    search: String
+  ): [patient!]!
+  count(caregiver: user_id, search: String): Int!
+}
+
+scalar patient_id
+
+type search_result {
+  id: String
+  type: String
+  label: String
+}
+
+type site {
+  title: String!
+  code: String!
+  users: [user_x_site!]!
+  id: site_id!
+}
+
+type site_connection {
+  get(id: site_id!): site
+  get_many(id: [site_id]): [site!]!
+  all: [site!]!
+  paginated(offset: Int = 0, limit: Int = 20): [site!]!
+  count: Int!
+}
+
+scalar site_id
+
+input sort_user_direction {
+  field: sort_user_field
+  desc: Boolean = false
+}
+
+enum sort_user_field {
+  remote_user
+  expires
+}
+
+type user {
+  remote_user: String!
+  expires: Datetime
+  expired: Boolean
+  system_admin: Boolean!
+  contact_info: [contact_info!]!
+  phone: contact_info
+  patients: [patient!]!
+  sites: [user_x_site!]!
+  id: user_id!
+}
+
+type user_connection {
+  get(id: user_id!): user
+  get_many(id: [user_id]): [user!]!
+  all(
+    system_admin: Boolean
+    expired: Boolean
+    has_phone: Boolean
+    search: String
+    sort: sort_user_direction
+  ): [user!]!
+  paginated(
+    offset: Int = 0
+    limit: Int = 20
+    system_admin: Boolean
+    expired: Boolean
+    has_phone: Boolean
+    search: String
+    sort: sort_user_direction
+  ): [user!]!
+  count(
+    system_admin: Boolean
+    expired: Boolean
+    has_phone: Boolean
+    search: String
+  ): Int!
+}
+
+scalar user_id
+
+type user_x_site {
+  site: site!
+  user: user!
+  role: user_x_site_role!
+  id: user_x_site_id!
+}
+
+scalar user_x_site_id
+
+enum user_x_site_role {
+  admin
+  user
+}

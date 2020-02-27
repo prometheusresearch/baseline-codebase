@@ -7,7 +7,7 @@ import AddBoxIcon from "@material-ui/icons/AddBox";
 
 import { Button } from "rex-ui/Button";
 import * as Router from "rex-ui/Router";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 import { Select, List, LoadingIndicator } from "rex-ui/rapid";
 
 import * as routes from "./index.js";
@@ -23,48 +23,27 @@ function RenderToolbar(props) {
   );
 }
 
-export let screen: Router.ShowScreen = {
+export let screen = Router.showScreen<API.getUserVariables, API.getUserResult>({
   type: "show",
   title: "User",
-  fetch: "user.get",
-  fields: {
-    title: { title: "Remote User", require: { field: "remote_user" } },
-    system_admin: "system_admin",
-    expired: "expired",
-    contact_info: {
+  resource: API.getUser,
+  getRows: data => data.user.get,
+  fields: [
+    { name: "remote_user", title: "Remote User" },
+    "system_admin",
+    "expired",
+
+    {
+      name: "contact_info",
       title: "Contact Info",
-      require: {
-        field: "contact_info",
-        require: [{ field: "id" }, { field: "type" }, { field: "value" }],
-      },
       render: ContactInfoList,
     },
-    sites: {
-      title: "Sites",
-      require: {
-        field: "sites",
-        require: [
-          {
-            field: "site",
-            require: [{ field: "id" }, { field: "title" }],
-          },
-          { field: "role" },
-        ],
-      },
-      render: SiteList,
-    },
-    patients: {
-      title: "Patients",
-      require: {
-        field: "patients",
-        require: [{ field: "id" }, { field: "name" }],
-      },
-      render: PatientList,
-    },
-  },
-  titleField: "title",
+    { name: "sites", title: "Sites", render: SiteList },
+    { name: "patients", title: "Patients", render: PatientList },
+  ],
+  titleField: "remote_user",
   RenderToolbar,
-};
+});
 
 function ContactInfoList(props) {
   let items = props.value.map((item, index) => {
@@ -108,9 +87,11 @@ function PatientList(props) {
 function RemoveAction({ data, onRemove }) {
   let onClick = () => {
     let id = data.id;
-    Resource.perform(API.removeUser, { userIds: [id] }).then(() => {
-      onRemove ? onRemove() : null;
-    });
+    Resource.perform(API.endpoint, API.removeUser, { userIds: [id] }).then(
+      () => {
+        onRemove && onRemove();
+      },
+    );
   };
   return (
     <Button size="small" onClick={onClick} icon={<DeleteIcon />}>
@@ -126,12 +107,14 @@ function AddToSiteActionDialog({ data, onClose }) {
       return;
     }
     let userIds = [data.id];
-    Resource.perform(API.addUserToSite, { userIds, siteId: site }).finally(
-      () => {
-        onClose(true);
-      },
-    );
+    Resource.perform(API.endpoint, API.addUserToSite, {
+      userIds,
+      siteId: site,
+    }).finally(() => {
+      onClose(true);
+    });
   };
+  let getSelectRows = (r: API.getAllSitesResult) => r.site.all;
   return (
     <React.Suspense fallback={<LoadingIndicator />}>
       <mui.DialogTitle>Add user to a site</mui.DialogTitle>
@@ -142,7 +125,8 @@ function AddToSiteActionDialog({ data, onClose }) {
           </mui.DialogContentText>
           <Select
             endpoint={API.endpoint}
-            fetch="site.all"
+            resource={API.getAllSites}
+            getRows={getSelectRows}
             labelField="title"
             value={site}
             onValue={setSite}
@@ -166,7 +150,7 @@ function AddToSiteAction({ data, onAdd }) {
   let [open, setOpen] = React.useState(false);
   let onClose = done => {
     if (done) {
-      onAdd ? onAdd() : null;
+      onAdd && onAdd();
     }
     setOpen(false);
   };

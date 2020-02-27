@@ -4,7 +4,6 @@
  */
 
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 
 import * as mui from "@material-ui/core";
 import * as styles from "@material-ui/styles";
@@ -13,7 +12,7 @@ import * as icons from "@material-ui/icons";
 import { TextInput } from "./TextInput";
 
 function isEmpty(value) {
-  return value == null || value == "";
+  return value == null || value === "";
 }
 
 let useStyles = styles.makeStyles(theme => ({
@@ -33,17 +32,19 @@ let useStyles = styles.makeStyles(theme => ({
 
 type Props = {|
   placeholder?: string,
+  // TODO(andreypopp): why it's not used?
   debounce?: number,
   value: null | string,
   onChange: (null | string) => void,
 |};
 
 export function SearchInput(props: Props) {
-  let { placeholder = "Search...", debounce = 1000, value, onChange } = props;
+  let { placeholder = "Search...", value, onChange } = props;
 
   let classes = useStyles();
 
-  let [focus, setFocus] = React.useState(false);
+  // TODO(andreypopp): review this
+  let [_focus, setFocus] = React.useState(false);
   let onFocus = () => setFocus(true);
   let onBlur = () => setFocus(false);
 

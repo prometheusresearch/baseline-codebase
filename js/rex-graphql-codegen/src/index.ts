@@ -34,11 +34,13 @@ interface Context {
 
   shouldGenerateResourceAPI: boolean;
   shouldGenerateTypesAPI: boolean;
+  shouldGenerateVariablesSet: boolean;
 }
 
 export interface Config {
   generateResourceAPI?: string;
   generateTypesAPI?: string;
+  generateVariablesSet?: boolean;
 }
 
 type Promisable<T> = T | Promise<T>;
@@ -51,10 +53,10 @@ type PluginOutput =
       append?: string[];
     };
 
-type PluginFunction<T = any> = (
+type PluginFunction = (
   schema: gql.GraphQLSchema,
   documents: gql.DocumentNode[],
-  config: T,
+  config: Config,
   info?: {
     outputFile?: string;
   },
@@ -87,10 +89,10 @@ function emitNamespaceImport(
   chunks.push(generate(node as any).code);
 }
 
-export const plugin: PluginFunction<Config> = (
+export const plugin: PluginFunction = (
   schema,
   documents,
-  { generateResourceAPI, generateTypesAPI },
+  { generateResourceAPI, generateTypesAPI, generateVariablesSet },
   { outputFile },
 ) => {
   const printedSchema = gql.printSchema(schema);
@@ -107,6 +109,7 @@ export const plugin: PluginFunction<Config> = (
     switch (node.kind) {
       case "EnumTypeDefinition":
       case "ScalarTypeDefinition":
+      case "InputObjectTypeDefinition":
         definitions.scalars.set(node.name.value, node);
         break;
       case "FragmentDefinition": {
@@ -145,6 +148,7 @@ export const plugin: PluginFunction<Config> = (
     schema,
     shouldGenerateResourceAPI: generateResourceAPI != null,
     shouldGenerateTypesAPI: generateTypesAPI != null,
+    shouldGenerateVariablesSet: generateVariablesSet,
   };
 
   for (let node of allAst.definitions) {
@@ -198,6 +202,9 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
         generateVariablesDeclaration(ctx, node),
         generateResultDeclaration(ctx, node, type),
       ];
+      if (ctx.shouldGenerateVariablesSet) {
+        value.push(generateVariablesSet(node));
+      }
       if (ctx.shouldGenerateResourceAPI) {
         value.push(generateResourceAPI(node));
       }
@@ -261,6 +268,33 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
       ctx.scalars.set(node.name.value, { value: [value] });
       break;
     }
+    case "InputObjectTypeDefinition": {
+      if (ctx.scalars.has(node.name.value)) {
+        break;
+      }
+      ctx.scalars.set(node.name.value, { value: null });
+      let value = t.exportNamedDeclaration(
+        t.typeAlias(
+          scalarTypeName(node.name.value),
+          null,
+          t.objectTypeAnnotation(
+            node.fields.map(field => ({
+              ...t.objectTypeProperty(
+                t.identifier(field.name.value),
+                printVariableType(ctx, field.type),
+              ),
+              optional: field.type.kind !== "NonNullType",
+            })),
+            null,
+            null,
+            null,
+            true,
+          ),
+        ),
+      );
+      ctx.scalars.set(node.name.value, { value: [value] });
+      break;
+    }
     default: {
       break;
     }
@@ -277,6 +311,27 @@ function generateVariablesDeclaration(
       null,
       printVariables(ctx, variableDefinitions),
     ),
+    [],
+  );
+}
+
+function generateVariablesSet({
+  name: { value: name },
+  variableDefinitions,
+}: gql.OperationDefinitionNode) {
+  return t.exportNamedDeclaration(
+    t.variableDeclaration("let", [
+      t.variableDeclarator(operationVariablesSetName(name), {
+        ...t.newExpression(t.identifier("Set"), [
+          t.arrayExpression(
+            variableDefinitions.map(varDef =>
+              t.stringLiteral(varDef.variable.name.value),
+            ),
+          ),
+        ]),
+        typeArguments: t.typeParameterInstantiation([t.stringTypeAnnotation()]),
+      }),
+    ]),
     [],
   );
 }
@@ -534,6 +589,10 @@ function operationResultTypeName(name: string) {
 
 function operationVariablesTypeName(name: string) {
   return t.identifier(`${name}Variables`);
+}
+
+function operationVariablesSetName(name: string) {
+  return t.identifier(`${name}VariablesSet`);
 }
 
 function fragmentTypeName(name: string) {

@@ -72,8 +72,6 @@ export function Focusable<
 >(
   Component: React.AbstractComponent<P>,
 ): React.AbstractComponent<$Diff<P, { focus: boolean }>> {
-  let displayName = Component.displayName || Component.name;
-
   let HoverableComponent = React.forwardRef((props, ref) => {
     let { focus, onFocus, onBlur } = useFocus();
 

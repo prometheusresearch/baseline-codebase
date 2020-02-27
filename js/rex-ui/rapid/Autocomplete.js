@@ -2,7 +2,6 @@
  * @flow
  */
 
-import invariant from "invariant";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
@@ -11,14 +10,13 @@ import * as Resource from "rex-graphql/Resource";
 import * as mui from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import Autosuggest from "react-autosuggest";
-import deburr from "lodash/deburr";
 import match from "autosuggest-highlight/match";
 import parse from "autosuggest-highlight/parse";
 
 import { introspect } from "./Introspection.js";
 import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
 import * as QueryPath from "./QueryPath.js";
-import * as Field from "./Field.js";
+import * as Field from "./FieldLegacy.js";
 
 export type AutocompleteProps = {|
   /** GraphQL endpoint. */
@@ -70,7 +68,7 @@ export function Autocomplete(props: AutocompleteProps) {
     });
     let resource = Resource.defineQuery<void, any>({ endpoint, query });
     return { path, resource, fieldSpecs };
-  }, [fetch, endpoint, schema, labelField, fields]);
+  }, [fetch, endpoint, schema, labelField, fields, idField]);
 
   return (
     <AutocompleteRenderer
@@ -145,6 +143,7 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
 
   let onSuggestionsFetchRequested = ({ value }) => {
     Resource.fetch(resource, { search: value }).then(data => {
+      // eslint-disable-next-line no-unused-vars
       for (let key of QueryPath.toArray(path)) {
         if (data == null) {
           break;

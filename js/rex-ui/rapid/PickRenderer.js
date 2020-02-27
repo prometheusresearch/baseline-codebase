@@ -3,57 +3,25 @@
  */
 
 import * as React from "react";
-import classNames from "classnames";
-import invariant from "invariant";
-import {
-  type DocumentNode,
-  type FieldNode,
-  type OperationDefinitionNode,
-  type VariableDefinitionNode,
-} from "graphql/language/ast";
 
-import {
-  type IntrospectionType,
-  type IntrospectionInputObjectType,
-  type IntrospectionInputValue,
-  type IntrospectionEnumType,
-} from "graphql/utilities/introspectionQuery";
-
-import {
-  makeStyles,
-  useTheme,
-  ThemeProvider,
-  type Theme,
-} from "@material-ui/styles";
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
-import Grid from "@material-ui/core/Grid";
+import { makeStyles, type Theme } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
-import Select from "@material-ui/core/Select";
 
 import Typography from "@material-ui/core/Typography";
-import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import {
-  type Resource,
-  unstable_useResource as useResource,
-} from "rex-graphql/Resource";
+import { type Endpoint } from "rex-graphql";
+import { type Resource } from "rex-graphql/Resource2";
 import { IconButton } from "rex-ui/IconButton";
 
-import { LoadingIndicator } from "./LoadingIndicator.js";
-
-import { buildSortingConfig } from "./buildSortingConfig";
 import { PickFilterToolbar } from "./PickFilterToolbar.js";
 import { PickPagination } from "./PickPagination.js";
 import { PickDataView } from "./PickDataView.js";
 import * as Field from "./Field.js";
+import * as Filter from "./Filter.js";
 
 import { DEFAULT_THEME } from "./themes";
-import { isEmptyObject, capitalize, useDebouncedCallback } from "./helpers";
+import { isEmptyObject, useDebouncedCallback } from "./helpers";
 import { PickSearchToolbar } from "./PickSearchToolbar.js";
 
 export const useRendererStyles = makeStyles((theme: Theme) => {
@@ -103,7 +71,6 @@ const useMinWindowWidth = (minWidth: number) => {
   return doesMatch;
 };
 
-type CustomRendererProps = { resource: Resource<any, any> };
 type PickMode = "table" | "card-list";
 
 export type RenderToolbarProps = {|
@@ -114,7 +81,6 @@ export type RenderToolbarProps = {|
 export type RenderToolbar = React.AbstractComponent<RenderToolbarProps>;
 
 export type PickRendererConfigProps = {|
-  fetch: string,
   title?: string,
   description?: string,
   fieldDescription?: ?string,
@@ -143,23 +109,22 @@ export type PickRendererConfigProps = {|
   onRowClick?: (row: any) => void,
 |};
 
-export type PickRendererProps = {|
-  resource: Resource<any, any>,
-  fieldSpecs: { [name: string]: Field.FieldSpec },
-  variablesMap: ?Map<string, VariableDefinitionNode>,
+export type PickRendererProps<V, R> = {|
+  endpoint: Endpoint,
+  resource: Resource<V, R>,
+  getRows: R => any,
+  variablesSet: Set<string>,
+  fieldSpecs: Array<Field.FieldSpec>,
   sortingConfig: ?Array<{| desc: boolean, field: string |}>,
   args?: { [key: string]: any },
   theme?: Theme,
-  filterSpecs?: ?Field.FilterSpecMap,
+  filterSpecs?: ?Filter.FilterSpecMap,
 
   selected: Set<string>,
   onSelected: (nextSelected: Set<string>) => void,
 
   ...PickRendererConfigProps,
 |};
-
-// TODO: We can make those constants -> props passed from component user
-export const SEARCH_VAR_NAME = "search";
 
 let usePickHeaderStyles = makeStyles(theme => ({
   root: {
@@ -243,11 +208,12 @@ export type PickState = {|
   filter: { [key: string]: ?boolean },
 |};
 
-export const PickRenderer = ({
+export const PickRenderer = <V, R>({
+  endpoint,
   resource,
+  getRows,
+  variablesSet,
   fieldSpecs,
-  fetch,
-  variablesMap,
   RenderColumnCell,
   RenderRowCell,
   RenderRow,
@@ -262,7 +228,7 @@ export const PickRenderer = ({
   onSelected,
   sortingConfig,
   filterSpecs,
-}: PickRendererProps) => {
+}: PickRendererProps<V, R>) => {
   const isTabletWidth = useMinWindowWidth(720);
 
   const defaultPickState = {
@@ -283,10 +249,6 @@ export const PickRenderer = ({
     }));
   }, [isTabletWidth]);
 
-  React.useEffect(() => {
-    setState(defaultPickState);
-  }, [fetch]);
-
   const debouncedSetState = useDebouncedCallback(256, setState, []);
 
   const [viewData, setViewData] = React.useState<Array<any>>([]);
@@ -305,7 +267,7 @@ export const PickRenderer = ({
     setState(state => ({
       ...state,
       offset: 0,
-      sort: value === Field.FILTER_NO_VALUE ? undefined : JSON.parse(value),
+      sort: value === Filter.NO_VALUE ? undefined : JSON.parse(value),
     }));
   };
 
@@ -336,27 +298,22 @@ export const PickRenderer = ({
     }));
   };
 
-  // Initialize search state if there's SEARCH_VAR_NAME
+  // TODO(andreypopp): move it to useState init
   React.useEffect(() => {
-    if (variablesMap != null && variablesMap.get(SEARCH_VAR_NAME)) {
+    if (variablesSet != null && variablesSet.has(Filter.SEARCH_FIELD)) {
       setState(state => ({
         ...state,
         search: "",
         searchText: "",
       }));
     }
-  }, []);
+  }, [variablesSet]);
 
   /**
    * Decide if filters block is opened via state from localStorage
    */
-  const filtersLocalStorageKey = variablesMap
-    ? `rapidFiltersState__${Array.from(variablesMap.keys()).join("_")}`
-    : null;
-  let filtersLocalStorageOpened = false;
-  if (filtersLocalStorageKey != null) {
-    filtersLocalStorageOpened = localStorage.getItem(filtersLocalStorageKey);
-  }
+  const filtersLocalStorageKey = Array.from(variablesSet.values()).join("_");
+  let filtersLocalStorageOpened = localStorage.getItem(filtersLocalStorageKey);
   const initialShowFilterValue =
     filtersLocalStorageOpened === "true" ? true : false;
   const [showFilters, _setShowFilters] = React.useState(initialShowFilterValue);
@@ -397,7 +354,6 @@ export const PickRenderer = ({
             <PickSearchToolbar
               state={state}
               setSearchState={setSearchState}
-              variablesMap={variablesMap}
               filterSpecs={filterSpecs}
             />
           }
@@ -410,7 +366,6 @@ export const PickRenderer = ({
             sortingConfig={sortingConfig}
             setSortingState={setSortingState}
             isTabletWidth={isTabletWidth}
-            variablesMap={variablesMap}
             filterSpecs={filterSpecs}
           />
         ) : null}
@@ -423,8 +378,9 @@ export const PickRenderer = ({
         onDataReceive={setViewData}
         fieldSpecs={fieldSpecs}
         isTabletWidth={isTabletWidth}
-        fetch={fetch}
+        endpoint={endpoint}
         resource={resource}
+        getRows={getRows}
         onRowClick={onRowClick}
         showAs={showAs}
         selected={selected}

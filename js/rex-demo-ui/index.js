@@ -15,71 +15,89 @@ import * as API from "./API.js";
 export let pickUser = Router.route("/", PickUser.screen);
 export let showUser = Router.route("/:id", ShowUser.screen);
 
-export let pickSite = Router.route("/", {
+let pickSiteScreen = Router.pickScreen({
   type: "pick",
-  fetch: "site.paginated",
+  resource: API.getSites,
+  getRows: data => data.site.paginated,
+  variablesSet: API.getSitesVariablesSet,
+  fields: ["code"],
   title: "Sites",
   description: "List of sites",
   onSelect: id => [showSite, { id }],
 });
 
-export let showSite = Router.route("/:id", ShowSite.screen);
-
-export let pickPatient = Router.route("/", {
+let pickPatientScreen = Router.pickScreen({
   type: "pick",
-  fetch: "patient.paginated",
+  resource: API.getPatients,
+  getRows: data => data.patient.paginated,
+  variablesSet: API.getPatientsVariablesSet,
+  fields: ["name", "date_of_birth"],
   title: "Patients",
   description: "List of patients",
   onSelect: id => [showPatient, { id }],
 });
 
-export let showPatient = Router.route("/:id", {
+let showPatientScreen = Router.showScreen({
   type: "show",
-  fetch: "patient.get",
+  resource: API.getPatient,
+  getRows: data => data.patient.get,
   title: "Patient",
+  fields: ["name", "date_of_birth"],
 });
 
-let home = Router.route("/", {
-  type: "custom",
-  title: "Home",
-  Render(props) {
-    let [value, setValue] = React.useState(null);
-    let onValue = value => {
-      setValue(value);
-      if (value != null) {
-        if (value.type === "user") {
-          router.push(showUser, { id: value.id });
-        } else if (value.type === "patient") {
-          router.push(showPatient, { id: value.id });
-        } else if (value.type === "site") {
-          router.push(showSite, { id: value.id });
+export let pickSite = Router.route("/", pickSiteScreen);
+
+export let showSite = Router.route("/:id", ShowSite.screen);
+
+export let pickPatient = Router.route("/", pickPatientScreen);
+
+export let showPatient = Router.route("/:id", showPatientScreen);
+
+let home = Router.route(
+  "/",
+  Router.customScreen({
+    type: "custom",
+    title: "Home",
+    Render(props) {
+      let [value, setValue] = React.useState(null);
+      let onValue = value => {
+        setValue(value);
+        if (value != null) {
+          if (value.type === "user") {
+            router.push(showUser, { id: value.id });
+          } else if (value.type === "patient") {
+            router.push(showPatient, { id: value.id });
+          } else if (value.type === "site") {
+            router.push(showSite, { id: value.id });
+          }
         }
-      }
-    };
-    let RenderItem = React.useCallback(props => {
+      };
+      let RenderItem = React.useCallback(props => {
+        return (
+          <div>
+            <mui.Typography>{props.label}</mui.Typography>
+            <mui.Typography variant="caption">{props.item.type}</mui.Typography>
+          </div>
+        );
+      }, []);
       return (
-        <div>
-          <mui.Typography>{props.label}</mui.Typography>
-          <mui.Typography variant="caption">{props.item.type}</mui.Typography>
+        <div style={{ padding: 24 }}>
+          <Rapid.Autocomplete
+            endpoint={API.endpoint}
+            fetch="search"
+            label="Search"
+            labelField="label"
+            fields={{ type: "type" }}
+            value={value}
+            onValue={onValue}
+            RenderItem={RenderItem}
+          />
         </div>
       );
-    }, []);
-    return (
-      <div style={{ padding: 24 }}>
-        <Rapid.Autocomplete
-          endpoint={API.endpoint}
-          fetch="search"
-          label="Search"
-          labelField="label"
-          fields={{ type: "type" }}
-          value={value}
-          onValue={onValue}
-          RenderItem={RenderItem}
-        />
-      </div>
-    );
-  },
-});
+    },
+  }),
+);
+
 let users = Router.group("/users", pickUser, showUser);
 let sites = Router.group("/sites", pickSite, showSite);
 let patients = Router.group("/patients", pickPatient, showPatient);
@@ -92,7 +110,7 @@ function App() {
   let match = Router.useMatch(router);
 
   let renderPickView = React.useCallback(
-    (screen: Router.PickScreen, params) => {
+    <V: { [key: string]: any }, R>(screen: Router.PickScreen<V, R>, params) => {
       let onRowClick;
       if (screen.onSelect != null) {
         let onSelect = screen.onSelect;
@@ -106,7 +124,10 @@ function App() {
         <Rapid.Pick
           key={JSON.stringify(screen)}
           endpoint={API.endpoint}
-          fetch={screen.fetch}
+          resource={screen.resource}
+          sortingConfig={screen.sortingConfig}
+          getRows={screen.getRows}
+          variablesSet={screen.variablesSet}
           onRowClick={onRowClick}
           fields={screen.fields}
           filters={screen.filters}
@@ -120,14 +141,15 @@ function App() {
   );
 
   let renderShowView = React.useCallback(
-    (screen: Router.ShowScreen, params) => {
+    <V, R>(screen: Router.ShowScreen<V, R>, params) => {
       let onRemove = () => {
         router.replace(pickUser);
       };
       return (
         <Rapid.Show
           endpoint={API.endpoint}
-          fetch={screen.fetch}
+          resource={screen.resource}
+          getRows={screen.getRows}
           args={{ id: params.id }}
           fields={screen.fields}
           titleField={screen.titleField}

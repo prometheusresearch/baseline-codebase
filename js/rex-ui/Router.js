@@ -10,24 +10,30 @@ import * as History from "history";
 import * as React from "react";
 import * as RoutePattern from "./RoutePattern.js";
 import * as Rapid from "./rapid";
+import { type Resource } from "rex-graphql/Resource2";
 
-export type ShowScreen = {|
+export type ShowScreen<V, R, O: { id: mixed } = *> = {|
   type: "show",
   title: string,
-  fetch: string,
-  fields?: ?{ [name: string]: Rapid.FieldConfig },
-  titleField?: ?Rapid.FieldConfig,
+  resource: Resource<V, R>,
+  getRows: R => ?O,
+  fields: Rapid.FieldConfig<$Keys<O>>[],
+  titleField?: ?Rapid.FieldConfig<$Keys<O>>,
   RenderTitle?: ?Rapid.ShowRenderTitle,
   RenderToolbar?: ?Rapid.ShowRenderToolbar,
 |};
 
-export type PickScreen = {|
+// TODO(andreypopp): check if * usage is ok here
+export type PickScreen<V: { [key: string]: any }, R, O: { id: mixed } = *> = {|
   type: "pick",
   title: string,
-  fetch: string,
-  description: string,
-  fields?: ?{ [name: string]: Rapid.FieldConfig },
-  filters?: ?(Rapid.PickFilterConfig[]),
+  resource: Resource<V, R>,
+  getRows: R => Array<O>,
+  variablesSet: Set<string>,
+  fields: Rapid.FieldConfig<$Keys<O>>[],
+  description?: string,
+  filters?: ?Array<Rapid.PickFilterConfig<$Keys<V>>>,
+  sortingConfig?: ?Array<{| desc: boolean, field: string |}>,
   onSelect?: (id: string) => [Route, Params],
   RenderToolbar?: Rapid.PickRenderToolbar,
 |};
@@ -38,7 +44,21 @@ export type CustomScreen = {|
   Render: React.AbstractComponent<{| params: Object |}>,
 |};
 
-export type Screen = PickScreen | ShowScreen | CustomScreen;
+export function pickScreen<V: { [key: string]: any }, R>(
+  screen: PickScreen<V, R>,
+): Screen {
+  return screen;
+}
+
+export function showScreen<V, R>(screen: ShowScreen<V, R>): Screen {
+  return screen;
+}
+
+export function customScreen(screen: CustomScreen): Screen {
+  return screen;
+}
+
+export type Screen = PickScreen<any, any> | ShowScreen<any, any> | CustomScreen;
 
 export opaque type RouteGroup: {
   +type: "route-group",
@@ -177,6 +197,7 @@ export function make(
   };
 
   let onlyRoutes: Route[] = [];
+  // eslint-disable-next-line no-unused-vars
   for (let [_1, _2, route, _screen] of pairs) {
     onlyRoutes.push(route);
   }
@@ -213,7 +234,7 @@ export function useMatch(router: Router): ?Match {
   React.useEffect(
     () =>
       router.history.listen(location => setMatched(match(router, location))),
-    [],
+    [router],
   );
   return matched;
 }

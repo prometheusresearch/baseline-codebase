@@ -94,7 +94,7 @@ export function usePreventNavigation(shouldPrevent: boolean, message: string) {
     }
 
     return () => allowNavigation(reason);
-  }, [shouldPrevent]);
+  }, [shouldPrevent, message]);
 }
 
 const REASONS: PreventReason[] = [];

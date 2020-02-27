@@ -3,7 +3,6 @@
  * @flow
  */
 
-import assert from "assert";
 import * as React from "react";
 import * as ReactTesting from "react-testing-library";
 import { Focusable, Hoverable } from "../Interaction";

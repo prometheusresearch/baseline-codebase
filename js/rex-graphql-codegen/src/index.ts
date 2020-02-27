@@ -278,12 +278,17 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
           scalarTypeName(node.name.value),
           null,
           t.objectTypeAnnotation(
-            node.fields.map(field =>
-              t.objectTypeProperty(
+            node.fields.map(field => ({
+              ...t.objectTypeProperty(
                 t.identifier(field.name.value),
                 printVariableType(ctx, field.type),
               ),
-            ),
+              optional: field.type.kind !== "NonNullType",
+            })),
+            null,
+            null,
+            null,
+            true,
           ),
         ),
       );

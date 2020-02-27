@@ -41,10 +41,10 @@ class RexTestSuite:
         cls.rex = None
 
 
-class anything:
+class ignored:
     """
-    A value that can be used in assertions to allow a variable to be "equal" to
-    anything. E.g.:
+    A value that can be used in assertions when the exact value is not
+    important. E.g.:
 
         my_variable = {
             'foo': 1,
@@ -53,7 +53,7 @@ class anything:
         }
         assert my_variable == {  # True
             'foo': 1,
-            'bar': anything(),
+            'bar': ignored(),
             'baz': 'red',
         }
     """
@@ -62,10 +62,10 @@ class anything:
         return True
 
 
-class not_none:
+class anything_except_none:
     """
-    A value that can be used in assertions to allow a variable to be "equal" to
-    anything except None. E.g.:
+    A value that can be used in assertions when the exact value is not
+    important, but it shouldn't be ``None``. E.g.:
 
         my_variable = {
             'foo': 1,
@@ -74,14 +74,14 @@ class not_none:
         }
         assert my_variable == {  # True
             'foo': 1,
-            'bar': not_none(),
+            'bar': anything_except_none(),
             'baz': 'red',
         }
 
         my_variable['bar'] = None
         assert my_variable == {  # False
             'foo': 1,
-            'bar': not_none(),
+            'bar': anything_except_none(),
             'baz': 'red',
         }
     """

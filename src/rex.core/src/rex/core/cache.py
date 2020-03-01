@@ -111,8 +111,8 @@ def _decorate(fn, Gate=None, prefix='cached_', spec=None):
     # Returns a decorated function which value is stored in the application
     # cache.  If `Gate` is provided, use it as the value container.
     if spec is None:
-        spec = inspect.getargspec(fn)
-    assert (spec.keywords is None and
+        spec = inspect.getfullargspec(fn)
+    assert (spec.varkw is None and
             not any(arg.startswith('_') for arg in spec.args)), \
                     "cached function may only have positional arguments: %s" \
                     % repr(spec)
@@ -202,16 +202,16 @@ def autoreload(fn):
     The function must have only positional arguments with the last argument
     being ``open=open``.
     """
-    spec = inspect.getargspec(fn)
+    spec = inspect.getfullargspec(fn)
     assert (spec.args[-1:] == ['open'] and
             spec.defaults == (open,) and
-            spec.keywords is None and
+            spec.varkw is None and
             spec.varargs is None and
             not any(arg.startswith('_') for arg in spec.args)), \
                     "auto-reloading function may only have positional arguments" \
                     " with last argument being open=open: %s" % repr(spec)
     # Remove `open=open` from the list of arguments.
-    spec = spec.__class__(spec.args[:-1], None, None, None)
+    spec = spec.__class__(spec.args[:-1], None, None, None, None, None, None)
     return _decorate(fn, OpenGate, prefix='autoreload_', spec=spec)
 
 

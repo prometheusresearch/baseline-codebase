@@ -765,8 +765,8 @@ def _parse_argv(argv):
                     attrs[opt.attr] = value
                 else:
                     if opt.attr not in attrs:
-                        attrs[opt.attr] = []
-                    attrs[opt.attr].append(value)
+                        attrs[opt.attr] = ()
+                    attrs[opt.attr] += (value,)
 
         # Option or a collection of options in short form.
         elif param.startswith('-') and param != '-' and not no_more_opts:

@@ -111,8 +111,9 @@ def _decorate(fn, Gate=None, prefix='cached_', spec=None):
     # Returns a decorated function which value is stored in the application
     # cache.  If `Gate` is provided, use it as the value container.
     if spec is None:
-        spec = inspect.getargspec(fn)
-    assert (spec.keywords is None and
+        spec = inspect.getfullargspec(fn)
+    assert (spec.varkw is None and
+            not spec.kwonlyargs and
             not any(arg.startswith('_') for arg in spec.args)), \
                     "cached function may only have positional arguments: %s" \
                     % repr(spec)
@@ -134,7 +135,7 @@ def _decorate(fn, Gate=None, prefix='cached_', spec=None):
         signature.append('*'+spec.varargs)
         key.append(spec.varargs)
     if Gate is None:
-        lineno = _decorate.__code__.co_firstlineno + 28 # from `def` to `source`
+        lineno = _decorate.__code__.co_firstlineno + 29 # from `def` to `source`
         source = """\
             def {name}({signature}):
                 _cache = _get_rex().cache
@@ -145,7 +146,7 @@ def _decorate(fn, Gate=None, prefix='cached_', spec=None):
                     return _cache.set_default_cb(_key, _fn, {params})
         """
     else:
-        lineno = _decorate.__code__.co_firstlineno + 39 # from `def` to `source`
+        lineno = _decorate.__code__.co_firstlineno + 40 # from `def` to `source`
         source = """\
             def {name}({signature}):
                 _cache = _get_rex().cache
@@ -202,16 +203,17 @@ def autoreload(fn):
     The function must have only positional arguments with the last argument
     being ``open=open``.
     """
-    spec = inspect.getargspec(fn)
+    spec = inspect.getfullargspec(fn)
     assert (spec.args[-1:] == ['open'] and
             spec.defaults == (open,) and
-            spec.keywords is None and
             spec.varargs is None and
+            spec.varkw is None and
+            not spec.kwonlyargs and
             not any(arg.startswith('_') for arg in spec.args)), \
                     "auto-reloading function may only have positional arguments" \
                     " with last argument being open=open: %s" % repr(spec)
     # Remove `open=open` from the list of arguments.
-    spec = spec.__class__(spec.args[:-1], None, None, None)
+    spec = spec.__class__(spec.args[:-1], None, None, None, [], None, spec.annotations)
     return _decorate(fn, OpenGate, prefix='autoreload_', spec=spec)
 
 

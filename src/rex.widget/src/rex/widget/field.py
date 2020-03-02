@@ -126,7 +126,7 @@ class ComputedField(FieldBase):
         super(ComputedField, self).__init__(
             name=name or computator.__name__,
             doc=doc or computator.__doc__)
-        argspec = inspect.getargspec(computator)
+        argspec = inspect.getfullargspec(computator)
         self._needs_request = len(argspec.args) > 1
         self.computator = computator
 

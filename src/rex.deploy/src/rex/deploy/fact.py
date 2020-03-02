@@ -559,7 +559,7 @@ class Fact(Extension):
         """
         if not kwds:
             return self
-        spec = inspect.getargspec(self.__init__)
+        spec = inspect.getfullargspec(self.__init__)
         for arg in spec.args[1:]:
             kwds.setdefault(arg, getattr(self, arg))
         return self.__class__(**kwds)

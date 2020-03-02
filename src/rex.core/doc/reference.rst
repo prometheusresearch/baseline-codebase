@@ -121,3 +121,8 @@ Validators
 .. autoclass:: rex.core.RexJSONEncoder
 
 
+Testing Utilities
+=================
+
+.. automodule:: rex.core.testing
+

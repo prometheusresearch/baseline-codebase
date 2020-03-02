@@ -44,7 +44,7 @@ class RexTestSuite:
 class ignored:
     """
     A value that can be used in assertions when the exact value is not
-    important. E.g.:
+    important. E.g.::
 
         my_variable = {
             'foo': 1,
@@ -65,7 +65,7 @@ class ignored:
 class anything_except_none:
     """
     A value that can be used in assertions when the exact value is not
-    important, but it shouldn't be ``None``. E.g.:
+    important, but it shouldn't be ``None``. E.g.::
 
         my_variable = {
             'foo': 1,

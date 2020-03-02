@@ -3,10 +3,9 @@
 #
 
 
-import pytest
-
 from rex.core.testing import RexTestSuite
-from rex.db import get_db
+
+from .database import get_db
 
 
 class IsolatedRexTestSuite(RexTestSuite):
@@ -72,15 +71,13 @@ class IsolatedCasesRexTestSuite(RexTestSuite):
         cls.htsql = None
         super().teardown_class()
 
-    @pytest.fixture(autouse=True)
-    def isolate_each_case_fixture(self):
+    def setup_method(self):
         self.transaction = self.htsql.transaction()
         self.connection = self.transaction.__enter__().connection
-        try:
-            yield
-        finally:
-            self.connection.rollback()
-            self.connection = None
-            self.transaction.__exit__(None, None, None)
-            self.transaction = None
+
+    def teardown_method(self):
+        self.connection.rollback()
+        self.connection = None
+        self.transaction.__exit__(None, None, None)
+        self.transaction = None
 

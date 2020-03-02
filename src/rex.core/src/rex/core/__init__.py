@@ -10,6 +10,7 @@ validating utilities.
 """
 
 
+from . import testing
 from .application import Rex, LatentRex, Initialize
 from .cache import cached, autoreload
 from .context import get_rex

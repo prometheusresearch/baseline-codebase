@@ -411,14 +411,8 @@ start: ./bin/activate #: start application daemons using development configurati
 
 sync-once:
 	${RSYNC} \
-		--exclude /.git/ \
-		--exclude /.st/ \
-		--exclude /.devmode \
-		--exclude /.kubeconfig \
-		--exclude /js/node_modules \
-		--exclude '/js/*/node_modules' \
-		--exclude '.*.sw?' \
-		--exclude /bin/ \
+		--include='/src/*/demo/static/www/bundle' \
+		--exclude-from=.stignore \
 		./ develop:/app/
 
 

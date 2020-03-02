@@ -63,6 +63,12 @@ Utilities
 .. autofunction:: parse_htsql
 
 
+Testing Utilities
+=================
+
+.. automodule:: rex.db.testing
+
+
 ``rex`` HTSQL addon
 ===================
 

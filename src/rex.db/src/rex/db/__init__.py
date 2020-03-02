@@ -8,6 +8,7 @@ This package provides database access to RexDB applications.
 """
 
 
+from . import testing
 from .setting import (
         DBVal, HTSQLVal, DBSetting, GatewaysSetting, HTSQLExtensionsSetting,
         QueryTimeoutSetting, ReadOnlySetting)

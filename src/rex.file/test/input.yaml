@@ -18,6 +18,6 @@ tests:
 
 - sh: pip uninstall -q -y rex.file_demo
 
-#- coverage-check: 95.0
+- coverage-check: 85.0
 - coverage-report: ./build/coverage
 

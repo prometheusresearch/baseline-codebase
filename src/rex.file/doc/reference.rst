@@ -5,6 +5,12 @@
 .. automodule:: rex.file
 
 
+Functions
+=========
+
+.. autofunction:: rex.file.save_file
+
+
 Available HTTP locations
 ========================
 

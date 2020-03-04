@@ -4,12 +4,12 @@
 
 
 from rex.core import Error
-from rex.attach import get_storage
 from rex.web import HandleLocation, authorize, confine
-from rex.db import get_db
 from webob import Response
 from webob.exc import HTTPUnauthorized
 import cgi
+
+from .util import save_file
 
 
 class HandleUpload(HandleLocation):
@@ -33,14 +33,8 @@ class HandleUpload(HandleLocation):
                         error = Error("Received duplicate upload name:", key)
                         return req.get_response(error)
                     inputs[key] = value
-            storage = get_storage()
-            db = get_db()
             outputs = {}
             for key, attachment in sorted(inputs.items()):
-                handle = storage.add(attachment.filename, attachment.file)
-                product = db.produce("insert(file:={handle:=$handle})",
-                                     handle=handle)
-                outputs[key] = str(product.data)
+                outputs[key] = save_file(attachment.filename, attachment.file)
             return Response(json=outputs)
-
 

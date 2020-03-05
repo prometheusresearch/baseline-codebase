@@ -12,7 +12,7 @@ dist
 build
 node_modules
 bundle
-tweak/shell
+tweak/shell/vendor
 static/www/doc
 static/www/docs
 static/www/ravenjs

@@ -1,3 +1,4 @@
+import datetime
 import io
 import pytest
 import util
@@ -224,4 +225,11 @@ def test_delete_nonexistant():
     assert get_storage().exists(target_file) is False
     get_storage().delete(target_file)
     assert get_storage().exists(target_file) is False
+
+
+def test_path_attrs():
+    path = get_storage().parse_path('/other-p/1.txt')
+    assert path.size == 5
+    assert isinstance(path.created_at, datetime.datetime)
+    assert isinstance(path.modified_at, datetime.datetime)
 

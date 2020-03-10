@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 import util
 
@@ -147,4 +149,11 @@ def test_blob_cdn_url():
     container = get_storage().mounts['/rst/'].container
     blob = container.get_blob("stuff/foo")
     assert blob.cdn_url.endswith("share/rex/rex.storage_test/stuff/foo")
+
+
+def test_path_attrs():
+    path = get_storage().parse_path('/rst/stuff/foo')
+    assert path.size == 6
+    assert isinstance(path.created_at, datetime.datetime)
+    assert isinstance(path.modified_at, datetime.datetime)
 

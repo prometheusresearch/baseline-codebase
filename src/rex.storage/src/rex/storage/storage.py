@@ -76,6 +76,8 @@ class Path:
     """
 
     def __init__(self, mount, name):
+        self._blob = None
+
         #: The rex.storage.Mount that this Path is a part of.
         self.mount = mount
 
@@ -130,6 +132,26 @@ class Path:
         The full path of the object, relative to the root of the container.
         """
         return join(self.mount.base_path, self.name).lstrip('/')
+
+    @property
+    def blob(self):
+        """
+        The cloudstorage.Blob object that represents this Path.
+        """
+        if not self._blob:
+            self._blob = self.mount.container.get_blob(self.container_location)
+        return self._blob
+
+    def __getattr__(self, name):
+        # Expose a controlled set of attributes from the underlying blob
+        BLOB_PROPS = (
+            'size',
+            'created_at',
+            'modified_at',
+        )
+        if name in BLOB_PROPS:
+            return getattr(self.blob, name)
+        raise AttributeError(name)
 
     def download(self, file_or_path):
         """

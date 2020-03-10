@@ -1,1 +1,3 @@
 /src/htsql/tweak/shell/vendor/
+/src/htsql/_htsql_speedups.c
+/src/htsql/_htsql_speedups.*.so

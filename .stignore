@@ -13,6 +13,8 @@ build
 node_modules
 bundle
 tweak/shell/vendor
+_htsql_speedups.c
+_htsql_speedups.*.so
 static/www/doc
 static/www/docs
 static/www/ravenjs

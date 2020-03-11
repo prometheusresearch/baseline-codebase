@@ -57,7 +57,7 @@ class RexDBTask(RexTask):
                 value_name="NAME",
                 hint="connect to a gateway database")
 
-    def make(self, extra_requirements=[], extra_parameters={}, *args, **kwds):
+    def make(self, project=None, extra_requirements=[], extra_parameters={}, *args, **kwds):
         # Converts and merges `--extend` to `htsql_extension` parameter.
         htsql_extensions = []
         htsql_extensions.append(env.parameters.get('htsql_extensions', {}))
@@ -68,7 +68,7 @@ class RexDBTask(RexTask):
             extra_parameters = extra_parameters.copy()
             extra_parameters['htsql_extensions'] = htsql_extensions
         return super(RexDBTask, self).make(
-                extra_requirements, extra_parameters, *args, **kwds)
+                project, extra_requirements, extra_parameters, *args, **kwds)
 
     def get_db(self):
         # Gets the HTSQL instance, possibly for a gateway database.

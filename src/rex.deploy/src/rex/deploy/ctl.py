@@ -3,12 +3,12 @@
 #
 
 
-from rex.core import get_settings, Error
-from rex.ctl import RexTask, argument, option, env, log, fail, warn, debug, exe
+from rex.core import get_settings, Error, StrVal
+from rex.ctl import RexTaskWithProject, option, env, log, fail, warn, debug, exe
 from .cluster import get_cluster, deploy
 
 
-class CreateDBTask(RexTask):
+class CreateDBTask(RexTaskWithProject):
     """create application database"""
 
     name = 'createdb'
@@ -28,7 +28,7 @@ class CreateDBTask(RexTask):
                 cluster.create()
 
 
-class DropDBTask(RexTask):
+class DropDBTask(RexTaskWithProject):
     """delete application database"""
 
     name = 'dropdb'
@@ -48,7 +48,7 @@ class DropDBTask(RexTask):
                 cluster.drop()
 
 
-class DumpDBTask(RexTask):
+class DumpDBTask(RexTaskWithProject):
     """dump application database to a file"""
 
     name = 'dumpdb'
@@ -88,7 +88,7 @@ class DumpDBTask(RexTask):
         exe(command)
 
 
-class LoadDBTask(RexTask):
+class LoadDBTask(RexTaskWithProject):
     """load application database from a file"""
 
     name = 'loaddb'
@@ -134,7 +134,7 @@ class LoadDBTask(RexTask):
         exe(command)
 
 
-class DeployTask(RexTask):
+class DeployTask(RexTaskWithProject):
     """deploy database schema
 
     Use ``deploy`` task to create and populate the application

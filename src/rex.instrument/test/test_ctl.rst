@@ -155,7 +155,7 @@ Definition JSON from an InstrumentVersion in the project data store::
 
     >>> ctl('help instrument-retrieve')
     INSTRUMENT-RETRIEVE - retrieves an InstrumentVersion from the datastore
-    Usage: rex instrument-retrieve [<project>] <instrument-uid>
+    Usage: rex instrument-retrieve <instrument-uid>
     <BLANKLINE>
     The instrument-retrieve task will retrieve an InstrumentVersion from a
     project's data store and return the Common Instrument Definition.
@@ -261,7 +261,7 @@ to an InstrumentVersion in the project data store::
 
     >>> ctl('help instrument-store')
     INSTRUMENT-STORE - stores an InstrumentVersion in the data store
-    Usage: rex instrument-store [<project>] <instrument-uid> <definition>
+    Usage: rex instrument-store <instrument-uid> <definition>
     <BLANKLINE>
     The instrument-store task will write a Common Instrument Definition file to
     an InstrumentVersion in the project's data store.
@@ -442,7 +442,7 @@ way specified::
 
     >>> ctl('help calculationset-format')
     CALCULATIONSET-FORMAT - render a Common CalculationSet Definition into various formats
-    Usage: rex calculationset-format [<project>] <definition>
+    Usage: rex calculationset-format <definition>
     <BLANKLINE>
     The calculationset-format task will take an input Common CalculationSet
     Definition file and output it as either JSON or YAML.
@@ -571,7 +571,7 @@ Definition JSON from an InstrumentVersion in the project data store::
 
     >>> ctl('help calculationset-retrieve')
     CALCULATIONSET-RETRIEVE - retrieves an CalculationSet from the datastore
-    Usage: rex calculationset-retrieve [<project>] <instrument-uid>
+    Usage: rex calculationset-retrieve <instrument-uid>
     <BLANKLINE>
     The calculation-retrieve task will retrieve an CalculationSet from a
     project's data store and return the Common CalculationSet Definition.
@@ -694,7 +694,7 @@ to an InstrumentVersion in the project data store::
 
     >>> ctl('help calculationset-store')
     CALCULATIONSET-STORE - stores an CalculationSet in the data store
-    Usage: rex calculationset-store [<project>] <instrument-uid> <definition>
+    Usage: rex calculationset-store <instrument-uid> <definition>
     <BLANKLINE>
     The calculationset-store task will write a Common CalculationSet Definition
     file to an CalculationSet in the project's data store.

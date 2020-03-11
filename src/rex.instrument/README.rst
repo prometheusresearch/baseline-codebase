@@ -161,7 +161,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-  rex instrument-retrieve <instrument-uid> [<project>]
+  rex instrument-retrieve <instrument-uid>
 
 
 instrument-store
@@ -179,7 +179,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-  rex instrument-store <instrument-uid> <definition> [<project>]
+  rex instrument-store <instrument-uid> <definition>
 
 
 instrument-validate
@@ -221,7 +221,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-  rex calculationset-retrieve <instrument-uid> [<project>]
+  rex calculationset-retrieve <instrument-uid>
 
 
 calculationset-store
@@ -238,7 +238,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-  rex calculationset-store <instrument-uid> <definition> [<project>]
+  rex calculationset-store <instrument-uid> <definition>
 
 
 calculationset-validate

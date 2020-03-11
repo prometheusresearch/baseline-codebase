@@ -1,12 +1,12 @@
 
 import os
 from pathlib import Path
-from rex.ctl import RexTask, argument, log, fail
+from rex.ctl import RexTaskWithProject, argument, log, fail
 from rex.core import StrVal
 from .storage import get_storage
 
 
-class Upload(RexTask):
+class Upload(RexTaskWithProject):
     """
     Uploads local files to the external storage.
     """

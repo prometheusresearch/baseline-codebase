@@ -33,10 +33,10 @@ To get help on task parameters, run ``rex help <task>``::
     Run rex hello to greet the current user.  Alternatively,
     run rex hello <name> to greet the specified user.
 
-To run an application-specific command, you need to configure the application.
-One option is to pass the application name on the command line::
+To run an application-specific command, you need to specify the application
+using a global object ``--project``::
 
-    >>> ctl("demo-init rex.ctl_demo")           # doctest: +NORMALIZE_WHITESPACE
+    >>> ctl("demo-init --project=rex.ctl_demo")         # doctest: +NORMALIZE_WHITESPACE
     Creating database pgsql:///ctl_demo.
     Deploying application database to pgsql:///ctl_demo.
     Deploying rex.ctl_demo.
@@ -57,7 +57,7 @@ package is specified::
     >>> ctl("demo-user-list", expect=1)         # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: application is not specified
 
-    >>> ctl("demo-user-list rex.ctl", expect=1) # doctest: +NORMALIZE_WHITESPACE
+    >>> ctl("demo-user-list --project=rex.ctl", expect=1)   # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: package rex.ctl_demo must be included with the application
 
 To get a list of packages that compose the application, use ``rex packages``::
@@ -85,11 +85,12 @@ To get a list of packages that compose the application, use ``rex packages``::
 Application parameters could be specified using option ``--set`` or global
 option ``--parameters``::
 
-    >>> ctl("demo-user-list rex.ctl_demo --set db=pgsql:ctl_demo")  # doctest: +NORMALIZE_WHITESPACE
+    >>> ctl("demo-user-list --project rex.ctl_demo"
+    ...     " --set db=pgsql:ctl_demo")  # doctest: +NORMALIZE_WHITESPACE
     Alice Amter (alice@rexdb.com)
     Bob Barker (bob@rexdb.com)
 
-    >>> ctl("demo-user-list rex.ctl_demo"
+    >>> ctl("demo-user-list --project rex.ctl_demo"
     ...     " --parameters '{\"db\": \"pgsql:ctl_demo\"}'")         # doctest: +NORMALIZE_WHITESPACE
     Alice Amter (alice@rexdb.com)
     Bob Barker (bob@rexdb.com)

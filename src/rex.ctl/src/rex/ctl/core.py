@@ -582,8 +582,8 @@ env.add(shell=Environment(name="Rex",
                                       """ for the RexDB platform""",
                           local_package='rex.local',
                           entry_point='rex.ctl',
-                          config_name='rex.yaml',
                           config_dirs=[os.path.abspath('.'), sys.prefix]),
+        instance=os.path.basename(sys.argv[0]) if not sys.argv[0].startswith('-') else 'rex',
         debug=False,
         quiet=False,
         config=None,
@@ -610,7 +610,7 @@ def main():
     """Loads configuration, parses parameters and executes a task."""
     with env():
         # Enable debugging early if we are certain it's turned on.
-        debug_var = '%s_DEBUG' % env.shell.name.upper().replace('-', '_')
+        debug_var = '%s_DEBUG' % env.instance.upper().replace('-', '_').replace('.', '_')
         if (os.environ.get(debug_var) in ['true', '1'] or
                 (len(sys.argv) > 1 and sys.argv[1] == '--debug')):
             env.set(debug=True)
@@ -894,7 +894,7 @@ def _parse_argv(argv):
 
 def _configure_environ():
     # Load settings from environment variables.
-    prefix = "%s_" % env.shell.name.upper().replace('-', '_')
+    prefix = "%s_" % env.instance.upper().replace('-', '_').replace('.', '_')
     for key in sorted(os.environ):
         if not key.startswith(prefix):
             continue
@@ -930,9 +930,10 @@ def _configure():
             raise fail('specified configuration file {} does not exist',
                        env.config)
         _configure_file(env.config)
-    elif env.shell.config_name and env.shell.config_dirs:
+    else:
+        config_name = env.instance + '.yaml'
         for config_dir in reversed(env.shell.config_dirs):
-            config_path = os.path.join(config_dir, env.shell.config_name)
+            config_path = os.path.join(config_dir, config_name)
             if os.path.isfile(config_path):
                 _configure_file(config_path)
                 break

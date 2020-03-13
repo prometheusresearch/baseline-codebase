@@ -956,11 +956,12 @@ def _configure():
             raise fail('specified configuration file {} does not exist',
                        env.config)
         _configure_file(env.config)
-    if env.shell.config_name and env.shell.config_dirs:
+    elif env.shell.config_name and env.shell.config_dirs:
         for config_dir in reversed(env.shell.config_dirs):
             config_path = os.path.join(config_dir, env.shell.config_name)
             if os.path.isfile(config_path):
                 _configure_file(config_path)
+                break
 
     # Initialize the remaining settings.
     for name in sorted(env.setting_map):

@@ -127,7 +127,7 @@ class UsageTask(Task):
         else:
             log("{}", env.shell.name)
         executable = os.path.basename(sys.argv[0])
-        log("Usage: `{} [<settings>...] <task> [<arguments>...]`", executable)
+        log("Usage: `{} [@instance] [<settings>...] <task> [<arguments>...]`", executable)
         log()
         log("Run `{} help` for general usage and a list of tasks and settings.",
             executable)
@@ -171,7 +171,7 @@ class HelpTask(Task):
         else:
             log("{}", env.shell.name)
         executable = os.path.basename(sys.argv[0])
-        log("Usage: `{} [<settings>...] <task> [<arguments>...]`", executable)
+        log("Usage: `{} [@instance] [<settings>...] <task> [<arguments>...]`", executable)
         log()
         log("Run `{} help` for general usage and a list of tasks,", executable)
         log("settings and other help topics.")

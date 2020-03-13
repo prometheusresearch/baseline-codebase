@@ -711,9 +711,13 @@ def _parse_argv(argv):
     while params:
         param = params.pop(0)
 
+        # Instance name.
+        if param.startswith('@') and param != '@' and task is None and not no_more_opts:
+            env.set(instance=param[1:])
+
         # Treat the remaining parameters as arguments even
         # if they start with `-`.
-        if param == '--' and not no_more_opts:
+        elif param == '--' and not no_more_opts:
             no_more_opts = True
 
         # Must be a setting or an option in the long form.

@@ -13,7 +13,7 @@ tests:
 - py: python-m-rex.ctl
   stdout: |
     Rex - Command-line administration utility for the RexDB platform
-    Usage: __main__.py [<settings>...] <task> [<arguments>...]
+    Usage: __main__.py [@instance] [<settings>...] <task> [<arguments>...]
 
     Run __main__.py help for general usage and a list of tasks and settings.
     Run __main__.py help <topic> for help on a specific task or setting.

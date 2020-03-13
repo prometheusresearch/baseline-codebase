@@ -123,9 +123,9 @@ class UsageTask(Task):
             t = HelpTask(topic=None)
             return t()
         if env.shell.description:
-            log("{} - {}", env.shell.name, env.shell.description)
+            log("{} - {}", env.shell.name.title(), env.shell.description)
         else:
-            log("{}", env.shell.name)
+            log("{}", env.shell.name.title())
         executable = os.path.basename(sys.argv[0])
         log("Usage: `{} [@instance] [<settings>...] <task> [<arguments>...]`", executable)
         log()
@@ -167,9 +167,9 @@ class HelpTask(Task):
 
     def describe_all(self):
         if env.shell.description:
-            log("{} - {}", env.shell.name, env.shell.description)
+            log("{} - {}", env.shell.name.title(), env.shell.description)
         else:
-            log("{}", env.shell.name)
+            log("{}", env.shell.name.title())
         executable = os.path.basename(sys.argv[0])
         log("Usage: `{} [@instance] [<settings>...] <task> [<arguments>...]`", executable)
         log()

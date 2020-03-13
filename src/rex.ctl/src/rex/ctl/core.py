@@ -577,13 +577,13 @@ def prompt(msg):
 
 
 env = Environment()
-env.add(shell=Environment(name="Rex",
+env.add(shell=Environment(name="rex",
                           description="""Command-line administration utility"""
                                       """ for the RexDB platform""",
                           local_package='rex.local',
                           entry_point='rex.ctl',
                           config_dirs=[os.path.abspath('.'), sys.prefix]),
-        instance=os.path.basename(sys.argv[0]) if not sys.argv[0].startswith('-') else 'rex',
+        instance=None,
         debug=False,
         quiet=False,
         config=None,
@@ -610,9 +610,7 @@ def main():
     """Loads configuration, parses parameters and executes a task."""
     with env():
         # Enable debugging early if we are certain it's turned on.
-        debug_var = '%s_DEBUG' % env.instance.upper().replace('-', '_').replace('.', '_')
-        if (os.environ.get(debug_var) in ['true', '1'] or
-                (len(sys.argv) > 1 and sys.argv[1] == '--debug')):
+        if len(sys.argv) > 1 and sys.argv[1] == '--debug':
             env.set(debug=True)
         # When `--debug` is on, show the full traceback.
         try:
@@ -698,6 +696,12 @@ def _load_extensions():
 def _parse_argv(argv):
     # Parse command line parameters.
 
+    # Instance name used to find the configuration file.
+    instance = env.shell.name
+
+    if argv and argv[0] and not argv[0].startswith('-'):
+        instance = os.path.basename(argv[0])
+
     # Task and values for its arguments and options.
     task = None
     attrs = {}
@@ -713,7 +717,7 @@ def _parse_argv(argv):
 
         # Instance name.
         if param.startswith('@') and param != '@' and task is None and not no_more_opts:
-            env.set(instance=param[1:])
+            instance = param[1:]
 
         # Treat the remaining parameters as arguments even
         # if they start with `-`.
@@ -893,6 +897,7 @@ def _parse_argv(argv):
         else:
             attrs[arg.attr] = arg.default
 
+    env.set(instance=instance)
     return task, attrs
 
 

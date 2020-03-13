@@ -3,7 +3,8 @@
 #
 
 
-from rex.core import Error, DocEntry, get_rex, get_packages, get_sentry
+from rex.core import (
+        Error, DocEntry, MapVal, StrVal, get_rex, get_packages, get_sentry)
 import sys
 import os
 import os.path
@@ -904,40 +905,16 @@ def _configure_environ():
         _init_setting(name, os.environ[key])
 
 
-try:
-    YAML_LOADER = yaml.FullLoader
-except AttributeError:
-    YAML_LOADER = yaml.Loader
-
-
 def _configure_file(config_path):
     debug("loading configuration from {}", config_path)
-    try:
-        data = yaml.load(open(config_path, 'r'), Loader=YAML_LOADER)
-    except yaml.YAMLError as exc:
-        warn("failed to load configuration from {}: {}",
-             config_path, exc)
-        return
-
-    if data is None:
-        return
-
-    if not isinstance(data, dict):
-        warn("ill-formed configuration file {}", config_path)
-        return
-
+    val = MapVal(StrVal)
+    data = val.parse(open(config_path, 'r'))
     for key in sorted(data):
-        if not isinstance(key, str):
-            warn("invalid setting {!r}"
-                 " in configuration file {}", key, config_path)
-            continue
-
         name = _to_name(key)
         if name not in env.setting_map:
             warn("unknown setting {} in configuration file {}",
                  key, config_path)
             continue
-
         _init_setting(name, data[key])
 
 

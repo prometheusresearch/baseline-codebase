@@ -6,6 +6,8 @@ services:
     - type: volume
       source: pgdata
       target: /var/lib/postgresql/data
+    environment:
+    - POSTGRES_HOST_AUTH_METHOD=trust
   develop:
     image: rexdb/build:2019.11.12
     command: [sleep, infinity]

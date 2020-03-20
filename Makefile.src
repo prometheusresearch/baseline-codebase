@@ -1,4 +1,11 @@
 
+### Kubernetes Development Environment
+# These variables specify the default GCP project and Kubernetes cluster
+# for use with Kubernetes development environment.
+KUBE_DEFAULT_PROJECT=
+KUBE_DEFAULT_CLUSTER=
+
+
 ### Python Project Builds
 # This variable contains a list of directories in this repository that will be
 # installed with pip during the "develop" and "install" targets.

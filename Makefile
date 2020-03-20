@@ -532,6 +532,7 @@ configure-kube:
 	while [ -z "$$project" ]; do \
 		all_projects=$$(gcloud projects list --format="value(projectId)" 2>/dev/null); \
 		default_project=$$(gcloud config get-value project 2>/dev/null); \
+		[ -z "${KUBE_DEFAULT_PROJECT}" ] || default_project="${KUBE_DEFAULT_PROJECT}"; \
 		echo; \
 		echo "Choose the GCP project:"; \
 		[ -n "$$all_projects" ] || echo "  (no projects found)"; \
@@ -550,6 +551,7 @@ configure-kube:
 		all_clusters=$$(gcloud --project="$$project" container clusters list --format="value(name)" 2>/dev/null); \
 		default_cluster=; \
 		if [ $$(echo "$$all_clusters" | wc -w) = 1 ]; then default_cluster="$$all_clusters"; fi; \
+		[ -z "${KUBE_DEFAULT_CLUSTER}" ] || default_cluster="${KUBE_DEFAULT_CLUSTER}"; \
 		echo; \
 		echo "Choose the GKE cluster:"; \
 		[ -n "$$all_clusters" ] || echo "  (no clusters found)"; \

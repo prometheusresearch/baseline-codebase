@@ -545,7 +545,8 @@ configure-kube:
 		fi; \
 	done; \
 	cluster="${KUBE_CLUSTER}"; \
-	while [ -z "$$cluster" ]; do \
+	location="${KUBE_LOCATION}"; \
+	while [ -z "$$cluster" -a -z "$$location" ]; do \
 		all_clusters=$$(gcloud --project="$$project" container clusters list --format="value(name)" 2>/dev/null); \
 		default_cluster=; \
 		if [ $$(echo "$$all_clusters" | wc -w) = 1 ]; then default_cluster="$$all_clusters"; fi; \
@@ -555,8 +556,10 @@ configure-kube:
 		for c in $$all_clusters; do echo "- $$c"; done; \
 		read -p "[$$default_cluster]> " c; \
 		c="$${c:-$$default_cluster}"; \
-		if gcloud --project="$$project" container clusters describe "$$c" >/dev/null 2>&1; then \
+		l=$$(gcloud --project="$$project" container clusters list --filter="name='$${c:-_}'" --format="value(location)" 2>/dev/null); \
+		if gcloud --project="$$project" container clusters describe --zone="$$l" "$$c" >/dev/null 2>&1; then \
 			cluster="$$c"; \
+			location="$$l"; \
 		else \
 			echo "${RED}Invalid choice!${NORM}"; \
 		fi; \
@@ -575,7 +578,7 @@ configure-kube:
 		fi; \
 	done; \
 	echo; \
-	gcloud --project="$$project" container clusters get-credentials "$$cluster"; \
+	gcloud --project="$$project" container clusters get-credentials --zone="$$location" "$$cluster"; \
 	kubectl config set-context --current --namespace="$$namespace"; \
 	echo; \
 	echo "The following Kubernetes context has been prepared:"; \
@@ -593,6 +596,7 @@ configure-kube:
 # GCP/Kubernetes configuration.
 KUBE_PROJECT ?=
 KUBE_CLUSTER ?=
+KUBE_LOCATION ?=
 KUBE_NAMESPACE ?=
 KUBECONFIG = ${CURDIR}/.kubeconfig
 export KUBECONFIG

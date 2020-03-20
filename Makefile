@@ -548,7 +548,7 @@ configure-kube:
 	done; \
 	cluster="${KUBE_CLUSTER}"; \
 	location="${KUBE_LOCATION}"; \
-	while [ -z "$$cluster" -a -z "$$location" ]; do \
+	while [ -z "$$cluster" -o -z "$$location" ]; do \
 		all_clusters=$$(gcloud --project="$$project" container clusters list --format="value(name)" 2>/dev/null); \
 		default_cluster=; \
 		if [ $$(echo "$$all_clusters" | wc -w) = 1 ]; then default_cluster="$$all_clusters"; fi; \

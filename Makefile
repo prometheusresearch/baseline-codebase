@@ -189,7 +189,8 @@ up-kube:
 	ZONE=$$(kubectl get namespace ${NS} -o jsonpath="{.metadata.annotations.zone}") && \
 	ZONE=$${ZONE:-example.com} && \
 	cat kube.yml | \
-	sed s/develop.example.com/${NS}.$$ZONE/g | \
+	sed s/EXAMPLE.COM/$$ZONE/g | \
+	sed s/NAMESPACE/${NS}/g | \
 	kubectl apply -f -
 	kubectl wait --for=condition=Ready --timeout=5m pod/develop
 

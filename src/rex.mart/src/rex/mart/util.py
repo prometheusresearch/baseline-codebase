@@ -95,7 +95,7 @@ def guarded(msg, payload=None):
     except Exception as exc:
         new_exc = Error(str(exc))
         new_exc.wrap(msg, payload)
-        raise new_exc from None
+        raise new_exc from exc
 
 
 RESTR_SAFE_TOKEN = r'^[a-z_][0-9a-z_]*$'

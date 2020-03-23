@@ -170,6 +170,14 @@ command line::
     SQL script #1...
     Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
     Traceback (most recent call last):
+    htsql.core.error.EngineError: Got an error from the database driver:
+        relation "blah" does not exist
+        LINE 1: insert into blah (col1) values('stuff');
+                            ^
+    <BLANKLINE>
+    The above exception was the direct cause of the following exception:
+    <BLANKLINE>
+    Traceback (most recent call last):
     rex.core.Error: Got an error from the database driver:
         relation "blah" does not exist
         LINE 1: insert into blah (col1) values('stuff');
@@ -210,6 +218,14 @@ command line::
     Executing Post-Deployment ETL...
     SQL script #1...
     Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
+    Traceback (most recent call last):
+    htsql.core.error.EngineError: Got an error from the database driver:
+        relation "blah" does not exist
+        LINE 1: insert into blah (col1) values('stuff');
+                            ^
+    <BLANKLINE>
+    The above exception was the direct cause of the following exception:
+    <BLANKLINE>
     Traceback (most recent call last):
     rex.core.Error: Got an error from the database driver:
         relation "blah" does not exist

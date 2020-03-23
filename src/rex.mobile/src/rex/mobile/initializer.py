@@ -45,5 +45,5 @@ class MobileInitialize(Initialize):
                         interaction.uid,
                         exc,
                     )
-                ) from None
+                ) from exc
 

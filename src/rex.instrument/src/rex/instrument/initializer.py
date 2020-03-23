@@ -42,7 +42,7 @@ class InstrumentInitialize(Initialize):
                             version.uid,
                             exc,
                         )
-                    ) from None
+                    ) from exc
 
         calc_impl = get_implementation('calculationset')
         if calc_impl != CalculationSet:
@@ -62,5 +62,5 @@ class InstrumentInitialize(Initialize):
                             calc.uid,
                             exc,
                         )
-                    ) from None
+                    ) from exc
 

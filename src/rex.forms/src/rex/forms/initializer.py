@@ -44,5 +44,5 @@ class FormsInitialize(Initialize):
                         form.uid,
                         exc,
                     )
-                ) from None
+                ) from exc
 

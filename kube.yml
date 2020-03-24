@@ -133,7 +133,7 @@ spec:
   - port: 80
 
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: develop
@@ -142,9 +142,9 @@ metadata:
 spec:
   tls:
   - hosts:
-    - develop.example.com
+    - NAMESPACE.EXAMPLE.COM
   rules:
-  - host: develop.example.com
+  - host: NAMESPACE.EXAMPLE.COM
     http:
       paths:
       - backend:

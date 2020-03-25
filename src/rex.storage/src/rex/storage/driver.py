@@ -1,12 +1,13 @@
 import cloudstorage
 
+from .cloudstorage_gcs_patch import GoogleStorageDriver
 from .cloudstorage_local_patch import LocalDriver
 from .rex import RexDriver
 
 
 DRIVERS = {
     's3': cloudstorage.get_driver_by_name('S3'),
-    'gcs': cloudstorage.get_driver_by_name('GOOGLESTORAGE'),
+    'gcs': GoogleStorageDriver,
     'local': LocalDriver,
     'rex': RexDriver,
 }

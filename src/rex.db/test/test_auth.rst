@@ -177,6 +177,8 @@ function::
 
     >>> answer = Rex('__main__', 'rex.db',
     ...     db="sqlite:./sandbox/db_demo.sqlite",
+    ...     access={'rex.db': 'north'},
+    ...     access_queries={'north': "true"},
     ...     htsql_environment={'answer': "rex.db_demo:answer_query"})
 
     >>> req = Request.blank('/db/$answer', remote_user="Alice")

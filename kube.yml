@@ -77,7 +77,7 @@ spec:
         path: default.conf
   containers:
   - name: develop
-    image: rexdb/build:2019.11.12
+    image: rexdb/build:2020.04.07
     workingDir: /app
     command: [sleep, infinity]
     env:
@@ -91,7 +91,7 @@ spec:
     - name: pgrun
       mountPath: /var/run/postgresql
   - name: postgres
-    image: postgres:9
+    image: postgres:11
     env:
     - name: POSTGRES_HOST_AUTH_METHOD
       value: trust

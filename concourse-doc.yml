@@ -4,7 +4,7 @@ image_resource:
   type: registry-image
   source:
     repository: rexdb/build
-    tag: 2019.11.12
+    tag: 2020.04.07
 
 inputs:
 - name: codebase

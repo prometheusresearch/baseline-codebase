@@ -1,0 +1,3 @@
+access:
+  rex.db: nobody
+

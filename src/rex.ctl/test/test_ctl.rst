@@ -112,6 +112,10 @@ To get a list of parameters of the application use ``rex settings``::
     [access]
     Declared in:
       rex.web
+    Preset in:
+      rex.db
+    Value:
+      {'rex.db': 'nobody'}
     Description:
       ...
     [db]

@@ -36,6 +36,7 @@ setup(
         'https://dist.rexdb.org/packages/',
     ],
     rex_init='rex.db',
+    rex_static='static',
 )
 
 

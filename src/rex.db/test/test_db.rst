@@ -212,9 +212,17 @@ HTSQL service
 =============
 
 Raw HTSQL service is available under the ``rex.db`` mount point and requires
-the ``rex.db`` package permissions::
+the ``rex.db`` package permissions. By default, it does not allow any access::
 
     >>> from webob import Request
+
+    >>> auth_demo = Rex('rex.db', db='sqlite:./sandbox/db_demo.sqlite')
+
+    >>> req = Request.blank('/db/department')
+    >>> req.remote_user = 'Alice'
+    >>> print(req.get_response(auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    401 Unauthorized
+    ...
 
     >>> auth_demo = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite',
     ...                 access={'rex.db': 'authenticated'})

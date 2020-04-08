@@ -300,6 +300,9 @@ class EnumerationField(TextField):
                 for enum in getattr(previous, 'enumerations', []):
                     if enum not in field.enumerations:
                         field.enumerations.append(enum)
+                field.enumeration_descriptions.update(
+                    previous.enumeration_descriptions
+                )
 
         return field
 

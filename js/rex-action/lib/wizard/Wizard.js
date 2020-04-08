@@ -12,7 +12,7 @@ import { post } from "rex-widget/fetch";
 import * as rexui from "rex-ui";
 
 import createLogger from "debug";
-import type { State, Entity, IStart } from "../model/types";
+import type { State, Entity, IStart, Position } from "../model/types";
 import * as E from "../model/Entity";
 import * as C from "../model/Command";
 import * as S from "../model/State";
@@ -39,7 +39,8 @@ type WizardProps = {
   settings: { includePageBreadcrumbItem?: boolean },
   pathPrefix: string,
   history: History.History,
-  location: History.Location
+  location: History.Location,
+  locationAction: ?History.Action,
 };
 
 type WizardState = {
@@ -120,9 +121,9 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
       onContextNoAdvance: this._onContextNoAdvance,
       onEntityUpdate: this._onEntityUpdate,
       refetch: () =>
-        this.setState(state => {
-          this._refetch(state.graph);
-          return state;
+        this.setGraph(graph => {
+          this._refetch(graph);
+          return graph;
         }),
       toolbar: <Toolbar positions={nextPositions} onClick={this._onNext} />
     });
@@ -165,27 +166,47 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
     );
   }
 
-  componentDidUpdate(
-    _prevProps: WizardProps,
-    { graph: prevGraph }: WizardState
-  ) {
-    const { graph } = this.state;
-    if (prevGraph != null && graph != null && prevGraph !== graph) {
-      let path = SP.toPath(graph);
-      if (path === SP.toPath(prevGraph)) {
-        this.props.history.replace(this.props.pathPrefix + path);
-      } else {
-        this.props.history.push(this.props.pathPrefix + path);
+  setGraph(update, confirmed?: boolean = false) {
+    let updateState = state => {
+      let prevGraph = state.graph;
+      let graph = update(prevGraph);
+      if (prevGraph != null && graph != null && prevGraph !== graph) {
+        let path = SP.toPath(graph);
+        if (path === SP.toPath(prevGraph)) {
+          this.props.history.replace(this.props.pathPrefix + path);
+        } else {
+          this.props.history.push(this.props.pathPrefix + path);
+        }
       }
+      return { ...state, graph };
+    };
+    if (confirmed) {
+      this.setStateConfirmed(updateState);
+    } else {
+      this.setState(updateState);
     }
   }
 
-  componentWillReceiveProps({ location }: WizardProps) {
+  setStateConfirmed = (
+    updater: (WizardState & { graph: State }) => WizardState
+  ) => {
+    if (confirmNavigation()) {
+      this.setState(state => {
+        if (state.graph == null) {
+          return state;
+        } else {
+          return updater(state);
+        }
+      });
+    }
+  };
+
+  componentWillReceiveProps({ location, locationAction }: WizardProps) {
     if (location === this.props.location) {
       return;
     }
 
-    this._onLocation(location);
+    this._onLocation(location, locationAction);
   }
 
   _refetch = (graph: ?State) => {
@@ -215,13 +236,14 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
   };
 
   _onRefetchComplete = (graph: State, data: Object) => {
-    const nextGraph = S.mapPosition(graph, pos => {
-      const contextUpdate = data[pos.instruction.action.id];
-      const nextContext = { ...pos.context, ...contextUpdate };
-      const nextPos = { ...pos, context: nextContext };
-      return P.isPositionAllowed(nextPos) ? nextPos : null;
+    this.setGraph(_prevGraph => {
+      return S.mapPosition(graph, pos => {
+        const contextUpdate = data[pos.instruction.action.id];
+        const nextContext = { ...pos.context, ...contextUpdate };
+        const nextPos = { ...pos, context: nextContext };
+        return P.isPositionAllowed(nextPos) ? nextPos : null;
+      });
     });
-    this.setState({ graph: nextGraph });
   };
 
   _onRefetchError = (err: Error) => {
@@ -229,7 +251,10 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
     console.error(err);
   };
 
-  _onLocation = (location: History.Location) => {
+  _onLocation = (
+    location: History.Location,
+    locationAction: History.Action,
+  ) => {
     // TODO: maybe we should work with in-flight state instead?
     if (this.state.graph == null) {
       return;
@@ -252,43 +277,60 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
       context: this.props.initialContext || {}
     });
 
+    if (locationAction === "POP") {
+      // try to transplant state
+      try {
+        invariant(this.state.graph != null, "Checked above");
+        let prev = S.positions(this.state.graph);
+        let next = S.positions(graph);
+
+        for (let i = 0; i < next.length; i++) {
+          let anext: Position = next[i];
+          let aprev = prev[i];
+          if (aprev == null) {
+            break;
+          }
+          if (aprev.instruction.action.id !== anext.instruction.action.id) {
+            break;
+          }
+          // $FlowFixMe: ...
+          anext.state = { ...aprev.state, ...anext.state };
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     this._refetch(graph);
   };
 
   _onNext = (actionId: string) => {
-    this.setStateConfirmed(state => ({
-      graph: S.advanceTo(state.graph, actionId)
-    }));
+    this.setGraph(graph => S.advanceTo(graph, actionId), true);
   };
 
   _onReturn = (actionId: string) => {
-    this.setStateConfirmed(state => ({
-      graph: S.returnTo(state.graph, actionId)
-    }));
+    this.setGraph(graph => S.returnTo(graph, actionId), true);
   };
 
   _onReplaceWithSibling = (siblingActionId: string) => {
-    this.setStateConfirmed(state => ({
-      graph: S.replaceCurrentPositionWithSibling(state.graph, siblingActionId)
-    }));
+    this.setGraph(
+      graph => S.replaceCurrentPositionWithSibling(graph, siblingActionId),
+      true
+    );
   };
 
   _onState = (stateUpdate: Object) => {
-    this.setState(state => {
-      const graph = S.setStateAtCurrentPosition(state.graph, stateUpdate);
-      return { ...state, graph };
-    });
+    this.setGraph(graph => S.setStateAtCurrentPosition(graph, stateUpdate));
   };
 
   _onCommand = (advance: boolean, commandName: string, ...args: any[]) => {
-    this.setStateConfirmed(state => {
-      let { graph } = state;
+    this.setGraph(graph => {
       graph = S.applyCommandAtCurrentPosition(graph, commandName, args);
       if (advance) {
         graph = S.advanceToFirst(graph);
       }
-      return { ...state, graph };
-    });
+      return graph;
+    }, true);
   };
 
   _onContext = (context: Object) => {
@@ -302,25 +344,11 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
   };
 
   _onEntityUpdate = (prevEntity: Entity, nextEntity: ?Entity) => {
-    this.setState(state => {
-      let graph = S.updateEntity(state.graph, prevEntity, nextEntity);
+    this.setGraph(graph => {
+      graph = S.updateEntity(graph, prevEntity, nextEntity);
       this._refetch(graph);
-      return { ...state, graph };
+      return graph;
     });
-  };
-
-  setStateConfirmed = (
-    updater: (WizardState & { graph: State }) => WizardState
-  ) => {
-    if (confirmNavigation()) {
-      this.setState(state => {
-        if (state.graph == null) {
-          return state;
-        } else {
-          return updater(state);
-        }
-      });
-    }
   };
 }
 

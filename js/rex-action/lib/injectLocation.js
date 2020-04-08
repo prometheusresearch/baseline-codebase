@@ -1,47 +1,48 @@
 /**
  * @copyright 2017-present, Prometheus Research, LLC
- * @noflow
+ * @flow
  */
 
 import * as React from "react";
 import * as History from "rex-ui/History";
 
-export default function injectLocation<C: ReactClass<*>>(Component: C): C {
-  let WrappedComponent: any = class HistoryAware extends React.Component {
-    _history: Object = History.getHashHistory();
-    _historyStopListening: ?() => void = null;
+export default function injectLocation<
+  P: { location: History.Location, locationAction: ?History.Action },
+>(
+  Component: React.AbstractComponent<P>,
+): React.AbstractComponent<
+  $Diff<P, { location: History.Location, locationAction: ?History.Action }>,
+> {
+  let history = History.getHashHistory();
+  let browserHistory = History.getBrowserHistory();
+  function getHashLocation(location) {
+    return History.createLocation("/" + location.hash.slice(1));
+  }
+  return function WrappedComponent(props) {
+    let [location, setLocation] = React.useState<History.Location>(() =>
+      getHashLocation(browserHistory.location),
+    );
 
-    state: { location: History.Location } = {
-      location: History.getCurrentLocation()
-    };
+    let [action, setAction] = React.useState<?History.Action>(null);
 
-    render() {
-      return (
-        <Component
-          {...this.props}
-          location={this.state.location}
-          history={this._history}
-        />
+    React.useEffect(() => {
+      let stopListening = browserHistory.listen(
+        (location: History.Location, action: History.Action) => {
+          setLocation(getHashLocation(location));
+          setAction(action);
+        },
       );
-    }
+      return () => stopListening();
+    }, []);
 
-    componentDidMount() {
-      this._historyStopListening = this._history.listen(this._onLocationPop);
-    }
-
-    componentWillUnmount() {
-      if (this._historyStopListening) {
-        this._historyStopListening();
-        this._historyStopListening = null;
-      }
-    }
-
-    _onLocationPop = (location: History.Location, action: History.Action) => {
-      if (action !== "POP") {
-        return;
-      }
-      this.setState({ location });
-    };
+    return (
+      <Component
+        {...props}
+        key={browserHistory.location.pathname}
+        location={location}
+        locationAction={action}
+        history={history}
+      />
+    );
   };
-  return (WrappedComponent: C);
 }

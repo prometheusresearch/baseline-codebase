@@ -34,7 +34,7 @@ export default function FileDownload(props: Props) {
   let { file, download, ownerRecordID } = props;
   return (
     <HBox>
-      {file ? (
+      {file && file.name ? (
         <StoredFile
           file={file}
           download={download}

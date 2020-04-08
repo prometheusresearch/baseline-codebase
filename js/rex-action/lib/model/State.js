@@ -22,6 +22,16 @@ export function create({instruction, context}: StateConfig): State {
   };
 }
 
+export function positions(state: State): Position[] {
+  let positions: Position[] = [];
+  let curr = state.position;
+  while (curr.type !== "start-position") {
+    positions.unshift(curr);
+    curr = curr.prev;
+  }
+  return positions;
+}
+
 export function next(state: State): Position[] {
   return P.nextPosition(state.position);
 }

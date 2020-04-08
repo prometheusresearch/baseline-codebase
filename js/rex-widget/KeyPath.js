@@ -4,7 +4,7 @@
  */
 
 export type key = string | number;
-export type keypath = null | key | Array<key>;
+export type keypath = null | key | $ReadOnlyArray<key>;
 export opaque type data: mixed = Object;
 
 export function get(keyPathP: keypath, obj: data) {
@@ -38,7 +38,7 @@ export function normalize(keyPath: keypath): key[] {
     return [];
   }
   if (Array.isArray(keyPath)) {
-    return keyPath;
+    return keyPath.slice();
   } else if (typeof keyPath === "number") {
     return [keyPath];
   } else {

@@ -16,10 +16,10 @@ type Props = {|
   preloader?: React.Node,
 |};
 
-type State = {|
+type State = {
   content: React.Node,
   updating: boolean
-|};
+};
 
 export default class DynamicPageContent extends React.Component<Props, State> {
   static defaultProps = {

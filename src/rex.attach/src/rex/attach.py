@@ -64,7 +64,7 @@ class OpenFileApp:
 
     def __call__(self, req):
         # Adapted from `FileApp.__call__()`.
-        if 'wsgi.file_wrapper' in req.environ:
+        if 'wsgi.file_wrapper' in req.environ and not isinstance(self.file, io.BytesIO):
             app_iter = req.environ['wsgi.file_wrapper'](self.file, BLOCK_SIZE)
         else:
             app_iter = FileIter(self.file)

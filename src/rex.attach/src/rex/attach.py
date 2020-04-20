@@ -658,7 +658,9 @@ class InitializeAttach(Initialize):
     # Verifies that the attachment storage is configured correctly.
 
     def __call__(self):
-        storage = get_storage()
+        # Avoid caching the storage object during initialization since
+        # it triggers SSL error with GCS backend and uwsgi.processes > 1.
+        storage = get_storage.__wrapped__()
         storage.verify()
 
 

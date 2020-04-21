@@ -64,7 +64,7 @@ class OpenFileApp:
 
     def __call__(self, req):
         # Adapted from `FileApp.__call__()`.
-        if 'wsgi.file_wrapper' in req.environ:
+        if 'wsgi.file_wrapper' in req.environ and not isinstance(self.file, io.BytesIO):
             app_iter = req.environ['wsgi.file_wrapper'](self.file, BLOCK_SIZE)
         else:
             app_iter = FileIter(self.file)
@@ -658,7 +658,9 @@ class InitializeAttach(Initialize):
     # Verifies that the attachment storage is configured correctly.
 
     def __call__(self):
-        storage = get_storage()
+        # Avoid caching the storage object during initialization since
+        # it triggers SSL error with GCS backend and uwsgi.processes > 1.
+        storage = get_storage.__wrapped__()
         storage.verify()
 
 

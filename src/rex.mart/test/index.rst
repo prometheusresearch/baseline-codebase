@@ -6,6 +6,7 @@ REX.MART Examples/Tests
 
    test_commands
    test_config
+   test_connection
    test_creation
    test_ctl
    test_datadictionary

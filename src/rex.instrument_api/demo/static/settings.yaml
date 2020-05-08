@@ -1,0 +1,12 @@
+instrument_implementation:
+  subject: rex.instrument_api_demo.ApiDemoSubject
+  assessment: rex.instrument_api_demo.ApiDemoAssessment
+  instrument: rex.instrument_api_demo.ApiDemoInstrument
+  instrumentversion: rex.instrument_api_demo.ApiDemoInstrumentVersion
+  calculationset: rex.instrument_api_demo.ApiDemoCalculationSet
+
+db: pgsql:instrument_api_demo
+
+mount:
+  rex.instrument_api: /
+

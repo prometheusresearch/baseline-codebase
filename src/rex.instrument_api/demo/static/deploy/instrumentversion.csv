@@ -1,0 +1,4 @@
+uid,instrument,version,published_by,date_published,definition,calculation_json
+apitest1,apitest,1,someone,"2015-01-01","{""id"": ""urn:apitest"",""version"": ""1.0"",""title"": ""The API Test"",""record"": [{""id"": ""q_fake"",""type"": ""text""}]}",
+apitest2,apitest,2,someone,"2015-01-02","{""id"": ""urn:apitest"",""version"": ""1.1"",""title"": ""The Updated API Test"",""record"": [{""id"": ""q_fake"",""type"": ""text""}]}","{""instrument"": {""id"": ""urn:apitest"",""version"": ""1.1""},""calculations"": [{""id"": ""calc1"",""type"": ""text"",""method"": ""python"",""options"": {""expression"": ""assessment['q_fake'].upper()""}}]}"
+apitest3,apitest2,1,someone,"2015-01-01","{""id"": ""urn:apitest2"",""version"": ""1.0"",""title"": ""The Second API Test"",""record"": [{""id"": ""q_fake"",""type"": ""text""}, {""id"": ""q_datetime"", ""type"": ""dateTime""}]}",

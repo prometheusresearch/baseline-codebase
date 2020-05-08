@@ -1,0 +1,51 @@
+strictness: veryhigh
+doc-warnings: true
+test-warnings: true
+
+ignore-patterns:
+  - ^doc/conf\.py$
+  - ^demo/.*$
+  - ^static/js/.*$
+
+pep8:
+  disable:
+    - W391
+
+pylint:
+  disable:
+    - wildcard-import
+    - star-args
+    - missing-docstring
+    - abstract-class-not-used
+    - abstract-class-little-used
+    - no-init
+    # Only disable the following rule until pylint can better handle namespaces
+    - import-error
+  enable:
+    - fixme
+
+  options:
+    min-public-methods: 0
+    max-public-methods: 30
+    max-args: 10
+    max-attributes: 20
+    max-parents: 10
+
+pyflakes:
+  disable:
+    - F403
+
+frosted:
+  disable:
+    - E103
+
+pyroma:
+  run: true
+  disable:
+    - PYR09
+    - PYR14
+    - PYR15
+
+pep257:
+  run: false
+

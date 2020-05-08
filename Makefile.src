@@ -49,6 +49,7 @@ SRC_PY = \
 	src/rex.tabular_import \
 	src/rex.about \
 	src/rex.notebook \
+	src/rex.instrument_api \
 	src/rex.baseline \
 	src/rex.demo.instrument \
 	src/rex.demo.forms \

@@ -30,5 +30,5 @@ The application can then be accessed at: `<http://localhost:8080/@forms>`_
 Documentation
 =============
 After initializing this codebase (``make init``), documentation for this
-codebase can be found at: `<http://localhost:8080/docs/>`_
+codebase can be found at: `<http://localhost:8080/doc/>`_
 

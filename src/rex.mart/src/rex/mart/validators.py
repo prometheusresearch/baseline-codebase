@@ -7,7 +7,7 @@ from collections import Counter
 
 from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
     MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal, \
-    AnyVal, FloatVal, UnionVal
+    AnyVal, FloatVal, UnionVal, cached
 from rex.deploy import Driver
 from rex.instrument import Instrument
 from rex.restful import DateVal, TimeVal, DateTimeVal
@@ -770,14 +770,7 @@ class DefinitionVal(FullyValidatingRecordVal):
                 elif assessment.instrument != '@ALL':
                     assessments.append(assessment)
                 else:
-                    all_instruments = [
-                        instrument
-                        for instrument in Instrument.get_implementation().find(
-                            status=Instrument.STATUS_ACTIVE,
-                        )
-                        if instrument.latest_version
-                    ]
-                    for instrument in all_instruments:
+                    for instrument in self.get_all_instruments():
                         assessments.append(
                             AssessmentDefinitionVal()(assessment.__clone__(
                                 instrument=instrument.code,
@@ -812,6 +805,16 @@ class DefinitionVal(FullyValidatingRecordVal):
                 )
 
         return value
+
+    @cached(expires=60)
+    def get_all_instruments(self):
+        return [
+            instrument
+            for instrument in Instrument.get_implementation().find(
+                status=Instrument.STATUS_ACTIVE,
+            )
+            if instrument.latest_version
+        ]
 
 
 class MartConfigurationVal(FullyValidatingRecordVal):

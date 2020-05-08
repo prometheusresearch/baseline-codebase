@@ -73,6 +73,7 @@ class StaticDefinitionProducer(DefinitionProducer):
         return get_static_definitions()
 
 
+@cached(expires=60)
 def get_all_definitions():
     """
     Returns all definitions currently configured in this application instance.

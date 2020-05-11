@@ -1,0 +1,12 @@
+- table: user
+  with:
+    - data: ./deploy/user.csv
+
+- table: instrument
+  with:
+    - data: ./deploy/instrument.csv
+
+- table: instrumentversion
+  with:
+    - data: ./deploy/instrumentversion.csv
+

@@ -37,6 +37,7 @@ Components
    REX.FORMS <rex.forms/index>
    REX.I18N <rex.i18n/index>
    REX.INSTRUMENT <rex.instrument/index>
+   REX.INSTRUMENT_API <rex.instrument_api/index>
    REX.JOB <rex.job/index>
    REX.LOGGING <rex.logging/index>
    REX.MART <rex.mart/index>

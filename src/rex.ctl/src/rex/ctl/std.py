@@ -123,11 +123,11 @@ class UsageTask(Task):
             t = HelpTask(topic=None)
             return t()
         if env.shell.description:
-            log("{} - {}", env.shell.name, env.shell.description)
+            log("{} - {}", env.shell.name.title(), env.shell.description)
         else:
-            log("{}", env.shell.name)
+            log("{}", env.shell.name.title())
         executable = os.path.basename(sys.argv[0])
-        log("Usage: `{} [<settings>...] <task> [<arguments>...]`", executable)
+        log("Usage: `{} [@instance] [<settings>...] <task> [<arguments>...]`", executable)
         log()
         log("Run `{} help` for general usage and a list of tasks and settings.",
             executable)
@@ -167,11 +167,11 @@ class HelpTask(Task):
 
     def describe_all(self):
         if env.shell.description:
-            log("{} - {}", env.shell.name, env.shell.description)
+            log("{} - {}", env.shell.name.title(), env.shell.description)
         else:
-            log("{}", env.shell.name)
+            log("{}", env.shell.name.title())
         executable = os.path.basename(sys.argv[0])
-        log("Usage: `{} [<settings>...] <task> [<arguments>...]`", executable)
+        log("Usage: `{} [@instance] [<settings>...] <task> [<arguments>...]`", executable)
         log()
         log("Run `{} help` for general usage and a list of tasks,", executable)
         log("settings and other help topics.")
@@ -268,8 +268,8 @@ class HelpTask(Task):
         executable = os.path.basename(sys.argv[0])
         usage = "--%s" % spec.name
         usage_conf = "%s" % spec.name
-        usage_environ = ("%s_%s" % (env.shell.name, spec.name)) \
-                        .upper().replace('-', '_')
+        usage_environ = ("%s_%s" % (env.instance, spec.name)) \
+                        .upper().replace('-', '_').replace('.', '_')
         if spec.has_value:
             usage += "=%s" % spec.value_name
             usage_conf += ": %s" % spec.value_name
@@ -278,8 +278,7 @@ class HelpTask(Task):
             usage_conf += ": true"
             usage_environ += "=1"
         log("Usage: `{} {}`", executable, usage)
-        if env.shell.config_name:
-            log("       `{}` ({})", usage_conf, env.shell.config_name)
+        log("       `{}` ({})", usage_conf, env.instance + '.yaml')
         log("       `{}` (environment)", usage_environ)
         log()
         if spec.help:

@@ -105,14 +105,17 @@ If you wish to name the configuration file differently, or the file is not in
 the current directory, you can use ``--config`` parameter to specify the
 location of the configuration file::
 
-    $ rex deploy --config=/path/to/rex.yaml
+    $ rex deploy --config=myapp.yaml
     ...
 
-    $ rex serve --config=/path/to/rex.yaml
+Alternatively, you can rename the executable to match the name of the
+configuration file or override the executable name using the following
+notation::
+
+    $ rex @myapp serve
     ...
 
-Alternatively, configuration parameters could be specified using environment
-variables::
+Configuration parameters could also be specified using environment variables::
 
     $ export REX_PROJECT=rex.ctl_demo
     $ export REX_PARAMETERS='{"db": "pgsql:ctl_demo"}'
@@ -128,10 +131,10 @@ variables::
 Another option is to specify the application name and configuration using
 command-line arguments and options::
 
-    $ rex deploy rex.ctl_demo --set db=pgsql:ctl_demo
+    $ rex deploy --project rex.ctl_demo --set db=pgsql:ctl_demo
     ...
 
-    $ rex serve rex.ctl_demo --set db=pgsql:ctl_demo -h localhost -p 8088
+    $ rex serve --project rex.ctl_demo --set db=pgsql:ctl_demo -h localhost -p 8088
     ...
 
 To get a list of all configuration parameters supported by the application, use

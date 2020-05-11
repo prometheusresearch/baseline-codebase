@@ -14,7 +14,7 @@ To control a RexDB application, use command-line utility ``rex``::
 
     >>> ctl('')                                 # doctest: +NORMALIZE_WHITESPACE
     Rex - Command-line administration utility for the RexDB platform
-    Usage: rex [<settings>...] <task> [<arguments>...]
+    Usage: rex [@instance] [<settings>...] <task> [<arguments>...]
     <BLANKLINE>
     Run rex help for general usage and a list of tasks and settings.
     Run rex help <topic> for help on a specific task or setting.
@@ -184,7 +184,7 @@ task, you can write::
     >>> output = help_ctl.wait()
     >>> print(output)                # doctest: +ELLIPSIS
     Rex - Command-line administration utility for the RexDB platform
-    Usage: rex [<settings>...] <task> [<arguments>...]
+    Usage: rex [@instance] [<settings>...] <task> [<arguments>...]
     <BLANKLINE>
     Run rex help for general usage and a list of tasks,
     settings and other help topics.

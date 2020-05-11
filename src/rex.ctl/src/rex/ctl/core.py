@@ -3,7 +3,8 @@
 #
 
 
-from rex.core import Error, DocEntry, get_rex, get_packages, get_sentry
+from rex.core import (
+        Error, DocEntry, MapVal, StrVal, get_rex, get_packages, get_sentry)
 import sys
 import os
 import os.path
@@ -576,16 +577,13 @@ def prompt(msg):
 
 
 env = Environment()
-env.add(shell=Environment(name="Rex",
+env.add(shell=Environment(name="rex",
                           description="""Command-line administration utility"""
                                       """ for the RexDB platform""",
                           local_package='rex.local',
                           entry_point='rex.ctl',
-                          config_name='rex.yaml',
-                          config_dirs=['/etc',
-                                       os.path.join(sys.prefix, '/etc'),
-                                       os.path.expanduser('~/.rex'),
-                                       os.path.abspath('.')]),
+                          config_dirs=[os.path.abspath('.'), sys.prefix]),
+        instance=None,
         debug=False,
         quiet=False,
         config=None,
@@ -612,9 +610,7 @@ def main():
     """Loads configuration, parses parameters and executes a task."""
     with env():
         # Enable debugging early if we are certain it's turned on.
-        debug_var = '%s_DEBUG' % env.shell.name.upper().replace('-', '_')
-        if (os.environ.get(debug_var) in ['true', '1'] or
-                (len(sys.argv) > 1 and sys.argv[1] == '--debug')):
+        if len(sys.argv) > 1 and sys.argv[1] == '--debug':
             env.set(debug=True)
         # When `--debug` is on, show the full traceback.
         try:
@@ -700,6 +696,12 @@ def _load_extensions():
 def _parse_argv(argv):
     # Parse command line parameters.
 
+    # Instance name used to find the configuration file.
+    instance = env.shell.name
+
+    if argv and argv[0] and not argv[0].startswith('-'):
+        instance = os.path.basename(argv[0])
+
     # Task and values for its arguments and options.
     task = None
     attrs = {}
@@ -713,9 +715,13 @@ def _parse_argv(argv):
     while params:
         param = params.pop(0)
 
+        # Instance name.
+        if param.startswith('@') and param != '@' and task is None and not no_more_opts:
+            instance = param[1:]
+
         # Treat the remaining parameters as arguments even
         # if they start with `-`.
-        if param == '--' and not no_more_opts:
+        elif param == '--' and not no_more_opts:
             no_more_opts = True
 
         # Must be a setting or an option in the long form.
@@ -891,12 +897,13 @@ def _parse_argv(argv):
         else:
             attrs[arg.attr] = arg.default
 
+    env.set(instance=instance)
     return task, attrs
 
 
 def _configure_environ():
     # Load settings from environment variables.
-    prefix = "%s_" % env.shell.name.upper().replace('-', '_')
+    prefix = "%s_" % env.instance.upper().replace('-', '_').replace('.', '_')
     for key in sorted(os.environ):
         if not key.startswith(prefix):
             continue
@@ -907,40 +914,16 @@ def _configure_environ():
         _init_setting(name, os.environ[key])
 
 
-try:
-    YAML_LOADER = yaml.FullLoader
-except AttributeError:
-    YAML_LOADER = yaml.Loader
-
-
 def _configure_file(config_path):
     debug("loading configuration from {}", config_path)
-    try:
-        data = yaml.load(open(config_path, 'r'), Loader=YAML_LOADER)
-    except yaml.YAMLError as exc:
-        warn("failed to load configuration from {}: {}",
-             config_path, exc)
-        return
-
-    if data is None:
-        return
-
-    if not isinstance(data, dict):
-        warn("ill-formed configuration file {}", config_path)
-        return
-
+    val = MapVal(StrVal)
+    data = val.parse(open(config_path, 'r'))
     for key in sorted(data):
-        if not isinstance(key, str):
-            warn("invalid setting {!r}"
-                 " in configuration file {}", key, config_path)
-            continue
-
         name = _to_name(key)
         if name not in env.setting_map:
             warn("unknown setting {} in configuration file {}",
                  key, config_path)
             continue
-
         _init_setting(name, data[key])
 
 
@@ -956,11 +939,13 @@ def _configure():
             raise fail('specified configuration file {} does not exist',
                        env.config)
         _configure_file(env.config)
-    if env.shell.config_name and env.shell.config_dirs:
+    else:
+        config_name = env.instance + '.yaml'
         for config_dir in reversed(env.shell.config_dirs):
-            config_path = os.path.join(config_dir, env.shell.config_name)
+            config_path = os.path.join(config_dir, config_name)
             if os.path.isfile(config_path):
                 _configure_file(config_path)
+                break
 
     # Initialize the remaining settings.
     for name in sorted(env.setting_map):

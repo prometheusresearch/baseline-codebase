@@ -192,7 +192,7 @@ JSON from a Form in the project data store::
 
     >>> ctl('help mobile-retrieve')
     MOBILE-RETRIEVE - retrieves an Interaction from the datastore
-    Usage: rex mobile-retrieve [<project>] <instrument-uid> <channel-uid>
+    Usage: rex mobile-retrieve <instrument-uid> <channel-uid>
     <BLANKLINE>
     The mobile-retrieve task will retrieve an Interaction from a project's data
     store and return the SMS Interaction Configuration.
@@ -353,7 +353,7 @@ a Form in the project data store::
 
     >>> ctl('help mobile-store')
     MOBILE-STORE - stores an Interaction in the data store
-    Usage: rex mobile-store [<project>] <instrument-uid> <channel-uid> <configuration>
+    Usage: rex mobile-store <instrument-uid> <channel-uid> <configuration>
     <BLANKLINE>
     The mobile-store task will write an SMS Interaction Configuration file to
     an Interaction in the project's data store.

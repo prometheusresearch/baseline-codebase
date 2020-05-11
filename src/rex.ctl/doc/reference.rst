@@ -25,6 +25,7 @@ Template for application-specific tasks
 =======================================
 
 .. autoclass:: rex.ctl.RexTask
+.. autoclass:: rex.ctl.RexTaskWithProject
 
 
 Loading application from ``rex.yaml``

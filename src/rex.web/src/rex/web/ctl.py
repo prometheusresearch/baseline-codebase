@@ -8,7 +8,8 @@ from rex.core import (
         get_packages, get_settings, Error, PythonPackage, StrVal, PIntVal,
         BoolVal, MaybeVal, MapVal, Validate)
 from rex.ctl import (
-        env, RexTask, Global, Topic, argument, option, log, fail, exe, COLORS)
+        env, RexTaskWithProject, Global, Topic, argument, option, log, fail,
+        exe, COLORS)
 import sys
 import os
 import time
@@ -226,7 +227,7 @@ class ReplayLogGlobal(Global):
     default = None
 
 
-class RexWatchTask(RexTask):
+class RexWatchTask(RexTaskWithProject):
     # Provides automatic watch daemon for the application.
 
     class options:
@@ -253,7 +254,7 @@ class RexWatchTask(RexTask):
         return self.make(*args, **kwds)
 
 
-class WatchTask(RexTask):
+class WatchTask(RexTaskWithProject):
     """start watchers to rebuild generated files on source changes
 
     The `watch` task starts watchers to rebuild generated files on source
@@ -373,7 +374,7 @@ class ServeTask(RexWatchTask):
                 process.wait()
 
 
-class WSGITask(RexTask):
+class WSGITask(RexTaskWithProject):
     """generate a WSGI script
 
     The `wsgi` task generates a WSGI script for a RexDB application, which
@@ -603,7 +604,7 @@ class StartTask(RexWatchTask):
                        subprocess.list2cmdline(cmd))
 
 
-class StopTask(RexTask):
+class StopTask(RexTaskWithProject):
     """stop a running uWSGI daemon
 
     The `stop` task stops a uWSGI server running in daemon mode.
@@ -651,7 +652,7 @@ class StopTask(RexTask):
             os.unlink(form.pid_path)
 
 
-class StatusTask(RexTask):
+class StatusTask(RexTaskWithProject):
     """check if a uWSGI daemon is running
 
     The `status` task verifies if there is an active UWSGI server
@@ -801,7 +802,7 @@ class ReplayHandler:
             log("ERRORS: :warning:`{}`", self.errors)
 
 
-class ReplayTask(RexTask):
+class ReplayTask(RexTaskWithProject):
     """replay WSGI requests from the log"""
 
     name = 'replay'

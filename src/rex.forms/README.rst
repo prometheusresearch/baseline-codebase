@@ -205,7 +205,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-    rex forms-retrieve <instrument-uid> <channel-uid> [<project>]
+    rex forms-retrieve <instrument-uid> <channel-uid>
 
 
 forms-store
@@ -224,7 +224,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-    rex forms-store <instrument-uid> <channel-uid> <configuration> [<project>]
+    rex forms-store <instrument-uid> <channel-uid> <configuration>
 
 
 forms-validate

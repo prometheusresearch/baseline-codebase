@@ -13,9 +13,10 @@ from .core import (
         debug, warn, fail, prompt, run, main, Task, Global, Topic)
 from .fs import cp, mv, rm, rmtree, mktree, exe, sh, pipe
 from .std import (
-        HelpTask, UsageTask, RexTask, DebugGlobal, ConfigGlobal, ProjectGlobal,
-        RequirementsGlobal, ParametersGlobal, SentryGlobal, PackagesTask,
-        SettingsTask, PyShellTask, ConfigurationTopic, load_rex)
+        HelpTask, UsageTask, RexTask, RexTaskWithProject, DebugGlobal,
+        ConfigGlobal, ProjectGlobal, RequirementsGlobal, ParametersGlobal,
+        SentryGlobal, PackagesTask, SettingsTask, PyShellTask,
+        ConfigurationTopic, load_rex)
 from .ctl import Ctl, ctl
 
 

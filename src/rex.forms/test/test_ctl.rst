@@ -201,7 +201,7 @@ from a Form in the project data store::
 
     >>> ctl('help forms-retrieve')
     FORMS-RETRIEVE - retrieves a Form from the datastore
-    Usage: rex forms-retrieve [<project>] <instrument-uid> <channel-uid>
+    Usage: rex forms-retrieve <instrument-uid> <channel-uid>
     <BLANKLINE>
     The forms-retrieve task will retrieve a Form from a project's data store
     and return the Web Form Configuration.
@@ -370,7 +370,7 @@ in the project data store::
 
     >>> ctl('help forms-store')
     FORMS-STORE - stores a Form in the data store
-    Usage: rex forms-store [<project>] <instrument-uid> <channel-uid> <configuration>
+    Usage: rex forms-store <instrument-uid> <channel-uid> <configuration>
     <BLANKLINE>
     The forms-store task will write a Web Form Configuration file to a Form in
     the project's data store.

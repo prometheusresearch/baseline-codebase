@@ -129,7 +129,7 @@ Configuration parameters could also be specified using environment variables::
     ...
 
 Another option is to specify the application name and configuration using
-command-line arguments and options::
+command-line parameters::
 
     $ rex deploy --project rex.ctl_demo --set db=pgsql:ctl_demo
     ...
@@ -140,7 +140,7 @@ command-line arguments and options::
 To get a list of all configuration parameters supported by the application, use
 ``rex setting`` task, e.g.::
 
-    $ rex settings rex.ctl_demo
+    $ rex settings --project rex.ctl_demo
     access:
     db*:
       'pgsql:ctl_demo'
@@ -148,7 +148,7 @@ To get a list of all configuration parameters supported by the application, use
     gateways:
     ...
 
-    $ rex settings rex.ctl_demo --verbose
+    $ rex settings --project rex.ctl_demo --verbose
     [access]
     Declared in:
       rex.web
@@ -159,14 +159,14 @@ To get a list of all configuration parameters supported by the application, use
 To get a list of all packages that constitute the application, use ``rex
 packages`` task, e.g.::
 
-    $ rex packages rex.ctl_demo
+    $ rex packages --project rex.ctl_demo
     rex.ctl_demo == 1.7.0
     rex.port == 1.0.2
     rex.deploy == 2.0.0
     rex.db == 3.0.0
     ...
 
-    $ rex packages rex.ctl_demo --verbose
+    $ rex packages --project rex.ctl_demo --verbose
     [rex.ctl_demo]
     Version:
       1.7.0
@@ -179,7 +179,7 @@ packages`` task, e.g.::
 To interact with the application from Python shell, use ``rex pyshell`` task,
 e.g.::
 
-    $ rex pyshell rex.ctl_demo
+    $ rex pyshell --project rex.ctl_demo
     Type 'help' for more information, Ctrl-D to exit.
 
 .. highlight:: python
@@ -588,6 +588,4 @@ Finally, let's look at ``rex demo-user-add``::
 This task has two arguments ``<code>`` and ``<name>`` and a toggle
 ``--disabled``.  Their values are stored as attributes ``self.code``,
 ``self.name`` and ``self.disabled`` on the task instance.
-
-
 

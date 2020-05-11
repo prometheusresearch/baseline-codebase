@@ -3,7 +3,7 @@ import tempfile
 import urllib.request, urllib.parse, urllib.error
 import csv
 
-from rex.ctl import RexTask, option, log
+from rex.ctl import RexTaskWithProject, option, log
 from rex.db import get_db
 from rex.query import RenderApp
 
@@ -17,7 +17,7 @@ class RenderQueryDemo(RenderApp):
     path = '/'
 
 
-class PopulateTask(RexTask):
+class PopulateTask(RexTaskWithProject):
     """populate the demo database"""
 
     name = 'query-demo-populate'

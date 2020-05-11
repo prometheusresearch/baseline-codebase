@@ -38,7 +38,7 @@ command line::
 
     >>> ctl('help mart-create')
     MART-CREATE - create Mart database(s)
-    Usage: rex mart-create [<project>]
+    Usage: rex mart-create
     <BLANKLINE>
     The mart-create task will create the specified Mart databases. You specify
     the Marts to create by either using a combination of the --owner and
@@ -294,7 +294,7 @@ The ``mart-shell`` task opens an HTSQL console to the specified Mart database::
 
     >>> ctl('help mart-shell')
     MART-SHELL - open HTSQL shell to Mart database
-    Usage: rex mart-shell [<project>] <code-name-owner>
+    Usage: rex mart-shell <code-name-owner>
     <BLANKLINE>
     The mart-shell task opens an HTSQL shell to the specified Mart database.
     <BLANKLINE>
@@ -371,7 +371,7 @@ The ``mart-purge`` will delete the specified Mart(s) from the system::
 
     >>> ctl('help mart-purge')
     MART-PURGE - purge Mart database(s)
-    Usage: rex mart-purge [<project>]
+    Usage: rex mart-purge
     <BLANKLINE>
     The mart-purge task will delete the specified Mart databases from the
     system.

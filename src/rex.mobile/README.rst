@@ -89,7 +89,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-    rex mobile-retrieve <instrument-uid> <channel-uid> [<project>]
+    rex mobile-retrieve <instrument-uid> <channel-uid>
 
 
 mobile-store
@@ -108,7 +108,7 @@ be installed and referenced by the project or ``rex.yaml``.
 
 ::
 
-    rex mobile-store <instrument-uid> <channel-uid> <configuration> [<project>]
+    rex mobile-store <instrument-uid> <channel-uid> <configuration>
 
 
 mobile-validate

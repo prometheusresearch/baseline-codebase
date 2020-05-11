@@ -300,9 +300,6 @@ class HelpTask(Task):
 class RexTask(Task):
     """Implements an application-specific task."""
 
-    class arguments:
-        project = argument(StrVal(), default=None)
-
     class options:
         require = option(
                 None, StrVal(),
@@ -331,7 +328,7 @@ class RexTask(Task):
                        for this_arg in this_spec.args):
                     parameters[arg.attr] = getattr(self, arg.attr)
                 else:
-                    assert not arg.is_optional
+                    assert arg.is_optional
                     parameters[arg.attr] = arg.default
         for opt in spec.opts:
             if opt.attr not in parameters:
@@ -343,12 +340,14 @@ class RexTask(Task):
         task = spec.code(**parameters)
         return task()
 
-    def make(self, extra_requirements=[], extra_parameters={},
+    def make(self, project=None, extra_requirements=[], extra_parameters={},
              initialize=True, ensure=None):
         """
         Creates a RexDB application from command-line parameters
         and global settings.
 
+        `project`
+            The primary package of the application.
         `extra_requirements`
             A list of additional packages to include with the application.
         `extra_parameters`
@@ -363,9 +362,9 @@ class RexTask(Task):
         """
         # Form the list of requirements.
         requirements = []
-        if self.project is not None:
-            requirements.append(self.project)
-        elif env.project is not None:
+        if project is not None:
+            requirements.append(project)
+        if env.project is not None:
             requirements.append(env.project)
         requirements.extend(self.require)
         requirements.extend(env.requirements)
@@ -407,7 +406,19 @@ class RexTask(Task):
         return app
 
 
-class PackagesTask(RexTask):
+class RexTaskWithProject(RexTask):
+    """
+    Implements old-style ``project`` argument.
+    """
+
+    class arguments:
+        project = argument(StrVal(), default=None)
+
+    def make(self, *args, **kwds):
+        return super(RexTaskWithProject, self).make(project=self.project, *args, **kwds)
+
+
+class PackagesTask(RexTaskWithProject):
     """list application components
 
     The `packages` task lists components of a RexDB application.
@@ -487,7 +498,7 @@ class PackagesTask(RexTask):
             log()
 
 
-class SettingsTask(RexTask):
+class SettingsTask(RexTaskWithProject):
     """list configuration parameters
 
     The `settings` task lists configuration parameters of a RexDB application.
@@ -580,7 +591,7 @@ class SettingsTask(RexTask):
             log()
 
 
-class PyShellTask(RexTask):
+class PyShellTask(RexTaskWithProject):
     """starts Python shell with the application.
 
     This tasks starts a Python shell and adds the application instance

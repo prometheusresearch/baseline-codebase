@@ -21,7 +21,7 @@ to CSV files::
 
   >>> ctl('help assessment-template-export')
   ASSESSMENT-TEMPLATE-EXPORT - exports an InstrumentVersion from the datastore
-  Usage: rex assessment-template-export [<project>] <instrument-uid>
+  Usage: rex assessment-template-export <instrument-uid>
   <BLANKLINE>
   The assessment-template-export task will export an InstrumentVersion from a
   project's data store and save generated output in given format,
@@ -87,7 +87,7 @@ the bunch of csv files as Assessment objects to the datastore::
 
   >>> ctl('help assessment-import')
   ASSESSMENT-IMPORT - imports Assessment data given as a zip, bunch of csv or xls
-  Usage: rex assessment-import [<project>] <instrument-uid>
+  Usage: rex assessment-import <instrument-uid>
   <BLANKLINE>
   to the datastore.
   <BLANKLINE>

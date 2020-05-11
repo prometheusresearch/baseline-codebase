@@ -16,7 +16,7 @@ the specified table::
 
     >>> ctl('help tabular-import-template')
     TABULAR-IMPORT-TEMPLATE - creates a template file that can be used with the tabular-import task
-    Usage: rex tabular-import-template [<project>] <table>
+    Usage: rex tabular-import-template <table>
     <BLANKLINE>
     The tabular-import-template task will create a template file that contains
     a skeleton structure and field information about the table you wish to
@@ -60,7 +60,7 @@ in the database::
 
     >>> ctl('help tabular-import')
     TABULAR-IMPORT - loads records from a flat file into a table in the database
-    Usage: rex tabular-import [<project>] <table> <data>
+    Usage: rex tabular-import <table> <data>
     <BLANKLINE>
     The tabular-import task will take the records described in a flat file
     (generally one based on a template from the tabular-import-template task)

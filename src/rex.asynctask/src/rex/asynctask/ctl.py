@@ -15,7 +15,7 @@ from apscheduler.schedulers import SchedulerNotRunningError
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from rex.core import get_settings, get_rex
-from rex.ctl import RexTask, option, env
+from rex.ctl import RexTaskWithProject, option, env
 from rex.logging import get_logger, disable_logging
 
 from .core import get_transport
@@ -27,7 +27,7 @@ __all__ = (
 )
 
 
-class AsyncTaskWorkerTask(RexTask):
+class AsyncTaskWorkerTask(RexTaskWithProject):
     """
     Launches processes for the rex.asynctask workers that are configured.
 

@@ -187,9 +187,10 @@ def get_sentry(sync=False, context={}):
         if key.startswith('SENTRY_') and key != 'SENTRY_DSN' and value:
             tags[key[7:].lower()] = value
     context = context.copy()
-    transport = None
     if sync:
-        transport = raven.transport.http.HTTPTransport
+        transport = raven.transport.RequestsHTTPTransport
+    else:
+        transport = raven.transport.ThreadedRequestsHTTPTransport
     return raven.Client(
             dsn=None,
             tags=tags,

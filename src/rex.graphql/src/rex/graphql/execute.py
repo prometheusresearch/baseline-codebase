@@ -665,7 +665,9 @@ def complete_data(
             field_def = return_type.fields.get(field_name)
             if isinstance(field_def, model.QueryField):
                 item = getattr(data, name)
-                item_data = complete_value(
+                if field_def.descriptor.transform is not None:
+                    item = field_def.descriptor.transform(item)
+                item = complete_value(
                     ctx=ctx,
                     return_type=field_def.type,
                     field_nodes=field_nodes,
@@ -673,9 +675,7 @@ def complete_data(
                     path=path + [name],
                     result=item,
                 )
-                if field_def.descriptor.transform:
-                    item_data = field_def.descriptor.transform(item_data)
-                result[name] = item_data
+                result[name] = item
             elif isinstance(field_def, model.ComputedField):
                 computed_fields.append((name, field_nodes, field_def))
             else:
@@ -1035,6 +1035,8 @@ def execute_exn(schema, query: str, variables=None, context=None, db=None):
 
     if operation.operation == "mutation":
         root_type = schema.mutation_type
+        if root_type is None:
+            raise error.GraphQLError("no mutations available for this schema")
     elif operation.operation == "query":
         root_type = schema.query_type
     elif operation.operation == "subscription":

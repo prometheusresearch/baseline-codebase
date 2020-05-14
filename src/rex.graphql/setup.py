@@ -31,6 +31,7 @@ setup(
         "rex.query",
         "rex.deploy",
         "HTSQL",
+        "cached-property == 1.5.1",
         "webob >=1.8.2, <1.9",
         "graphql-core == 2.1",
     ],

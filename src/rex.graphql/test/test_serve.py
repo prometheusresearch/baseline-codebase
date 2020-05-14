@@ -3,8 +3,16 @@ import json
 
 from webob import Request
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
-from rex.core import Rex, Error
-from rex.graphql import schema, query, argument, q, Entity, scalar
+from rex.db import get_db
+from rex.core import Rex
+from rex.graphql import (
+    schema,
+    query,
+    argument,
+    q,
+    Entity,
+    scalar,
+)
 from rex.graphql.serve import serve
 
 
@@ -255,11 +263,11 @@ def test_serve_exec_err_missing_vars(sch):
             "utf8"
         ),
     )
-    res = serve(sch, req)
-    assert res.status_code == 400
-    assert res.content_type == "application/json"
-    assert 'data' not in res.json
-    assert res.json["errors"]
+    with pytest.raises(HTTPBadRequest) as res:
+        serve(sch, req)
+        assert res.content_type == "application/json"
+        assert "data" not in res.json
+        assert res.json["errors"]
 
 
 def test_serve_exec_err_invalid_syntax(sch):
@@ -270,8 +278,27 @@ def test_serve_exec_err_invalid_syntax(sch):
         content_type="application/json",
         body=json.dumps({"query": "query{"}).encode("utf8"),
     )
-    res = serve(sch, req)
+    with pytest.raises(HTTPBadRequest) as res:
+        serve(sch, req)
+        assert res.content_type == "application/json"
+        assert "data" not in res.json
+        assert res.json["errors"]
+
+
+def test_error_aborts_db_tx(rex, sch):
+    query = """
+    mutation { make_region_and_fail }
+    """
+    req = Request.blank(
+        "/",
+        method="POST",
+        accept="application/json",
+        content_type="application/json",
+        body=json.dumps({"query": query}).encode("utf8"),
+    )
+    res = req.get_response(rex)
     assert res.status_code == 400
-    assert res.content_type == "application/json"
-    assert 'data' not in res.json
-    assert res.json["errors"]
+
+    db = get_db()
+    pr = db.produce("top(region?name='FAIL')")
+    assert pr.data is None

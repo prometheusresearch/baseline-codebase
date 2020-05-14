@@ -1,6 +1,4 @@
 import pytest
-import decimal
-import json
 
 from rex.graphql import (
     Entity,
@@ -22,13 +20,13 @@ from rex.graphql import (
     param,
     parent_param,
     schema,
-    execute_exn,
-    GraphQLError,
+    execute,
     filter_from_function,
     compute_from_function,
     mutation_from_function,
 )
-from rex.core import Rex, Error, cached
+from rex.core import Rex, Error
+from rex.db import get_db
 
 
 @pytest.fixture(scope="module")
@@ -41,18 +39,8 @@ def rex():
 
 @pytest.fixture(autouse=True)
 def with_rex(rex):
-    # Wrap each test case with `with rex: ...`
     with rex:
         yield
-
-
-def norm(data):
-    return json.loads(json.dumps(data))
-
-
-def execute(*args, **kwargs):
-    res = execute_exn(*args, **kwargs)
-    return norm(res)
 
 
 def get_simple_schema():
@@ -92,7 +80,7 @@ def test_simple():
             nation { name }
         }
         """,
-    )
+    ).data
     assert data == {
         "nation": [
             {"name": "ALGERIA"},
@@ -145,7 +133,7 @@ def test_compute_from_function():
             add(x: 1, y: 2)
         }
         """,
-    )
+    ).data
     assert data == {"add": 3}
 
 
@@ -168,7 +156,7 @@ def test_compute_from_function_arg():
             add(a: 1, b: 2)
         }
         """,
-    )
+    ).data
     assert data == {"add": 3}
 
 
@@ -194,7 +182,7 @@ def test_compute_from_function_with_parent():
             }
         }
         """,
-    )
+    ).data
     assert data == {"forthytwo": {"add": 52}}
 
 
@@ -212,7 +200,7 @@ def test_related():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "nation": [
             {"name": "ALGERIA", "region": {"name": "AFRICA"}},
@@ -258,7 +246,7 @@ def test_rev_related():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {
@@ -335,7 +323,7 @@ def test_aggregate():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA", "nation_count": 5},
@@ -359,7 +347,7 @@ def test_field_rename():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"region_name": "AFRICA"},
@@ -394,7 +382,7 @@ def test_filter():
             }
         }
         """,
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
 
@@ -421,7 +409,7 @@ def test_field_alias():
             }
         }
         """,
-    )
+    ).data
     assert data == {"africa": [{"africa_name": "AFRICA", "nation_count": 5}]}
 
 
@@ -440,7 +428,7 @@ def test_computed_field():
             message
         }
         """,
-    )
+    ).data
     assert data == {"message": "Hello!"}
     data = execute(
         sch,
@@ -449,7 +437,7 @@ def test_computed_field():
             name: message
         }
         """,
-    )
+    ).data
     assert data == {"name": "Hello!"}
 
 
@@ -474,7 +462,7 @@ def test_data_computed_field():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"message": "Hello from 'AFRICA'"},
@@ -507,7 +495,7 @@ def test_computed_arg_simple():
             message
         }
         """,
-    )
+    ).data
     assert data == {"message": "Hello, Mr.None!"}
 
     data = execute(
@@ -517,7 +505,7 @@ def test_computed_arg_simple():
             message(name: "John")
         }
         """,
-    )
+    ).data
     assert data == {"message": "Hello, John!"}
 
 
@@ -535,15 +523,15 @@ def test_computed_arg_nonnull():
             )
         }
     )
-    with pytest.raises(GraphQLError):
-        execute(
-            sch,
-            """
-            query {
-                message
-            }
-            """,
-        )
+    res = execute(
+        sch,
+        """
+        query {
+            message
+        }
+        """,
+    )
+    assert res.invalid
 
     data = execute(
         sch,
@@ -552,7 +540,7 @@ def test_computed_arg_nonnull():
             message(name: "John")
         }
         """,
-    )
+    ).data
     assert data == {"message": "Hello, John!"}
 
 
@@ -577,7 +565,7 @@ def test_computed_arg_default():
             message
         }
         """,
-    )
+    ).data
     assert data == {"message": "Hello, Default!"}
 
     data = execute(
@@ -587,7 +575,7 @@ def test_computed_arg_default():
             message(name: "John")
         }
         """,
-    )
+    ).data
     assert data == {"message": "Hello, John!"}
 
 
@@ -613,7 +601,7 @@ def test_query_filter_of_function():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA"},
@@ -632,7 +620,7 @@ def test_query_filter_of_function():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA"},
@@ -651,7 +639,7 @@ def test_query_filter_of_function():
             }
         }
         """,
-    )
+    ).data
     assert data == {"region": [{"name": "AFRICA"}]}
     data = execute(
         sch,
@@ -663,7 +651,7 @@ def test_query_filter_of_function():
         }
         """,
         variables={"africa_only": True},
-    )
+    ).data
     assert data == {"region": [{"name": "AFRICA"}]}
 
 
@@ -689,7 +677,7 @@ def test_query_filter_of_function_arg():
             }
         }
         """,
-    )
+    ).data
     assert data == {"region": [{"name": "AFRICA"}]}
 
 
@@ -714,7 +702,7 @@ def test_query_filter_of_query():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA"},
@@ -733,7 +721,7 @@ def test_query_filter_of_query():
             }
         }
         """,
-    )
+    ).data
     assert data == {"region": [{"name": "AFRICA"}]}
     data = execute(
         sch,
@@ -745,7 +733,7 @@ def test_query_filter_of_query():
         }
         """,
         variables={"name": "AFRICA"},
-    )
+    ).data
     assert data == {"region": [{"name": "AFRICA"}]}
 
 
@@ -761,7 +749,7 @@ def test_query_fragment():
             region { ...common }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA"},
@@ -789,7 +777,7 @@ def test_query_inline_fragment():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA"},
@@ -813,7 +801,7 @@ def test_introspection_typename():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"__typename": "region"},
@@ -829,7 +817,7 @@ def test_introspection_graphiql():
     """ Test query which is performed by GraphiQL tool."""
     region = Entity("region", fields=lambda: {"name": query(q.name)})
     sch = schema(fields=lambda: {"region": query(q.region, region)})
-    data = execute(
+    res = execute(
         sch,
         """
         query IntrospectionQuery {
@@ -924,6 +912,7 @@ def test_introspection_graphiql():
         }
         """,
     )
+    assert not res.invalid
 
 
 def test_scalar_json():
@@ -941,7 +930,7 @@ def test_scalar_json():
             settings
         }
         """,
-    )
+    ).data
     assert data == {"settings": {"a": "b"}}
 
 
@@ -965,7 +954,7 @@ def test_scalar_date():
             nextday(date: "1987-05-08")
         }
         """,
-    )
+    ).data
     assert data == {"nextday": "1987-05-09"}
 
 
@@ -991,7 +980,7 @@ def test_scalar_datetime():
             nextday(date: "1987-05-08T12:13:14")
         }
         """,
-    )
+    ).data
     assert data == {"nextday": "1987-05-09T12:13:14"}
 
 
@@ -1017,10 +1006,10 @@ def test_enum():
             )
         }
     )
-    assert execute(sch, "{sameday(day: sun)}") == {"sameday": "sun"}
+    assert execute(sch, "{sameday(day: sun)}").data == {"sameday": "sun"}
     # XXX(andreypopp): this is for backward compat: we allow string literals as
     # well.
-    assert execute(sch, '{sameday(day: "sun")}') == {"sameday": "sun"}
+    assert execute(sch, '{sameday(day: "sun")}').data == {"sameday": "sun"}
 
 
 def test_entity_id():
@@ -1040,7 +1029,7 @@ def test_entity_id():
             ),
         }
     )
-    assert execute(sch, "query { region { id } }") == {
+    assert execute(sch, "query { region { id } }").data == {
         "region": [
             {"id": "AFRICA"},
             {"id": "AMERICA"},
@@ -1049,7 +1038,7 @@ def test_entity_id():
             {"id": "'MIDDLE EAST'"},
         ]
     }
-    assert execute(sch, "query { region { nation_list { id } } }") == {
+    assert execute(sch, "query { region { nation_list { id } } }").data == {
         "region": [
             {
                 "nation_list": [
@@ -1098,7 +1087,7 @@ def test_entity_id():
             },
         ]
     }
-    assert execute(sch, "query { first_region_id }") == {
+    assert execute(sch, "query { first_region_id }").data == {
         "first_region_id": "AFRICA"
     }
 
@@ -1116,12 +1105,12 @@ def test_query_arg_simple():
         }
     )
 
-    with pytest.raises(GraphQLError):
-        execute(sch, "query { region { name } }")
+    res = execute(sch, "query { region { name } }")
+    assert res.invalid
 
-    assert execute(sch, 'query { region(region: "AFRICA") { name } }') == {
-        "region": [{"name": "AFRICA"}]
-    }
+    assert execute(
+        sch, 'query { region(region: "AFRICA") { name } }'
+    ).data == {"region": [{"name": "AFRICA"}]}
 
 
 def test_query_arg_first():
@@ -1144,28 +1133,26 @@ def test_query_arg_first():
 
     # Arguments specified in the query are required, so we see a `GraphQLError`
     # raised if we don't supply it.
-    with pytest.raises(GraphQLError):
-        execute(sch, "query { regionByName { name } }")
+    res = execute(sch, "query { regionByName { name } }")
+    assert res.invalid
 
     # Now let's supply an argument and see it's being applied.
     assert execute(
         sch, 'query { regionByName(region: "AFRICA") { name } }'
-    ) == {"regionByName": {"name": "AFRICA"}}
+    ).data == {"regionByName": {"name": "AFRICA"}}
 
     # Now let's supply an argument and see it's being applied.
     assert execute(
         sch, 'query { regionByName(region: "UNKNOWN") { name } }'
-    ) == {"regionByName": None}
+    ).data == {"regionByName": None}
 
 
 def test_err_query_extra_arg():
     region = Entity("region", fields=lambda: {"name": query(q.name)})
     sch = schema(fields=lambda: {"region": query(query=q.region, type=region)})
-    with pytest.raises(GraphQLError) as info:
-        data = execute(
-            sch, "query { region { name } }", variables={"count": "12"}
-        )
-    assert info.value.message == 'Unexpected variables: "count"'
+    res = execute(sch, "query { region { name } }", variables={"count": "12"})
+    assert res.invalid
+    assert res.errors[0].message == 'Unexpected variables: "count"'
 
 
 def test_err_query_arg_type_mismatch():
@@ -1179,27 +1166,26 @@ def test_err_query_arg_type_mismatch():
         }
     )
 
-    with pytest.raises(GraphQLError) as info:
-        data = execute(
-            sch,
-            "query Q($count: Int) { region(count: $count) { name } }",
-            variables={"count": None},
-        )
+    res = execute(
+        sch,
+        "query Q($count: Int) { region(count: $count) { name } }",
+        variables={"count": None},
+    )
+    assert res.invalid
     assert (
-        info.value.message
+        res.errors[0].message
         == 'Argument "count : Int!" (supplied by "$count" variable) was not provided. At Root.region.'
     )
 
-    with pytest.raises(GraphQLError) as info:
-        data = execute(
-            sch,
-            "query Q($count: String) { region(count: $count) { name } }",
-            variables={"count": "oops"},
-        )
-    assert (
-        info.value.message
-        == ('Variable "$count : String" is attempted to be used as a value of incompatible type "Int!".'
-            ' At Root.region.')
+    res = execute(
+        sch,
+        "query Q($count: String) { region(count: $count) { name } }",
+        variables={"count": "oops"},
+    )
+    assert res.invalid
+    assert res.errors[0].message == (
+        'Variable "$count : String" is attempted to be used as a value of incompatible type "Int!".'
+        " At Root.region."
     )
 
 
@@ -1232,7 +1218,7 @@ def test_query_related_arg_first():
                 }
             }
             """,
-        )
+        ).data
         == {
             "region": [
                 {"name": "AFRICA", "nationByName": None},
@@ -1257,7 +1243,7 @@ def test_query_related_arg_first():
                 }
             }
             """,
-        )
+        ).data
         == {
             "region": [
                 {"name": "AFRICA", "nationByName": None},
@@ -1306,7 +1292,7 @@ def test_query_on_object():
                 }
             }
             """,
-        )
+        ).data
         == {
             "region": {
                 "africa": {"name": "AFRICA"},
@@ -1328,29 +1314,29 @@ def test_query_arg_scalars():
     )
     assert execute(
         schema_for(scalar.String), 'query { value(val: "hey") }'
-    ) == {"value": "hey"}
-    assert execute(schema_for(scalar.Int), "query { value(val: 42) }") == {
-        "value": 42
-    }
-    assert execute(schema_for(scalar.Float), "query { value(val: 42.2) }") == {
-        "value": 42.2
-    }
+    ).data == {"value": "hey"}
+    assert execute(
+        schema_for(scalar.Int), "query { value(val: 42) }"
+    ).data == {"value": 42}
+    assert execute(
+        schema_for(scalar.Float), "query { value(val: 42.2) }"
+    ).data == {"value": 42.2}
     assert execute(
         schema_for(scalar.Boolean), "query { value(val: true) }"
-    ) == {"value": True}
+    ).data == {"value": True}
     assert execute(
         schema_for(scalar.Date), 'query { value(val: "2012-12-11") }'
-    ) == {"value": "2012-12-11"}
+    ).data == {"value": "2012-12-11"}
     assert execute(
         schema_for(scalar.Datetime),
         'query { value(val: "2012-12-11T11:12:13") }',
-    ) == {"value": "2012-12-11T11:12:13"}
+    ).data == {"value": "2012-12-11T11:12:13"}
     assert execute(
         schema_for(scalar.Decimal), 'query { value(val: "12.1314") }'
-    ) == {"value": "12.1314"}
+    ).data == {"value": "12.1314"}
     assert execute(
         schema_for(scalar.ID), 'query { value(val: "some-id") }'
-    ) == {"value": "some-id"}
+    ).data == {"value": "some-id"}
     # JSON is not supported as query argument at the moment
     with pytest.raises(Error):
         schema_for(scalar.JSON)
@@ -1358,15 +1344,15 @@ def test_query_arg_scalars():
 
 def test_exec_err_unknown_field_error():
     sch = get_simple_schema()
-    with pytest.raises(GraphQLError):
-        execute(
-            sch,
-            """
-            query {
-                unknown
-            }
-            """,
-        )
+    res = execute(
+        sch,
+        """
+        query {
+            unknown
+        }
+        """,
+    )
+    assert res.invalid
 
 
 def test_exec_err_query_unknown_arg():
@@ -1380,20 +1366,19 @@ def test_exec_err_query_unknown_arg():
             )
         }
     )
-    try:
-        execute(
-            sch,
-            """
-            query {
-                region(some: 1) { name }
-            }
-            """,
-        )
-    except GraphQLError as e:
-        msg = 'The following arguments: "some" are not allowed for this field'
-        assert str(e) == msg
-    else:
-        assert False
+    res = execute(
+        sch,
+        """
+        query {
+            region(some: 1) { name }
+        }
+        """,
+    )
+    assert res.invalid
+    assert (
+        res.errors[0].message
+        == 'The following arguments: "some" are not allowed for this field'
+    )
 
 
 def test_exec_err_compute_unknown_arg():
@@ -1403,20 +1388,19 @@ def test_exec_err_compute_unknown_arg():
 
     sch = schema(fields=lambda: {"add": add})
 
-    try:
-        execute(
-            sch,
-            """
-            query {
-                add(x: 1, y: 2, z: 4)
-            }
-            """,
-        )
-    except GraphQLError as e:
-        msg = 'The following arguments: "z" are not allowed for this field'
-        assert str(e) == msg
-    else:
-        assert False
+    res = execute(
+        sch,
+        """
+        query {
+            add(x: 1, y: 2, z: 4)
+        }
+        """,
+    )
+    assert res.invalid
+    assert (
+        res.errors[0].message
+        == 'The following arguments: "z" are not allowed for this field'
+    )
 
 
 def test_exec_err_compute_null_for_non_null():
@@ -1426,20 +1410,19 @@ def test_exec_err_compute_null_for_non_null():
 
     sch = schema(fields=lambda: {"number": number})
 
-    try:
-        execute(
-            sch,
-            """
-            query {
-                number
-            }
-            """,
-        )
-    except GraphQLError as e:
-        msg = "Cannot return null for non-nullable field Root.number"
-        assert str(e) == msg
-    else:
-        assert False
+    res = execute(
+        sch,
+        """
+        query {
+            number
+        }
+        """,
+    )
+    assert res.invalid
+    assert (
+        res.errors[0].message
+        == "Cannot return null for non-nullable field Root.number"
+    )
 
 
 def test_exec_err_compute_raises():
@@ -1449,22 +1432,16 @@ def test_exec_err_compute_raises():
 
     sch = schema(fields=lambda: {"number": number})
 
-    from rex.core import get_sentry
-
-    try:
-        execute(
-            sch,
-            """
-            query {
-                number
-            }
-            """,
-        )
-    except GraphQLError as e:
-        msg = "Error while executing Root.number"
-        assert str(e) == msg
-    else:
-        assert False
+    res = execute(
+        sch,
+        """
+        query {
+            number
+        }
+        """,
+    )
+    assert res.invalid
+    assert res.errors[0].message == "Error while executing Root.number"
 
 
 def test_conf_err_unknown_field_via_second_path():
@@ -1473,7 +1450,6 @@ def test_conf_err_unknown_field_via_second_path():
             name="part",
             fields=lambda: {"name": query(q.name), "type": query(q.type)},
         )
-        region = Entity(name="region", fields=lambda: {"name": query(q.name)})
         schema(
             fields=lambda: {
                 "part": query(q.part, type=part),
@@ -1497,7 +1473,7 @@ def test_query_record():
             region { name }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA"},
@@ -1542,7 +1518,7 @@ def test_query_group():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region_stat": [
             {"nation_count": 5, "region_name": "AFRICA"},
@@ -1582,7 +1558,7 @@ def test_query_record_select():
             region { name: display_name }
         }
         """,
-        )
+        ).data
         == expect
     )
 
@@ -1615,7 +1591,7 @@ def test_query_record_define():
             region { name: display_name }
         }
         """,
-        )
+        ).data
         == expect
     )
 
@@ -1687,7 +1663,7 @@ def test_query_connect():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": {
             "count": 5,
@@ -1717,7 +1693,7 @@ def test_query_connect():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": {
             "paginated": [{"name": "AFRICA"}],
@@ -1749,7 +1725,7 @@ def test_query_connect_filters():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": {
             "count": 2,
@@ -1783,7 +1759,7 @@ def test_query_param():
         }
         """,
         context={"region": "ASIA"},
-    )
+    ).data
     assert data == {
         "nation": [
             {"name": "CHINA"},
@@ -1803,7 +1779,7 @@ def test_query_param():
         }
         """,
         context={"region": "EUROPE"},
-    )
+    ).data
     assert data == {
         "nation": [
             {"name": "FRANCE"},
@@ -1827,17 +1803,17 @@ def test_err_query_param_invalid_type():
             )
         }
     )
-    with pytest.raises(GraphQLError):
-        execute(
-            sch,
-            """
-            query {
-                region {
-                    name
-                }
+    res = execute(
+        sch,
+        """
+        query {
+            region {
+                name
             }
-            """,
-        )
+        }
+        """,
+    )
+    assert res.invalid
 
 
 def test_mutation_simple():
@@ -1850,9 +1826,35 @@ def test_mutation_simple():
         return counter
 
     sch = schema(fields=lambda: {}, mutations=[increment])
-    data = execute(sch, "mutation { increment(v: 10) }")
+    data = execute(sch, "mutation { increment(v: 10) }").data
     assert data == {"increment": 10}
     assert counter == 10
+
+
+@mutation_from_function()
+def make_region(name: scalar.String) -> scalar.String:
+    db = get_db()
+    db.produce("/insert(region := {name := $name})", name=name)
+    return name
+
+
+def find_region(name):
+    db = get_db()
+    pr = db.produce("top(region?name=$name)", name=name)
+    return pr.data
+
+
+def test_mutation_db_ok():
+    sch = schema(fields=lambda: {}, mutations=[make_region])
+    db = get_db()
+    with db, db.transaction() as tx:
+        try:
+            # this mutation creates a record in a database
+            execute(sch, 'mutation { make_region(name: "NEW") }').data
+            # let's see if it's done its work
+            assert find_region("NEW")
+        finally:
+            tx.rollback()
 
 
 def test_mutation_query_result():
@@ -1895,7 +1897,7 @@ def test_mutation_query_result():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "increment": {
             "region": [
@@ -1949,7 +1951,7 @@ def test_arg_input_object():
             }
         }
         """,
-    )
+    ).data
     assert data == {"pos": {"r": 42, "n": 43, "rd": 44, "nd": 45}}
 
     # Suppling just a non null field without default value
@@ -1962,22 +1964,22 @@ def test_arg_input_object():
             }
         }
         """,
-    )
+    ).data
     assert data == {"pos": {"r": None, "n": 42, "rd": 1, "nd": 2}}
 
     # Missing non null field with no default value
-    with pytest.raises(GraphQLError) as info:
-        execute(
-            sch,
-            """
-            query {
-                pos(pos: {r: 42}) {
-                    r n rd nd
-                }
+    res = execute(
+        sch,
+        """
+        query {
+            pos(pos: {r: 42}) {
+                r n rd nd
             }
-            """,
-        )
-    assert info.value.message == "\n".join(
+        }
+        """,
+    )
+    assert res.invalid
+    assert res.errors[0].message == "\n".join(
         ['Argument "pos : InputPos!":', 'Missing field "InputPos.n"']
     )
 
@@ -1992,7 +1994,7 @@ def test_arg_input_object():
         }
         """,
         variables={"n": 50},
-    )
+    ).data
     assert data == {"pos": {"r": None, "n": 50, "rd": 1, "nd": 2}}
 
     # Now via variables (default value)
@@ -2005,7 +2007,7 @@ def test_arg_input_object():
             }
         }
         """,
-    )
+    ).data
     assert data == {"pos": {"r": None, "n": 40, "rd": 1, "nd": 2}}
 
     # vars: just a non null field with no default
@@ -2019,7 +2021,7 @@ def test_arg_input_object():
         }
         """,
         variables={"pos": {"n": 30}},
-    )
+    ).data
     assert data == {"pos": {"r": None, "n": 30, "rd": 1, "nd": 2}}
 
     # vars: explicit null
@@ -2033,7 +2035,7 @@ def test_arg_input_object():
         }
         """,
         variables={"pos": {"n": 30, "r": None}},
-    )
+    ).data
     assert data == {"pos": {"r": None, "n": 30, "rd": 1, "nd": 2}}
 
     # vars: all fields
@@ -2047,23 +2049,23 @@ def test_arg_input_object():
         }
         """,
         variables={"pos": {"r": 40, "n": 30, "rd": 50, "nd": 60}},
-    )
+    ).data
     assert data == {"pos": {"r": 40, "n": 30, "rd": 50, "nd": 60}}
 
     # vars: missing value for non null
-    with pytest.raises(GraphQLError) as info:
-        data = execute(
-            sch,
-            """
-            query Query($pos: InputPos!) {
-                pos(pos: $pos) {
-                    r n rd nd
-                }
+    res = execute(
+        sch,
+        """
+        query Query($pos: InputPos!) {
+            pos(pos: $pos) {
+                r n rd nd
             }
-            """,
-            variables={"pos": {"r": 40}},
-        )
-    assert info.value.message == "\n".join(
+        }
+        """,
+        variables={"pos": {"r": 40}},
+    )
+    assert res.invalid
+    assert res.errors[0].message == "\n".join(
         [
             'Variable "$pos : InputPos!" got invalid value:',
             'Field "InputPos.n": missing value',
@@ -2071,19 +2073,19 @@ def test_arg_input_object():
     )
 
     # vars: explicit null for non null
-    with pytest.raises(GraphQLError) as info:
-        data = execute(
-            sch,
-            """
-            query Query($pos: InputPos!) {
-                pos(pos: $pos) {
-                    r n rd nd
-                }
+    res = execute(
+        sch,
+        """
+        query Query($pos: InputPos!) {
+            pos(pos: $pos) {
+                r n rd nd
             }
-            """,
-            variables={"pos": {"n": None}},
-        )
-    assert info.value.message == "\n".join(
+        }
+        """,
+        variables={"pos": {"n": None}},
+    )
+    assert res.invalid
+    assert res.errors[0].message == "\n".join(
         [
             'Variable "$pos : InputPos!" got invalid value:',
             'Field "InputPos.n": value could not be null',
@@ -2091,19 +2093,19 @@ def test_arg_input_object():
     )
 
     # vars: explicit null for non null with default
-    with pytest.raises(GraphQLError) as info:
-        data = execute(
-            sch,
-            """
-            query Query($pos: InputPos!) {
-                pos(pos: $pos) {
-                    r n rd nd
-                }
+    res = execute(
+        sch,
+        """
+        query Query($pos: InputPos!) {
+            pos(pos: $pos) {
+                r n rd nd
             }
-            """,
-            variables={"pos": {"n": 40, "nd": None}},
-        )
-    assert info.value.message == "\n".join(
+        }
+        """,
+        variables={"pos": {"n": 40, "nd": None}},
+    )
+    assert res.invalid
+    assert res.errors[0].message == "\n".join(
         [
             'Variable "$pos : InputPos!" got invalid value:',
             'Field "InputPos.nd": value could not be null',
@@ -2126,7 +2128,7 @@ def test_arg_list():
             addone(nums: [1, 2])
         }
         """,
-    )
+    ).data
     assert data == {"addone": [2, 3]}
 
     # Coerce single element to a one-element list
@@ -2137,7 +2139,7 @@ def test_arg_list():
             addone(nums: 42)
         }
         """,
-    )
+    ).data
     assert data == {"addone": [43]}
 
     # Coerce single element to a one-element list
@@ -2148,20 +2150,20 @@ def test_arg_list():
             addone(nums: 42)
         }
         """,
-    )
+    ).data
     assert data == {"addone": [43]}
 
     # Error: wrong element type
-    with pytest.raises(GraphQLError) as info:
-        execute(
-            sch,
-            """
-            query {
-                addone(nums: ["oops"])
-            }
-            """,
-        )
-    assert info.value.message == "\n".join(
+    res = execute(
+        sch,
+        """
+        query {
+            addone(nums: ["oops"])
+        }
+        """,
+    )
+    assert res.invalid
+    assert res.errors[0].message == "\n".join(
         ['Argument "nums : [Int]!":', '- At index 0: Expected "Int".']
     )
 
@@ -2174,7 +2176,7 @@ def test_arg_list():
         }
         """,
         variables={"nums": [1, 2]},
-    )
+    ).data
     assert data == {"addone": [2, 3]}
 
     # vars: via default
@@ -2185,7 +2187,7 @@ def test_arg_list():
             addone(nums: $nums)
         }
         """,
-    )
+    ).data
     assert data == {"addone": [3, 4]}
 
     # vars: override default
@@ -2197,7 +2199,7 @@ def test_arg_list():
         }
         """,
         variables={"nums": [1, 2]},
-    )
+    ).data
     assert data == {"addone": [2, 3]}
 
     # vars: override default
@@ -2209,21 +2211,21 @@ def test_arg_list():
         }
         """,
         variables={"nums": [1, 2]},
-    )
+    ).data
     assert data == {"addone": [2, 3]}
 
     # Error: wrong var value
-    with pytest.raises(GraphQLError) as info:
-        execute(
-            sch,
-            """
-            query Query($nums: [Int]!) {
-                addone(nums: $nums)
-            }
-            """,
-            variables={"nums": ["oops"]},
-        )
-    assert info.value.message == "\n".join(
+    res = execute(
+        sch,
+        """
+        query Query($nums: [Int]!) {
+            addone(nums: $nums)
+        }
+        """,
+        variables={"nums": ["oops"]},
+    )
+    assert res.invalid
+    assert res.errors[0].message == "\n".join(
         [
             'Variable "$nums : [Int]!" got invalid value:',
             '- At index 0: Expected "Int".',
@@ -2231,16 +2233,16 @@ def test_arg_list():
     )
 
     # Error: wrong var default value
-    with pytest.raises(GraphQLError) as info:
-        execute(
-            sch,
-            """
-            query Query($nums: [Int]! = ["oops"]) {
-                addone(nums: $nums)
-            }
-            """,
-        )
-    assert info.value.message == "\n".join(
+    res = execute(
+        sch,
+        """
+        query Query($nums: [Int]! = ["oops"]) {
+            addone(nums: $nums)
+        }
+        """,
+    )
+    assert res.invalid
+    assert res.errors[0].message == "\n".join(
         [
             'Variable "$nums : [Int]!" has invalid default value:',
             '- At index 0: Expected "Int".',
@@ -2281,7 +2283,7 @@ def test_scalar_type_id():
             }
         }
         """,
-    )
+    ).data
     assert data == {"region": {"id": "AFRICA", "name": "AFRICA"}}
     data = execute(
         sch,
@@ -2293,7 +2295,7 @@ def test_scalar_type_id():
             }
         }
         """,
-    )
+    ).data
     assert data == {"region": {"id": "'MIDDLE EAST'", "name": "MIDDLE EAST"}}
     data = execute(
         sch,
@@ -2304,7 +2306,7 @@ def test_scalar_type_id():
             }
         }
         """,
-    )
+    ).data
     assert data == {"lineitem": {"id": "1.1"}}
     data = execute(
         sch,
@@ -2315,7 +2317,7 @@ def test_scalar_type_id():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "partsupp": {
             "id": "'almond aquamarine mint misty red'.'Supplier#000000021'"
@@ -2340,7 +2342,7 @@ def test_sort():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "MIDDLE EAST"},
@@ -2373,7 +2375,7 @@ def test_query_transform_field():
             }
         }
         """,
-    )
+    ).data
     assert data == {
         "region": [
             {"name": "AFRICA!!!"},
@@ -2404,7 +2406,7 @@ def test_query_transform_at_root():
             region_name
         }
         """,
-    )
+    ).data
     assert data == {
         "region_name": [
             "AFRICA!!!",
@@ -2449,7 +2451,7 @@ def test_query_keep():
             nation_name_dup(nation_name: "JAPAN")
         }
         """,
-    )
+    ).data
     assert data == {
         "nation": {"name": "JAPAN"},
         "nation_name": ["JAPAN"],
@@ -2471,7 +2473,7 @@ def test_directive_skip_field():
         }
         """,
         variables={"skip": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
     data = execute(
@@ -2485,7 +2487,7 @@ def test_directive_skip_field():
         }
         """,
         variables={"skip": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
 
@@ -2506,7 +2508,7 @@ def test_directive_skip_fragment():
         }
         """,
         variables={"skip": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
     data = execute(
@@ -2523,7 +2525,7 @@ def test_directive_skip_fragment():
         }
         """,
         variables={"skip": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
 
@@ -2543,7 +2545,7 @@ def test_directive_skip_inline_fragment():
         }
         """,
         variables={"skip": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
     data = execute(
@@ -2559,7 +2561,7 @@ def test_directive_skip_inline_fragment():
         }
         """,
         variables={"skip": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
 
@@ -2577,7 +2579,7 @@ def test_directive_include_field():
         }
         """,
         variables={"include": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
     data = execute(
@@ -2591,7 +2593,7 @@ def test_directive_include_field():
         }
         """,
         variables={"include": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
 
@@ -2612,7 +2614,7 @@ def test_directive_include_fragment():
         }
         """,
         variables={"include": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
     data = execute(
@@ -2629,7 +2631,7 @@ def test_directive_include_fragment():
         }
         """,
         variables={"include": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
 
@@ -2649,7 +2651,7 @@ def test_directive_include_inline_fragment():
         }
         """,
         variables={"include": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
     data = execute(
@@ -2665,7 +2667,7 @@ def test_directive_include_inline_fragment():
         }
         """,
         variables={"include": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
 
@@ -2683,7 +2685,7 @@ def test_directive_skip_over_include():
         }
         """,
         variables={"include": True, "skip": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
     data = execute(
@@ -2697,7 +2699,7 @@ def test_directive_skip_over_include():
         }
         """,
         variables={"include": False, "skip": True},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}
 
     data = execute(
@@ -2711,7 +2713,7 @@ def test_directive_skip_over_include():
         }
         """,
         variables={"include": True, "skip": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA", "nation_count": 5}]}
 
     data = execute(
@@ -2725,5 +2727,5 @@ def test_directive_skip_over_include():
         }
         """,
         variables={"include": False, "skip": False},
-    )
+    ).data
     assert data == {"africa": [{"name": "AFRICA"}]}

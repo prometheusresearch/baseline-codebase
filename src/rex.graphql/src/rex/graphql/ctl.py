@@ -11,9 +11,31 @@
 
 import json
 import yaml
-from rex.ctl import RexTask, argument, option
+from rex.ctl import RexTask, argument, option, fail
 from .schema import SchemaConfig
 from .execute import execute
+
+
+class GraphQLQuery(RexTask):
+    """ Execute GraphQL query with the specified schema"""
+
+    name = "graphql-query"
+
+    class arguments:
+        name = argument()
+        query = argument()
+
+    def __call__(self):
+        with self.make():
+            schema = SchemaConfig.get(self.name)
+            res = execute(schema, self.query)
+            if res.errors:
+                errs, last_err = res.errors[:-1], res.errors[-1]
+                for err in errs:
+                    fail(str(err))
+                return fail(str(last_err))
+            else:
+                print(json.dumps(res.data, indent=2))
 
 
 class GraphQLSchemaLs(RexTask):
@@ -144,6 +166,7 @@ class GraphQLSchemaDump(RexTask):
             assert res.data
             from graphql.utils.base import build_client_schema
             from graphql.utils.base import print_schema
+
             data = json.dumps(res.data, indent=2)
             schema = build_client_schema(res.data)
             data = print_schema(schema)

@@ -409,6 +409,40 @@ class Query(Field):
             register(filter)
 
 
+class TypeReference(Type):
+    def __init__(self, name, loc=autoloc):
+        self.name = name
+        self.loc = loc
+
+    def __str__(self):
+        return f"type reference {self.name}"
+
+    __repr__ = __str__
+
+
+class TypeReferenceFactory:
+    def __getattr__(self, name):
+        return TypeReference(name=name, loc=None)
+
+    def __getitem__(self, name):
+        return TypeReference(name=name, loc=None)
+
+
+#: Namespace to refer to GraphQL types by its name.
+#:
+#: Example::
+#:
+#:   User = type_ref.User
+#:
+#: Useful when one needs to reference some type but doesn't have a direct
+#: reference yet, for example to reference a type which is generated to describe
+#: a enum column for a table::
+#:
+#:   bloodwork_disposition = type_ref.bloodwork_disposition
+#:
+type_ref = TypeReferenceFactory()
+
+
 class Scalar(Type):
     def __init__(self, name, loc=autoloc):
         self.name = name
@@ -1666,11 +1700,6 @@ def update_entity_from_function(typ, query_entity=None, **kw):
             f, mark_as_nonnull_if_no_default_value=True
         )
 
-        if "id" not in params:
-            raise Error(
-                "update_entity_from_function() mutation needs to access id argument"
-            )
-
         Result = Object(
             name=f"{name}_result",
             fields=lambda: {
@@ -1706,20 +1735,6 @@ def delete_entity_from_function(typ, query_entity=None, **kw):
     """ Decorator to define a mutation which deletes an entity.
     """
 
-    @compute_from_function(description="Error")
-    def error(parent: parent_param) -> scalar.String:
-        if not (isinstance(parent, tuple) and parent[0] is None):
-            return None
-        else:
-            return parent[1]
-
-    @compute_from_function(description="ID of the deleted entity")
-    def deleted(parent: parent_param) -> entity_id[typ.name]:
-        if not (isinstance(parent, tuple) and parent[0] is None):
-            return parent
-        else:
-            return None
-
     def decorate(f):
         description = kw.pop("description", None) or f"Delete {typ.name}"
         name = kw.pop("name", None) or f.__name__ or f"delete_{typ.name}"
@@ -1731,6 +1746,20 @@ def delete_entity_from_function(typ, query_entity=None, **kw):
             raise Error(
                 "delete_entity_from_function() mutation needs to access id argument"
             )
+
+        @compute_from_function(description="ID of the deleted entity")
+        def deleted(parent: parent_param) -> params["id"].type:
+            if not (isinstance(parent, tuple) and parent[0] is None):
+                return parent
+            else:
+                return None
+
+        @compute_from_function(description="Error")
+        def error(parent: parent_param) -> scalar.String:
+            if not (isinstance(parent, tuple) and parent[0] is None):
+                return None
+            else:
+                return parent[1]
 
         Result = Object(
             name=f"{name}_result",
@@ -1787,6 +1816,7 @@ def _(descriptor):
 
 @seal.register(Enum)
 @seal.register(Scalar)
+@seal.register(TypeReference)
 @seal.register(OpaqueType)
 @seal.register(EntityId)
 def _(descriptor):

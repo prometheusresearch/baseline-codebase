@@ -54,6 +54,8 @@ def coerce_input_value_impl(type, value):
 
     # 3.10 InputObjectType: Input Coercion
     if isinstance(type, model.InputObjectType):
+        if not isinstance(value, dict):
+            return None , [f'Expected an object for "{type.name}"']
         obj = {}
         errors = []
         for field_name, field in type.fields.items():

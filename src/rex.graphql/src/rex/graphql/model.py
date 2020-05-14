@@ -27,6 +27,7 @@ from htsql.core.tr.binding import (
     WrappingBinding,
     DecorateBinding,
     ComplementBinding,
+    ColumnBinding,
 )
 from htsql.core.tr.lookup import unwrap
 from htsql.core import domain
@@ -250,7 +251,7 @@ class ScalarType(Type, InputType, QueryInputType):
         return isinstance(other, self.__class__) and self.name == other.name
 
     def __repr__(self):
-        return f"ScalarType({self.name!r})"
+        return f"{self.__class__.__name__}({self.name!r})"
 
     def __str__(self):
         return self.name
@@ -318,15 +319,14 @@ class DatabaseEnumType(ScalarType):
             coerce_value=self.coerce_value,
             domain=None,
         )
-        if not isinstance(values, set):
-            values = set(values)
         self.values = values
+        self.valueset = {v.name for v in values}
 
     def serialize(self, v):
         return v
 
     def coerce_value(self, v):
-        if v not in self.values:
+        if v not in self.valueset:
             return None
         return v
 
@@ -337,14 +337,14 @@ class DatabaseEnumType(ScalarType):
         return self.coerce_value(v)
 
     @classmethod
-    def from_domain(cls, dom):
+    def from_domain(cls, dom, name=None):
         values = []
         h = hashlib.sha256()
         for label in dom.labels:
             values.append(desc.EnumValue(name=label))
             h.update(label.encode("utf8"))
-        # TODO: Try to get the enum type from pg catalog instead.
-        name = f"Enum_{h.hexdigest()[:8]}"
+        if name is None:
+            name = f"Enum_{h.hexdigest()[:8]}"
         return cls(name=name, values=values)
 
 
@@ -430,8 +430,6 @@ def type_from_domain(ctx, dom: domain.Domain):
         return ctx.root.types["Time"]
     elif isinstance(dom, domain.DecimalDomain):
         return ctx.root.types["Decimal"]
-    elif isinstance(dom, domain.EnumDomain):
-        return DatabaseEnumType.from_domain(dom)
     elif isinstance(dom, domain_extra.JSONDomain):
         return ctx.root.types["JSON"]
     else:
@@ -705,6 +703,14 @@ def _(descriptor, ctx):
     return type
 
 
+@construct.register(desc.TypeReference)
+def _(descriptor, ctx):
+    type = ctx.root.types.get(descriptor.name)
+    if type is None:
+        raise Error(f"No type with name {descriptor.name} defined")
+    return type
+
+
 @construct.register(desc.Scalar)
 def _(descriptor, ctx):
     type = ctx.root.types.get(descriptor.name)
@@ -965,7 +971,14 @@ def _(descriptor, ctx, name):
             # Neither a table nor selection, a scalar then!
             # TODO: Confirm with @xi
             if descriptor.type is None:
-                type = type_from_domain(ctx, output.domain)
+                if isinstance(output.domain, domain.EnumDomain):
+                    name = None
+                    if isinstance(output.binding, ColumnBinding):
+                        column = output.binding.column
+                        name = f"{column.table.name}_{column.name}"
+                    type = DatabaseEnumType.from_domain(output.domain, name=name)
+                else:
+                    type = type_from_domain(ctx, output.domain)
                 if type is None:
                     msg = (
                         f"Unable to infer query type automatically for"

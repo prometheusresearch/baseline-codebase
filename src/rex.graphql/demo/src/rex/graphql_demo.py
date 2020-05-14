@@ -4,7 +4,7 @@ import collections
 import urllib.request, urllib.parse, urllib.error
 import csv
 
-from rex.ctl import RexTaskWithProject, option, log
+from rex.ctl import RexTaskWithProject as RexTask, option, log
 from rex.db import get_db
 from rex.web import HandleLocation
 from rex.core import cached
@@ -16,6 +16,7 @@ from rex.graphql import (
     Object,
     InputObject,
     InputObjectField,
+    GraphQLError
 )
 from rex.graphql.serve import serve
 from rex.graphql.reflect import reflect
@@ -86,13 +87,20 @@ class API(HandleLocation):
                 point = Point(x=point.x, y=y)
             return point
 
+        @reflection.add_mutation()
+        @mutation_from_function()
+        def make_region_and_fail() -> scalar.String:
+            db = get_db()
+            db.produce("/insert(region := {name := 'FAIL'})")
+            raise GraphQLError("error creating region")
+
         return reflection.to_schema()
 
     def __call__(self, req):
         return serve(self.schema(), req)
 
 
-class PopulateTask(RexTaskWithProject):
+class PopulateTask(RexTask):
     """populate the demo database"""
 
     name = "graphql-demo-populate"

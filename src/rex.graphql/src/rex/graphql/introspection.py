@@ -242,6 +242,7 @@ class TypeFieldResolvers:
     @classmethod
     def _kinds(cls):
         return (
+            (model.DatabaseEnumType, TypeKind.ENUM),
             (model.ScalarType, TypeKind.SCALAR),
             (model.OpaqueType, TypeKind.SCALAR),
             (model.ObjectType, TypeKind.OBJECT),
@@ -317,7 +318,7 @@ class TypeFieldResolvers:
     ):
         # type: (...) -> Optional[List[GraphQLEnumValue]]
         include_deprecated = args.get("includeDeprecated")
-        if isinstance(type, model.EnumType):
+        if isinstance(type, (model.EnumType, model.DatabaseEnumType)):
             values = type.values
             if not include_deprecated:
                 values = [v for v in values if not v.deprecation_reason]

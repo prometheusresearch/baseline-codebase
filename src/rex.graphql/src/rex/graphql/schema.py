@@ -42,7 +42,10 @@ class SchemaConfig(Extension):
             name = name.signature()
         make_schema_cls = cls.mapped().get(name)
         if make_schema_cls is None:
-            raise Error("No such GraphQL schema defined:", name)
+            existing = "\n".join(s.signature() for s in cls.all())
+            raise Error(
+                f"No schema '{name}' exists, existing schemas:", existing,
+            )
         db = get_db()
         make_schema = make_schema_cls(db)
         return make_schema()
@@ -131,9 +134,7 @@ def schema(
             loc=None,
         )
     else:
-        mutation_type = desc.Object(
-            name="Mutations", fields=lambda: {}, description=None, loc=None
-        )
+        mutation_type = None
 
     types = {}
 

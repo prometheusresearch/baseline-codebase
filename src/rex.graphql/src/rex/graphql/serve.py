@@ -27,12 +27,11 @@ __all__ = ("serve",)
 
 
 class RexGraphQLJSONEncoder(RexJSONEncoder):
-
     def default(self, o):
         if isinstance(o, datetime.date):
-            return o.strftime('%Y-%m-%d')
+            return o.strftime("%Y-%m-%d")
         if isinstance(o, datetime.datetime):
-            return o.strftime('%Y-%m-%dT%H:%M:%S')
+            return o.strftime("%Y-%m-%dT%H:%M:%S")
         return super(RexGraphQLJSONEncoder, self).default(o)
 
 
@@ -72,15 +71,13 @@ def serve(
     if show_graphiql:
         return serve_graphiql(params=params, result=result)
     else:
-        status = 200
-        if result is not None:
-            if result.invalid:
-                status = 400
-            result = result.to_dict()
-        body = json.dumps(result, cls=RexGraphQLJSONEncoder).encode('utf-8')
-        return Response(
-            body=body, status=status, content_type="application/json"
-        )
+        content_type = "application/json"
+        payload = result.to_dict() if result is not None else None
+        body = json.dumps(payload, cls=RexGraphQLJSONEncoder).encode("utf-8")
+        if result and result.invalid:
+            raise HTTPBadRequest(body=body, content_type=content_type)
+        else:
+            return Response(body=body, content_type=content_type)
 
 
 class Params:

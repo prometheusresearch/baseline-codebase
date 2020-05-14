@@ -145,7 +145,7 @@ kind: Ingress
 metadata:
   name: develop
   annotations:
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: nginx-internal
 spec:
   tls:
   - hosts:

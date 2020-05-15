@@ -12,7 +12,7 @@ class GoogleStorageDriver(GCSDriver):
         # environments where this is unnecessary. So, this override skips the
         # enforcement of the JSON file's existance.
 
-        super(Driver, self).__init__(*args, **kwargs)
+        super(GCSDriver, self).__init__(*args, **kwargs)
 
         key = kwargs.get('key')
         if key:

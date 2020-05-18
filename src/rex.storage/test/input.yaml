@@ -36,6 +36,6 @@ tests:
         __pbbt__['__coverage__'].stop()
         __pbbt__['__coverage__'].save()
 
-- coverage-check: 85.0
+- coverage-check: 80.0
 - coverage-report: ./build/coverage
 

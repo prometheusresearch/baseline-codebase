@@ -13,7 +13,7 @@
     "babel-preset-react-app": "^9.0.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "9.0.0",
-    "flow-bin": "0.118.0",
+    "flow-bin": "0.125.1",
     "html-webpack-plugin": "4.0.0-beta.5",
     "jest": "^24.0.0",
     "jest-cli": "^24.0.0",

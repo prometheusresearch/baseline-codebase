@@ -11,6 +11,9 @@ install:
 showcase:
 	@yarn run cosmos
 
+storybook: 
+	@yarn run storybook
+
 lint:
 	@yarn run eslint --config ./.eslintrc .
 

@@ -35,9 +35,9 @@ def test_object_list():
         for obj in get_storage().object_list('/rst/stuff')
     ])
     assert objects == [
-        'bar',
-        'foo',
-        'subdir/baz',
+        'stuff/bar',
+        'stuff/foo',
+        'stuff/subdir/baz',
     ]
 
     objects = sorted([
@@ -70,10 +70,10 @@ def test_object_tree():
         get_storage().object_tree('/rst/stuff')
     )
     assert tree == {
-        'bar': 'bar',
-        'foo': 'foo',
+        'bar': 'stuff/bar',
+        'foo': 'stuff/foo',
         'subdir/': {
-            'baz': 'subdir/baz',
+            'baz': 'stuff/subdir/baz',
         },
     }
 

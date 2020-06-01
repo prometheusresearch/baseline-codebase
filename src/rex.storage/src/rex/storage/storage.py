@@ -1,4 +1,3 @@
-
 import io
 import os.path
 import tempfile
@@ -458,14 +457,12 @@ class Storage:
         :type storage_path: str|rex.storage.Path
         :rtype: iter(rex.storage.Path)
         """
-
         path = self.parse_path(storage_path)
-        mount_root = path.container_location.lstrip('/')
+        mount_root = path.mount.base_path.lstrip('/')
         for blob in path.mount.container:
-            if not mount_root:
-                yield path.join(blob.name)
-            elif blob.name.startswith(mount_root):
-                yield path.join(blob.name[len(mount_root):])
+            if not blob.name.startswith(path.container_location):
+                continue
+            yield path.mount.path(blob.name[len(mount_root):])
 
     def object_tree(self, storage_path):
         """
@@ -479,8 +476,13 @@ class Storage:
 
         tree = {}
 
+        storage_path = self.parse_path(storage_path)
+        prefix_len = len(storage_path.name)
+        if prefix_len:
+            prefix_len += 1
+
         for path in self.object_list(storage_path):
-            parts = path.name.split('/')
+            parts = path.name[prefix_len:].split('/')
 
             scope = tree
             while parts:
@@ -494,4 +496,3 @@ class Storage:
                     scope[part] = path
 
         return tree
-

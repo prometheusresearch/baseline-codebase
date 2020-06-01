@@ -78,8 +78,8 @@ def test_object_list():
         for obj in get_storage().object_list('/other-p/dir2')
     ])
     assert objects == [
-        '4.txt',
-        '5.txt',
+        'dir2/4.txt',
+        'dir2/5.txt',
     ]
 
 
@@ -112,7 +112,7 @@ def test_object_tree():
         get_storage().object_tree('/other-p/dir2')
     )
     assert tree == \
-        {'4.txt': '4.txt', '5.txt': '5.txt'}
+        {'4.txt': 'dir2/4.txt', '5.txt': 'dir2/5.txt'}
 
 
 def test_exists():

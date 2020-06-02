@@ -1,12 +1,4 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "noImplicitAny": false,
-      "removeComments": true,
-      "preserveConstEnums": true,
-      "jsx": "react",
-      "esModuleInterop": true,
-      "skipLibCheck": true
-    },
-    "exclude": ["./rex-graphql-codegen"],
+    "extends": "./tsconfig.base",
+    "include": ["./storybook/*.ts", "./storybook/**/*.ts"]
 }

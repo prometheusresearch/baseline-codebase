@@ -1,7 +1,7 @@
 const path = require("path");
 
-let PATH_JS = path.resolve(__dirname, "../");
-let PATH_TSCONFIG = path.resolve(__dirname, "../tsconfig.json");
+let PATH_TS = path.resolve(__dirname, "./stories");
+let PATH_TSCONFIG = path.resolve(__dirname, "./tsconfig.json");
 
 module.exports = (baseConfig, env) => {
   let { config } = baseConfig;
@@ -13,7 +13,7 @@ module.exports = (baseConfig, env) => {
    */
   config.module.rules[0] = {
     test: /\.tsx?$/,
-    include: PATH_JS,
+    include: PATH_TS,
     exclude: shallowRules.exclude,
     use: [
       require.resolve("ts-loader"),

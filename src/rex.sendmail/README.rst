@@ -36,7 +36,7 @@ emails to standard output::
 
     >>> from rex.core import Rex
 
-    >>> demo = Rex('rex.sendmail_demo', sendmail='-')
+    >>> demo = Rex('rex.sendmail_demo', sendmail='test')
 
 Now we can prepare and send an email message using
 :func:`rex.sendmail.sendmail()`::
@@ -55,18 +55,20 @@ Now we can prepare and send an email message using
 
     >>> with demo:
     ...     sendmail(msg)
-    MAIL FROM:<alice@example.net>
-    RCPT TO:<bob@example.net>
-    RCPT TO:<clothilde@example.net>
-    RCPT TO:<daniel@nsa.gov>
-    DATA
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Cc: Clothilde Coleman <clothilde@example.net>
-    Subject: Hi there!
+    SENDER:
+      alice@example.net
+    RECIPIENTS:
+      bob@example.net
+      clothilde@example.net
+      daniel@nsa.gov
+    HEADERS:
+      From: Alice Anderson <alice@example.net>
+      To: Bob Brown <bob@example.net>
+      Cc: Clothilde Coleman <clothilde@example.net>
+      Subject: Hi there!
+    BODY:
+      Hi Bob!
     <BLANKLINE>
-    Hi Bob!
-    .
 
 :mod:`rex.sendmail` collects the list of recipients from the headers ``To``,
 ``Cc`` and ``Bcc``.  Note that the ``Bcc`` header has been removed from the
@@ -87,21 +89,22 @@ class, which allows you to build email messages programmatically::
 
     >>> with demo:
     ...     sendmail(msg)
-    MAIL FROM:<alice@example.net>
-    RCPT TO:<bob@example.net>
-    RCPT TO:<clothilde@example.net>
-    RCPT TO:<daniel@nsa.gov>
-    DATA
-    Content-Type: text/plain; charset="us-ascii"
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: 7bit
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Cc: Clothilde Coleman <clothilde@example.net>
-    Subject: Hi there!
-    <BLANKLINE>
-    Hi Bob!
-    .
+    SENDER:
+      alice@example.net
+    RECIPIENTS:
+      bob@example.net
+      clothilde@example.net
+      daniel@nsa.gov
+    HEADERS:
+      Content-Type: text/plain; charset="us-ascii"
+      MIME-Version: 1.0
+      Content-Transfer-Encoding: 7bit
+      From: Alice Anderson <alice@example.net>
+      To: Bob Brown <bob@example.net>
+      Cc: Clothilde Coleman <clothilde@example.net>
+      Subject: Hi there!
+    BODY:
+      Hi Bob!
 
 :mod:`rex.sendmail` provides a convenience function for constructing email
 messages from Jija templates.  Suppose we add template ``/email/hi.txt`` to
@@ -122,15 +125,19 @@ this template to an email object using function :func:`rex.sendmail.compose()`::
     ...     msg = compose('rex.sendmail_demo:/email/hi.txt',
     ...                   name="Bob Brown", email="bob@example.net")
     ...     sendmail(msg)
-    MAIL FROM:<alice@example.net>
-    RCPT TO:<bob@example.net>
-    DATA
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Subject: Hi there!
-    <BLANKLINE>
-    Hi Bob!
-    .
+    SENDER:
+      alice@example.net
+    RECIPIENTS:
+      bob@example.net
+    HEADERS:
+      From: Alice Anderson <alice@example.net>
+      To: Bob Brown <bob@example.net>
+      Subject: Hi there!
+      MIME-Version: 1.0
+      Content-Type: text/plain; charset="utf-8"
+      Content-Transfer-Encoding: base64
+    BODY:
+      Hi Bob!
 
 
 Configuring mailers

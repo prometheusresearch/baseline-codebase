@@ -19,6 +19,7 @@ import os
 import fcntl
 import re
 import smtplib
+import textwrap
 from html.parser import HTMLParser
 
 
@@ -301,14 +302,11 @@ class StdoutMailer(Mailer):
     """
 
     def __call__(self, sender, recipients, message):
-        text = message.body_text \
-               if hasattr(message, 'body_text') \
-               else message.as_string()
         print("MAIL FROM:<%s>" % sender)
         for recipient in recipients:
             print("RCPT TO:<%s>" % recipient)
         print("DATA")
-        for line in text.splitlines():
+        for line in message.as_string().splitlines():
             if line.startswith('.'):
                 line = "."+line
             print(line)
@@ -316,6 +314,63 @@ class StdoutMailer(Mailer):
 
     def __str__(self):
         return "-"
+
+
+class TestingMailer(Mailer):
+    """
+    Dumps the message to stdout in an easier-for-humans-to-read format for
+    testing.
+    """
+
+    def __call__(self, sender, recipients, message):
+        print('SENDER:\n  %s' % (sender,))
+
+        print('RECIPIENTS:')
+        for recipient in recipients:
+            print('  %s' % (recipient,))
+
+        headers, _ = message.as_string().split('\n\n', 1)
+        print('HEADERS:\n%s' % (textwrap.indent(headers, '  '),))
+
+        if message.is_multipart():
+            print('STRUCTURE:')
+            self.output_structure(message)
+
+            print('CONTENTS:')
+            for part in message.walk():
+                if part.get_content_maintype() == 'text':
+                    print('  %s:' % (part.get_content_type(),))
+                    print(textwrap.indent(
+                        part.get_payload(decode=True,).decode('utf-8'),
+                        '    ',
+                    ))
+
+        else:
+            print('BODY:')
+            print(textwrap.indent(
+                message.get_payload(decode=True,).decode('utf-8'),
+                '  ',
+            ))
+
+    def output_structure(self, message, depth=0):
+        indent = '    ' * depth
+
+        print(
+            '  %stype=%s, disposition=%s, encoding=%s, id=%s' % (
+                indent,
+                message.get_content_type(),
+                message.get_content_disposition(),
+                message.get('Content-Transfer-Encoding'),
+                message.get('Content-ID'),
+            )
+        )
+
+        if message.is_multipart():
+            for part in message.get_payload():
+                self.output_structure(part, depth=depth + 1)
+
+    def __str__(self):
+        return 'test'
 
 
 class NullMailer(Mailer):
@@ -366,6 +421,11 @@ class SendmailSetting(Setting):
     When using doctest for testing the application, it's convenient to dump
     the content of all sent emails to stdout::
 
+        sendmail: test
+
+    Or, you could dump the content of all sent emails to stdout in a more
+    verbose, raw format::
+
         sendmail: '-'
 
     Finally, you could disable sending emails::
@@ -382,6 +442,7 @@ class SendmailSetting(Setting):
             (?: : (?P<smtp_port> \d+ ) )?
             (?: / (?P<smtp_email> \S+ @ [\w.-]+ )? )? |
         (?P<email> \S+ @ [\w.-]+ ) |
+        (?P<testing> test ) |
         (?P<stdout> - )
     """
     validate = MaybeVal(StrVal(pattern))
@@ -430,6 +491,8 @@ def get_mailer():
         return SMTPMailer("127.0.0.1", 25, match.group('email'))
     elif match.group('stdout'):
         return StdoutMailer()
+    elif match.group('testing'):
+        return TestingMailer()
     else:
         raise NotImplementedError() # not reachable
 

@@ -13,7 +13,7 @@ stdout::
 
     >>> from rex.core import Rex, LatentRex
 
-    >>> demo = Rex('rex.sendmail_demo', sendmail='-')
+    >>> demo = Rex('rex.sendmail_demo', sendmail='test')
 
 Use function ``sendmail()`` from ``rex.sendmail`` to send email messages.  It
 accepts both strings and ``email.message.Message`` objects::
@@ -30,15 +30,17 @@ accepts both strings and ``email.message.Message`` objects::
 
     >>> with demo:
     ...     sendmail(msg)
-    MAIL FROM:<alice@example.net>
-    RCPT TO:<bob@example.net>
-    DATA
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Subject: Hi there!
+    SENDER:
+      alice@example.net
+    RECIPIENTS:
+      bob@example.net
+    HEADERS:
+      From: Alice Anderson <alice@example.net>
+      To: Bob Brown <bob@example.net>
+      Subject: Hi there!
+    BODY:
+      Hi Bob!
     <BLANKLINE>
-    Hi Bob!
-    .
 
     >>> from email.mime.text import MIMEText
     >>> from email.utils import formataddr
@@ -50,18 +52,19 @@ accepts both strings and ``email.message.Message`` objects::
 
     >>> with demo:
     ...     sendmail(msg)
-    MAIL FROM:<alice@example.net>
-    RCPT TO:<bob@example.net>
-    DATA
-    Content-Type: text/plain; charset="us-ascii"
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: 7bit
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Subject: Hi there!
-    <BLANKLINE>
-    Hi Bob!
-    .
+    SENDER:
+      alice@example.net
+    RECIPIENTS:
+      bob@example.net
+    HEADERS:
+      Content-Type: text/plain; charset="us-ascii"
+      MIME-Version: 1.0
+      Content-Transfer-Encoding: 7bit
+      From: Alice Anderson <alice@example.net>
+      To: Bob Brown <bob@example.net>
+      Subject: Hi there!
+    BODY:
+      Hi Bob!
 
 The message must contain a sender and at least one recipient::
 
@@ -95,15 +98,19 @@ Use ``compose()`` to generate a message from a template::
     ...     msg = compose('rex.sendmail_demo:/email/hi.txt',
     ...                   name="Bob Brown", email="bob@example.net")
     ...     sendmail(msg)
-    MAIL FROM:<alice@example.net>
-    RCPT TO:<bob@example.net>
-    DATA
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Subject: Hi there!
-    <BLANKLINE>
-    Hi Bob!
-    .
+    SENDER:
+      alice@example.net
+    RECIPIENTS:
+      bob@example.net
+    HEADERS:
+      From: Alice Anderson <alice@example.net>
+      To: Bob Brown <bob@example.net>
+      Subject: Hi there!
+      MIME-Version: 1.0
+      Content-Type: text/plain; charset="utf-8"
+      Content-Transfer-Encoding: base64
+    BODY:
+      Hi Bob!
 
 You can instruct ``compose()`` to generate a message with HTML and inline images
 attached if you provide it with HTML template which references images via ``<img
@@ -114,35 +121,31 @@ src="cid:path" >``::
     ...                   html_template_path='rex.sendmail_demo:/email/hi.html',
     ...                   name="Bob Brown", email="bob@example.net")
     ...     sendmail(msg) # doctest: +ELLIPSIS
-    MAIL FROM:<alice@example.net>
-    RCPT TO:<bob@example.net>
-    DATA
-    ...
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Subject: Hi there!
-    <BLANKLINE>
-    ...
-    From: Alice Anderson <alice@example.net>
-    To: Bob Brown <bob@example.net>
-    Subject: Hi there!
-    <BLANKLINE>
-    Hi Bob!
-    ...
-    Content-Type: text/html; charset="us-ascii"
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: 7bit
-    <BLANKLINE>
-    Hi <bold>Bob</bold>!
-    <img src="cid:hi.png">
-    ...
-    Content-Type: image/png
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: base64
-    Content-ID: <hi.png>
-    <BLANKLINE>
-    ...
-    .
+    SENDER:
+      alice@example.net
+    RECIPIENTS:
+      bob@example.net
+    HEADERS:
+      Content-Type: multipart/alternative; boundary="..."
+      MIME-Version: 1.0
+      From: Alice Anderson <alice@example.net>
+      To: Bob Brown <bob@example.net>
+      Subject: Hi there!
+      MIME-Version: 1.0
+      Content-Type: multipart/alternative; boundary="..."
+      Content-Transfer-Encoding: base64
+    STRUCTURE:
+      type=multipart/alternative, disposition=None, encoding=base64, id=None
+          type=text/plain, disposition=None, encoding=base64, id=None
+          type=multipart/related, disposition=None, encoding=None, id=None
+              type=text/html, disposition=None, encoding=7bit, id=None
+              type=image/png, disposition=None, encoding=base64, id=<hi.png>
+    CONTENTS:
+      text/plain:
+        Hi Bob!
+      text/html:
+        Hi <bold>Bob</bold>!
+        <img src="cid:hi.png">
 
 If you try to reference images which do not exists on the filesystem it will try
 to give you an informative message::
@@ -169,9 +172,9 @@ function::
     ...     mailer = get_mailer()
 
     >>> mailer
-    StdoutMailer()
+    TestingMailer()
     >>> print(mailer)
-    -
+    test
 
 
 Mailers
@@ -293,6 +296,30 @@ MBOX format::
     To: Bob Brown <bob@example.net>
     ...
 
+You can also use a stdout mailer, which simply will output messages to stdout
+in a format resembling STMP::
+
+    >>> null_demo = Rex('rex.sendmail_demo', sendmail='-')
+
+    >>> with null_demo:
+    ...     mailer = get_mailer()
+    >>> mailer
+    StdoutMailer()
+    >>> print(mailer)
+    -
+
+    >>> with null_demo:
+    ...     sendmail(msg)
+    MAIL FROM:<alice@example.net>
+    RCPT TO:<bob@example.net>
+    DATA
+    From: Alice Anderson <alice@example.net>
+    To: Bob Brown <bob@example.net>
+    Subject: Hi there!
+    <BLANKLINE>
+    Hi Bob!
+    .
+
 Finally, you can use a null mailer, which simply discards all outgoing
 messages::
 
@@ -307,6 +334,4 @@ messages::
 
     >>> with null_demo:
     ...     sendmail(msg)
-
-
 

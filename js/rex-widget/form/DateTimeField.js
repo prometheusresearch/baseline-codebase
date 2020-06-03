@@ -8,7 +8,7 @@
 
 import React from "react";
 import { Field, type Props as FieldProps } from "./Field";
-import { DateInput } from "rex-ui";
+import { DateInputLegacy as DateInput } from "rex-ui";
 
 type Props = {|
   ...FieldProps,

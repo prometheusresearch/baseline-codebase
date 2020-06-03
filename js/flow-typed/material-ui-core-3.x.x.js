@@ -367,6 +367,7 @@ declare module "@material-ui/core" {
   declare export var Popover: AbstractComponent<PopoverProps>;
 
   declare export type GridProps = {|
+    ...DOMProps,
     alignContent?:
       | "stretch"
       | "center"

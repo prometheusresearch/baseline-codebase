@@ -1,3 +1,0 @@
-mutation addUserToSite($userIds: [user_id]!, $siteId: site_id!) {
-  add_user_to_site(user_ids: $userIds, site_id: $siteId)
-}

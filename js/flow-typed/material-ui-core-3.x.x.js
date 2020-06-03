@@ -3,8 +3,8 @@ declare module "@material-ui/styles" {
 
   declare export function install(): void;
 
-  declare type color = string;
-  declare export opaque type Theme: {|
+  declare export type color = string;
+  declare export type Theme = {|
     shape: {
       borderRadius: number,
     },
@@ -20,6 +20,7 @@ declare module "@material-ui/styles" {
     },
     breakpoints: {
       up: string => string,
+      down: string => string,
       between: (string, string) => string,
       values: {
         xs: number,
@@ -30,7 +31,9 @@ declare module "@material-ui/styles" {
       },
     },
     typography: {
-      fontWeightMedium: string,
+      fontWeightLight: number,
+      fontWeightRegular: number,
+      fontWeightMedium: number,
       fontFamily: string,
       h1: Object,
       h2: Object,
@@ -93,17 +96,24 @@ declare module "@material-ui/styles" {
     mixins: {| toolbar: Object, gutters: () => Object |},
     zIndex: {|
       drawer: number,
+      mobileStepper: number,
+      appBar: number,
+      drawer: number,
+      modal: number,
+      snackbar: number,
+      tooltip: number,
     |},
+    shadows: string[],
   |};
 
-  declare type Palette = {|
+  declare export type Palette = {|
     light: color,
     main: color,
     dark: color,
     contrastText: color,
   |};
 
-  declare type TonalPalette = {|
+  declare export type TonalPalette = {|
     "50": string,
     "100": string,
     "200": string,
@@ -120,7 +130,7 @@ declare module "@material-ui/styles" {
     A400: string,
   |};
 
-  declare type Accent = {
+  declare export type Accent = {
     color: color,
     colorDisabled: color,
     colorHover: color,
@@ -144,6 +154,15 @@ declare module "@material-ui/core" {
   import type { Theme } from "@material-ui/styles";
   import type { AbstractComponent, Node, ElementType } from "react";
 
+  declare export type TypographyColor =
+    | "initial"
+    | "inherit"
+    | "primary"
+    | "secondary"
+    | "textPrimary"
+    | "textSecondary"
+    | "error";
+
   declare export type TypographyProps = {|
     ...DOMProps,
     children: ?Node,
@@ -151,19 +170,13 @@ declare module "@material-ui/core" {
     id?: string,
     classes?: Object,
     align?: "inherit" | "left" | "center" | "right" | "justify",
-    color?:
-      | "initial"
-      | "inherit"
-      | "primary"
-      | "secondary"
-      | "textPrimary"
-      | "textSecondary"
-      | "error",
+    color?: TypographyColor,
     component?: ElementType,
     display?: "initial" | "block" | "inline",
     gutterBottom?: boolean,
     noWrap?: boolean,
     paragraph?: boolean,
+    inline?: boolean,
     variant?:
       | "h1"
       | "h2"
@@ -182,6 +195,7 @@ declare module "@material-ui/core" {
       | "inherit",
     title?: string,
     style?: Object,
+    href?: string,
   |};
 
   declare export var Typography: AbstractComponent<TypographyProps>;
@@ -198,6 +212,9 @@ declare module "@material-ui/core" {
     className?: string,
     "aria-label"?: string,
     tabIndex?: number,
+    href?: string,
+    target?: string,
+    rel?: string,
   |};
 
   declare export type ButtonBaseProps = {|
@@ -225,12 +242,22 @@ declare module "@material-ui/core" {
 
   declare export var ButtonBase: AbstractComponent<ButtonBaseProps>;
 
+  declare export type ButtonVariants =
+    | "text"
+    | "flat"
+    | "outlined"
+    | "contained"
+    | "raised"
+    | "fab"
+    | "extendedFab";
+
   declare export type ButtonProps = {|
     ...ButtonBaseProps,
     color?: "default" | "inherit" | "primary" | "secondary",
     fullWidth?: boolean,
     size?: "small" | "medium" | "large",
-    variant?: "text" | "outlined" | "contained",
+    variant?: ButtonVariants,
+    target?: string,
   |};
 
   declare export var Button: AbstractComponent<ButtonProps>;
@@ -271,6 +298,9 @@ declare module "@material-ui/core" {
     rowsMax?: string | number,
     startAdornment?: Node,
     type?: string,
+    onBlur?: UIEvent => any,
+    onKeyDown?: KeyboardEvent => any,
+    onKeyUp?: KeyboardEvent => any,
   |};
   declare export var Input: AbstractComponent<InputProps>;
 
@@ -335,6 +365,124 @@ declare module "@material-ui/core" {
     TransitionProps?: Object,
   |};
   declare export var Popover: AbstractComponent<PopoverProps>;
+
+  declare export type GridProps = {|
+    ...DOMProps,
+    alignContent?:
+      | "stretch"
+      | "center"
+      | "flex-start"
+      | "flex-end"
+      | "space-between"
+      | "space-around"
+      | "stretch",
+    alignItems?:
+      | "flex-start"
+      | "center"
+      | "flex-end"
+      | "stretch"
+      | "baseline"
+      | "stretch",
+    children?: React.Node,
+    classes?: Object,
+    component?: string,
+    container?: boolean,
+    direction?: "row" | "row-reverse" | "column" | "column-reverse" | "row",
+    item?: boolean,
+    justify?:
+      | "center"
+      | "flex-end"
+      | "space-between"
+      | "space-around"
+      | "space-evenly"
+      | "flex-start",
+    lg?:
+      | false
+      | "auto"
+      | true
+      | 1
+      | 2
+      | 3
+      | 4
+      | 5
+      | 6
+      | 7
+      | 8
+      | 9
+      | 10
+      | 11
+      | 12,
+    md?:
+      | false
+      | "auto"
+      | true
+      | 1
+      | 2
+      | 3
+      | 4
+      | 5
+      | 6
+      | 7
+      | 8
+      | 9
+      | 10
+      | 11
+      | 12,
+    sm?:
+      | false
+      | "auto"
+      | true
+      | 1
+      | 2
+      | 3
+      | 4
+      | 5
+      | 6
+      | 7
+      | 8
+      | 9
+      | 10
+      | 11
+      | 12,
+    spacing?: 0 | 8 | 16 | 24 | 32 | 40,
+    wrap?: "nowrap" | "wrap" | "wrap-reverse",
+    xl?:
+      | "auto"
+      | true
+      | 1
+      | 2
+      | 3
+      | 4
+      | 5
+      | 6
+      | 7
+      | 8
+      | 9
+      | 10
+      | 11
+      | 12
+      | false,
+    xs?:
+      | "auto"
+      | true
+      | 1
+      | 2
+      | 3
+      | 4
+      | 5
+      | 6
+      | 7
+      | 8
+      | 9
+      | 10
+      | 11
+      | 12
+      | false,
+    zeroMinWidth?: boolean,
+    style?: Object,
+    className?: ?string,
+  |};
+  declare export var Grid: AbstractComponent<GridProps>;
 
   declare export function withTheme<P: {}>(): (
     AbstractComponent<P>,

@@ -6,45 +6,51 @@
 
 import type { AbstractComponent } from "react";
 
-export type FilterConfig<+T: string = string, V = any> =
-  | T
-  | {
-      +name: T,
-      +render?: ?RenderFilter<V>,
-    };
+export type FilterConfig<V> = {
+  +name: string,
+  +render: RenderFilter<V>,
+};
 
 export type FilterSpec = {|
   +name: string,
-  +render: ?RenderFilter<any>,
+  +render: RenderFilter<any>,
 |};
 
-export type RenderFilter<V> = AbstractComponent<{
-  value: ?V,
-  values?: Array<V>,
-  onChange: (nextValue: V) => void,
-}>;
+export type RenderFilterProps<V> = {|
+  name: string,
+  params: V,
+  onParams: ((V) => V) => void,
+|};
+
+export type RenderFilter<V> = AbstractComponent<RenderFilterProps<V>>;
 
 export type FilterSpecMap = Map<string, FilterSpec>;
 
-export const configureFilters = (
-  configs: ?Array<FilterConfig<>>,
-): ?FilterSpecMap => {
+export function configureFilters(
+  configs: ?Array<FilterConfig<any>>,
+): ?FilterSpecMap {
   if (configs == null || configs.length === 0) {
     return null;
   }
   let map: FilterSpecMap = new Map();
 
   configs.forEach(config => {
-    if (typeof config === "string") {
-      map.set(config, { name: config, render: null });
-    } else if (typeof config === "object") {
-      map.set(config.name, { name: config.name, render: config.render });
+    let spec = configureFilter(config);
+    if (spec != null) {
+      map.set(spec.name, spec);
     }
   });
 
   return map;
-};
+}
+
+export function configureFilter(config: ?FilterConfig<any>): ?FilterSpec {
+  if (config == null) {
+    return null;
+  } else {
+    return { name: config.name, render: config.render };
+  }
+}
 
 export const NO_VALUE = "undefined";
 export const SORT_FIELD = "sort";
-export const SEARCH_FIELD = "search";

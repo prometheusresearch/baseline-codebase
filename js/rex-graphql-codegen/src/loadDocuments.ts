@@ -14,10 +14,10 @@ export async function loadDocuments(
   let stat = promisifyWithContext(fs.stat, fs);
 
   let names = await readdir(dir);
-  names = names.filter(name => isGraphQL.test(name));
+  names = names.filter((name: string) => isGraphQL.test(name));
 
   let docs: (DocumentNode | null)[] = await Promise.all(
-    names.map(async name => {
+    names.map(async (name: string) => {
       // schema.gql contains dumped schema
       if (name == "schema.gql") {
         return null;
@@ -35,7 +35,7 @@ export async function loadDocuments(
     }),
   );
 
-  return docs.filter(doc => doc != null);
+  return docs.filter(doc => doc != null) as DocumentNode[];
 }
 
 let isGraphQL = /^\w+\.gql$/;

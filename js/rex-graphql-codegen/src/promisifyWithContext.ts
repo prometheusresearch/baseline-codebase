@@ -1,6 +1,6 @@
-let promisifyWithContext = (fn, ctx): any => (...args) =>
+let promisifyWithContext = (fn: any, ctx: any): any => (...args: any[]) =>
   new Promise((resolve, reject) => {
-    let cb = (err, res) => {
+    let cb = (err: Error | null, res: any) => {
       if (err) {
         reject(err);
       } else {

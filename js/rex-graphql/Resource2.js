@@ -122,120 +122,129 @@ export function define<P, V>(config: ResourceConfig<P, V>): Resource<P, V> {
      * - in-progress -> error
      * - * -> dirty
      */
-    let driver = React.useMemo(() => {
-      let current: State<V> = { type: "init", epoch: 0, key };
+    let driver = React.useMemo(
+      () => {
+        let current: State<V> = { type: "init", epoch: 0, key };
 
-      let update = (state: State<V>) => {
-        current = state;
-      };
-      let commit = () => {
-        setState(current);
-      };
+        let update = (state: State<V>) => {
+          current = state;
+        };
+        let commit = () => {
+          setState(current);
+        };
 
-      let self = {
-        markAsDirty: () => {
-          if (self == null) {
-            return;
-          }
-          if (current.type === "completed" || current.type === "dirty") {
+        let self = {
+          markAsDirty: () => {
+            if (self == null) {
+              return;
+            }
+            if (current.type === "completed" || current.type === "dirty") {
+              update({
+                type: "dirty",
+                key: current.key,
+                value: current.value,
+                epoch: current.epoch + 1,
+              });
+            } else {
+              update({
+                type: "init",
+                key: current.key,
+                epoch: current.epoch + 1,
+              });
+            }
+            commit();
+          },
+
+          update: (f: (?V) => ?V) => {
+            if (self == null) {
+              return;
+            }
+            let value = f(
+              current.type === "completed" || current.type === "dirty"
+                ? current.value
+                : null,
+            );
             update({
-              type: "dirty",
+              type: "completed",
               key: current.key,
-              value: current.value,
-              epoch: current.epoch + 1,
+              value,
+              epoch: current.epoch,
             });
-          } else {
-            update({
-              type: "init",
-              key: current.key,
-              epoch: current.epoch + 1,
-            });
-          }
-          commit();
-        },
+            commit();
+          },
 
-        update: (f: (?V) => ?V) => {
-          if (self == null) {
-            return;
-          }
-          let value = f(
-            current.type === "completed" || current.type === "dirty"
-              ? current.value
-              : null,
-          );
-          update({
-            type: "completed",
-            key: current.key,
-            value,
-            epoch: current.epoch,
-          });
-          commit();
-        },
+          fetch: () => {
+            if (!(current.type === "init" || current.type === "dirty")) {
+              return;
+            }
 
-        fetch: () => {
-          if (!(current.type === "init" || current.type === "dirty")) {
-            return;
-          }
-
-          let promise = resource.fetch(endpoint, params).then(
-            (value: V) => {
-              if (self == null) {
+            let promise = resource.fetch(endpoint, params).then(
+              (value: V) => {
+                if (self == null) {
+                  return value;
+                }
+                if (current.type === "in-progress") {
+                  update({
+                    type: "completed",
+                    key: current.key,
+                    value,
+                    epoch: current.epoch,
+                  });
+                  commit();
+                }
                 return value;
-              }
-              if (current.type === "in-progress") {
-                update({
-                  type: "completed",
-                  key: current.key,
-                  value,
-                  epoch: current.epoch,
-                });
-                commit();
-              }
-              return value;
-            },
-            error => {
-              if (self == null) {
+              },
+              error => {
+                if (self == null) {
+                  throw error;
+                }
+                if (current.type === "in-progress") {
+                  update({
+                    type: "error",
+                    key: current.key,
+                    error,
+                    epoch: current.epoch,
+                  });
+                  commit();
+                }
                 throw error;
-              }
-              if (current.type === "in-progress") {
-                update({
-                  type: "error",
-                  key: current.key,
-                  error,
-                  epoch: current.epoch,
-                });
-                commit();
-              }
-              throw error;
-            },
-          );
+              },
+            );
 
-          update({
-            type: "in-progress",
-            key: current.key,
-            promise,
-            epoch: current.epoch,
-          });
-        },
-        destroy() {
-          self = null;
-        },
-      };
-      return self;
-    }, [endpoint, key]);
+            update({
+              type: "in-progress",
+              key: current.key,
+              promise,
+              epoch: current.epoch,
+            });
+          },
+          destroy() {
+            self = null;
+          },
+        };
+        return self;
+      },
+      [endpoint, key],
+    );
 
-    React.useEffect(() => {
-      driver.fetch();
-      drivers.add(driver);
-      return () => {
-        driver.destroy();
-        drivers.delete(driver);
-      };
-    }, [driver]);
+    React.useEffect(
+      () => {
+        driver.fetch();
+        drivers.add(driver);
+        return () => {
+          driver.destroy();
+          drivers.delete(driver);
+        };
+      },
+      [driver],
+    );
 
-    React.useEffect(() => {
-      driver.fetch();
-    }, [driver, state.epoch]);
+    React.useEffect(
+      () => {
+        driver.fetch();
+      },
+      [driver, state.epoch],
+    );
 
     return [state, (driver: ResourceDriver<P, V>)];
   }
@@ -386,4 +395,97 @@ export function markAsDirtyAll(): void {
       markAsDirty(resource);
     }
   });
+}
+
+function useIsMounted() {
+  let is = React.useRef(true);
+  React.useEffect(
+    () => () => {
+      is.current = false;
+    },
+    [],
+  );
+  return is;
+}
+
+export type MutationState<R> = {|
+  running: boolean,
+  result: ?R,
+  error: ?Error,
+|};
+
+export function useMutation<P, R>({
+  endpoint,
+  mutation,
+  onComplete,
+  onError,
+}: {|
+  endpoint: Endpoint,
+  mutation: Mutation<P, R>,
+  onComplete?: (response: R, params: P) => void,
+  onError?: (error: Error, params: P) => void,
+|}): [(params: P) => Promise<MutationState<R>>, MutationState<R>] {
+  let isMounted = useIsMounted();
+
+  let [state, setState] = React.useState<MutationState<R>>({
+    running: false,
+    result: null,
+    error: null,
+  });
+
+  let stateRef = React.useRef(state);
+  stateRef.current = state;
+
+  let run = React.useCallback(
+    params => {
+      // Do not start running mutation if there's one running already.
+      if (stateRef.current.running) {
+        return Promise.resolve(stateRef.current);
+      }
+      if (!isMounted.current) {
+        return Promise.resolve(stateRef.current);
+      }
+
+      setState(state => ({ ...state, running: true }));
+
+      let promise: Promise<MutationState<R>> = perform(
+        endpoint,
+        mutation,
+        params,
+      ).then(
+        result => {
+          let nextState = {
+            running: false,
+            result,
+            error: null,
+          };
+          if (isMounted.current) {
+            setState(nextState);
+            if (onComplete != null) {
+              onComplete(result, params);
+            }
+          }
+          return nextState;
+        },
+        error => {
+          let nextState = {
+            running: false,
+            error,
+            result: null,
+          };
+          if (isMounted.current) {
+            setState(nextState);
+            if (onError != null) {
+              onError(error, params);
+            }
+          }
+          return nextState;
+        },
+      );
+      return promise;
+    },
+    [endpoint, mutation, onComplete, onError, isMounted],
+  );
+
+  return [run, state];
 }

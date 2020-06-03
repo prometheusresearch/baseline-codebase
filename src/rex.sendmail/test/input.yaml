@@ -8,6 +8,7 @@ tests:
 - coverage: setup.cfg
 
 - sh: pip install -q -e ./demo
+  ignore: true
 - mkdir: ./sandbox
 
 - doctest: README.rst

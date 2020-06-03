@@ -105,6 +105,61 @@ Use ``compose()`` to generate a message from a template::
     Hi Bob!
     .
 
+You can instruct ``compose()`` to generate a message with HTML and inline images
+attached if you provide it with HTML template which references images via ``<img
+src="cid:path" >``::
+
+    >>> with demo:
+    ...     msg = compose('rex.sendmail_demo:/email/hi.txt',
+    ...                   html_template_path='rex.sendmail_demo:/email/hi.html',
+    ...                   name="Bob Brown", email="bob@example.net")
+    ...     sendmail(msg) # doctest: +ELLIPSIS
+    MAIL FROM:<alice@example.net>
+    RCPT TO:<bob@example.net>
+    DATA
+    ...
+    From: Alice Anderson <alice@example.net>
+    To: Bob Brown <bob@example.net>
+    Subject: Hi there!
+    <BLANKLINE>
+    ...
+    From: Alice Anderson <alice@example.net>
+    To: Bob Brown <bob@example.net>
+    Subject: Hi there!
+    <BLANKLINE>
+    Hi Bob!
+    ...
+    Content-Type: text/html; charset="us-ascii"
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: 7bit
+    <BLANKLINE>
+    Hi <bold>Bob</bold>!
+    <img src="cid:hi.png">
+    ...
+    Content-Type: image/png
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: base64
+    Content-ID: <hi.png>
+    <BLANKLINE>
+    ...
+    .
+
+If you try to reference images which do not exists on the filesystem it will try
+to give you an informative message::
+
+    >>> with demo:
+    ...     compose('rex.sendmail_demo:/email/hi.txt',
+    ...             html_template_path=
+    ...               'rex.sendmail_demo:/email/hi_invalid_img.html',
+    ...             name="Bob Brown",
+    ...             email="bob@example.net") # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    rex.core.Error: Unable to attach image:
+        cid:unknown.png
+    While rendering the template:
+        rex.sendmail_demo:/email/hi_invalid_img.html
+
 You can get direct access to the mailer object using ``get_mailer()``
 function::
 

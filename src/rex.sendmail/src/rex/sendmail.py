@@ -8,14 +8,18 @@ This package allows you to send emails.
 """
 
 
-from rex.core import (Setting, MaybeVal, StrVal, OneOrSeqVal, get_settings,
-        cached, Initialize, Error)
+from rex.core import (Setting, MaybeVal, StrVal, get_packages, get_settings,
+        cached, Initialize, Error, guard)
 from rex.web import get_jinja
 import email
+import email.mime.text
+import email.mime.multipart
+import email.mime.image
 import os
 import fcntl
 import re
 import smtplib
+from html.parser import HTMLParser
 
 
 def sendmail(message):
@@ -56,23 +60,106 @@ def sendmail(message):
         raise Error("Email recipients are not specified:",
                     "".join("%s: %s\n" % item for item in list(message.items())))
     mailer = get_mailer()
-    mailer(sender, recipients, message.as_string())
+    mailer(sender, recipients, message)
 
 
-def compose(package_path, **arguments):
+def compose(template_path, html_template_path=None, **arguments):
     """
     Composes an email object from a template.
 
-    `package_path`
+    `template_path`
         Path to the template in ``<package>:<path>`` format.
+
+        This template is used to specify ``text/plain`` body of the email
+        message but also to specify fields (Subject, ...). See
+        :func:`email.message_from_string` from stdlib for more info.
+    `html_template_path`
+        Path to the HTML template in ``<package>:<path>`` format.
+
+        This is optional. If supplied then email with contain both text and html
+        messages (html is preferred in this case).
+
+        Also ``<img src="cid:relativepath">`` HTML elements will be found and
+        referenced images will be attached as well.
     `arguments`
         Template parameters.
     """
     jinja = get_jinja()
-    template = jinja.get_template(package_path)
-    text = template.render(**arguments)
-    message = email.message_from_string(text)
+    text = jinja.get_template(template_path).render(**arguments)
+    text_message = email.message_from_string(text)
+    body_text = text_message.get_payload()
+    text_message.set_charset('utf-8')
+
+    if html_template_path:
+        # Produces the following message structure:
+        #
+        # - alternative
+        #   - text
+        #   - related
+        #     - html
+        #     - images...
+
+        with guard("While rendering the template:", html_template_path):
+            body_html = jinja.get_template(html_template_path).render(**arguments)
+            html_text_message = email.mime.text.MIMEText(body_html, 'html')
+
+            # Find all images and attach them to the email message
+            images = FindImages.from_string(body_html)
+            if images:
+                html_message = email.mime.multipart.MIMEMultipart('related')
+                html_message.attach(html_text_message)
+                packages = get_packages()
+                dir = os.path.dirname(packages.abspath(html_template_path))
+                for cid, filename in images:
+                    try:
+                        with open(os.path.join(dir, filename), 'rb') as fp:
+                            img = email.mime.image.MIMEImage(fp.read())
+                            img.add_header('Content-ID', f'<{cid}>')
+                            html_message.attach(img)
+                    except Exception as exc:
+                        err = Error("Unable to attach image:", f"cid:{filename}")
+                        raise err from exc
+            else:
+                html_message = html_text_message
+
+        # Redefine message as alternative with html and tect attachments
+        message = email.mime.multipart.MIMEMultipart('alternative')
+        for k, v in text_message.items():
+            message[k] = v
+        message.attach(text_message)
+        message.attach(html_message) # the last attachment is preferred
+
+    else:
+        body_html = None
+        message = text_message
+
+    # Stash the actual rendered contents onto top-level properties for easy
+    # access by users.
+    setattr(message, 'body_text', body_text)
+    setattr(message, 'body_html', body_html)
+
     return message
+
+
+class FindImages(HTMLParser):
+    # Finds <img src="cid:..." /> in HTML
+
+    def __init__(self):
+        super(FindImages, self).__init__()
+        self.images = set()
+
+    def handle_starttag(self, tag, attrs):
+        if tag.upper() == 'IMG':
+            for name, value in attrs:
+                if name.upper() == 'SRC' and value.startswith('cid:'):
+                    filename = value[4:] # strip 'cid:'
+                    self.images.add((filename, filename))
+
+    @classmethod
+    def from_string(cls, value):
+         p = cls()
+         p.feed(value)
+         return list(p.images)
 
 
 class Mailer:
@@ -90,7 +177,7 @@ class Mailer:
         mailer is configured properly.
         """
 
-    def __call__(self, sender, recipients, text):
+    def __call__(self, sender, recipients, message):
         """
         Sends an email.
 
@@ -98,7 +185,7 @@ class Mailer:
             Envelope sender.
         `recipients`
             A list of envelope recipients.
-        `text`
+        `message`
             The message to send.
         """
         raise NotImplementedError()
@@ -143,7 +230,8 @@ class SMTPMailer(Mailer):
             raise Error("Failed to connect to SMTP server at %s:%s:"
                         % (self.host, self.port), exc)
 
-    def __call__(self, sender, recipients, text):
+    def __call__(self, sender, recipients, message):
+        text = message.as_string()
         if self.forward is not None:
             recipients = [self.forward]
         smtp = smtplib.SMTP()
@@ -189,7 +277,8 @@ class MBoxMailer(Mailer):
         if directory and not os.path.isdir(directory):
             raise Error("Mailbox path is not valid:", self.path)
 
-    def __call__(self, sender, recipients, text):
+    def __call__(self, sender, recipients, message):
+        text = message.as_string()
         with open(self.path, 'a') as mbox:
             fcntl.flock(mbox, fcntl.LOCK_EX)
             mbox.write("From %s %s\n" % (sender, email.utils.formatdate()))
@@ -211,7 +300,10 @@ class StdoutMailer(Mailer):
     Dumps the message to stdout in format resembling an SMTP session.
     """
 
-    def __call__(self, sender, recipients, text):
+    def __call__(self, sender, recipients, message):
+        text = message.body_text \
+               if hasattr(message, 'body_text') \
+               else message.as_string()
         print("MAIL FROM:<%s>" % sender)
         for recipient in recipients:
             print("RCPT TO:<%s>" % recipient)
@@ -231,7 +323,7 @@ class NullMailer(Mailer):
     A no-op mailer.
     """
 
-    def __call__(self, sender, recipients, text):
+    def __call__(self, sender, recipients, message):
         pass
 
     def __str__(self):

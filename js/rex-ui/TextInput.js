@@ -9,6 +9,7 @@
 
 import * as React from "react";
 import * as mui from "@material-ui/core";
+// $FlowFixMe
 import * as ReactForms from "react-forms";
 
 export type Props = {|

@@ -6,30 +6,25 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { type Endpoint } from "rex-graphql";
-import * as Resource from "rex-graphql/Resource";
+import * as Resource from "rex-graphql/Resource2";
 import * as mui from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import Autosuggest from "react-autosuggest";
 import match from "autosuggest-highlight/match";
 import parse from "autosuggest-highlight/parse";
 
-import { introspect } from "./Introspection.js";
-import * as EndpointSchemaStorage from "./EndpointSchemaStorage.js";
-import * as QueryPath from "./QueryPath.js";
-import * as Field from "./FieldLegacy.js";
+import * as Field from "./Field.js";
 
-export type AutocompleteProps = {|
+export type AutocompleteProps<V, R, O = *> = {|
   /** GraphQL endpoint. */
   endpoint: Endpoint,
-  /** Path inside GraphQL schema. */
-  fetch: string,
+  resource: Resource.Resource<V, R>,
+  getRows: R => ?Array<?O>,
 
   /** Field which specifies the label. */
-  labelField: Field.FieldConfig,
-  /** Field which specifies the id. */
-  idField?: Field.FieldConfig,
+  labelField: Field.FieldConfig<O, $Keys<O>>,
   /** Additional fields to query. */
-  fields?: { [name: string]: Field.FieldConfig },
+  fields?: Array<Field.FieldConfig<O, $Keys<O>>>,
 
   /** Currently selected value. */
   value: ?Object,
@@ -44,37 +39,26 @@ export type AutocompleteProps = {|
   RenderItem?: React.AbstractComponent<{| label: React.Node, item: Object |}>,
 |};
 
-export function Autocomplete(props: AutocompleteProps) {
+export let Autocomplete = <V, R>(props: AutocompleteProps<V, R>) => {
   let {
-    fetch,
     endpoint,
-    labelField,
-    idField = "id",
-    fields = {},
+    resource,
+    getRows,
+    labelField: labelField_,
     value,
     onValue,
     label,
     placeholder,
     RenderItem,
   } = props;
-  let schema = EndpointSchemaStorage.useIntrospectionSchema(endpoint);
-
-  let { resource, path, fieldSpecs } = React.useMemo(() => {
-    let path = QueryPath.make(fetch);
-    let { query, fieldSpecs } = introspect({
-      schema,
-      path,
-      fields: { ...fields, id: idField, label: labelField },
-    });
-    let resource = Resource.defineQuery<void, any>({ endpoint, query });
-    return { path, resource, fieldSpecs };
-  }, [fetch, endpoint, schema, labelField, fields, idField]);
+  let labelField = Field.configureField(labelField_);
 
   return (
     <AutocompleteRenderer
-      path={path}
+      endpoint={endpoint}
       resource={resource}
-      fieldSpecs={fieldSpecs}
+      getRows={getRows}
+      labelField={labelField}
       label={label}
       placeholder={placeholder}
       value={value}
@@ -82,7 +66,7 @@ export function Autocomplete(props: AutocompleteProps) {
       RenderItem={RenderItem}
     />
   );
-}
+};
 
 let useStyles = makeStyles(theme => ({
   root: {
@@ -112,10 +96,11 @@ let useStyles = makeStyles(theme => ({
   },
 }));
 
-type AutocompleteRendererProps = {|
-  path: QueryPath.QueryPath,
-  resource: Resource.Resource<any, any>,
-  fieldSpecs: { id: Field.FieldSpec, label: Field.FieldSpec },
+type AutocompleteRendererProps<V, R, O = *> = {|
+  endpoint: Endpoint,
+  resource: Resource.Resource<V, R>,
+  getRows: R => ?Array<?O>,
+  labelField: Field.FieldSpec,
   label?: string,
   placeholder?: string,
   value: ?Object,
@@ -123,13 +108,16 @@ type AutocompleteRendererProps = {|
   RenderItem?: React.AbstractComponent<{| label: React.Node, item: Object |}>,
 |};
 
-function AutocompleteRenderer(props: AutocompleteRendererProps) {
+let AutocompleteRenderer = <V: Object, R>(
+  props: AutocompleteRendererProps<V, R>,
+) => {
   let {
+    endpoint,
     resource,
-    path,
+    getRows,
     label,
     placeholder,
-    fieldSpecs,
+    labelField,
     value,
     onValue,
     RenderItem,
@@ -137,20 +125,16 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
 
   let popperNode = React.useRef<?HTMLElement>(null);
   let [search, setSearch] = React.useState(
-    value != null ? value[fieldSpecs.label.require.field] : "",
+    value != null ? Field.extract(labelField, value) : "",
   );
   let [suggestions, setSuggestions] = React.useState([]);
 
   let onSuggestionsFetchRequested = ({ value }) => {
-    Resource.fetch(resource, { search: value }).then(data => {
-      // eslint-disable-next-line no-unused-vars
-      for (let key of QueryPath.toArray(path)) {
-        if (data == null) {
-          break;
-        }
-        data = data[key];
-      }
-      setSuggestions(data);
+    let params: Object = {
+      search: value,
+    };
+    Resource.fetch(endpoint, resource, params).then(data => {
+      setSuggestions(getRows(data));
     });
   };
 
@@ -191,7 +175,7 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
   }
 
   function renderSuggestion(suggestion, { query, isHighlighted }) {
-    let label = suggestion[fieldSpecs.label.require.field];
+    let label = Field.extract(labelField, suggestion);
     let matches = match(label, query);
     let parts = parse(label, matches);
 
@@ -224,7 +208,7 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
   }
 
   function getSuggestionValue(suggestion) {
-    return suggestion[fieldSpecs.label.require.field];
+    return Field.extract(labelField, suggestion);
   }
 
   return (
@@ -277,4 +261,4 @@ function AutocompleteRenderer(props: AutocompleteRendererProps) {
       />
     </div>
   );
-}
+};

@@ -18,11 +18,11 @@ export type SelectProps<V, R, O = *> = {|
   getRows: R => Array<O>,
 
   /** Field which specifies the label. */
-  labelField: Field.FieldConfig<$Keys<O>>,
+  labelField: Field.FieldConfig<O, $Keys<O>>,
   /** Field which specifies the id. */
-  idField?: Field.FieldConfig<$Keys<O>>,
+  idField?: Field.FieldConfig<O, $Keys<O>>,
   /** Additional fields to query. */
-  fields?: Array<Field.FieldConfig<$Keys<O>>>,
+  fields?: Array<Field.FieldConfig<O, $Keys<O>>>,
 
   /** Currently selected value. */
   value: ?string,

@@ -8,11 +8,9 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 export const LoadingIndicator = () => (
   <div
     style={{
-      display: "block",
-      width: "100%",
-      height: "100%",
+      display: "flex",
+      justifyContent: "center",
       padding: 16,
-      textAlign: "center",
     }}
   >
     <CircularProgress />

@@ -1,7 +1,4 @@
-/**
- * @copyright 2015-present, Prometheus Research, LLC
- * @flow
- */
+// @flow
 
 import invariant from "invariant";
 

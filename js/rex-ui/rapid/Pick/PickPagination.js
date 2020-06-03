@@ -10,7 +10,7 @@ import IconButton from "@material-ui/core/IconButton";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
-import { makeStyles, type Theme } from "../Theme.js";
+import { makeStyles, type Theme } from "../../Theme.js";
 
 export const usePaginationStyles = makeStyles((theme: Theme) => ({
   paginationWrapper: {

@@ -31,5 +31,7 @@ export { useLayoutMode, useDOMSize } from "./Layout";
 export { useHover, Hoverable } from "./Interaction";
 
 export { TextInput } from "./TextInput";
-export { DateInput } from "./DateInput";
+export { DateInput as DateInputLegacy } from "./DateInput";
+export { DateInput } from "./DateInput2";
 export { SearchInput } from "./SearchInput";
+export { StoredFile } from "./FileUpload";

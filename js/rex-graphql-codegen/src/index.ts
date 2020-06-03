@@ -34,13 +34,11 @@ interface Context {
 
   shouldGenerateResourceAPI: boolean;
   shouldGenerateTypesAPI: boolean;
-  shouldGenerateVariablesSet: boolean;
 }
 
 export interface Config {
   generateResourceAPI?: string;
   generateTypesAPI?: string;
-  generateVariablesSet?: boolean;
 }
 
 type Promisable<T> = T | Promise<T>;
@@ -67,6 +65,9 @@ function emitCollection(
   collection: Map<string, GenTypeInProgress>,
 ) {
   for (let nodes of collection.values()) {
+    if (nodes.value == null) {
+      return;
+    }
     for (let node of nodes.value) {
       // TODO(andreypopp): get rid of cast to any, this is because of different
       // versions of @babel/types and @babel/generator, probably.
@@ -92,14 +93,15 @@ function emitNamespaceImport(
 export const plugin: PluginFunction = (
   schema,
   documents,
-  { generateResourceAPI, generateTypesAPI, generateVariablesSet },
-  { outputFile },
+  { generateResourceAPI, generateTypesAPI },
+  options = { outputFile: "output.js.flow" },
 ) => {
+  let { outputFile = "output.js.flow" } = options;
   const printedSchema = gql.printSchema(schema);
   const astNode = gql.parse(printedSchema);
   const allAst = gql.concatAST([astNode, ...documents]);
 
-  const imports = [];
+  const imports: string[] = [];
 
   // Build a mapping from names to fragments/scalars so we can generate them
   // lazily as requested.
@@ -148,13 +150,14 @@ export const plugin: PluginFunction = (
     schema,
     shouldGenerateResourceAPI: generateResourceAPI != null,
     shouldGenerateTypesAPI: generateTypesAPI != null,
-    shouldGenerateVariablesSet: generateVariablesSet,
   };
 
   for (let node of allAst.definitions) {
     switch (node.kind) {
-      case "OperationDefinition":
+      case "OperationDefinition": {
         visitDefinitionNode(ctx, node);
+        assert(node.name != null);
+        assert(node.loc != null);
         emitNamespaceImport(
           imports,
           t.importDefaultSpecifier(
@@ -163,6 +166,7 @@ export const plugin: PluginFunction = (
           getRelativePath(outputFile, node.loc.source.name),
         );
         break;
+      }
       default:
         break;
     }
@@ -183,11 +187,12 @@ export const plugin: PluginFunction = (
 function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
   switch (node.kind) {
     case "OperationDefinition": {
+      assert(node.name != null);
       if (ctx.operations.has(node.name.value)) {
         break;
       }
       ctx.operations.set(node.name.value, { value: null });
-      let type: gql.GraphQLObjectType;
+      let type: undefined | null | gql.GraphQLObjectType;
       switch (node.operation) {
         case "query":
           type = ctx.schema.getQueryType();
@@ -196,15 +201,14 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
           type = ctx.schema.getMutationType();
           break;
         case "subscription":
+          type = ctx.schema.getSubscriptionType();
           break;
       }
+      assert(type != null);
       let value = [
         generateVariablesDeclaration(ctx, node),
         generateResultDeclaration(ctx, node, type),
       ];
-      if (ctx.shouldGenerateVariablesSet) {
-        value.push(generateVariablesSet(node));
-      }
       if (ctx.shouldGenerateResourceAPI) {
         value.push(generateResourceAPI(node));
       }
@@ -249,6 +253,7 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
       break;
     }
     case "EnumTypeDefinition": {
+      assert(node.values != null);
       if (ctx.scalars.has(node.name.value)) {
         break;
       }
@@ -269,6 +274,7 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
       break;
     }
     case "InputObjectTypeDefinition": {
+      assert(node.fields != null);
       if (ctx.scalars.has(node.name.value)) {
         break;
       }
@@ -303,8 +309,11 @@ function visitDefinitionNode(ctx: Context, node: gql.DefinitionNode) {
 
 function generateVariablesDeclaration(
   ctx: Context,
-  { name: { value: name }, variableDefinitions }: gql.OperationDefinitionNode,
+  { name: nameNode, variableDefinitions }: gql.OperationDefinitionNode,
 ) {
+  assert(nameNode != null);
+  assert(variableDefinitions != null);
+  let { value: name } = nameNode;
   return t.exportNamedDeclaration(
     t.typeAlias(
       operationVariablesTypeName(name),
@@ -315,32 +324,13 @@ function generateVariablesDeclaration(
   );
 }
 
-function generateVariablesSet({
-  name: { value: name },
-  variableDefinitions,
-}: gql.OperationDefinitionNode) {
-  return t.exportNamedDeclaration(
-    t.variableDeclaration("let", [
-      t.variableDeclarator(operationVariablesSetName(name), {
-        ...t.newExpression(t.identifier("Set"), [
-          t.arrayExpression(
-            variableDefinitions.map(varDef =>
-              t.stringLiteral(varDef.variable.name.value),
-            ),
-          ),
-        ]),
-        typeArguments: t.typeParameterInstantiation([t.stringTypeAnnotation()]),
-      }),
-    ]),
-    [],
-  );
-}
-
 function generateResultDeclaration(
   ctx: Context,
-  { name: { value: name }, selectionSet }: gql.OperationDefinitionNode,
+  { name: nameNode, selectionSet }: gql.OperationDefinitionNode,
   type: gql.GraphQLObjectType,
 ) {
+  assert(nameNode != null);
+  let { value: name } = nameNode;
   return t.exportNamedDeclaration(
     t.typeAlias(
       operationResultTypeName(name),
@@ -352,33 +342,62 @@ function generateResultDeclaration(
 }
 
 function generateResourceAPI({
-  name: { value: name },
+  name: nameNode,
   operation,
 }: gql.OperationDefinitionNode) {
+  assert(nameNode != null);
+  let { value: name } = nameNode;
+
+  let resourceMemberExpression = (id: string) =>
+    t.memberExpression(resourceAPIIdentifier, t.identifier(id));
+
+  let resourceQualifiedTypeIdentifier = (id: string) =>
+    t.qualifiedTypeIdentifier(t.identifier(id), resourceAPIIdentifier);
+
+  let defineExpression: t.Expression;
+  let typeAnnotationId: t.QualifiedTypeIdentifier;
+  switch (operation) {
+    case "query":
+      defineExpression = resourceMemberExpression("defineQuery");
+      typeAnnotationId = resourceQualifiedTypeIdentifier("Resource");
+      break;
+    case "mutation":
+      defineExpression = resourceMemberExpression("defineMutation");
+      typeAnnotationId = resourceQualifiedTypeIdentifier("Mutation");
+      break;
+    case "subscription":
+      // This doesn't exist at the moment but flow will say that to a user.
+      defineExpression = resourceMemberExpression("defineSubscription");
+      typeAnnotationId = resourceQualifiedTypeIdentifier("Subscription");
+      break;
+    default:
+      exhaustiveCheck(operation);
+  }
+
+  let typeParams = t.typeParameterInstantiation([
+    t.genericTypeAnnotation(operationVariablesTypeName(name)),
+    t.genericTypeAnnotation(operationResultTypeName(name)),
+  ]);
+
+  let typeAnnotation = t.typeAnnotation(
+    t.genericTypeAnnotation(typeAnnotationId, typeParams),
+  );
+
   return t.exportNamedDeclaration(
     t.variableDeclaration("let", [
       t.variableDeclarator(
-        t.identifier(name),
+        Object.assign(t.identifier(name), { typeAnnotation }),
         Object.assign(
-          t.callExpression(
-            t.memberExpression(
-              resourceAPIIdentifier,
-              getDefinePropertyName(operation),
-            ),
-            [
-              t.objectExpression([
-                t.objectProperty(
-                  t.identifier(operation),
-                  operationTypeName(name, operation),
-                ),
-              ]),
-            ],
-          ),
-          {
-            typeArguments: t.typeParameterInstantiation([
-              t.genericTypeAnnotation(operationVariablesTypeName(name)),
-              t.genericTypeAnnotation(operationResultTypeName(name)),
+          t.callExpression(defineExpression, [
+            t.objectExpression([
+              t.objectProperty(
+                t.identifier(operation),
+                operationTypeName(name, operation),
+              ),
             ]),
+          ]),
+          {
+            typeArguments: typeParams,
           },
         ),
       ),
@@ -476,7 +495,12 @@ function printSelectionSet(
   return t.objectTypeAnnotation(properties, null, null, null, true);
 }
 
-function printFieldOutputType(ctx: Context, type, node, nullable): t.FlowType {
+function printFieldOutputType(
+  ctx: Context,
+  type: any,
+  node: any,
+  nullable: any,
+): t.FlowType {
   let typeNode: t.FlowType;
   if (type instanceof gql.GraphQLScalarType) {
     typeNode = printScalarType(ctx, type.name);
@@ -591,10 +615,6 @@ function operationVariablesTypeName(name: string) {
   return t.identifier(`${name}Variables`);
 }
 
-function operationVariablesSetName(name: string) {
-  return t.identifier(`${name}VariablesSet`);
-}
-
 function fragmentTypeName(name: string) {
   return t.identifier(`${name}Fragment`);
 }
@@ -607,9 +627,13 @@ function exhaustiveCheck(param: never): never {
   throw new Error("should not reach here");
 }
 
-function assert(value: unknown, message: string): asserts value {
+function assert(value: unknown, message?: string): asserts value {
   if (!value) {
-    throw new Error(`assertion failed: ${message}`);
+    if (message != null) {
+      throw new Error(`assertion failed: ${message}`);
+    } else {
+      throw new Error(`assertion failed`);
+    }
   }
 }
 
@@ -619,15 +643,4 @@ function getRelativePath(from: string, to: string) {
   const relativePath = path.relative(fromFilePath.dir, toFilePath.dir);
   const pathPrefix = relativePath.charAt(0) !== "." ? "./" : "";
   return pathPrefix + path.join(relativePath, toFilePath.base);
-}
-
-function getDefinePropertyName(operation: gql.OperationTypeNode) {
-  switch (operation) {
-    case "query":
-      return t.identifier("defineQuery");
-    case "mutation":
-      return t.identifier("defineMutation");
-    case "subscription":
-      return t.identifier("defineSubscription");
-  }
 }

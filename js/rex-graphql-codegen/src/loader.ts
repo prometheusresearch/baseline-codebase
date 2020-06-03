@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+// @ts-ignore
 import * as prettier from "prettier";
 import {
   validate,
@@ -61,7 +62,7 @@ async function process(ctx: WebpackLoaderContext, source: string) {
 function getConfig(source: string): Config {
   let parser = /(?:@)(\w+) (.+?)\n/g;
   let config: Config = {};
-  let m: RegExpExecArray;
+  let m: null | RegExpExecArray;
   while ((m = parser.exec(source)) != null) {
     let key = m[1];
     let value = key === "generateVariablesSet" ? m[2] === "true" : m[2];
@@ -84,10 +85,10 @@ function validateDocuments(
   return isValid;
 }
 
-export default function rexGraphqlCodegen(this: WebpackLoaderContext, source) {
+export default function rexGraphqlCodegen(this: WebpackLoaderContext, source: string) {
   let cb = this.async();
   process(this, source).then(
-    (res: string) => cb(null, res),
+    (res: any) => cb(null, res),
     (err: Error) => cb(err, null),
   );
 }

@@ -15,10 +15,10 @@
 
 
 import yaml
-import cgi
 
 from collections import namedtuple
 from cached_property import cached_property
+from urllib.parse import parse_qs
 
 from rex.core import Location, locate, set_location, Validate, Error, AnyVal
 from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField
@@ -459,7 +459,7 @@ ReferenceSegment = namedtuple('ReferenceSegment', ['name', 'update'])
 def parse_reference_segment(segment):
     if '?' in segment:
         name, update = segment.split('?', 1)
-        update = cgi.parse_qs(update)
+        update = parse_qs(update)
         for k, v in list(update.items()):
             if len(v) > 1:
                 raise Error('Multiple context updates for the same key:',

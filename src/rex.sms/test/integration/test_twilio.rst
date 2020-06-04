@@ -4,9 +4,10 @@ TwilioProvider - Integration Test
 
 Set up the environment::
 
-    >>> from rex.sms import send_sms
+    >>> import os, logging
+    >>> logging.disable(level=logging.WARNING)
+    >>> from rex.sms import send_sms, BlockedSmsError
     >>> from rex.core import Rex
-    >>> import os
 
     >>> TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
     >>> TWILIO_TOKEN = os.environ['TWILIO_TOKEN']
@@ -22,31 +23,30 @@ Send a message successfully::
 
 Get expected Twilio errors::
 
-    >>> send_sms('5005550001', '5005550006', 'invalid phone number?')  # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    TwilioRestException: ...
+    >>> try:
+    ...     send_sms('5005550001', '5005550006', 'invalid phone number?')
+    ... except Exception as exc:
+    ...     assert exc.code == 21211
 
-    >>> send_sms('5005550002', '5005550006', 'cannot route?')  # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    TwilioRestException: ...
+    >>> try:
+    ...     send_sms('5005550002', '5005550006', 'cannot route?')
+    ... except Exception as exc:
+    ...     assert exc.code == 21612
 
-    >>> send_sms('5005550003', '5005550006', 'bad international permissions?')  # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    TwilioRestException: ...
+    >>> try:
+    ...     send_sms('5005550003', '5005550006', 'bad international permissions?')
+    ... except Exception as exc:
+    ...     assert exc.code == 21408
 
-    >>> send_sms('5005550004', '5005550006', 'number is blacklisted?')  # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    BlockedSmsError: +15005550004
+    >>> try:
+    ...     send_sms('5005550004', '5005550006', 'number is blacklisted?')
+    ... except BlockedSmsError:
+    ...     pass
 
-    >>> send_sms('5005550009', '5005550006', 'number cannot receive sms?')  # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    TwilioRestException: ...
-
+    >>> try:
+    ...     send_sms('5005550009', '5005550006', 'number cannot receive sms?')
+    ... except Exception as exc:
+    ...     assert exc.code == 21614
 
 
     >>> rex.off()

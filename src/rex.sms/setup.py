@@ -27,7 +27,7 @@ setup(
         'rex.web',
         'rex.logging',
         'phonenumberslite>=7,<9',
-        'twilio>=4,<6',
+        'twilio>6,<7',
     ],
     rex_init='rex.sms',
 )

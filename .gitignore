@@ -42,3 +42,4 @@ notebooks/**/*.pdf
 /.npm/
 /.config/
 /Library/
+*.tsbuildinfo

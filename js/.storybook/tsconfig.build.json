@@ -2,7 +2,7 @@
     "extends": "../tsconfig.base",
     "compilerOptions": {
       "rootDir": "./",
-      "emitDeclarationOnly": false
+      "emitDeclarationOnly": true
     },
     "include": ["./stories/**/*.tsx", "./stories/**/*.ts"],
 }

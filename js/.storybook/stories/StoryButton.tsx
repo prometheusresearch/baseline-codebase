@@ -19,9 +19,10 @@ type Props = {
 }
 
 export function StoryButton(props: Props = {value: "Hello world!"}) {
-  let [state, setState] = React.useState(0)
+  let [state, setState] = React.useState(0) 
+  let {onClick} = props
   return <button onClick={() => {
     setState(++state);
-    props.onClick();
+    if (onClick!=null){onClick()} 
   }}>{props.value}: {state}</button>
 }

@@ -1,16 +1,15 @@
 {
     "compilerOptions": {
-      "module": "commonjs",
       "noImplicitAny": true,
-      "removeComments": true,
+      "noEmitOnError": true,
       "strictNullChecks": true,
       "strictPropertyInitialization": true,
       "strictFunctionTypes": true,
       "preserveConstEnums": true,
       "jsx": "react",
       "esModuleInterop": true,
-      "skipLibCheck": true,
       "composite": true,
-      "declaration": true
+      "declaration": true,
+      "emitDeclarationOnly": true
     },
 }

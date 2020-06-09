@@ -1,2 +1,4 @@
 import * as React from 'react';
-export declare let Info: (fn: React.FunctionComponent<{}>) => any;
+declare type InfoComponent = (fn: React.FunctionComponent) => () => React.ReactElement<any>;
+export declare let Info: InfoComponent;
+export {};

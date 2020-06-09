@@ -14,6 +14,12 @@ showcase:
 storybook: 
 	@yarn run storybook
 
+build: 
+	@tsc --build
+
+watch: 
+	@tsc --build --watch
+
 lint:
 	@yarn run eslint --config ./.eslintrc .
 

@@ -1,15 +1,16 @@
 {
-    "compilerOptions": {
-      "noImplicitAny": true,
-      "noEmitOnError": true,
-      "strictNullChecks": true,
-      "strictPropertyInitialization": true,
-      "strictFunctionTypes": true,
-      "preserveConstEnums": true,
-      "jsx": "react",
-      "esModuleInterop": true,
-      "composite": true,
-      "declaration": true,
-      "emitDeclarationOnly": true
-    },
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "strictFunctionTypes": true,
+    "preserveConstEnums": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true
+  }
 }

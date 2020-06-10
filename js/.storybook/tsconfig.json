@@ -1,8 +1,7 @@
 {
-    "extends": "../tsconfig.base",
-    "compilerOptions": {
-      "rootDir": "./",
-      "emitDeclarationOnly": false
-    },
-    "include": ["./stories/**/*.tsx", "./stories/**/*.ts"],
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": false
+  },
+  "include": ["./stories/**/*.tsx", "./stories/**/*.ts"]
 }

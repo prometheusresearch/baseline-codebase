@@ -15,10 +15,10 @@ storybook:
 	@yarn run storybook
 
 build: 
-	@tsc --build
+	@./node_modules/.bin/tsc --build
 
 watch: 
-	@tsc --build --watch
+	@./node_modules/.bin/tsc --build --watch
 
 lint:
 	@yarn run eslint --config ./.eslintrc .

@@ -1,5 +1,5 @@
 import * as React from "react";
- 
+
 type TOnClick = () => void;
 
 type Props = {
@@ -9,20 +9,28 @@ type Props = {
   enum?: " " | "a" | "b";
 
   /** Example value with string type */
-  value: string,
- 
+  value: string;
+
   /** Example value with some object type */
-  position?: { x: number, y: number };
- 
+  position?: { x: number; y: number };
+
   /** Example onClick with custom type */
   onClick?: TOnClick;
-}
+};
 
-export function StoryButton(props: Props = {value: "Hello world!"}) {
-  let [state, setState] = React.useState(0) 
-  let {onClick} = props
-  return <button onClick={() => {
-    setState(++state);
-    if (onClick!=null){onClick()} 
-  }}>{props.value}: {state}</button>
+export function StoryButton(props: Props = { value: "Hello world!" }) {
+  let [state, setState] = React.useState(0);
+  let { onClick } = props;
+  return (
+    <button
+      onClick={() => {
+        setState(++state);
+        if (onClick != null) {
+          onClick();
+        }
+      }}
+    >
+      {props.value}: {state}
+    </button>
+  );
 }

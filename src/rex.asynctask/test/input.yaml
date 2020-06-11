@@ -21,7 +21,7 @@ tests:
           klass = multiprocessing.Process
       original_bootstrap = klass._bootstrap
       class ProcessWithCoverage(klass):
-          def _bootstrap(self):
+          def _bootstrap(self, *args, **kwargs):
               from coverage import coverage
               cov = coverage(
                 data_suffix=True,
@@ -30,7 +30,7 @@ tests:
               )
               cov.start()
               try:
-                  return original_bootstrap(self)
+                  return original_bootstrap(self, *args, **kwargs)
               finally:
                   cov.stop()
                   cov.save()

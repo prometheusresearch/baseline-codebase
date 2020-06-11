@@ -14,6 +14,7 @@
     "@storybook/addon-info": "5.3.19",
     "@storybook/preset-typescript": "3.0.0",
     "@storybook/react": "5.3.18",
+    "@types/jest": "^26.0.0",
     "@types/jss": "^10.0.0",
     "@types/react": "^16.8.1",
     "@types/react-dom": "^16.8.1",

@@ -7,6 +7,9 @@ test:
 test-update:
 	@yarn run jest --no-watch --no-watchman -u
 
+test-watch:
+	@yarn run jest --watch
+
 install:
 	@yarn
 	@yarn --cwd ./rex-graphql-codegen run build

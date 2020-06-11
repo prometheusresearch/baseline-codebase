@@ -4,6 +4,9 @@ FMT = flow-typed rex-graphql rex-ui rex-demo-ui
 test:
 	@yarn run jest --no-watch --no-watchman
 
+test-update:
+	@yarn run jest --no-watch --no-watchman -u
+
 install:
 	@yarn
 	@yarn --cwd ./rex-graphql-codegen run build

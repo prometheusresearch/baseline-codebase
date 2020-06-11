@@ -4,6 +4,7 @@ exports[`rex-widget <DynamicPageContent /> re-fetches content on new location (e
 <DocumentFragment>
   <div
     class="[object Object] [object Object] [object Object]"
+    style="flex-grow: 1; flex-shrink: 1;"
   >
     HELLO
   </div>
@@ -14,6 +15,7 @@ exports[`rex-widget <DynamicPageContent /> re-fetches content on new location (e
 <DocumentFragment>
   <div
     class="[object Object] [object Object] [object Object]"
+    style="flex-grow: 1; flex-shrink: 1;"
   >
     PRELOADER
   </div>
@@ -24,6 +26,7 @@ exports[`rex-widget <DynamicPageContent /> re-fetches content on new location (e
 <DocumentFragment>
   <div
     class="[object Object] [object Object] [object Object]"
+    style="flex-grow: 1; flex-shrink: 1;"
   >
     HELLO
   </div>
@@ -34,6 +37,7 @@ exports[`rex-widget <DynamicPageContent /> re-fetches content on new location 1`
 <DocumentFragment>
   <div
     class="[object Object] [object Object] [object Object]"
+    style="flex-grow: 1; flex-shrink: 1;"
   >
     HELLO
   </div>
@@ -44,6 +48,7 @@ exports[`rex-widget <DynamicPageContent /> re-fetches content on new location 2`
 <DocumentFragment>
   <div
     class="[object Object] [object Object] [object Object]"
+    style="flex-grow: 1; flex-shrink: 1;"
   >
     PRELOADER
   </div>
@@ -54,6 +59,7 @@ exports[`rex-widget <DynamicPageContent /> re-fetches content on new location 3`
 <DocumentFragment>
   <div
     class="[object Object] [object Object] [object Object]"
+    style="flex-grow: 1; flex-shrink: 1;"
   >
     NEXT HELLO
   </div>
@@ -64,6 +70,7 @@ exports[`rex-widget <DynamicPageContent /> renders 1`] = `
 <DocumentFragment>
   <div
     class="[object Object] [object Object] [object Object]"
+    style="flex-grow: 1; flex-shrink: 1;"
   >
     HELLO
   </div>

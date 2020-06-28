@@ -6,8 +6,10 @@
 import time
 
 from rex.core import get_settings, Error, Setting, StrVal, IntVal
-from twilio.rest import TwilioRestClient
-from twilio.rest.exceptions import TwilioRestException
+from twilio.http.http_client import TwilioHttpClient
+from twilio.rest import Client
+from twilio.base.exceptions import TwilioRestException
+
 
 from ..errors import BlockedSmsError
 from .base import SmsProvider
@@ -51,10 +53,12 @@ class TwilioSmsProvider(SmsProvider):
         token = setting_or_die('sms_twilio_token')
         timeout = setting_or_die('sms_twilio_timeout')
 
-        self.client = TwilioRestClient(
-            account=account,
-            token=token,
-            timeout=timeout,
+        self.client = Client(
+            account,
+            token,
+            http_client=TwilioHttpClient(
+                timeout=timeout,
+            ),
         )
 
     def __call__(self, recipient, sender, message):

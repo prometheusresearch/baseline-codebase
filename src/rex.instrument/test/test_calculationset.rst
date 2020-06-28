@@ -525,7 +525,7 @@ CalculationSet.execute(...) fails when computed unexpected result::
         calc1
 
     >>> CALCULATIONSET['calculations'][0]['type'] = 'boolean'
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '1 is None'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'object() is None'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     {'calc1': False}

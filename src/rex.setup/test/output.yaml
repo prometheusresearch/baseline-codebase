@@ -6,9 +6,8 @@ suite: rex.setup
 tests:
 - suite: install
   tests:
-  - sh: python -m venv --system-site-packages ./sandbox
-    stdout: ''
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
+      wheel'
     stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
@@ -21,11 +20,11 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     stdout: ''
-  - read: ./sandbox/lib/python3.6/site-packages/rex.setup_demo-4.1.2.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_init.txt
     data: rex.setup_demo
-  - read: ./sandbox/lib/python3.6/site-packages/rex.setup_demo-4.1.2.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_static.txt
     data: /home/andrey/rs/src/rex.setup/sandbox/share/rex/rex.setup_demo
-  - read: ./sandbox/lib/python3.6/site-packages/rex.setup_demo-4.1.2.egg-info/rex_bundle.txt
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_bundle.txt
     data: |
       {
         "./www/jquery": [
@@ -43,14 +42,14 @@ tests:
           "doc:latex"
         ]
       }
-  - sh: ls -R ./lib/python3.6/site-packages/rex
+  - sh: ls -R ./lib/python3.8/site-packages/rex
     stdout: |
-      ./lib/python3.6/site-packages/rex:
+      ./lib/python3.8/site-packages/rex:
       __pycache__
       setup_demo.py
 
-      ./lib/python3.6/site-packages/rex/__pycache__:
-      setup_demo.cpython-36.pyc
+      ./lib/python3.8/site-packages/rex/__pycache__:
+      setup_demo.cpython-38.pyc
   - sh: ls ./share/rex
     stdout: |
       rex.setup_demo
@@ -74,9 +73,8 @@ tests:
       jquery
 - suite: develop
   tests:
-  - sh: python -m venv --system-site-packages ./sandbox
-    stdout: ''
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
+      wheel'
     stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
@@ -93,7 +91,7 @@ tests:
     data: rex.setup_demo
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
     data: /home/andrey/rs/src/rex.setup/sandbox/share/rex/rex.setup_demo
-  - read: ./sandbox/lib/python3.6/site-packages/rex/__init__.py
+  - read: ./sandbox/lib/python3.8/site-packages/rex/__init__.py
     data: |
       __import__('pkg_resources').declare_namespace(__name__)
   - sh: ls ./share/rex
@@ -122,9 +120,8 @@ tests:
       jquery
 - suite: sdist
   tests:
-  - sh: python -m venv --system-site-packages ./sandbox
-    stdout: ''
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
+      wheel'
     stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
@@ -261,9 +258,8 @@ tests:
       jquery-1.10.2.min.map
 - suite: sdist
   tests:
-  - sh: python -m venv --system-site-packages ./sandbox
-    stdout: ''
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
+      wheel'
     stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
@@ -281,7 +277,7 @@ tests:
       Skipping installation of build/bdist.linux-x86_64/wheel/rex/__init__.py (namespace package)
   - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.2-py3-none-any.whl
     stdout: ''
-  - sh: ls ./lib/python3.6/site-packages/rex
+  - sh: ls ./lib/python3.8/site-packages/rex
     stdout: |
       __pycache__
       setup_demo.py
@@ -310,8 +306,6 @@ tests:
       jquery
 - suite: js_basic
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic ./src/pkg'
@@ -329,8 +323,6 @@ tests:
       js
 - suite: js_basic_shrinkwrap
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic_shrinkwrap ./src/pkg'
@@ -343,8 +335,6 @@ tests:
       js
 - suite: js_rex_bundle_all
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_bundle_all ./src/pkg'
@@ -362,8 +352,6 @@ tests:
       js
 - suite: js_react_npm
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_npm ./src/pkg'
@@ -387,8 +375,6 @@ tests:
       js
 - suite: js_react_no_bundle
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_no_bundle ./src/pkg'
@@ -406,8 +392,6 @@ tests:
       package.json
 - suite: js_style_entry
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_entry ./src/pkg'
@@ -426,8 +410,6 @@ tests:
       js
 - suite: js_style_implicit
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_implicit ./src/pkg'
@@ -446,8 +428,6 @@ tests:
       js
 - suite: js_rex_style
   tests:
-  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
-    stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_style ./src/pkg'

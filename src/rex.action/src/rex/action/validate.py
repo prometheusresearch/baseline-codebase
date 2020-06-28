@@ -13,9 +13,10 @@ import hashlib
 import collections
 import urllib.parse
 import urllib.request, urllib.parse, urllib.error
-import cgi
 import yaml
 import json
+
+from urllib.parse import parse_qs
 
 from htsql.core.error import Error as HTSQLError
 from htsql.core.syn.syntax import Syntax
@@ -146,7 +147,7 @@ class ActionReferenceVal(Validate):
         if ':' in path and not package:
             package, path = path.split(':', 1)
         if query:
-            query = cgi.parse_qs(query)
+            query = parse_qs(query)
             query = {k: v[0] for k, v in list(query.items())}
         else:
             query = {}

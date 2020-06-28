@@ -405,7 +405,7 @@ respectively::
     >>> print(q.format('txt').decode('utf-8'))          # doctest: +NORMALIZE_WHITESPACE
      | ft_headline('queries','query') | ft_rank('queries','query') |
     -+--------------------------------+----------------------------+-
-     | <b>queries</b>                 |                  0.0607927 |
+     | <b>queries</b>                 |                 0.06079271 |
 
 Use functions ``ft_query_matches``, ``ft_query_headline``, ``ft_query_rank``
 if you want to use query syntax for searching::
@@ -416,7 +416,7 @@ if you want to use query syntax for searching::
     >>> print(q.format('txt').decode('utf-8'))          # doctest: +NORMALIZE_WHITESPACE
      | ft_query_matches('queries','q:*') | ft_query_headline('queries','q:*') | ft_query_rank('queries','q:*') |
     -+-----------------------------------+------------------------------------+--------------------------------+-
-     | true                              | <b>queries</b>                     |                      0.0607927 |
+     | true                              | <b>queries</b>                     |                     0.06079271 |
 
 Use function ``join()`` to concatenate a set of strings::
 

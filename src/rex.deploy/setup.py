@@ -23,7 +23,7 @@ setup(
         'rex.db',
         'rex.ctl',
         'HTSQL',
-        'psycopg2>=2.7,<2.8',
+        'psycopg2>=2.8,<2.9',
         'jinja2>=2.10,<2.11',
     ],
     dependency_links=[

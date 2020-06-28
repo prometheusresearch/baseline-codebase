@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   postgres:
-    image: postgres:9
+    image: postgres:12
     volumes:
     - type: volume
       source: pgdata
@@ -9,7 +9,7 @@ services:
     environment:
     - POSTGRES_HOST_AUTH_METHOD=trust
   develop:
-    image: rexdb/build:2019.11.12
+    image: rexdb/build:2020.06.05
     command: [sleep, infinity]
     working_dir: /app
     ports:

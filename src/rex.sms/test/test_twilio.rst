@@ -40,7 +40,7 @@ times before raising the exception::
     >>> rex = Rex('rex.sms', sms_provider='twilio', sms_twilio_account_sid='abc123', sms_twilio_token='def456')
     >>> rex.on()
 
-    >>> from twilio.rest.exceptions import TwilioRestException
+    >>> from twilio.base.exceptions import TwilioRestException
     >>> def twilio_fail(*args, **kwargs):
     ...     raise TwilioRestException(500, 'http://fake')
     >>> mockTwilio = MagicMock()
@@ -50,7 +50,7 @@ times before raising the exception::
     >>> send_sms('2035551234', '8002223333', 'hello world')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    twilio.rest.exceptions.TwilioRestException: ...
+    twilio.base.exceptions.TwilioRestException: ...
 
     >>> mockTwilio.messages.create.call_count
     3
@@ -64,7 +64,7 @@ times before raising the exception::
     >>> send_sms('2035551234', '8002223333', 'hello world')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    twilio.rest.exceptions.TwilioRestException: ...
+    twilio.base.exceptions.TwilioRestException: ...
 
     >>> mockTwilio.messages.create.call_count
     1

@@ -140,12 +140,11 @@ declare module "@material-ui/styles/ServerStyleSheets" {
 }
 
 declare module "@material-ui/styles/styled" {
-  // We don't want a union type here (like React.ComponentType) in order to support mapped types.
   import type { ElementType, Node } from "react";
 
   declare export type StyledComponent<P = {}> = (
     props: P,
-  ) => React.ElementType | null;
+  ) => ElementType | null;
 }
 
 declare module "@material-ui/styles/StylesProvider" {
@@ -455,7 +454,7 @@ declare module "@material-ui/core" {
       | "stretch"
       | "baseline"
       | "stretch",
-    children?: React.Node,
+    children?: Node,
     classes?: Object,
     component?: string,
     container?: boolean,
@@ -793,10 +792,11 @@ declare module "@material-ui/core/styles/createMuiTheme" {
     Transitions,
     TransitionsOptions,
   } from "@material-ui/core/styles/transitions";
+
   import type {
     Spacing,
     SpacingOptions,
-  } from "@material-ui/core/styles/spacing";
+  } from "@material-ui/core/styles/createSpacing";
   import type { ZIndex, ZIndexOptions } from "@material-ui/core/styles/zIndex";
 
   declare type ComponentsProps = any;
@@ -993,7 +993,7 @@ declare module "@material-ui/core/styles/createTypography" {
 
   declare type FontStyleOptions = $Shape<FontStyle> & {
     htmlFontSize?: number,
-    allVariants?: React.CSSProperties,
+    allVariants?: CSSProperties,
   };
 
   declare type TypographyStyle = {
@@ -1152,14 +1152,21 @@ declare module "@material-ui/core/styles/transitions" {
   declare export default typeof transitions;
 }
 
-declare module "@material-ui/core/styles/spacing" {
+declare module "@material-ui/core/styles/createSpacing" {
   declare export type SpacingArgument = number | string;
-  declare export type Spacing = () => number;
+
+  declare export type Spacing = (
+    top?: SpacingArgument,
+    right?: SpacingArgument,
+    bottom?: SpacingArgument,
+    left?: SpacingArgument,
+  ) => string;
 
   declare export type SpacingOptions =
     | number
     | ((factor: number) => string | number)
     | number[];
+
   declare export default function createSpacing(
     spacing: SpacingOptions,
   ): Spacing;

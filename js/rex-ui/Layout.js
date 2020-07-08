@@ -8,7 +8,7 @@ import ResizeObserver from "resize-observer-polyfill";
 import * as React from "react";
 import * as ReactUtil from "./ReactUtil.js";
 import { useTheme } from "./Theme.js";
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 export type LayoutMode = "desktop" | "tablet" | "phone";
 

@@ -812,7 +812,7 @@ declare module "@material-ui/core/styles/createMuiTheme" {
 
   declare export type Direction = "ltr" | "rtl";
 
-  declare export type ThemeOptions = {
+  declare export type ThemeOptions = {|
     shape?: ShapeOptions,
     breakpoints?: BreakpointsOptions,
     direction?: Direction,
@@ -826,9 +826,9 @@ declare module "@material-ui/core/styles/createMuiTheme" {
     typography?: TypographyOptions | ((palette: Palette) => TypographyOptions),
     zIndex?: ZIndexOptions,
     unstable_strictMode?: boolean,
-  };
+  |};
 
-  declare export type Theme = {
+  declare export type Theme = {|
     shape: Shape,
     breakpoints: Breakpoints,
     direction: Direction,
@@ -842,9 +842,7 @@ declare module "@material-ui/core/styles/createMuiTheme" {
     typography: Typography,
     zIndex: ZIndex,
     unstable_strictMode?: boolean,
-
-    [key: string]: any,
-  };
+  |};
 
   declare export default function createMuiTheme(
     options?: ThemeOptions,

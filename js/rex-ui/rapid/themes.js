@@ -15,9 +15,9 @@ import green from "@material-ui/core/colors/green";
 import red from "@material-ui/core/colors/red";
 import yellow from "@material-ui/core/colors/yellow";
 
-export type Theme = {|
+export type Theme = {
   ...ThemeBase,
-  status: {
+  status: $Shape<{
     successText: color,
     successBackground: color,
     errorText: color,
@@ -26,8 +26,8 @@ export type Theme = {|
     inProgressBackground: color,
     warningText: color,
     warningBackground: color,
-  },
-|};
+  }>,
+};
 
 export let makeStyles: <Styles: {}>(
   styles: (Theme) => Styles,
@@ -39,13 +39,16 @@ export let ThemeProvider: React.AbstractComponent<{|
   theme: Theme,
 |}> = (ThemeProviderBase: any);
 
-export const DEFAULT_THEME: Theme = createMuiTheme({
-  palette: {
-    secondary: deepPurple,
-  },
-  typography: {
-    useNextVariants: true,
-  },
+export const DEFAULT_THEME: Theme = {
+  ...createMuiTheme({
+    palette: {
+      secondary: deepPurple,
+    },
+    typography: {
+      useNextVariants: true,
+    },
+  }),
+
   status: {
     successText: green[500],
     successBackground: green[50],
@@ -56,24 +59,26 @@ export const DEFAULT_THEME: Theme = createMuiTheme({
     warningText: yellow[800],
     warningBackground: yellow[50],
   },
-});
+};
 
-export const DARK_THEME: Theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: "rgb(128,128,128)",
-      dark: "rgb(66,66,66)",
-      contrastText: "white",
+export const DARK_THEME: Theme = {
+  ...createMuiTheme({
+    palette: {
+      primary: {
+        main: "rgb(128,128,128)",
+        dark: "rgb(66,66,66)",
+        contrastText: "white",
+      },
+      secondary: brown,
     },
-    secondary: brown,
-  },
+    typography: {
+      useNextVariants: true,
+    },
+  }),
   status: {
-    success: green[500],
-    error: red[500],
-    inProgress: blue[500],
-    warning: yellow[500],
+    successBackground: green[500],
+    errorBackground: red[500],
+    inProgressBackground: blue[500],
+    warningBackground: yellow[500],
   },
-  typography: {
-    useNextVariants: true,
-  },
-});
+};

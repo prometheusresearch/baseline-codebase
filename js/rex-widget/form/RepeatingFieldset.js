@@ -12,7 +12,7 @@ import {
   useFormValue,
   Fieldset as FieldsetBase,
   type value,
-  type select
+  type select,
 } from "react-forms";
 
 import { Fieldset } from "./Fieldset";
@@ -64,7 +64,7 @@ type Props = {|
 
   forceShowErrors?: boolean,
 
-  layout?: layout
+  layout?: layout,
 |};
 
 /**
@@ -116,7 +116,7 @@ export function RepeatingFieldset({
   // TODO: validate that we have an array here
   let fieldsets = value.map((item, idx) => {
     const toolbar = (
-      <Element paddingBottom={theme.spacing.unit}>
+      <Element paddingBottom={theme.spacing()}>
         <rexui.DangerButton
           size="small"
           icon={<icons.Close />}
@@ -132,11 +132,11 @@ export function RepeatingFieldset({
       </VBox>
     );
     return (
-      <Element padding={theme.spacing.unit / 4} key={idx}>
+      <Element padding={theme.spacing(0.25)} key={idx}>
         <mui.Paper>
-          <Element padding={theme.spacing.unit}>
+          <Element padding={theme.spacing()}>
             <Fieldset formValue={formValue.select(idx)}>
-              <VBox paddingBottom={theme.spacing.unit}>{content}</VBox>
+              <VBox paddingBottom={theme.spacing()}>{content}</VBox>
             </Fieldset>
           </Element>
         </mui.Paper>
@@ -144,8 +144,8 @@ export function RepeatingFieldset({
     );
   });
 
-  const verticalFieldSpacing = theme.spacing.unit;
-  const horizontalFieldSpacing = theme.spacing.unit * 2;
+  const verticalFieldSpacing = theme.spacing();
+  const horizontalFieldSpacing = theme.spacing(2);
 
   let isRequired = schema != null && schema.isRequired;
   let showErrors = formValue.params.forceShowErrors || forceShowErrors;
@@ -157,7 +157,7 @@ export function RepeatingFieldset({
       <mui.FormLabel
         error={isError}
         required={isRequired}
-        style={{ paddingBottom: theme.spacing.unit }}
+        style={{ paddingBottom: theme.spacing() }}
       >
         {label}
       </mui.FormLabel>
@@ -188,7 +188,7 @@ export function RepeatingFieldset({
       {isError && <ErrorList errorList={formValue.errorList} />}
       {!isError && preventiveErrorHint}
       {!readOnly && (
-        <Element padding={theme.spacing.unit}>
+        <Element padding={theme.spacing()}>
           <rexui.Button icon={<icons.Add />} size="small" onClick={addItem}>
             {addButtonText} {label}
           </rexui.Button>
@@ -213,7 +213,7 @@ function renderPreventiveErrorHint(schema, value) {
   let hint = null;
   if (minItems != null && maxItems != null) {
     hint = `Between ${minItems} and ${maxItems} ${name(
-      maxItems
+      maxItems,
     )} should be specified`;
   } else if (minItems != null) {
     hint = `Should have at least ${minItems} ${name(minItems)} specified`;

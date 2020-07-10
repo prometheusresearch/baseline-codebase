@@ -77,6 +77,6 @@ export function FileUploadField<V: { [name: string]: any }>({
 
 let useStyles = makeStyles(theme => ({
   control: {
-    paddingTop: theme.spacing.unit * 3,
+    paddingTop: theme.spacing(3),
   },
 }));

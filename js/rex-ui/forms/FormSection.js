@@ -33,13 +33,13 @@ export function FormSection({
 
 let useStyles = Rapid.makeStyles(theme => ({
   root: {
-    padding: theme.spacing.unit,
+    padding: theme.spacing(),
     display: "flex",
     flexDirection: "column",
   },
   header: {
-    padding: theme.spacing.unit,
-    paddingTop: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2,
+    padding: theme.spacing(),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
 }));

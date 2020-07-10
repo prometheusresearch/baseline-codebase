@@ -114,7 +114,7 @@ let useStyles = styles.makeStyles((theme: Theme) => ({
   error: {
     fontSize: "10pt",
     color: theme.palette.error.main,
-    padding: theme.spacing.unit,
+    padding: theme.spacing(),
   },
   container: {
     position: "relative",
@@ -122,7 +122,7 @@ let useStyles = styles.makeStyles((theme: Theme) => ({
   suggestionsContainerOpen: {
     position: "absolute",
     zIndex: 1,
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(),
     left: 0,
     right: 0,
   },
@@ -135,7 +135,7 @@ let useStyles = styles.makeStyles((theme: Theme) => ({
     listStyleType: "none",
   },
   divider: {
-    height: theme.spacing.unit * 2,
+    height: theme.spacing(2),
   },
 }));
 

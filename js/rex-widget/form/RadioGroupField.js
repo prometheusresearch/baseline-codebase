@@ -32,7 +32,7 @@ type Props = {|
    * Either an array of options or a producible which returns a list of
    * objects with `id` and `title` attributes.
    */
-  options: Fetcher<Option[]>
+  options: Fetcher<Option[]>,
 |};
 
 function RadioGroupField({
@@ -65,7 +65,7 @@ function RadioGroupField({
         filled={true}
         required={labelProps.required}
         error={labelProps.error}
-        style={{ paddingBottom: theme.spacing.unit }}
+        style={{ paddingBottom: theme.spacing() }}
       >
         {labelProps.label}
       </mui.FormLabel>
@@ -73,9 +73,7 @@ function RadioGroupField({
   };
   let renderInput = inputProps => {
     if (updating) {
-      return (
-        <rexui.PreloaderScreen style={{ marginTop: theme.spacing.unit }} />
-      );
+      return <rexui.PreloaderScreen style={{ marginTop: theme.spacing() }} />;
     } else {
       return <RadioGroup {...inputProps} options={options} />;
     }

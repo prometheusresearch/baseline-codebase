@@ -19,13 +19,13 @@ import { toReactKey } from "../KeyPath";
 type Props = {|
   initialValue: mixed,
   schema?: ReactForms.schema,
-  config: Config
+  config: Config,
 |};
 
 export function ConfView({ config, schema, initialValue }: Props) {
   let value = React.useMemo(
     () => ReactForms.createValue({ schema, value: initialValue }),
-    [initialValue, schema]
+    [initialValue, schema],
   );
   return (
     <form.FormLayout>
@@ -36,10 +36,10 @@ export function ConfView({ config, schema, initialValue }: Props) {
 
 function Field({
   config,
-  value
+  value,
 }: {|
   config: Config,
-  value: ReactForms.value
+  value: ReactForms.value,
 |}) {
   let theme = rexui.useTheme();
 
@@ -57,7 +57,7 @@ function Field({
       label: config.label,
       hint: config.hint,
       formValue: value,
-      readOnly: true
+      readOnly: true,
     });
   } else if (config.widget != null && config.widget.show != null) {
     let widget: React.Element<any> = (config.widget.show: any);
@@ -66,7 +66,7 @@ function Field({
       label: config.label,
       hint: config.hint,
       formValue: value,
-      readOnly: true
+      readOnly: true,
     });
   } else {
     switch (config.type) {
@@ -161,7 +161,7 @@ function Field({
       case "list": {
         invariant(
           Array.isArray(value.value) || value.value == null,
-          "ConfView: expected an array for a list field config"
+          "ConfView: expected an array for a list field config",
         );
         let values = value.value || [];
         let items = values.map((item, key) => {
@@ -180,8 +180,8 @@ function Field({
             <mui.Paper
               key={key}
               style={{
-                marginBottom: theme.spacing.unit,
-                padding: theme.spacing.unit
+                marginBottom: theme.spacing(),
+                padding: theme.spacing(),
               }}
               square={true}
               elevation={1}
@@ -195,7 +195,7 @@ function Field({
         if (config.label != null) {
           labelElement = (
             <mui.InputLabel shrink={true} variant="standard">
-              <div style={{ paddingBottom: theme.spacing.unit }}>
+              <div style={{ paddingBottom: theme.spacing() }}>
                 {config.label}
               </div>
             </mui.InputLabel>

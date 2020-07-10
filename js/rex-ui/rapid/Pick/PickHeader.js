@@ -69,7 +69,7 @@ export const PickHeader = ({
 
 let useStyles = makeStyles((theme: Theme) => ({
   PickHeader__root: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
   },
   PickHeader__top: {
     display: "flex",
@@ -79,7 +79,7 @@ let useStyles = makeStyles((theme: Theme) => ({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: theme.spacing.unit,
+    paddingTop: theme.spacing(),
   },
   PickHeader__title: {
     marginBottom: 8,

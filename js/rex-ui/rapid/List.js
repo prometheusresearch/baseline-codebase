@@ -213,6 +213,6 @@ export function ListItem({ primary, secondary, icon, status }: ListItemProps) {
 let useStyles = makeStyles(theme => ({
   actionbar: {
     display: "inline-flex",
-    paddingBottom: theme.spacing.unit,
+    paddingBottom: theme.spacing(),
   },
 }));

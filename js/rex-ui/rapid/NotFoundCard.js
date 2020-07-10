@@ -51,7 +51,7 @@ let useStyles = makeStyles(theme => ({
   },
   title: {
     textAlign: "center",
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing(2),
     fontSize: 16,
   },
 }));

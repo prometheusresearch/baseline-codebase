@@ -11,7 +11,7 @@ let useStyles = makeStyles(theme => {
   return {
     root: {
       backgroundColor: "#FFFFFF",
-      padding: theme.spacing.unit,
+      padding: theme.spacing(),
     },
     ol: {
       display: "flex",

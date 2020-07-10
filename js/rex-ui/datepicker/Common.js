@@ -36,7 +36,7 @@ export let BackButtonWithTitle = ({
       <mui.IconButton style={buttonStyle} onClick={onClose}>
         <icons.Close />
       </mui.IconButton>
-      <div style={{ paddingLeft: theme.spacing.unit }}>
+      <div style={{ paddingLeft: theme.spacing() }}>
         <mui.Typography
           style={{ color: theme.palette.text.secondary }}
           variant="h6"

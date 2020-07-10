@@ -53,7 +53,7 @@ type Props = {
   /**
    * The input element to use.
    */
-  children?: React.Node
+  children?: React.Node,
 };
 
 /**
@@ -70,7 +70,7 @@ function ReadOnlyField(props: Props) {
     renderValue = renderValueDefault,
     formValue: formValueOfProps,
     select,
-    children
+    children,
   } = props;
 
   let theme = rexui.useTheme();
@@ -83,8 +83,8 @@ function ReadOnlyField(props: Props) {
 
   let labelSizePercent = `30%`;
   let inputSizePercent = `70%`;
-  let { verticalSpacing, horizontalSpacing } = theme.definitonList;
-  let dimensions = { vertical: verticalSpacing, horizontal: horizontalSpacing };
+  let spacing = theme.spacing();
+  let dimensions = { vertical: spacing, horizontal: spacing };
   return (
     <HBox
       padding={dimensions}

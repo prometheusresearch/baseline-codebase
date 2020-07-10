@@ -18,7 +18,7 @@ type Props = {|
   formValue?: ReactForms.value,
   select?: ReactForms.select,
   layout?: Layout.layout,
-  renderValue?: RenderValue
+  renderValue?: RenderValue,
 |};
 
 export function ViewValue(props: Props) {
@@ -28,7 +28,7 @@ export function ViewValue(props: Props) {
     hint,
     formValue: formValueOfProps,
     select,
-    renderValue = renderValueDefault
+    renderValue = renderValueDefault,
   } = props;
   let formValue = ReactForms.useFormValue(formValueOfProps, select);
   let layoutOfContext = Layout.useFormLayout();
@@ -57,11 +57,11 @@ export function ViewValue(props: Props) {
     );
   }
 
-  let { verticalSpacing, horizontalSpacing } = theme.definitonList;
+  let spacing = 8;
   if (layout === "horizontal") {
     let padding = {
-      vertical: verticalSpacing,
-      horizontal: 0
+      vertical: spacing,
+      horizontal: 0,
     };
     return (
       <VBox>
@@ -71,7 +71,7 @@ export function ViewValue(props: Props) {
               <mui.Typography
                 style={{
                   fontSize: "1rem",
-                  color: theme.palette.text.secondary
+                  color: theme.palette.text.secondary,
                 }}
               >
                 {label}
@@ -87,8 +87,8 @@ export function ViewValue(props: Props) {
     );
   } else {
     let padding = {
-      vertical: verticalSpacing / 2,
-      horizontal: 0
+      vertical: spacing / 2,
+      horizontal: 0,
     };
     return (
       <VBox padding={padding}>

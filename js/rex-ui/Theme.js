@@ -14,18 +14,11 @@ import * as styles from "@material-ui/styles";
 
 export type Theme = styles.Theme;
 
-let defaultTheme: Theme = mui.createMuiTheme({
-  typography: {
-    useNextVariants: true,
-  },
-});
-
 export let theme: Theme = mui.createMuiTheme({
   typography: {
     useNextVariants: true,
   },
   palette: {
-    ...defaultTheme.palette,
     success: {
       main: mui.colors.green["600"],
       light: mui.colors.green["200"],
@@ -40,10 +33,6 @@ export let theme: Theme = mui.createMuiTheme({
       lg: 1280,
       xl: 1920,
     },
-  },
-  definitonList: {
-    verticalSpacing: 8,
-    horizontalSpacing: 8,
   },
 });
 

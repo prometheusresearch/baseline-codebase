@@ -45,8 +45,12 @@ declare module "@material-ui/styles" {
   import typeof _withTheme from "@material-ui/styles/withTheme";
   import typeof _DefaultTheme from "@material-ui/styles/DefaultTheme";
 
-  import type { ThemeOptions } from "@material-ui/core/styles";
-  declare export type Theme = ThemeOptions;
+  import type {
+    Theme as _Theme,
+    ThemeOptions as _ThemeOptions,
+  } from "@material-ui/core/styles";
+  declare export type Theme = _Theme;
+  declare export type ThemeOptions = _ThemeOptions;
 
   declare export type color = string;
 
@@ -730,7 +734,10 @@ declare module "@material-ui/core/colors" {
 
 declare module "@material-ui/core/styles" {
   import typeof _createMuiTheme from "@material-ui/core/styles/createMuiTheme";
-  import type { Theme as MuiTheme } from "@material-ui/core/styles/createMuiTheme";
+  import type {
+    Theme as MuiTheme,
+    ThemeOptions as MuiThemeOptions,
+  } from "@material-ui/core/styles/createMuiTheme";
 
   import typeof _MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 
@@ -744,6 +751,7 @@ declare module "@material-ui/core/styles" {
   import typeof _jssPreset from "@material-ui/core/styles/jssPreset";
 
   declare export type Theme = MuiTheme;
+  declare export type ThemeOptions = MuiThemeOptions;
   declare export type WithStyles = MuiWithStyles;
   declare export type WithTheme = MuiWithTheme;
 
@@ -834,6 +842,8 @@ declare module "@material-ui/core/styles/createMuiTheme" {
     typography: Typography,
     zIndex: ZIndex,
     unstable_strictMode?: boolean,
+
+    [key: string]: any,
   };
 
   declare export default function createMuiTheme(
@@ -1052,7 +1062,7 @@ declare module "@material-ui/core/styles/createBreakpoints" {
   declare type BreakpointKeys = "xs" | "sm" | "md" | "lg" | "xl";
 
   declare export type BreakpointDefaults = { [key: BreakpointKeys]: {} };
-  declare export type Breakpoint = BreakpointDefaults;
+  declare export type Breakpoint = BreakpointKeys;
   declare export type BreakpointValues = { [key: BreakpointKeys]: number };
   declare export var keys: Breakpoint[];
 

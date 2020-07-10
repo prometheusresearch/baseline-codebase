@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Error, BoolVal, SeqVal, OneOrSeqVal, locate
+from rex.core import Error, BoolVal, StrVal, SeqVal, OneOrSeqVal, locate
 from .fact import Fact, FactVal, LabelVal, TitleVal
 from .model import model
 import collections
@@ -173,3 +173,125 @@ class TableFact(Fact):
             driver(self.related)
 
 
+class ViewFact(Fact):
+    """
+    Describes a view.
+
+    `label`: ``unicode``
+        The name of the view.
+    `former_labels`: [``unicode``]
+        Names that the view may have had in the past.
+    `title`: ``unicode`` or ``None``
+        The title of the view.  If not set, generated from the label.
+    `is_present`: ``bool``
+        Indicates whether the view exists in the database.
+    `related`: [:class:`Fact`] or ``None``
+        Facts to be deployed when the view is deployed.  Could be specified
+        only when ``is_present`` is ``True``.
+    `definition`: ``unicode``
+        SQL definition of the view.
+    """
+
+    fields = [
+            ('view', LabelVal),
+            ('definition', StrVal(), None),
+            ('was', OneOrSeqVal(LabelVal), None),
+            ('title', TitleVal, None),
+            ('present', BoolVal, True),
+    ]
+
+    @classmethod
+    def build(cls, driver, spec):
+        if not spec.present:
+            for field in ['was', 'title', 'definition']:
+                if getattr(spec, field) is not None:
+                    raise Error("Got unexpected clause:", field)
+        label = spec.view
+        definition = spec.definition
+        is_present = spec.present
+        if isinstance(spec.was, list):
+            former_labels = spec.was
+        elif spec.was:
+            former_labels = [spec.was]
+        else:
+            former_labels = []
+        title = spec.title
+        after = []
+        return cls(label, former_labels=former_labels,
+                   title=title, definition=definition,
+                   is_present=is_present)
+
+    def __init__(self, label, definition=None, former_labels=[],
+                 title=None, is_present=True):
+        # Validate input constraints.
+        assert isinstance(label, str) and len(label) > 0
+        assert isinstance(is_present, bool)
+        if is_present:
+            assert (isinstance(former_labels, list) and
+                    all(isinstance(former_label, str)
+                        for former_label in former_labels))
+            assert (title is None or
+                    (isinstance(title, str) and len(title) > 0))
+        else:
+            assert former_labels == []
+            assert title is None
+        self.label = label
+        self.definition = definition
+        self.former_labels = former_labels
+        self.title = title
+        self.is_present = is_present
+
+    def __repr__(self):
+        args = []
+        args.append(repr(self.label))
+        if self.definition:
+            args.append("definition=%r" % self.definition)
+        if self.former_labels:
+            args.append("former_labels=%r" % self.former_labels)
+        if self.title is not None:
+            args.append("title=%r" % self.title)
+        if not self.is_present:
+            args.append("is_present=%r" % self.is_present)
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+    def to_yaml(self, full=True):
+        mapping = collections.OrderedDict()
+        mapping['view'] = self.label
+        if self.former_labels:
+            mapping['was'] = self.former_labels
+        if self.title is not None:
+            mapping['title'] = self.title
+        if self.is_present is False:
+            mapping['present'] = self.is_present
+        if full and self.definition:
+            mapping['definition'] = self.definition
+        return mapping
+
+    def __call__(self, driver):
+        schema = model(driver)
+        view = schema.view(self.label)
+        if not view:
+            for former_label in self.former_labels:
+                view = schema.view(former_label)
+                if view:
+                    break
+        if self.is_present:
+            if view:
+                if self.definition is None or view.definition == self.definition:
+                    view.modify(
+                            label=self.label,
+                            title=self.title)
+                else:
+                    view.erase()
+                    schema.build_view(
+                            label=self.label,
+                            definition=self.definition,
+                            title=self.title)
+            else:
+                schema.build_view(
+                        label=self.label,
+                        definition=self.definition,
+                        title=self.title)
+        else:
+            if view:
+                view.erase()

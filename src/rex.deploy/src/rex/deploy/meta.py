@@ -7,7 +7,7 @@ from rex.core import (
         Location, set_location, UStrVal, UChoiceVal, MaybeVal, SeqVal,
         RecordVal, Error)
 from .fact import LabelVal, TitleVal, AliasVal, AliasSpec, FactDumper
-from .image import TableImage, ColumnImage, UniqueKeyImage
+from .image import TableImage, ViewImage, ColumnImage, UniqueKeyImage
 import operator
 import collections
 import yaml
@@ -133,6 +133,17 @@ class TableMeta(Meta):
     ]
 
 
+class ViewMeta(Meta):
+    """View metadata."""
+
+    __slots__ = ()
+
+    fields = [
+            ('label', LabelVal, None),
+            ('title', TitleVal, None),
+    ]
+
+
 class ColumnMeta(Meta):
     """Column metadata."""
 
@@ -162,6 +173,8 @@ def uncomment(image):
     """
     if isinstance(image, TableImage):
         return TableMeta.parse(image.comment)
+    if isinstance(image, ViewImage):
+        return ViewMeta.parse(image.comment)
     elif isinstance(image, ColumnImage):
         return ColumnMeta.parse(image.comment)
     elif isinstance(image, UniqueKeyImage) and image.is_primary:

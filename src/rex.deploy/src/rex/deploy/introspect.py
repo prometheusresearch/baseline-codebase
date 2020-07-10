@@ -93,7 +93,7 @@ def introspect(cursor):
     cursor.execute("""
         SELECT c.oid, c.relnamespace, c.relname, c.relpersistence
         FROM pg_catalog.pg_class c
-        WHERE c.relkind IN ('r', 'v') AND
+        WHERE c.relkind IN ('r') AND
               HAS_TABLE_PRIVILEGE(c.oid, 'SELECT')
         ORDER BY c.relnamespace, c.relname
     """)
@@ -103,12 +103,27 @@ def introspect(cursor):
         table = schema.add_table(relname, is_unlogged=is_unlogged)
         class_by_oid[oid] = table_by_oid[oid] = table
 
+    # Extract views.
+    cursor.execute("""
+        SELECT c.oid, c.relnamespace, c.relname, pg_get_viewdef(c.oid)
+        FROM pg_catalog.pg_class c
+        WHERE c.relkind IN ('v') AND
+              HAS_TABLE_PRIVILEGE(c.oid, 'SELECT')
+        ORDER BY c.relnamespace, c.relname
+    """)
+    for oid, relnamespace, relname, definition in cursor.fetchall():
+        schema = schema_by_oid[relnamespace]
+        table = schema.add_view(relname, definition)
+        class_by_oid[oid] = table_by_oid[oid] = table
+
     # Extract columns.
     column_by_num = {}
     cursor.execute("""
         SELECT a.attrelid, a.attnum, a.attname, a.atttypid, a.atttypmod,
                a.attnotnull, a.atthasdef, a.attisdropped
         FROM pg_catalog.pg_attribute a
+        JOIN pg_catalog.pg_class c ON a.attrelid = c.oid
+        WHERE c.relkind IN ('r')
         ORDER BY a.attrelid, a.attnum
     """)
     for (attrelid, attnum, attname, atttypid,

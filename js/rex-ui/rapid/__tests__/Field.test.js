@@ -2,13 +2,21 @@
  * @flow
  */
 
-import {
-  configureField,
-  configureFilters,
-  guessFieldTitle,
-} from "../FieldLegacy.js";
+import { configureField, guessFieldTitle } from "../Field.js";
 
 describe("Testing guessFieldTitle function", function() {
+  it("Should be ID for id field", function() {
+    let expectation = guessFieldTitle("id");
+
+    expect(expectation).toEqual("ID");
+  });
+
+  it("Should be Column for empty field name", function() {
+    let expectation = guessFieldTitle("");
+
+    expect(expectation).toEqual("Column");
+  });
+
   it("Should be equal to reference value after processing", function() {
     let expectation = guessFieldTitle("lowercase_written_title");
 
@@ -17,24 +25,41 @@ describe("Testing guessFieldTitle function", function() {
 });
 
 describe("Testing configureField function", function() {
-  it("Should be equal to reference value after processing", function() {
+  it("Should be equal to reference value for string config", function() {
     let expectation = configureField("user");
 
     expect(expectation).toEqual({
-      require: {
-        field: "user",
-        require: [],
-      },
-      sortable: true,
+      name: "user",
       title: "User",
+      field: "user",
+      sortable: true,
+      editable: expect.any(Function),
+      render: null,
+      renderEdit: null,
+      validate: null,
+      width: null,
     });
   });
-});
 
-describe("Testing configureFilters function", function() {
-  it("Should be equal to reference value after processing", function() {
-    let expectation = configureFilters([]);
+  it("Should be equal to reference value for object config", function() {
+    let expectation = configureField({
+      name: "is_admin",
+      title: "Admin",
+      field: row => !!row.is_admin,
+      sortable: true,
+    });
 
-    expect(expectation).toEqual(null);
+    expect(expectation).toEqual({
+      name: "is_admin",
+      title: "Admin",
+      field: expect.any(Function),
+      sortable: true,
+      render: undefined,
+      renderEdit: undefined,
+      edit: undefined,
+      width: undefined,
+      validate: null,
+      editable: expect.any(Function),
+    });
   });
 });

@@ -22,6 +22,8 @@
     "react-cosmos": "4.8.1",
     "react-test-renderer": "16.8.6",
     "react-testing-library": "7.0.0",
+    "@testing-library/react": "10.4.3",
+    "@testing-library/jest-dom": "5.11.0",
     "eslint": "6.8.0",
     "eslint-config-react-app": "5.2.0",
     "eslint-loader": "3.0.3",

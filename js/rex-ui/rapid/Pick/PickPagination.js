@@ -37,6 +37,7 @@ export const PickPagination = ({
 
   return (
     <Grid
+      data-testid="pick-pagination"
       container
       direction="row"
       justify="flex-end"

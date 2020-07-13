@@ -144,7 +144,7 @@ export function StatusMessage({
   });
   return (
     <div className={rootClassName}>
-      <Grid item container spacing={16} wrap="nowrap" style={style}>
+      <Grid item container spacing={2} wrap="nowrap" style={style}>
         <Grid item className={classes.StatusMessage__icon}>
           <StatusIcon status={status} />
         </Grid>

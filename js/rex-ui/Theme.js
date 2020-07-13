@@ -15,9 +15,6 @@ import * as styles from "@material-ui/styles";
 export type Theme = styles.Theme;
 
 export let theme: Theme = mui.createMuiTheme({
-  typography: {
-    useNextVariants: true,
-  },
   palette: {
     success: {
       main: mui.colors.green["600"],

@@ -41,7 +41,7 @@ export const PickPagination = ({
       direction="row"
       justify="flex-end"
       alignItems="center"
-      spacing={8}
+      spacing={2}
       className={classes.paginationWrapper}
     >
       <Grid item>

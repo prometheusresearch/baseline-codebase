@@ -44,9 +44,6 @@ export const DEFAULT_THEME: Theme = {
     palette: {
       secondary: deepPurple,
     },
-    typography: {
-      useNextVariants: true,
-    },
   }),
 
   status: {
@@ -70,9 +67,6 @@ export const DARK_THEME: Theme = {
         contrastText: "white",
       },
       secondary: brown,
-    },
-    typography: {
-      useNextVariants: true,
     },
   }),
   status: {

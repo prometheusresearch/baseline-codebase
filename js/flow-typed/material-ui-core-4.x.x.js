@@ -187,9 +187,9 @@ declare module "@material-ui/styles/withStyles" {
 declare module "@material-ui/styles/withTheme" {
   import type { AbstractComponent } from "react";
 
-  declare export function withTheme<P = {}>(
-    C: AbstractComponent<P>,
-  ): AbstractComponent<P>;
+  declare export default function withTheme(
+    C: AbstractComponent<any>,
+  ): AbstractComponent<any>;
 }
 
 declare module "@material-ui/styles/DefaultTheme" {
@@ -745,6 +745,8 @@ declare module "@material-ui/core/colors" {
 }
 
 declare module "@material-ui/core/styles" {
+  import type { AbstractComponent } from "react";
+
   import typeof _createMuiTheme from "@material-ui/core/styles/createMuiTheme";
   import type {
     Theme as MuiTheme,
@@ -769,7 +771,9 @@ declare module "@material-ui/core/styles" {
   declare export var MuiThemeProvider: _MuiThemeProvider;
   declare export var createMuiTheme: _createMuiTheme;
   declare export var withStyles: _withStyles;
-  declare export var withTheme: _withTheme;
+  declare export function withTheme(
+    C: AbstractComponent<any>,
+  ): AbstractComponent<any>;
   declare export var createGenerateClassName: _createGenerateClassName;
   declare export var jssPreset: _jssPreset;
 }
@@ -782,10 +786,11 @@ declare module "@material-ui/core/styles/withStyles" {
 }
 
 declare module "@material-ui/core/styles/withTheme" {
-  import typeof _withTheme from "@material-ui/styles/withTheme";
+  import type { AbstractComponent } from "react";
 
-  declare export var withTheme: _withTheme;
-  declare export default withTheme;
+  declare export default function withTheme(
+    C: AbstractComponent<any>,
+  ): AbstractComponent<any>;
 }
 
 declare module "@material-ui/core/styles/createMuiTheme" {

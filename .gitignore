@@ -18,6 +18,7 @@ notebooks/**/.ipynb_checkpoints
 notebooks/**/*.html
 notebooks/**/*.pdf
 .python-version
+.nvmrc
 /.devmode
 /.kubeconfig
 /.st/

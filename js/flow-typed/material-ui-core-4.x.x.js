@@ -152,6 +152,10 @@ declare module "@material-ui/styles/styled" {
 }
 
 declare module "@material-ui/styles/StylesProvider" {
+  import type { AbstractComponent } from "react";
+
+  declare function StylesProvider(props: {}): AbstractComponent;
+  declare export default typeof StylesProvider;
 }
 
 declare module "@material-ui/styles/ThemeProvider" {
@@ -174,6 +178,7 @@ declare module "@material-ui/styles/useTheme" {
 
 declare module "@material-ui/styles/withStyles" {
   import type { StandardProperties as CSSProperties } from "csstype";
+  import type { Theme } from "@material-ui/core/styles";
 
   declare export type ClassNameMap = { [key: string]: string };
 
@@ -181,7 +186,9 @@ declare module "@material-ui/styles/withStyles" {
     [key: string]: CSS & CSSProperties,
   };
 
-  declare export default function withStyles(): any;
+  declare export default function withStyles(
+    fn: (theme: Theme) => StyleRules,
+  ): (C: AbstractComponent) => any;
 }
 
 declare module "@material-ui/styles/withTheme" {
@@ -476,6 +483,8 @@ declare module "@material-ui/core" {
   import typeof _MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
   declare export var MuiThemeProvider: _MuiThemeProvider;
 
+  import typeof _withStyles from "@material-ui/core/styles/withStyles";
+
   declare export var AppBar: any;
   declare export var Avatar: any;
   declare export var Backdrop: any;
@@ -578,6 +587,7 @@ declare module "@material-ui/core" {
   declare export var Tooltip: any;
   declare export var withMobileDialog: any;
   declare export var withWidth: any;
+  declare export var withStyles: _withStyles;
   declare export var Zoom: any;
 }
 

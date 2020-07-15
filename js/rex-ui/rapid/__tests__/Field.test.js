@@ -36,29 +36,28 @@ describe("Testing configureField function", function() {
       editable: expect.any(Function),
       render: null,
       renderEdit: null,
-      validate: null,
       width: null,
     });
   });
 
   it("Should be equal to reference value for object config", function() {
+    let field = jest.fn();
     let expectation = configureField({
       name: "is_admin",
       title: "Admin",
-      field: row => !!row.is_admin,
+      field,
       sortable: true,
     });
 
     expect(expectation).toEqual({
       name: "is_admin",
       title: "Admin",
-      field: expect.any(Function),
+      field,
       sortable: true,
       render: undefined,
       renderEdit: undefined,
       edit: undefined,
       width: undefined,
-      validate: null,
       editable: expect.any(Function),
     });
   });

@@ -103,6 +103,7 @@ export const PickFilterToolbar = ({
       justify="flex-end"
       alignItems="center"
       className={classes.tableControl}
+      data-testid="pick-filter-toolbar"
     >
       <Grid item xs={12}>
         <FormGroup row>
@@ -150,6 +151,7 @@ export function SelectFilter({
           }}
           inputProps={{
             name: `filter-${name}`,
+            "aria-label": `filter-${name}`,
           }}
         >
           <MenuItem value={Filter.NO_VALUE} />

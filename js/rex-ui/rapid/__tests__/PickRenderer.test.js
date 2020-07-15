@@ -11,7 +11,10 @@ import { MuiThemeProvider } from "@material-ui/core";
 
 import { ThemeProvider, DEFAULT_THEME } from "../index";
 import { PickRenderer } from "../Pick/PickRenderer";
+import { RenderSearch } from "../Pick/PickSearchToolbar.js";
 import * as Field from "../Field";
+import * as Filter from "../Filter";
+import { SelectFilter } from "../Pick/PickFilterToolbar";
 
 describe("PickRenderer", function() {
   test("renders PickRenderer with single data item", () => {
@@ -51,9 +54,19 @@ describe("PickRenderer", function() {
 
     expect(headerRow.children.length).toBe(1);
 
-    const pagination = screen.getByTestId("pick-pagination");
+    // pick search should be not be rendered
+    expect(
+      screen.queryByRole("textbox", { name: "site-search" }),
+    ).not.toBeInTheDocument();
 
-    expect(pagination).toBeInTheDocument();
+    // filter toolbar should be rendered with empty filters
+    expect(screen.getByTestId("pick-filter-toolbar")).toBeInTheDocument();
+    expect(screen.queryByLabelText(/filter-.+/i)).not.toBeInTheDocument();
+
+    // pagination should be rendered with buttons disabled
+    expect(screen.getByTestId("pick-pagination")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "next" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "previous" })).toBeDisabled();
   });
 
   test("renders PickRenderer with more data", () => {
@@ -174,5 +187,73 @@ describe("PickRenderer", function() {
     const pagination = screen.queryByTestId("pick-pagination");
 
     expect(pagination).not.toBeInTheDocument();
+  });
+
+  test("renders PickRenderer with search, filters and pagination", () => {
+    render(
+      <ThemeProvider theme={DEFAULT_THEME}>
+        <MuiThemeProvider theme={DEFAULT_THEME}>
+          <PickRenderer
+            flat
+            square
+            isTabletWidth
+            loading={false}
+            data={[{ id: "test-id-1", name: "test-name", status: "checked" }]}
+            sorts={null}
+            search={{
+              name: "search",
+              render: RenderSearch,
+            }}
+            filters={Filter.configureFilters([
+              {
+                name: "status",
+                render(props) {
+                  let options = [
+                    { label: "Checked", value: "checked" },
+                    {
+                      label: "Unchecked",
+                      value: "unchecked",
+                    },
+                  ];
+                  return <SelectFilter {...props} options={options} />;
+                },
+              },
+            ])}
+            fields={Field.configureFields(["id", "name", "status"])}
+            selected={new Set()}
+            onSelected={() => {}}
+            params={{
+              namespace: "test-pick-renderer",
+              status: "checked",
+              search: "search-text",
+            }}
+            onParams={() => {}}
+            limit={51}
+            offset={0}
+            onOffset={() => {}}
+            hasPrev={true}
+            hasNext={true}
+            disablePagination={false}
+          />
+        </MuiThemeProvider>
+      </ThemeProvider>,
+    );
+
+    // search should be rendered with initial value
+    expect(screen.getByRole("textbox", { name: "site-search" })).toHaveValue(
+      "search-text",
+    );
+
+    // filter toolbar should be rendered with status filter and initial option selected
+    expect(screen.getByTestId("pick-filter-toolbar")).toBeInTheDocument();
+    expect(screen.getByLabelText("filter-status")).toBeInTheDocument();
+    expect(screen.getByText("Checked")).toBeInTheDocument();
+
+    // pagination shoudl be rendered with buttons enabled
+    expect(screen.getByTestId("pick-pagination")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "next" })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "previous" })).not.toBeDisabled();
+
+    screen.debug();
   });
 });

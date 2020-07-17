@@ -4,7 +4,7 @@
 
 import "./matchMediaMock.js";
 import * as React from "react";
-import { render, screen, getByText } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { MuiThemeProvider } from "@material-ui/core";

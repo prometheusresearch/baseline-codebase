@@ -246,14 +246,12 @@ describe("PickRenderer", function() {
 
     // filter toolbar should be rendered with status filter and initial option selected
     expect(screen.getByTestId("pick-filter-toolbar")).toBeInTheDocument();
-    expect(screen.getByLabelText("filter-status")).toBeInTheDocument();
+    expect(screen.getByLabelText("filter-status")).toHaveValue("checked");
     expect(screen.getByText("Checked")).toBeInTheDocument();
 
     // pagination shoudl be rendered with buttons enabled
     expect(screen.getByTestId("pick-pagination")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "next" })).not.toBeDisabled();
     expect(screen.getByRole("button", { name: "previous" })).not.toBeDisabled();
-
-    screen.debug();
   });
 });

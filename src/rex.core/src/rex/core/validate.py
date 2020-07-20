@@ -261,7 +261,10 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                     "expected a file name, but found an empty node",
                     node.start_mark)
         basename = getattr(self.stream, 'name', None)
-        filename = node.value
+        filename = node.value.format(
+            sys_prefix=sys.prefix,
+            cwd=os.getcwd(),
+        )
         pointer = []
         if '#' in filename:
             filename, pointer = filename.rsplit('#', 1)

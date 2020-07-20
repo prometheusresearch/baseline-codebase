@@ -5,6 +5,7 @@
 import "./matchMediaMock.js";
 import * as React from "react";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
 import { MuiThemeProvider } from "@material-ui/core";
@@ -190,6 +191,15 @@ describe("PickRenderer", function() {
   });
 
   test("renders PickRenderer with search, filters and pagination", () => {
+    const actionFn = jest.fn();
+    const actions = [
+      {
+        name: "test-action",
+        kind: "primary",
+        title: "Test action",
+        run: actionFn,
+      },
+    ];
     render(
       <ThemeProvider theme={DEFAULT_THEME}>
         <MuiThemeProvider theme={DEFAULT_THEME}>
@@ -234,6 +244,7 @@ describe("PickRenderer", function() {
             hasPrev={true}
             hasNext={true}
             disablePagination={false}
+            actions={actions}
           />
         </MuiThemeProvider>
       </ThemeProvider>,
@@ -253,5 +264,14 @@ describe("PickRenderer", function() {
     expect(screen.getByTestId("pick-pagination")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "next" })).not.toBeDisabled();
     expect(screen.getByRole("button", { name: "previous" })).not.toBeDisabled();
+
+    // list should contain 1 action
+    const actionButtons = screen.getAllByRole("button", { name: /^test/i });
+    expect(actionButtons.length).toBe(1);
+    expect(actionButtons[0]).toHaveTextContent("Test action");
+
+    // click on action button should call the action function
+    userEvent.click(actionButtons[0]);
+    expect(actionFn).toHaveBeenCalled();
   });
 });

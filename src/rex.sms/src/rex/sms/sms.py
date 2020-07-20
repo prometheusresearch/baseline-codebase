@@ -3,11 +3,10 @@
 #
 
 
-from rex.core import cached, get_settings, Error, OneOfVal
+from rex.core import cached, get_settings, Error
 from rex.web import get_jinja
 
 from .provider import SmsProvider
-from .validators import TelephoneNumberVal, ShortCodeVal
 
 
 __all__ = (
@@ -15,11 +14,6 @@ __all__ = (
     'compose',
     'get_sms_provider',
 )
-
-
-VALIDATOR_RECIPIENT = TelephoneNumberVal()
-
-VALIDATOR_SENDER = OneOfVal(TelephoneNumberVal(), ShortCodeVal())
 
 
 def send_sms(recipient, sender, message):
@@ -35,13 +29,13 @@ def send_sms(recipient, sender, message):
     :type message: string
     """
 
-    recipient = VALIDATOR_RECIPIENT(recipient)
+    provider = get_sms_provider()
+
     if get_settings().sms_force_recipient:
         recipient = get_settings().sms_force_recipient
+    recipient = provider.validate_recipient(recipient)
 
-    sender = VALIDATOR_SENDER(sender)
-
-    provider = get_sms_provider()
+    sender = provider.validate_sender(sender)
 
     provider(recipient, sender, message)
 

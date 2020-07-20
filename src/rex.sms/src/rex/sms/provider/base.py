@@ -3,12 +3,19 @@
 #
 
 
-from rex.core import Extension
+from rex.core import Extension, OneOfVal
+
+from ..validators import TelephoneNumberVal, ShortCodeVal
 
 
 __all__ = (
     'SmsProvider',
 )
+
+
+VALIDATOR_RECIPIENT = TelephoneNumberVal()
+
+VALIDATOR_SENDER = OneOfVal(TelephoneNumberVal(), ShortCodeVal())
 
 
 class SmsProvider(Extension):
@@ -60,4 +67,28 @@ class SmsProvider(Extension):
         """
 
         raise NotImplementedError()
+
+    def validate_sender(self, sender):
+        """
+        Validates that the specified Telephone Number is acceptable for use as
+        the sender of an SMS message.
+
+        :param sender: the telephone number of the sender
+        :type sender: str
+        :returns: a cleaned, E.164-formatted representation of the number
+        """
+
+        return VALIDATOR_SENDER(sender)
+
+    def validate_recipient(self, recipient):
+        """
+        Validates that the specified Telephone Number is acceptable for use as
+        the recipient of an SMS message.
+
+        :param sender: the telephone number of the recipient
+        :type sender: str
+        :returns: a cleaned, E.164-formatted representation of the number
+        """
+
+        return VALIDATOR_RECIPIENT(recipient)
 

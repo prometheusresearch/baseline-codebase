@@ -86,6 +86,14 @@ class TwilioSmsProvider(SmsProvider):
                 else:
                     raise
 
+    def validate_recipient(self, recipient):
+        recipient = recipient.strip()
+        if recipient.startswith('MG'):
+            # Looks like a Messaging Service SID
+            # https://www.twilio.com/docs/sms/services
+            return recipient
+        return super().validate_recipient(recipient)
+
 
 class SmsTwilioAccountSidSetting(Setting):
     """

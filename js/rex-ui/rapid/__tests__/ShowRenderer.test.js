@@ -1,5 +1,6 @@
 /**
  * @flow
+ * @jest-environment jsdom-sixteen
  */
 
 import "./matchMediaMock.js";
@@ -7,7 +8,6 @@ import * as React from "react";
 import {
   render,
   screen,
-  act,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -222,16 +222,17 @@ describe("ShowRenderer", function() {
     await userEvent.type(editInput, "22");
     expect(editInput).toHaveValue("22");
 
-    screen.debug();
-    // ok button click should save the changes and set field back to show mode
+    // ok button click should call edit function, save the changes and set field back to show mode
     userEvent.click(okButton);
     expect(onEdit).toHaveBeenCalledWith(data, "22");
 
-    await waitForElementToBeRemoved(() => editInput);
+    await waitForElementToBeRemoved(() => screen.queryByRole("textbox"));
 
     expect(editLabel).not.toBeInTheDocument();
-    // expect(editInput).not.toBeInTheDocument();
-    // expect(okButton).not.toBeInTheDocument();
-    // expect(cancelButton).not.toBeInTheDocument();
+    expect(editInput).not.toBeInTheDocument();
+    expect(okButton).not.toBeInTheDocument();
+    expect(cancelButton).not.toBeInTheDocument();
+
+    expect(screen.getByText("22")).toBeInTheDocument();
   });
 });

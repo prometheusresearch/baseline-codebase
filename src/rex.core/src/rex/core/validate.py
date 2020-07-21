@@ -160,6 +160,12 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
     # Overrides YAML 1.1 implicit tags.
     yaml_implicit_resolvers = {}
 
+    # Substitution {variables} that can be used in the paths of !include tags.
+    include_substitutions = {
+        'sys_prefix': sys.prefix,
+        'cwd': os.getcwd(),
+    }
+
     class ValidatingContext:
         # Sets the parser validator on the `with` block.
 
@@ -261,10 +267,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                     "expected a file name, but found an empty node",
                     node.start_mark)
         basename = getattr(self.stream, 'name', None)
-        filename = node.value.format(
-            sys_prefix=sys.prefix,
-            cwd=os.getcwd(),
-        )
+        filename = node.value.format(**self.include_substitutions)
         pointer = []
         if '#' in filename:
             filename, pointer = filename.rsplit('#', 1)

@@ -4,7 +4,12 @@
 
 import "./matchMediaMock.js";
 import * as React from "react";
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  act,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
@@ -88,7 +93,12 @@ describe("ShowRenderer", function() {
             square
             data={{ id: "test-id-1", name: "test-name", age: 19, sex: "male" }}
             title="John Doe"
-            fields={Field.configureFields(["name", "age", "sex", "empty"])}
+            fields={Field.configureFields([
+              "name",
+              { name: "age", field: "age", editable: () => true },
+              "sex",
+              "empty",
+            ])}
             actions={actions}
           />
         </MuiThemeProvider>
@@ -124,5 +134,104 @@ describe("ShowRenderer", function() {
     // click on action button should call the action function
     userEvent.click(actionButtons[0]);
     expect(actionFn).toHaveBeenCalled();
+  });
+
+  test("renders ShowRenderer with editable field", async () => {
+    const onEdit = jest.fn();
+
+    const data = { id: "test-id-1", name: "test-name", age: 19, sex: "male" };
+
+    render(
+      <ThemeProvider theme={DEFAULT_THEME}>
+        <MuiThemeProvider theme={DEFAULT_THEME}>
+          <ShowRenderer
+            flat
+            square
+            data={data}
+            fields={Field.configureFields([
+              { name: "age", field: "age", editable: () => true, edit: onEdit },
+            ])}
+          />
+        </MuiThemeProvider>
+      </ThemeProvider>,
+    );
+
+    // screen.debug();
+
+    let fieldTitle = screen.getByText("Age");
+    let fieldValue = screen.getByText("19");
+    expect(fieldTitle).toBeInTheDocument();
+    expect(fieldValue).toBeInTheDocument();
+
+    // field should have hidden edit icon
+    let editButton = screen.getByRole("button", { hidden: true });
+    expect(editButton).not.toBeVisible();
+    expect(editButton).toHaveTextContent("Edit");
+
+    // set edit button visible when hover on field
+    userEvent.hover(fieldValue);
+    expect(editButton).toBeVisible();
+
+    // set field to editable state on edit click
+    userEvent.click(editButton);
+
+    // show components should not be rendered
+    expect(fieldTitle).not.toBeInTheDocument();
+    expect(fieldValue).not.toBeInTheDocument();
+    expect(editButton).not.toBeInTheDocument();
+
+    // edit components should be rendered instead
+    const editLabel = screen.getByText("Age");
+    let editInput = screen.getByRole("textbox");
+    let okButton = screen.getByRole("button", { name: /ok/i });
+    const cancelButton = screen.getByRole("button", { name: /cancel/i });
+    expect(editLabel).toBeInTheDocument();
+    expect(editInput).toHaveValue("19");
+    expect(okButton).toBeInTheDocument();
+    expect(cancelButton).toBeInTheDocument();
+
+    // input text should change after user event
+    userEvent.clear(editInput);
+    expect(editInput).toHaveValue("");
+    userEvent.type(editInput, "22");
+    expect(editInput).toHaveValue("22");
+
+    // cancel button click should revert all the changes and set field back to show mode
+    userEvent.click(cancelButton);
+    expect(editLabel).not.toBeInTheDocument();
+    expect(editInput).not.toBeInTheDocument();
+    expect(okButton).not.toBeInTheDocument();
+    expect(cancelButton).not.toBeInTheDocument();
+
+    fieldTitle = screen.getByText("Age");
+    fieldValue = screen.getByText("19");
+    expect(fieldTitle).toBeInTheDocument();
+    expect(fieldValue).toBeInTheDocument();
+    editButton = screen.getByRole("button");
+    expect(editButton).toHaveTextContent("Edit");
+
+    // go back to editing mode
+    userEvent.click(editButton);
+
+    editInput = screen.getByRole("textbox");
+    okButton = screen.getByRole("button", { name: /ok/i });
+
+    // input text should change after user event
+    userEvent.clear(editInput);
+    expect(editInput).toHaveValue("");
+    await userEvent.type(editInput, "22");
+    expect(editInput).toHaveValue("22");
+
+    screen.debug();
+    // ok button click should save the changes and set field back to show mode
+    userEvent.click(okButton);
+    expect(onEdit).toHaveBeenCalledWith(data, "22");
+
+    await waitForElementToBeRemoved(() => editInput);
+
+    expect(editLabel).not.toBeInTheDocument();
+    // expect(editInput).not.toBeInTheDocument();
+    // expect(okButton).not.toBeInTheDocument();
+    // expect(cancelButton).not.toBeInTheDocument();
   });
 });

@@ -65,8 +65,6 @@ describe("ListRenderer", function() {
       </ThemeProvider>,
     );
 
-    screen.debug();
-
     // list should have 4 items with content
     const listItems = screen.getAllByRole("listitem");
     expect(listItems.length).toBe(4);

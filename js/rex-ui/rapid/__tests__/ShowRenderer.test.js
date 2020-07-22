@@ -235,4 +235,27 @@ describe("ShowRenderer", function() {
 
     expect(screen.getByText("22")).toBeInTheDocument();
   });
+
+  test("renders ShowRenderer fields with and without title", async () => {
+    const data = { id: "test-id-1", name: "test-name", age: 19, sex: "male" };
+
+    render(
+      <ThemeProvider theme={DEFAULT_THEME}>
+        <MuiThemeProvider theme={DEFAULT_THEME}>
+          <ShowRenderer
+            flat
+            square
+            data={data}
+            fields={Field.configureFields([
+              { name: "name", field: "name", hideTitle: false },
+              { name: "age", field: "age", hideTitle: true },
+            ])}
+          />
+        </MuiThemeProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("Name")).toBeInTheDocument();
+    expect(screen.queryByText("Age")).not.toBeInTheDocument();
+  });
 });

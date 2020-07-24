@@ -31,6 +31,11 @@ their recipients::
     >>> send_sms('2035551234', '8002223333', 'hello world')
     >>> mockTwilio.messages.create.assert_called_once_with(body='hello world', to='+12035559999', from_='+18002223333')
 
+    >>> mockTwilio = MagicMock()
+    >>> get_sms_provider().client = mockTwilio
+    >>> send_sms('2035551234', 'MGSOMEFAKESERVICEID', 'hello world')
+    >>> mockTwilio.messages.create.assert_called_once_with(body='hello world', to='+12035559999', from_='MGSOMEFAKESERVICEID')
+
     >>> rex.off()
 
 

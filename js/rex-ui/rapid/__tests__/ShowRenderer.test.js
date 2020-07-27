@@ -38,7 +38,7 @@ describe("ShowRenderer", function() {
     // fields should be empty
     const fieldsContainer = screen.getByTestId("show-content-container");
     expect(fieldsContainer).toBeInTheDocument();
-    expect(fieldsContainer.children.length).toBe(0);
+    expect(fieldsContainer.children).toHaveLength(0);
 
     // should not be actions
     expect(
@@ -62,16 +62,39 @@ describe("ShowRenderer", function() {
     );
 
     // should have title
-    expect(screen.getByText("Test title")).toBeInTheDocument();
+    expect(screen.getByTestId("show-header-container")).toHaveTextContent(
+      "Test title",
+    );
 
     // fields should be have 1 child
     const fieldsContainer = screen.getByTestId("show-content-container");
     expect(fieldsContainer).toBeInTheDocument();
-    expect(fieldsContainer.children.length).toBe(1);
+    expect(fieldsContainer.children).toHaveLength(1);
 
     // field should have label and value
     expect(screen.getByText("ID")).toBeInTheDocument();
     expect(screen.getByText("test-id-1")).toBeInTheDocument();
+  });
+
+  test("renders ShowRenderer with titleField", () => {
+    render(
+      <ThemeProvider theme={DEFAULT_THEME}>
+        <MuiThemeProvider theme={DEFAULT_THEME}>
+          <ShowRenderer
+            flat
+            square
+            data={{ id: "test-id-1", name: "test-name" }}
+            titleField={Field.configureField("name")}
+            fields={[Field.configureField("id")]}
+          />
+        </MuiThemeProvider>
+      </ThemeProvider>,
+    );
+
+    // should have title extracted from titleField
+    expect(screen.getByTestId("show-header-container")).toHaveTextContent(
+      "test-name",
+    );
   });
 
   test("renders ShowRenderer with multiple fields and actions", () => {
@@ -111,7 +134,7 @@ describe("ShowRenderer", function() {
     // fields should be have 3 children
     const fieldsContainer = screen.getByTestId("show-content-container");
     expect(fieldsContainer).toBeInTheDocument();
-    expect(fieldsContainer.children.length).toBe(4);
+    expect(fieldsContainer.children).toHaveLength(4);
 
     // fields should have label and value
     expect(screen.getByText("Name")).toBeInTheDocument();
@@ -128,7 +151,7 @@ describe("ShowRenderer", function() {
     // list should contain 1 action
     expect(screen.getByTestId("show-actions-container")).toBeInTheDocument();
     const actionButtons = screen.getAllByRole("button");
-    expect(actionButtons.length).toBe(1);
+    expect(actionButtons).toHaveLength(1);
     expect(actionButtons[0]).toHaveTextContent("Test action");
 
     // click on action button should call the action function
@@ -155,8 +178,6 @@ describe("ShowRenderer", function() {
         </MuiThemeProvider>
       </ThemeProvider>,
     );
-
-    // screen.debug();
 
     let fieldTitle = screen.getByText("Age");
     let fieldValue = screen.getByText("19");
@@ -236,7 +257,7 @@ describe("ShowRenderer", function() {
     expect(screen.getByText("22")).toBeInTheDocument();
   });
 
-  test("renders ShowRenderer fields with and without title", async () => {
+  test("renders ShowRenderer fields with and without title", () => {
     const data = { id: "test-id-1", name: "test-name", age: 19, sex: "male" };
 
     render(
@@ -258,4 +279,30 @@ describe("ShowRenderer", function() {
     expect(screen.getByText("Name")).toBeInTheDocument();
     expect(screen.queryByText("Age")).not.toBeInTheDocument();
   });
+
+  // test("renders ShowRenderer field with validation", () => {
+  //   const data = { id: "test-id-1", name: "test-name", age: 19, sex: "male" };
+
+  //   const validateFn = jest.fn();
+
+  //   render(
+  //     <ThemeProvider theme={DEFAULT_THEME}>
+  //       <MuiThemeProvider theme={DEFAULT_THEME}>
+  //         <ShowRenderer
+  //           flat
+  //           square
+  //           data={data}
+  //           fields={Field.configureFields([
+  //             { name: "age", field: "age", validate: true },
+  //           ])}
+  //         />
+  //       </MuiThemeProvider>
+  //     </ThemeProvider>,
+  //   );
+
+  //   validateFn.mockReturnValueOnce(false);
+
+  //   expect(screen.getByText("Name")).toBeInTheDocument();
+  //   expect(screen.queryByText("Age")).not.toBeInTheDocument();
+  // });
 });

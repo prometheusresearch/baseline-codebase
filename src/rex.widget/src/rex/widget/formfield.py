@@ -1002,7 +1002,7 @@ class AutocompleteField(Widget, PortSupport):
             'select': ['id'] + self._data.select,
             'with': [{
                 'calculation': 'title',
-                'expression': self._data.title
+                'expression': f'text({self._data.title})'
             }],
         }
         if masked and self._data.mask:

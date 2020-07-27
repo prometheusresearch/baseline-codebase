@@ -12,7 +12,6 @@ type Props = {|
   sideBarRight?: React.Node,
   toolbar?: React.Node,
   searchBar?: React.Node,
-  onSelectMany?: (rows: Array<any>) => void,
 |};
 
 export const PickHeader = ({
@@ -21,7 +20,6 @@ export const PickHeader = ({
   sideBarRight,
   toolbar,
   searchBar,
-  onSelectMany,
 }: Props) => {
   const classes = useStyles();
   let layout = useLayoutMode();

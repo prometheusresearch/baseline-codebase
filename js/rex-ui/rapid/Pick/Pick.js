@@ -42,7 +42,7 @@ export type SortSpec<K> = {|
   render?: React.AbstractComponent<SortRendererProps>,
 |};
 
-export type { Params };
+export type { Params, PickSelection };
 
 export type Props<V: { [key: string]: any }, R, O = *> = {|
   endpoint: Endpoint,

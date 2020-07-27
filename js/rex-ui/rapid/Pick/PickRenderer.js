@@ -203,7 +203,6 @@ export const PickRenderer = <O: { id: string, [key: string]: mixed }>({
       {/* npm -> "classnames" would be handy here */}
       <div className={topPartClassNames.join(" ")}>
         <PickHeader
-          onSelectMany={onSelectMany}
           title={title}
           description={description || fieldDescription}
           toolbar={toolbar}

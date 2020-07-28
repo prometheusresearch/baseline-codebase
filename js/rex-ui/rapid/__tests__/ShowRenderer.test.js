@@ -280,6 +280,111 @@ describe("ShowRenderer", function() {
     expect(screen.queryByText("Age")).not.toBeInTheDocument();
   });
 
+  test("renders ShowRenderer with custom fields and actions", () => {
+    const data = { id: "test-id-1", name: "test-name", age: 19, sex: "male" };
+
+    const actionRun = jest.fn();
+    const actionRender = jest
+      .fn()
+      .mockImplementation(({ data, params, action }) => (
+        <div
+          data-testid="test-action-container"
+          onClick={() => action?.run({ data, params })}
+        >
+          <div data-testid="test-action-data">{JSON.stringify(data)}</div>
+          <div data-testid="test-action-params">{JSON.stringify(params)}</div>
+          <div data-testid="test-action-action">{JSON.stringify(action)}</div>
+        </div>
+      ));
+    const action = {
+      name: "test-action",
+      kind: "primary",
+      title: "Test action",
+      run: actionRun,
+      render: actionRender,
+    };
+
+    const renderField = ({ data, value }) => (
+      <div data-testid="test-field-container">
+        <div data-testid="test-field-data">{JSON.stringify(data)}</div>
+        <div data-testid="test-field-value">{String(value)}</div>
+      </div>
+    );
+    const renderEditField = ({ data, value }) => (
+      <div data-testid="test-field-edit-container">
+        <div data-testid="test-field-edit-data">{JSON.stringify(data)}</div>
+        <div data-testid="test-field-edit-value">{String(value)}</div>
+      </div>
+    );
+
+    render(
+      <ThemeProvider theme={DEFAULT_THEME}>
+        <MuiThemeProvider theme={DEFAULT_THEME}>
+          <ShowRenderer
+            flat
+            square
+            data={data}
+            fields={Field.configureFields([
+              {
+                name: "name",
+                field: "name",
+                render: renderField,
+                editable: () => true,
+                renderEdit: renderEditField,
+              },
+            ])}
+            actions={[action]}
+          />
+        </MuiThemeProvider>
+      </ThemeProvider>,
+    );
+
+    const actionContainer = screen.getByTestId("test-action-container");
+    expect(actionContainer).toBeInTheDocument();
+    expect(screen.getByTestId("test-action-data")).toHaveTextContent(
+      JSON.stringify(data),
+    );
+    expect(screen.getByTestId("test-action-params")).toHaveTextContent("");
+    expect(screen.getByTestId("test-action-action")).toHaveTextContent(
+      JSON.stringify(action),
+    );
+
+    userEvent.click(actionContainer);
+    expect(actionRun).toHaveBeenCalledWith({
+      data,
+      params: undefined,
+    });
+
+    expect(screen.getByTestId("test-field-container")).toBeInTheDocument();
+    expect(screen.getByTestId("test-field-data")).toHaveTextContent(
+      JSON.stringify(data),
+    );
+    expect(screen.getByTestId("test-field-value")).toHaveTextContent(data.name);
+    expect(
+      screen.queryByTestId("test-field-edit-container"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("test-field-edit-data"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("test-field-edit-value"),
+    ).not.toBeInTheDocument();
+
+    userEvent.click(screen.getByRole("button", { hidden: true }));
+    expect(screen.getByTestId("test-field-edit-container")).toBeInTheDocument();
+    expect(screen.getByTestId("test-field-edit-data")).toHaveTextContent(
+      JSON.stringify(data),
+    );
+    expect(screen.getByTestId("test-field-edit-value")).toHaveTextContent(
+      data.name,
+    );
+    expect(
+      screen.queryByTestId("test-field-container"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("test-field-data")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("test-field-value")).not.toBeInTheDocument();
+  });
+
   // test("renders ShowRenderer field with validation", () => {
   //   const data = { id: "test-id-1", name: "test-name", age: 19, sex: "male" };
 

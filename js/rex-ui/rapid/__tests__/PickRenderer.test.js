@@ -541,7 +541,6 @@ describe("PickRenderer", function() {
     expect(screen.getByText("Sorting")).toBeInTheDocument();
 
     const button = screen.getByRole("button");
-    screen.debug();
     expect(button).toHaveTextContent("name, asc");
     userEvent.click(button);
 

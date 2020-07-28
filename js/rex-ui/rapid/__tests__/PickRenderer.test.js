@@ -42,7 +42,7 @@ function TestPickRenderer<O: { id: string, [key: string]: mixed }>({
   +fields: Array<Field.FieldSpec>,
   +filters?: ?Filter.FilterSpecMap,
   +sorts?: SortSpec<string>,
-  +search?: Filter.FilterSpec,
+  +search?: ?Filter.FilterSpec,
   +limit?: number,
   +hasNext?: boolean,
   +hasPrev?: boolean,
@@ -69,7 +69,6 @@ function TestPickRenderer<O: { id: string, [key: string]: mixed }>({
     setParams(params);
     onParamsFunc && onParamsFunc();
   };
-  console.log(selected);
   return (
     <ThemeProvider theme={DEFAULT_THEME}>
       <MuiThemeProvider theme={DEFAULT_THEME}>
@@ -274,6 +273,7 @@ describe("PickRenderer", function() {
         onSelect={onSelect}
         onSelectMany={onSelectMany}
         onSelected={onSelected}
+        disablePagination
       />,
     );
 
@@ -282,15 +282,45 @@ describe("PickRenderer", function() {
     userEvent.click(row);
 
     expect(onSelect).toHaveBeenCalledWith(item1);
+    expect(onSelect).toHaveBeenCalledTimes(1);
 
-    expect(onSelectMany).not.toHaveBeenCalledWith();
+    expect(onSelectMany).not.toHaveBeenCalled();
     expect(onSelected).not.toHaveBeenCalled();
 
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes).toHaveLength(3);
-    const [checkAll, checkRow] = checkboxes;
+    const [checkAll, checkRow1, checkRow2] = checkboxes;
     expect(isMuiChecked(checkAll)).not.toBe(true);
-    expect(isMuiChecked(checkRow)).not.toBe(true);
+    expect(isMuiChecked(checkRow1)).not.toBe(true);
+    expect(isMuiChecked(checkRow2)).not.toBe(true);
+
+    // should call onSelectMany and onSelected on select all checkbox click
+    userEvent.click(checkAll);
+
+    expect(onSelectMany).toHaveBeenCalledWith(data);
+    expect(onSelected).toHaveBeenCalledWith(
+      new Set(["test-id-1", "test-id-2"]),
+    );
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+
+    expect(isMuiChecked(checkAll)).toBe(true);
+    expect(checkAll).toHaveAttribute("data-indeterminate", "false");
+    expect(isMuiChecked(checkRow1)).toBe(true);
+    expect(isMuiChecked(checkRow2)).toBe(true);
+
+    // should call onSelectMany and onSelected on row checkbox click
+    userEvent.click(checkRow2);
+
+    expect(onSelectMany).toHaveBeenCalledWith([item1]);
+    expect(onSelected).toHaveBeenCalledWith(new Set(["test-id-1"]));
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+
+    expect(isMuiChecked(checkAll)).toBe(true);
+    expect(checkAll).toHaveAttribute("data-indeterminate", "true");
+    expect(isMuiChecked(checkRow1)).toBe(true);
+    expect(isMuiChecked(checkRow2)).not.toBe(true);
   });
 
   test("renders PickRenderer with multiple row selection", () => {
@@ -300,7 +330,6 @@ describe("PickRenderer", function() {
     const item2 = { id: "test-id-2" };
     const data = [item1, item2];
 
-    const selected = new Set();
     const onSelected = jest.fn();
 
     render(
@@ -320,10 +349,214 @@ describe("PickRenderer", function() {
     userEvent.click(row1);
 
     expect(onSelectMany).toHaveBeenCalledWith([item1]);
-    expect(onSelected).toHaveBeenCalledWith(selected.add(item1.id));
+    expect(onSelected).toHaveBeenCalledWith(new Set([item1.id]));
 
+    expect(isMuiChecked(checkAll)).toBe(true);
     expect(checkAll).toHaveAttribute("data-indeterminate", "true");
     expect(isMuiChecked(check1)).toBe(true);
     expect(isMuiChecked(check2)).toBe(false);
+
+    userEvent.click(check2);
+
+    expect(onSelectMany).toHaveBeenCalledWith([item1, item2]);
+    expect(onSelected).toHaveBeenCalledWith(new Set([item1.id, item2.id]));
+
+    expect(isMuiChecked(checkAll)).toBe(true);
+    expect(checkAll).toHaveAttribute("data-indeterminate", "false");
+    expect(isMuiChecked(check1)).toBe(true);
+    expect(isMuiChecked(check2)).toBe(true);
+
+    userEvent.click(checkAll);
+
+    expect(onSelectMany).toHaveBeenCalledWith([]);
+    expect(onSelected).toHaveBeenCalledWith(new Set());
+
+    expect(isMuiChecked(checkAll)).not.toBe(true);
+    expect(checkAll).toHaveAttribute("data-indeterminate", "false");
+    expect(isMuiChecked(check1)).not.toBe(true);
+    expect(isMuiChecked(check2)).not.toBe(true);
+  });
+
+  test("renders PickRenderer with custom renders", () => {
+    const onSelectMany = jest.fn();
+
+    const item1 = { id: "test-id-1", name: "test-name-1" };
+    const data = [item1];
+
+    // action with custom render
+    const actionRun = jest.fn();
+    const actionRender = jest
+      .fn()
+      .mockImplementation(({ data, params, action }) => (
+        <div
+          data-testid="test-action-container"
+          onClick={() => action?.run({ data, params })}
+        >
+          <div data-testid="test-action-data">{JSON.stringify(data)}</div>
+          <div data-testid="test-action-params">{JSON.stringify(params)}</div>
+          <div data-testid="test-action-action">{JSON.stringify(action)}</div>
+        </div>
+      ));
+    const action = {
+      name: "test-action",
+      kind: "primary",
+      title: "Test action",
+      run: actionRun,
+      render: actionRender,
+    };
+
+    // field with custom render
+    const renderField = ({ data, value }) => (
+      <div data-testid="test-field-container">
+        <div data-testid="test-field-data">{JSON.stringify(data)}</div>
+        <div data-testid="test-field-value">{String(value)}</div>
+      </div>
+    );
+
+    // search with custom render
+    const renderSearch = ({ name, params }) => (
+      <div data-testid="test-search-container">
+        <div data-testid="test-search-name">{name}</div>
+        <div data-testid="test-search-params">{JSON.stringify(params)}</div>
+      </div>
+    );
+
+    // filter with custom render
+    const renderFilter = ({ name, params }) => (
+      <div data-testid="test-filter-container">
+        <div data-testid="test-filter-name">{name}</div>
+        <div data-testid="test-filter-params">{JSON.stringify(params)}</div>
+      </div>
+    );
+
+    const initialParams = { search: "initial-search" };
+    render(
+      <TestPickRenderer
+        data={data}
+        fields={Field.configureFields([
+          {
+            name: "name",
+            field: "name",
+            render: renderField,
+          },
+        ])}
+        filters={Filter.configureFilters([
+          { name: "test-filter", render: renderFilter },
+        ])}
+        search={Filter.configureFilter({
+          name: "search",
+          render: renderSearch,
+        })}
+        actions={[action]}
+        disablePagination
+        initialParams={initialParams}
+      />,
+    );
+
+    const actionData = {
+      type: "selected",
+      rows: [],
+    };
+
+    const actionContainer = screen.getByTestId("test-action-container");
+    expect(actionContainer).toBeInTheDocument();
+    expect(screen.getByTestId("test-action-data")).toHaveTextContent(
+      JSON.stringify(actionData),
+    );
+    expect(screen.getByTestId("test-action-params")).toHaveTextContent(
+      JSON.stringify(initialParams),
+    );
+    expect(screen.getByTestId("test-action-action")).toHaveTextContent(
+      JSON.stringify(action),
+    );
+
+    userEvent.click(actionContainer);
+    expect(actionRun).toHaveBeenCalledWith({
+      data: actionData,
+      params: initialParams,
+    });
+
+    expect(screen.getByTestId("test-field-container")).toBeInTheDocument();
+    expect(screen.getByTestId("test-field-data")).toHaveTextContent(
+      JSON.stringify(item1),
+    );
+    expect(screen.getByTestId("test-field-value")).toHaveTextContent(
+      item1.name,
+    );
+
+    expect(screen.getByTestId("test-search-container")).toBeInTheDocument();
+    expect(screen.getByTestId("test-search-name")).toHaveTextContent("search");
+    expect(screen.getByTestId("test-search-params")).toHaveTextContent(
+      JSON.stringify(initialParams),
+    );
+
+    expect(screen.getByTestId("test-filter-container")).toBeInTheDocument();
+    expect(screen.getByTestId("test-filter-name")).toHaveTextContent(
+      "test-filter",
+    );
+    expect(screen.getByTestId("test-filter-params")).toHaveTextContent(
+      JSON.stringify(initialParams),
+    );
+  });
+
+  test("renders PickRenderer with sorts", () => {
+    const data = [{ id: "test-id-1", name: "test-name" }];
+    const fields = Field.configureFields(["id", "name"]);
+
+    let sorts = {
+      field: "sort",
+      options: [
+        { field: "name", desc: false },
+        { field: "name", desc: true },
+      ],
+    };
+
+    const initialParams = { sort: "name.asc" };
+    const onParams = jest.fn();
+
+    render(
+      <TestPickRenderer
+        data={data}
+        fields={fields}
+        onParams={onParams}
+        sorts={sorts}
+        initialParams={initialParams}
+        disablePagination
+      />,
+    );
+
+    const headerRow = screen.getAllByRole("row")[0];
+
+    expect(headerRow.children).toHaveLength(2);
+
+    const [idHeader, nameHeader] = headerRow.children;
+
+    expect(idHeader.children).toHaveLength(1);
+    expect(nameHeader.children).toHaveLength(1);
+    expect(idHeader.children[0].children).toHaveLength(1);
+    expect(nameHeader.children[0].children).toHaveLength(1);
+    expect(idHeader.children[0].children[0]).toBeEmptyDOMElement();
+    expect(nameHeader.children[0].children[0]).not.toBeEmptyDOMElement();
+
+    expect(screen.getByText("Sorting")).toBeInTheDocument();
+
+    const button = screen.getByRole("button");
+    screen.debug();
+    expect(button).toHaveTextContent("name, asc");
+    userEvent.click(button);
+
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.getByRole("listbox").children).toHaveLength(3);
+
+    const listItems = screen.getAllByRole("option");
+    expect(listItems).toHaveLength(3);
+    expect(listItems[0]).toHaveAttribute("data-value", "undefined");
+    expect(listItems[1]).toHaveTextContent("name, asc");
+    expect(listItems[1]).toHaveAttribute("data-value", "name.asc");
+    expect(listItems[2]).toHaveTextContent("name, desc");
+    expect(listItems[2]).toHaveAttribute("data-value", "name.desc");
+
+    userEvent.click(listItems[2]);
+    expect(button).toHaveTextContent("name, desc");
   });
 });

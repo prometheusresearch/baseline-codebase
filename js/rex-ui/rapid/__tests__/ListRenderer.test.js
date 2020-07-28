@@ -81,4 +81,66 @@ describe("ListRenderer", function() {
     userEvent.click(actionButtons[0]);
     expect(actionFn).toHaveBeenCalled();
   });
+
+  test("renders ListRenderer with custom renders", () => {
+    const items = [{ id: "test-id-1" }];
+
+    const actionRun = jest.fn();
+    const actionRender = jest
+      .fn()
+      .mockImplementation(({ data, params, action }) => (
+        <div
+          data-testid="test-action-container"
+          onClick={() => action?.run({ data, params })}
+        >
+          <div data-testid="test-action-data">{JSON.stringify(data)}</div>
+          <div data-testid="test-action-params">{JSON.stringify(params)}</div>
+          <div data-testid="test-action-action">{JSON.stringify(action)}</div>
+        </div>
+      ));
+    const action = {
+      name: "test-action",
+      kind: "primary",
+      title: "Test action",
+      run: actionRun,
+      render: actionRender,
+    };
+
+    render(
+      <ThemeProvider theme={DEFAULT_THEME}>
+        <MuiThemeProvider theme={DEFAULT_THEME}>
+          <ListRenderer
+            actions={[action]}
+            items={items}
+            RenderItem={({ item }) => (
+              <div data-testid="test-field-container">
+                <div data-testid="test-field-data">{JSON.stringify(item)}</div>
+              </div>
+            )}
+          />
+        </MuiThemeProvider>
+      </ThemeProvider>,
+    );
+
+    const actionContainer = screen.getByTestId("test-action-container");
+    expect(actionContainer).toBeInTheDocument();
+    expect(screen.getByTestId("test-action-data")).toHaveTextContent(
+      JSON.stringify(items),
+    );
+    expect(screen.getByTestId("test-action-params")).toHaveTextContent("");
+    expect(screen.getByTestId("test-action-action")).toHaveTextContent(
+      JSON.stringify(action),
+    );
+
+    userEvent.click(actionContainer);
+    expect(actionRun).toHaveBeenCalledWith({
+      data: items,
+      params: undefined,
+    });
+
+    expect(screen.getByTestId("test-field-container")).toBeInTheDocument();
+    expect(screen.getByTestId("test-field-data")).toHaveTextContent(
+      JSON.stringify(items[0]),
+    );
+  });
 });

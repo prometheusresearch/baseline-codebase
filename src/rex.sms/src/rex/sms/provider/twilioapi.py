@@ -76,7 +76,8 @@ class TwilioSmsProvider(SmsProvider):
                 return
 
             except TwilioRestException as exc:
-                if exc.status >= 500:
+                # Retry on 5XX or 429 Too Many Requests
+                if exc.status >= 500 or exc.status == 429:
                     if attempts < get_settings().sms_twilio_max_attempts:
                         time.sleep(retry_delay)
                     else:

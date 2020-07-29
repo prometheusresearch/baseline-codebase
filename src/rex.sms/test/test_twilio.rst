@@ -60,6 +60,24 @@ times before raising the exception::
     >>> mockTwilio.messages.create.call_count
     3
 
+We handle 429 Too Many Requests error the same way by retrying::
+
+    >>> def twilio_fail(*args, **kwargs):
+    ...     raise TwilioRestException(429, 'http://fake')
+    >>> mockTwilio = MagicMock()
+    >>> mockTwilio.messages.create.side_effect = twilio_fail
+    >>> get_sms_provider().client = mockTwilio
+
+    >>> send_sms('2035551234', '8002223333', 'hello world')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    twilio.base.exceptions.TwilioRestException: ...
+
+    >>> mockTwilio.messages.create.call_count
+    3
+
+Other erorrs are raised without a retry::
+
     >>> def twilio_fail(*args, **kwargs):
     ...     raise TwilioRestException(401, 'http://fake')
     >>> mockTwilio = MagicMock()

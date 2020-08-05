@@ -344,7 +344,7 @@ Allows to use ``{sys_prefix}`` to refer to the Python environment prefix::
     >>> relpath == sys.prefix + '/rel/path'
     True
 
-Allows to use ``{sys_prefix}`` to refer to the current working dir::
+Allows to use ``{cwd}`` to refer to the current working dir::
 
     >>> import os
 
@@ -1677,6 +1677,14 @@ file::
 
     >>> str_val.parse(sandbox.open('include-pointer.yaml'))
     'YAML'
+
+It is possible use ``{sys_prefix}`` and ``{cwd}`` to substitute the Python
+environment root or current working directories in the paths::
+
+    >>> sandbox.rewrite('include-cwd.yaml', """foo: !include '{cwd}/test/include-test.yaml'""")
+
+    >>> map_val.parse(sandbox.open('include-cwd.yaml'))
+    {'foo': ['included', 'from', 'elsewhere']}
 
 It is an error when the mapping key does not exist, or the content
 of the document is not a mapping::

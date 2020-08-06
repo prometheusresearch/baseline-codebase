@@ -368,7 +368,7 @@ Enrich field from port
   select: []
   with:
   - calculation: title
-    expression: id()
+    expression: text(id())
   ''')
 
   >>> test_enrich('individual', """
@@ -392,7 +392,7 @@ Enrich field from port
   select: [id]
   with:
   - calculation: title
-    expression: title
+    expression: text(title)
   ''')
 
   >>> fields[0].widget().query_port.produce()

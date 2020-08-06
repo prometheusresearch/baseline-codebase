@@ -44,7 +44,7 @@ Field configured to use autocomplete::
   select: []
   with:
   - calculation: title
-    expression: identity.givenname
+    expression: text(identity.givenname)
   ''')
 
   >>> widget.title_port
@@ -53,7 +53,7 @@ Field configured to use autocomplete::
   select: []
   with:
   - calculation: title
-    expression: identity.givenname
+    expression: text(identity.givenname)
   ''')
 
 Field configured to use radio button group::

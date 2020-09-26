@@ -288,6 +288,33 @@ def sql_comment_on_table(qname, text):
     COMMENT ON TABLE {{ qname|qn }} IS {{ text|v }};
     """
 
+@sql_template
+def sql_create_view(qname, definition):
+    """
+    CREATE VIEW {{ qname|qn }} AS ({{ definition }});
+    """
+
+
+@sql_template
+def sql_drop_view(qname):
+    """
+    DROP VIEW {{ qname|qn }};
+    """
+
+
+@sql_template
+def sql_rename_view(qname, new_name):
+    """
+    ALTER VIEW {{ qname|qn }} RENAME TO {{ new_name|n }};
+    """
+
+
+@sql_template
+def sql_comment_on_view(qname, text):
+    """
+    COMMENT ON VIEW {{ qname|qn }} IS {{ text|v }};
+    """
+
 
 @sql_template
 def sql_define_column(name, type_qname, is_not_null, default=None):

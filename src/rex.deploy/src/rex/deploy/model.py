@@ -12,7 +12,7 @@ from .sql import (mangle, sql_value, sql_name, sql_cast,
         plpgsql_primary_key_procedure, plpgsql_integer_random_key,
         plpgsql_text_random_key, plpgsql_integer_offset_key,
         plpgsql_text_offset_key, plpgsql_text_uuid_key)
-from .image import (TableImage, ColumnImage, UniqueKeyImage, CASCADE,
+from .image import (TableImage, ColumnImage, ViewImage, UniqueKeyImage, CASCADE,
         SET_DEFAULT, BEFORE, AFTER, INSERT, INSERT_UPDATE_DELETE)
 from .cluster import Cluster, get_cluster
 import datetime
@@ -257,11 +257,23 @@ class ModelSchema:
         """
         return TableModel.find(self, label)
 
+    def view(self, label):
+        """
+        Finds the view by name.
+        """
+        return ViewModel.find(self, label)
+
     def build_table(self, **kwds):
         """
         Creates a new table.
         """
         return TableModel.do_build(self, **kwds)
+
+    def build_view(self, **kwds):
+        """
+        Creates a new view.
+        """
+        return ViewModel.do_build(self, **kwds)
 
     def facts(self):
         """
@@ -334,6 +346,8 @@ class TableModel(Model):
         # Finds a table by name.
         names = cls.names(label)
         image = schema.image.tables.get(names.name)
+        if not isinstance(image, TableImage):
+            image = None
         return schema(image)
 
     @classmethod
@@ -576,6 +590,93 @@ class TableModel(Model):
                 is_reliable=self.is_reliable,
                 title=self.title,
                 related=related)
+
+
+class ViewModel(Model):
+    """
+    Wraps a database view.
+    """
+
+    __slots__ = ('label', 'title', 'definition')
+
+    is_table = False
+
+    properties = ['label', 'title', 'definition']
+
+    class names:
+        # Derives names for database objects and the view title.
+
+        __slots__ = ('label', 'title', 'name')
+
+        def __init__(self, label):
+            self.label = label
+            self.title = label_to_title(label)
+            self.name = mangle(label)
+
+    @classmethod
+    def recognizes(cls, schema, image):
+        # Verifies if the database object is a table.
+        if not isinstance(image, ViewImage):
+            return False
+        # We expect the table belongs to the `public` schema.
+        if image.schema is not schema.image:
+            return False
+        return True
+
+    @classmethod
+    def find(cls, schema, label):
+        # Finds a table by name.
+        names = cls.names(label)
+        image = schema.image.tables.get(names.name)
+        if not isinstance(image, ViewImage):
+            image = None
+        return schema(image)
+
+    @classmethod
+    def do_build(cls, schema, label, definition, title=None):
+        # Builds a view.
+        names = cls.names(label)
+        image = schema.image.create_view(names.name, definition)
+        # Save the label and the title if necessary.
+        saved_label = label if label != names.name else None
+        saved_title = title if title != names.title else None
+        meta = uncomment(image)
+        if meta.update(label=saved_label, title=saved_title):
+            image.alter_comment(meta.dump())
+        return cls(schema, image)
+
+    def __init__(self, schema, image):
+        super(ViewModel, self).__init__(schema, image)
+        assert isinstance(image, ViewImage)
+        # Extract entity properties.
+        meta = uncomment(image)
+        self.label = meta.label or image.name
+        self.title = meta.title
+        self.definition = image.definition
+
+    def do_modify(self, label, title, definition):
+        # Updates the state of the view entity.
+        # Refresh names.
+        names = self.names(label)
+        self.image.alter_name(names.name)
+        # Update saved label and title.
+        meta = uncomment(self.image)
+        saved_label = label if label != names.name else None
+        saved_title = title if title != names.title else None
+        if meta.update(label=saved_label, title=saved_title):
+            self.image.alter_comment(meta.dump())
+
+    def do_erase(self):
+        # Drops the entity.
+        if self.image:
+            self.image.drop()
+
+    def fact(self):
+        from .table import ViewFact
+        return ViewFact(
+                self.label,
+                definition=self.image.definition,
+                title=self.title)
 
 
 class ColumnModel(Model):

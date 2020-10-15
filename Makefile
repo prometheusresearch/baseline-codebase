@@ -689,7 +689,7 @@ fi
 endef
 
 define RSH_TEMPLATE
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -705,12 +705,12 @@ if ! [ -z "$${_OLD_VIRTUAL_PATH+_}" ] ; then
 fi
 
 SCRIPTNAME="$$(basename "$$0")"
-REMOTECMD="/app/bin/$$SCRIPTNAME $$@"
+REMOTECMD=("/app/bin/$$SCRIPTNAME" "$$@")
 if [ "$$SCRIPTNAME" = rsh ]; then
 	if [ $$# -eq 0 ]; then
-		REMOTECMD=/bin/bash
+		REMOTECMD=("/bin/bash")
 	else
-		REMOTECMD="$$@"
+		REMOTECMD=("$$@")
 	fi
 fi
 
@@ -722,10 +722,10 @@ REMOTEDIR="$${LOCALDIR#$$ROOTDIR}"
 
 if [ "$$REMOTEDIR" = "$$LOCALDIR" ]; then
 	set -x
-	exec ${RSH} $$REMOTECMD
+	exec ${RSH} "$${REMOTECMD[@]}"
 else
 	set -x
-	exec ${RSH} sh -ce "cd ./$$REMOTEDIR && exec $$REMOTECMD"
+	exec ${RSH} sh -ce "cd ./$$REMOTEDIR && exec $${REMOTECMD[*]@Q}"
 fi
 endef
 

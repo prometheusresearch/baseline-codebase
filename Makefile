@@ -85,6 +85,7 @@ init-remote:
 	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
+	${MAKE} init-remote-${DEVMODE}
 	${MAKE} sync-once bin/sync
 	${RSH} sh -ce "echo local > .devmode"
 	${RSH} make init-env
@@ -92,6 +93,25 @@ init-remote:
 	${RSH} make develop
 	${MAKE} sync-bin
 .PHONY: init-remote
+
+
+init-remote-local:
+.PHONY: init-remote-local
+
+init-remote-docker:
+	HOST_CERTS=/tmp/host_certificates.pem; \
+	case "`uname -s`" in \
+		Linux) cp /etc/ssl/certs/ca-certificates.crt $$HOST_CERTS;; \
+		Darwin) security find-certificate -a -p /Library/Keychains/System.keychain > $$HOST_CERTS;; \
+		*) touch $$HOST_CERTS;; \
+	esac; \
+	docker cp $$HOST_CERTS `docker-compose ps -q develop`:/tmp/host_certificates.pem
+	${RSH} csplit --quiet --prefix=/usr/local/share/ca-certificates/host_certificate_ --suffix='%02d.crt' --elide-empty-files /tmp/host_certificates.pem '/-----BEGIN CERTIFICATE-----/' '{*}'
+	${RSH} update-ca-certificates
+.PHONY: init-remote-docker
+
+init-remote-kube:
+.PHONY: init-remote-kube
 
 
 # Create the environment and install development tools.

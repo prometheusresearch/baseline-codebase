@@ -1,4 +1,5 @@
 import io
+import mimetypes
 import os.path
 import tempfile
 
@@ -326,7 +327,7 @@ class Storage:
     def join(self, *parts):  # noqa: no-self-use
         return join(*parts)
 
-    def put(self, storage_path, content, encoding=None):
+    def put(self, storage_path, content, encoding=None, content_type=None):
         """
         Stores content to an object in the system.
 
@@ -339,12 +340,20 @@ class Storage:
             encoding scheme to use when marshalling it into bytes; defaults to
             ``utf-8`` if not specified
         :type encoding: str
+        :param content_type:
+            a MIME type that describes the contents of the file; if not
+            specified, a guess will be made, falling back to
+            ``application/octet-stream`` if a good guess could not be made
+        :type content_type: str
         :rtype: rex.storage.File
         """
 
         path = self.parse_path(storage_path)
 
         encoding = encoding or 'utf-8'
+        if not content_type:
+            content_type = mimetypes.guess_type(path.container_location)[0]
+        content_type = content_type or 'application/octet-stream'
 
         if isinstance(content, bytes):
             content = io.BytesIO(content)
@@ -365,6 +374,7 @@ class Storage:
             path.mount.container.upload_blob(
                 content,
                 blob_name=path.container_location,
+                content_type=content_type,
             )
         except cloudstorage.exceptions.NotFoundError as exc:
             raise StorageError(str(exc))

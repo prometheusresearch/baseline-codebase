@@ -11,12 +11,13 @@ from htsql_pgsql.core.tr.dump import (
         PGSQLDumpDateIncrement, PGSQLDumpDateDecrement)
 from ..domain import JSONDomain
 from .signature import (
-        EscapeIdentitySig, REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
-        FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
-        AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
-        LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
-        CosSig, CotSig, SinSig, TanSig, RandomSig, ToJSONSig, JSONGetSig,
-        JSONGetJSONSig, MedianSig, WidthBucketSig)
+        EscapeIdentitySig, REMatchesSig, REReplaceSig, REReplaceWithFlagsSig,
+        FTMatchesSig, FTQueryMatchesSig, FTHeadlineSig, FTQueryHeadlineSig,
+        FTRankSig, FTQueryRankSig, JoinSig, AbsSig, SignSig, CeilSig, FloorSig,
+        DivSig, ModSig, ExpSig, PowSig, LnSig, Log10Sig, LogSig, PiSig,
+        ACosSig, ASinSig, ATanSig, ATan2Sig, CosSig, CotSig, SinSig, TanSig,
+        RandomSig, ToJSONSig, JSONGetSig, JSONGetJSONSig, MedianSig,
+        WidthBucketSig)
 
 
 class DeployDumpDateIncrement(PGSQLDumpDateIncrement):
@@ -67,6 +68,18 @@ class DumpREMatches(DumpFunction):
 
     adapt(REMatchesSig)
     template = "({lop} ~* {rop})"
+
+
+class DumpREReplace(DumpFunction):
+
+    adapt(REReplaceSig)
+    template = "REGEXP_REPLACE({op}, {pat}, {repl}, 'ig')"
+
+
+class DumpREReplaceWithFlags(DumpFunction):
+
+    adapt(REReplaceWithFlagsSig)
+    template = "REGEXP_REPLACE({op}, {pat}, {repl}, {flags})"
 
 
 class DumpFTMatches(DumpFunction):

@@ -1421,6 +1421,10 @@ PostgreSQL functions:
     Extracts field ``name`` from a JSON object as a JSON object.
 ``re_matches(text, pat)``
     Checks if ``text`` matches the regular expression ``pat``.
+``re_replace(text, pat, repl, [flags])``
+    Replaces the substrings that match the regular expression ``pat`` with
+    ``repl``.  By default, performs *case-insensitive* comparison and replaces
+    *all* occurrences of the pattern.
 ``ft_matches(text, key)``
     Checks if ``text`` contains ``key`` by performing full-text search on
     ``text`` value.

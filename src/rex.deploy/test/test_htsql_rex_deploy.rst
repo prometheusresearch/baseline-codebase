@@ -390,6 +390,33 @@ To search for a text field with a regular expression, use function
     -+------------------------+-------------------------+-
      | true                   | false                   |
 
+To search and replace a text value with a regular expression, use function
+``re_replace``::
+
+    >>> q = Query(''' {re_replace('Alice Ball', '([a-z]+) ([a-z]+)', '\\2, \\1')} ''')
+    >>> print(q.format('txt').decode('utf-8'))          # doctest: +NORMALIZE_WHITESPACE
+     | re_replace('Alice Ball','([a-z]+) ([a-z]+)','\2, \1') |
+    -+-------------------------------------------------------+-
+     | Ball, Alice                                           |
+
+By default, ``re_replace`` performs *case-insensitive* comparison and replaces
+*all* occurrences of a pattern::
+
+    >>> q = Query(''' {re_replace('Alice.Ball@example.com', '[a-z]', 'X')} ''')
+    >>> print(q.format('txt').decode('utf-8'))          # doctest: +NORMALIZE_WHITESPACE
+     | re_replace('Alice.Ball@example.com','[a-z]','X') |
+    -+--------------------------------------------------+-
+     | XXXXX.XXXX@XXXXXXX.XXX                           |
+
+To change this behavior, specify the desired options as the last parameter to
+the function::
+
+    >>> q = Query(''' {re_replace('Alice.Ball@example.com', '[a-z]', 'X', 'g')} ''')
+    >>> print(q.format('txt').decode('utf-8'))          # doctest: +NORMALIZE_WHITESPACE
+     | re_replace('Alice.Ball@example.com','[a-z]','X','g') |
+    -+------------------------------------------------------+-
+     | AXXXX.BXXX@XXXXXXX.XXX                               |
+
 ``rex.deploy`` also provides interface for full-text search::
 
     >>> q = Query(''' {ft_matches('queries', 'query'), ft_matches('requests', 'query')} ''')

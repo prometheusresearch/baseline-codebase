@@ -20,6 +20,25 @@ class REMatchesSig(BinarySig):
     pass
 
 
+class REReplaceSig(Signature):
+
+    slots = [
+            Slot('op'),
+            Slot('pat'),
+            Slot('repl'),
+    ]
+
+
+class REReplaceWithFlagsSig(Signature):
+
+    slots = [
+            Slot('op'),
+            Slot('pat'),
+            Slot('repl'),
+            Slot('flags')
+    ]
+
+
 class FTMatchesSig(BinarySig):
     pass
 

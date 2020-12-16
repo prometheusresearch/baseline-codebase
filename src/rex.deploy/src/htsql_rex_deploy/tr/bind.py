@@ -17,12 +17,12 @@ from htsql.core.tr.fn.bind import (BindCast, BindMonoFunction,
         match)
 from ..domain import JSONDomain
 from .lookup import select_identity
-from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
-        FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
-        AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
-        LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
-        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig,
-        MedianSig, WidthBucketSig)
+from .signature import (REMatchesSig, REReplaceSig, REReplaceWithFlagsSig,
+    FTMatchesSig, FTQueryMatchesSig, FTHeadlineSig, FTQueryHeadlineSig,
+    FTRankSig, FTQueryRankSig, JoinSig, AbsSig, SignSig, CeilSig, FloorSig,
+    DivSig, ModSig, ExpSig, PowSig, LnSig, Log10Sig, LogSig, PiSig, ACosSig,
+    ASinSig, ATanSig, ATan2Sig, CosSig, CotSig, SinSig, TanSig, RandomSig,
+    JSONGetSig, JSONGetJSONSig, MedianSig, WidthBucketSig)
 
 
 class SelectEntity(SelectRecord):
@@ -70,6 +70,30 @@ class BindREMatches(BindMonoFunction):
     signature = REMatchesSig
     domains = [TextDomain(), TextDomain()]
     codomain = BooleanDomain()
+
+
+class BindREMatches(BindMonoFunction):
+
+    call('re_matches')
+    signature = REMatchesSig
+    domains = [TextDomain(), TextDomain()]
+    codomain = BooleanDomain()
+
+
+class BindREReplace(BindMonoFunction):
+
+    call(('re_replace', 3))
+    signature = REReplaceSig
+    domains = [TextDomain(), TextDomain(), TextDomain()]
+    codomain = TextDomain()
+
+
+class BindREReplaceWithFlags(BindMonoFunction):
+
+    call(('re_replace', 4))
+    signature = REReplaceWithFlagsSig
+    domains = [TextDomain(), TextDomain(), TextDomain(), TextDomain()]
+    codomain = TextDomain()
 
 
 class BindFTMatches(BindMonoFunction):

@@ -131,11 +131,8 @@ src="cid:path" >``::
       From: Alice Anderson <alice@example.net>
       To: Bob Brown <bob@example.net>
       Subject: Hi there!
-      MIME-Version: 1.0
-      Content-Type: multipart/alternative; boundary="..."
-      Content-Transfer-Encoding: base64
     STRUCTURE:
-      type=multipart/alternative, disposition=None, encoding=base64, id=None
+      type=multipart/alternative, disposition=None, encoding=None, id=None
           type=text/plain, disposition=None, encoding=base64, id=None
           type=multipart/related, disposition=None, encoding=None, id=None
               type=text/html, disposition=None, encoding=7bit, id=None

@@ -88,6 +88,7 @@ def compose(template_path, html_template_path=None, **arguments):
     jinja = get_jinja()
     text = jinja.get_template(template_path).render(**arguments)
     text_message = email.message_from_string(text)
+    msg_headers = list(text_message.items())
     body_text = text_message.get_payload()
     text_message.set_charset('utf-8')
 
@@ -125,8 +126,9 @@ def compose(template_path, html_template_path=None, **arguments):
 
         # Redefine message as alternative with html and tect attachments
         message = email.mime.multipart.MIMEMultipart('alternative')
-        for k, v in text_message.items():
+        for k, v in msg_headers:
             message[k] = v
+            del text_message[k]
         message.attach(text_message)
         message.attach(html_message) # the last attachment is preferred
 

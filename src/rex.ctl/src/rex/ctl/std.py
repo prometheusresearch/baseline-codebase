@@ -629,8 +629,8 @@ class PyShellTask(RexTaskWithProject):
                 code.interact(banner, local=namespace)
             else:
                 banner = self.IPYTHON_BANNER.format(name=name, app=app)
-                sh = InteractiveShellEmbed(banner1=banner)
-                sh(local_ns=namespace)
+                sh = InteractiveShellEmbed(banner1=banner, user_ns=namespace)
+                sh()
 
 
 class ConfigurationTopic(Topic):

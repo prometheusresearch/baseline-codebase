@@ -12,7 +12,7 @@ from datetime import datetime
 from htsql.ctl import HTSQL_CTL
 from htsql.ctl.error import ScriptError
 from rex.db.ctl import RexShellRoutine
-from rex.core import Error, get_packages
+from rex.core import Error, get_packages, get_sentry
 from rex.ctl import RexTask, argument, option, log
 from rex.ctl.common import pair
 
@@ -126,6 +126,8 @@ class MartCreateTask(RexTask):
                             traceback.format_exc(),
                         )
                     )
+
+                    get_sentry().captureException(sync=True)
 
                     # Do what we can to force a cleanup of broken HTSQL
                     # instances that may be stuck in tracebacks, etc.

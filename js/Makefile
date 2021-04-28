@@ -4,12 +4,27 @@ FMT = flow-typed rex-graphql rex-ui rex-demo-ui
 test:
 	@yarn run jest --no-watch --no-watchman
 
+test-update:
+	@yarn run jest --no-watch --no-watchman -u
+
+test-watch:
+	@yarn run jest --watch
+
 install:
 	@yarn
 	@yarn --cwd ./rex-graphql-codegen run build
 
 showcase:
 	@yarn run cosmos
+
+storybook: 
+	@yarn run storybook
+
+build: 
+	@./node_modules/.bin/tsc --build
+
+watch: 
+	@./node_modules/.bin/tsc --build --watch
 
 lint:
 	@yarn run eslint --config ./.eslintrc .

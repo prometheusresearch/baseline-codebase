@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": false
+  },
+  "include": ["./stories/**/*.tsx", "./stories/**/*.ts"]
+}

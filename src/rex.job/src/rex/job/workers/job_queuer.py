@@ -33,8 +33,10 @@ HTSQL_CHECK_RUNNING = '''
 ))
 '''
 
+# Note that we only change the status to queued if it is still new.
+# This is to avoid a race condition where the job may already be completed/failed.
 HTSQL_UPDATE_NEW = '''
-/job[$job]{
+/job[$job].filter(status='new'){
         id(),
         'queued' :as status,
     }

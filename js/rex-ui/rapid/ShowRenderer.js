@@ -94,7 +94,10 @@ export function ShowRenderer<O>({
           >
             <mui.CardContent>
               {title != null && (
-                <div className={classes.header}>
+                <div
+                  className={classes.header}
+                  data-testid="show-header-container"
+                >
                   <mui.Typography variant="h5">{title}</mui.Typography>
                   {subtitle != null && (
                     <mui.Typography color="textSecondary">
@@ -103,10 +106,12 @@ export function ShowRenderer<O>({
                   )}
                 </div>
               )}
-              {content}
+              <div data-testid="show-content-container">{content}</div>
             </mui.CardContent>
             {toolbar != null ? (
-              <mui.CardActions>{toolbar}</mui.CardActions>
+              <mui.CardActions data-testid="show-actions-container">
+                {toolbar}
+              </mui.CardActions>
             ) : null}
           </mui.Card>
         </mui.Paper>

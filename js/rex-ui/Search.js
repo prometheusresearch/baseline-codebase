@@ -77,6 +77,7 @@ export default function Search({
           margin={margin ?? "none"}
           style={style}
           name={name ?? "site-search"}
+          aria-label={name ?? "site-search"}
         />
 
         {text === "" ? (

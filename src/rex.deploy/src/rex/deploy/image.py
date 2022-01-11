@@ -6,6 +6,7 @@
 from .sql import (sql_create_schema, sql_drop_schema, sql_rename_schema,
         sql_create_extension, sql_drop_extension, sql_comment_on_schema,
         sql_create_table, sql_drop_table, sql_rename_table,
+        sql_create_view, sql_drop_view, sql_rename_view, sql_comment_on_view,
         sql_comment_on_table, sql_define_column, sql_add_column,
         sql_drop_column, sql_rename_column, sql_copy_column,
         sql_set_column_type, sql_set_column_not_null, sql_set_column_default,
@@ -329,6 +330,10 @@ class SchemaImage(NamedImage):
         """Adds a table."""
         return TableImage(self, name, is_unlogged=is_unlogged)
 
+    def add_view(self, name, definition):
+        """Adds a view."""
+        return ViewImage(self, name, definition)
+
     def add_index(self, name, table, columns):
         """Adds an index."""
         return IndexImage(self, name, table, columns)
@@ -369,6 +374,14 @@ class SchemaImage(NamedImage):
         for column_name, type, is_not_null, default in definitions:
             table.add_column(column_name, type, is_not_null, default)
         return table
+
+    def create_view(self, name, definition):
+        """Creates a view with the given definition."""
+        qname = (self.name, name)
+        sql = sql_create_view(qname, definition)
+        self.cursor.execute(sql)
+        view = self.add_view(name, definition=definition)
+        return view
 
     def create_index(self, name, table, columns):
         """Creates an index."""
@@ -876,6 +889,48 @@ class TableImage(NamespacedImage):
     def drop(self):
         """Drops the table."""
         sql = sql_drop_table(self.qname)
+        self.cursor.execute(sql)
+        self.remove()
+
+
+class ViewImage(NamespacedImage):
+    """Database view."""
+
+    __slots__ = ('comment', 'definition')
+
+    def __init__(self, schema, name, definition):
+        super(NamespacedImage, self).__init__(schema, name)
+        self.place(schema.tables)
+        schema.link(self)
+        #: View comment.
+        self.comment = None
+        #: View definition.
+        self.definition = definition
+
+    def set_comment(self, comment):
+        """Sets the comment."""
+        self.comment = comment
+        return self
+
+    def alter_name(self, name):
+        """Renames the view."""
+        if self.name == name:
+            return self
+        sql = sql_rename_view(self.qname, name)
+        self.cursor.execute(sql)
+        return self.set_name(name)
+
+    def alter_comment(self, comment):
+        """Updates the view comment."""
+        if self.comment == comment:
+            return self
+        sql = sql_comment_on_view(self.qname, comment)
+        self.cursor.execute(sql)
+        return self.set_comment(comment)
+
+    def drop(self):
+        """Drops the view."""
+        sql = sql_drop_view(self.qname)
         self.cursor.execute(sql)
         self.remove()
 

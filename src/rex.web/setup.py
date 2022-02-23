@@ -23,6 +23,7 @@ setup(
         'rex.ctl',
         'webob >=1.8.2, <1.9',
         'jinja2 >=2.10, <2.11',
+        'markupsafe==2.0.1',
         'cryptography >= 2.7, < 3',
     ],
     entry_points={'rex.ctl': ['rex.web = rex.web']},

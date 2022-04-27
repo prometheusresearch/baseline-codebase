@@ -31,7 +31,7 @@ setup(
         'rex.core',
         'rex.ctl',
         'rex.web',
-        'babel>=2.7<2.8',
+        'babel==2.10.1',
         'speaklater>=1.3,<2',
         'pytz>=0a',
     ],

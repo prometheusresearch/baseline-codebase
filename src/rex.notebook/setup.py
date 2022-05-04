@@ -20,7 +20,7 @@ setup(
     install_requires=[
         "rex.core",
         "rex.db",
-        "notebook == 6.0.0",
+        "notebook == 6.4.10",
         "nbformat == 4.4.0",
         "nbconvert == 5.6.0",
         "nbstripout == 0.3.6",

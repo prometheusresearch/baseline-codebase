@@ -44,4 +44,6 @@ setup(
         'sphinxcontrib-htsql >=0.1.0, <0.2',
         'Sphinx >=1.2, <1.8',
         'docutils >=0.12,<0.13',
+        'markupsafe==2.0.1',
+        'jinja2>=2.10,<2.11',
     ], )

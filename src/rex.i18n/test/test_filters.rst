@@ -91,9 +91,9 @@ the currently active locale and currently active timezone::
     >>> ctx.set_locale(fr)
     >>> ctx.set_timezone(vienna)
     >>> filters.format_datetime(dt)
-    '12 avr. 2010 \xe0 15:46:00'
+    '12 avr. 2010, 15:46:00'
     >>> filters.format_datetime(dt2)
-    '12 avr. 2010 \xe0 14:41:00'
+    '12 avr. 2010, 14:41:00'
     >>> filters.format_date(dt)
     '12 avr. 2010'
     >>> filters.format_date(dt2)

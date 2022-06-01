@@ -26,6 +26,7 @@ setup(
         'werkzeug>=0.10.4,<0.11',
         'inflect>=0.2.5,<0.3',
         'docutils>=0.12,<0.13',
+        'protobuf==3.20.1',
     ],
     rex_init='rex.action',
     rex_static='static',

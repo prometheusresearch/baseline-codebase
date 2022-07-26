@@ -84,7 +84,7 @@ spec:
         path: default.conf
   containers:
   - name: develop
-    image: rexdb/build:2022.01.31
+    image: rexdb/build:2022.07.26
     workingDir: /app
     command: [sleep, infinity]
     env:

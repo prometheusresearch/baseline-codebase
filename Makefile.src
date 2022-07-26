@@ -78,6 +78,7 @@ TOOL_PY = \
 	sphinx-rtd-theme==0.4.3 \
 	honcho==1.0.1 \
 	Cython==0.29.27 \
+	numpy==1.22.3 \
 	tidypy
 
 

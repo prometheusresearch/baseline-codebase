@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
 
-ARG REXDB_TAG=2022.01.31
+ARG REXDB_TAG=2022.07.26
 
 FROM rexdb/build:$REXDB_TAG AS build
 

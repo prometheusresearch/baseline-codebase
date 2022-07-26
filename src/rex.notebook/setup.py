@@ -24,7 +24,6 @@ setup(
         "nbformat == 4.4.0",
         "nbconvert == 5.6.0",
         "nbstripout == 0.3.6",
-        "numpy == 1.22.3",
         "pandas == 1.0.4",
         "matplotlib == 3.1.1",
         "ipykernel == 5.1.2",

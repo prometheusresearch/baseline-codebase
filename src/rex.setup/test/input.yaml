@@ -11,7 +11,7 @@ tests:
   # Create a virtual environment, install rex.setup, prepare rex.setup_demo.
   - rmdir: sandbox
   - &create-virtualenv
-    sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10" wheel'
+    sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet pip wheel'
   - &install-self
     sh: ./bin/pip install -q -e ..
     cd: sandbox
@@ -27,14 +27,14 @@ tests:
         -name node_modules -o
         -name bower_components ')'
         -exec rm -rf '{}' ';'
-  # Install rex.setup_demo; verify layout and egg-info files.
+  # Install rex.setup_demo; verify layout and dist-info files.
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     cd: sandbox
-  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_init.txt
-  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.dist-info/rex_init.txt
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.dist-info/rex_static.txt
     ignore: &ignore-prefix |
       /(.*)/sandbox/
-  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_bundle.txt
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.dist-info/rex_bundle.txt
   - sh: ls -R ./lib/python3.8/site-packages/rex
     environ: { LC_ALL: C }
     cd: sandbox

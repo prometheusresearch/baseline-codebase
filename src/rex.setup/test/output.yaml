@@ -6,6 +6,8 @@ suite: rex.setup
 tests:
 - suite: install
   tests:
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet pip wheel'
+    stdout: ''
   - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
       wheel'
     stdout: ''
@@ -20,6 +22,28 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     stdout: ''
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.dist-info/rex_init.txt
+    data: rex.setup_demo
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.dist-info/rex_static.txt
+    data: build/bdist.linux-x86_64/wheel/rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo
+  - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.dist-info/rex_bundle.txt
+    data: |
+      {
+        "./www/jquery": [
+          "https://raw.github.com/jquery/jquery/1.10.2/MIT-LICENSE.txt#md5=e43aa437a6a1ba421653bd5034333bf9",
+          "http://code.jquery.com/jquery-1.10.2.js#md5=91515770ce8c55de23b306444d8ea998",
+          "http://code.jquery.com/jquery-1.10.2.min.js#md5=628072e7212db1e8cdacb22b21752cda",
+          "http://code.jquery.com/jquery-1.10.2.min.map#md5=6c3ccfc221d36777d383b6e04d0b8af9"
+        ],
+        "./www/bootstrap": [
+          "https://raw.github.com/twbs/bootstrap/v3.0.0/LICENSE#md5=e23fadd6ceef8c618fc1c65191d846fa",
+          "https://github.com/twbs/bootstrap/releases/download/v3.0.0/bootstrap-3.0.0-dist.zip#md5=6b17c05bb1a1ddb123b7cadea187ff68"
+        ],
+        "./www/doc": [
+          "doc:html",
+          "doc:latex"
+        ]
+      }
   - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_init.txt
     data: rex.setup_demo
   - read: ./sandbox/lib/python3.8/site-packages/rex.setup_demo-4.1.2.egg-info/rex_static.txt
@@ -73,6 +97,8 @@ tests:
       jquery
 - suite: develop
   tests:
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet pip wheel'
+    stdout: ''
   - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
       wheel'
     stdout: ''
@@ -120,6 +146,8 @@ tests:
       jquery
 - suite: sdist
   tests:
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet pip wheel'
+    stdout: ''
   - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
       wheel'
     stdout: ''
@@ -258,6 +286,8 @@ tests:
       jquery-1.10.2.min.map
 - suite: sdist
   tests:
+  - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet pip wheel'
+    stdout: ''
   - sh: sh -c 'python -m venv ./sandbox && ./sandbox/bin/pip install --quiet "pip<10"
       wheel'
     stdout: ''
@@ -274,7 +304,92 @@ tests:
     stdout: ''
   - sh: ../../bin/python setup.py -q bdist_wheel
     stdout: |
+      Generating grammar tables from /usr/lib/python3.8/lib2to3/Grammar.txt
+      Generating grammar tables from /usr/lib/python3.8/lib2to3/PatternGrammar.txt
+      installing to build/bdist.linux-x86_64/wheel
       Skipping installation of build/bdist.linux-x86_64/wheel/rex/__init__.py (namespace package)
+      creating build/bdist.linux-x86_64/wheel/rex.setup_demo-4.1.2.dist-info/WHEEL
+      creating 'dist/rex.setup_demo-4.1.2-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+      adding 'rex.setup_demo-4.1.2-nspkg.pth'
+      adding 'rex/setup_demo.py'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/_access.yaml'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/index.html'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/LICENSE'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/css/bootstrap-theme.css'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/css/bootstrap-theme.min.css'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/css/bootstrap.css'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/css/bootstrap.min.css'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/fonts/glyphicons-halflings-regular.eot'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/fonts/glyphicons-halflings-regular.svg'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/fonts/glyphicons-halflings-regular.ttf'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/fonts/glyphicons-halflings-regular.woff'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/js/bootstrap.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/bootstrap/js/bootstrap.min.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/Makefile'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/environment.pickle'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/footnotehyper-sphinx.sty'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/genindex.html'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/index.doctree'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/index.html'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/latexmkjarc'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/latexmkrc'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/objects.inv'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/python.ist'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/search.html'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/searchindex.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.aux'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.fdb_latexmk'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.fls'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.idx'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.ilg'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.ind'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.log'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.out'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.pdf'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.tex'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/setup_demo.toc'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/sphinx.sty'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/sphinxhighlight.sty'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/sphinxhowto.cls'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/sphinxmanual.cls'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/sphinxmulticell.sty'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_sources/index.rst.txt'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/ajax-loader.gif'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/basic.css'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/comment-bright.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/comment-close.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/comment.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/doctools.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/documentation_options.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/down-pressed.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/down.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/file.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/jquery-3.2.1.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/jquery.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/minus.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/plus.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/pygments.css'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/rextheme.css'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/rextheme.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/searchtools.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/underscore-1.3.1.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/underscore.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/up-pressed.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/up.png'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/doc/_static/websupport.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/jquery/MIT-LICENSE.txt'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/jquery/jquery-1.10.2.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/jquery/jquery-1.10.2.min.js'
+      adding 'rex.setup_demo-4.1.2.data/data/share/rex/rex.setup_demo/www/jquery/jquery-1.10.2.min.map'
+      adding 'rex.setup_demo-4.1.2.dist-info/METADATA'
+      adding 'rex.setup_demo-4.1.2.dist-info/WHEEL'
+      adding 'rex.setup_demo-4.1.2.dist-info/namespace_packages.txt'
+      adding 'rex.setup_demo-4.1.2.dist-info/rex_bundle.txt'
+      adding 'rex.setup_demo-4.1.2.dist-info/rex_init.txt'
+      adding 'rex.setup_demo-4.1.2.dist-info/rex_static.txt'
+      adding 'rex.setup_demo-4.1.2.dist-info/top_level.txt'
+      adding 'rex.setup_demo-4.1.2.dist-info/RECORD'
+      removing build/bdist.linux-x86_64/wheel
   - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.2-py3-none-any.whl
     stdout: ''
   - sh: ls ./lib/python3.8/site-packages/rex

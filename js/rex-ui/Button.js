@@ -38,13 +38,13 @@ export let ButtonIcon = ({
       if (size === "small") {
         paddingRight = 0;
       } else {
-        paddingRight = theme.spacing.unit;
+        paddingRight = theme.spacing();
       }
     }
     let iconStyle = {
       paddingRight,
       height: "1em",
-      marginLeft: -theme.spacing.unit / 4,
+      marginLeft: theme.spacing(-0.25),
       transform: size === "small" ? "scale(0.75)" : null,
     };
     iconElement = <div style={iconStyle}>{icon}</div>;

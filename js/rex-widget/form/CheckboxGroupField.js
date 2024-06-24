@@ -18,15 +18,15 @@ import CheckboxGroup, {
   entityValueStrategy,
   type Value,
   type Option,
-  type ValueStrategy
+  type ValueStrategy,
 } from "./CheckboxGroup";
 
 function TitleList({
   value,
-  options
+  options,
 }: {
   value: ?(Value[]),
-  options: ?(Option[])
+  options: ?(Option[]),
 }) {
   if (options == null) {
     return null;
@@ -54,7 +54,6 @@ type Props = {|
   options: Fetcher<Option[]>,
 
   noOptionsText?: string,
-
 |};
 
 export function CheckboxGroupField({
@@ -92,7 +91,7 @@ export function CheckboxGroupField({
       return <rexui.PreloaderScreen />;
     } else if (options == null || options.length === 0) {
       return (
-        <Element padding={theme.spacing.unit * 2}>
+        <Element padding={theme.spacing(2)}>
           <mui.FormLabel filled>{noOptionsText}</mui.FormLabel>
         </Element>
       );
@@ -116,7 +115,7 @@ export function CheckboxGroupField({
         filled={true}
         required={labelProps.required}
         error={labelProps.error}
-        style={{ paddingBottom: theme.spacing.unit }}
+        style={{ paddingBottom: theme.spacing() }}
       >
         {labelProps.label}
       </mui.FormLabel>

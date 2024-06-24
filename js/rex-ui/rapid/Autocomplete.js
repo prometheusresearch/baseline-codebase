@@ -79,7 +79,7 @@ let useStyles = makeStyles(theme => ({
   suggestionsContainerOpen: {
     position: "absolute",
     zIndex: 1,
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(),
     left: 0,
     right: 0,
   },
@@ -92,7 +92,7 @@ let useStyles = makeStyles(theme => ({
     listStyleType: "none",
   },
   divider: {
-    height: theme.spacing.unit * 2,
+    height: theme.spacing(2),
   },
 }));
 

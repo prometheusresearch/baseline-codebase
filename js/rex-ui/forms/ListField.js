@@ -117,6 +117,6 @@ export function ListField<V: { [name: string]: any }, I: { id?: any }>({
 
 let useStyles = makeStyles(theme => ({
   addItemButtonContainer: {
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(),
   },
 }));

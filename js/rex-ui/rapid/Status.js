@@ -144,7 +144,7 @@ export function StatusMessage({
   });
   return (
     <div className={rootClassName}>
-      <Grid item container spacing={16} wrap="nowrap" style={style}>
+      <Grid item container spacing={2} wrap="nowrap" style={style}>
         <Grid item className={classes.StatusMessage__icon}>
           <StatusIcon status={status} />
         </Grid>
@@ -219,9 +219,9 @@ let useStyles = makeStyles(theme => ({
   },
 
   StatusMessage__root: {
-    padding: theme.spacing.unit,
-    paddingTop: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2,
+    padding: theme.spacing(),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
     borderRadius: theme.shape.borderRadius,
   },
   StatusMessage__root_success: {

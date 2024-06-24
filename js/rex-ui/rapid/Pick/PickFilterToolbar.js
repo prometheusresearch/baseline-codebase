@@ -22,7 +22,7 @@ import { DateInput } from "../../DateInput2.js";
 
 export const useFilterToolbarStyles = makeStyles((theme: Theme) => {
   return {
-    tableControl: { padding: theme.spacing.unit },
+    tableControl: { padding: theme.spacing() },
     formContainer: {
       display: "flex",
       width: "100%",
@@ -45,7 +45,7 @@ export const useFilterToolbarStyles = makeStyles((theme: Theme) => {
       flexWrap: "nowrap",
     },
     formControl: {
-      marginLeft: theme.spacing.unit,
+      marginLeft: theme.spacing(),
       flex: 1,
     },
     toggleButton: {

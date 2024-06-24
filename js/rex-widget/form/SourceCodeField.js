@@ -24,7 +24,7 @@ function serializerDefault(value: mixed) {
 
 export type Props = {|
   ...Field.Props,
-  serializer?: mixed => React.Node
+  serializer?: mixed => React.Node,
 |};
 
 let renderInputDefault = props => <SourceCodeInput {...props} />;
@@ -46,7 +46,7 @@ export function SourceCodeField(props: Props) {
         variant="standard"
         required={labelProps.required}
         error={labelProps.error}
-        style={{ paddingBottom: theme.spacing.unit }}
+        style={{ paddingBottom: theme.spacing() }}
       >
         {labelProps.label}
       </mui.FormLabel>

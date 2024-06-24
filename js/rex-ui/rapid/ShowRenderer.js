@@ -279,8 +279,8 @@ let useStyles = makeStyles(theme => ({
     },
   },
   header: {
-    padding: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    padding: theme.spacing(),
+    marginBottom: theme.spacing(),
   },
   titleSmall: {
     fontSize: 16,
@@ -303,19 +303,19 @@ let useStyles = makeStyles(theme => ({
   contentWrapper: {
     maxWidth: 640,
     wordBreak: "break-word",
-    padding: theme.spacing.unit,
+    padding: theme.spacing(),
   },
   fieldContainer: {
     flex: 1,
   },
   toolbar: {
-    padding: theme.spacing.unit * 1,
+    padding: theme.spacing(),
   },
   editToolbar: {
     alignSelf: "flex-end",
   },
   toolbarButton: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing(),
     wordBread: "keep-all",
   },
 }));

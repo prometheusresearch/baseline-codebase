@@ -10,7 +10,7 @@ import {
   Fieldset as FieldsetBase,
   useFormValue,
   type value,
-  type select
+  type select,
 } from "react-forms";
 import { VBox } from "react-stylesheet";
 import { ErrorList } from "./ErrorList";
@@ -21,7 +21,7 @@ type Props = {
   formValue?: value,
   select?: select,
   children: React.Node,
-  Component?: React.AbstractComponent<{}>
+  Component?: React.AbstractComponent<{}>,
 };
 
 export function Fieldset({
@@ -30,7 +30,7 @@ export function Fieldset({
   hint,
   formValue: formValueOfProps,
   select,
-  children
+  children,
 }: Props) {
   let theme = rexui.useTheme();
   let formValue = useFormValue(formValueOfProps, select);
@@ -45,7 +45,7 @@ export function Fieldset({
       <mui.FormLabel
         error={isError}
         required={isRequired}
-        style={{ paddingBottom: theme.spacing.unit }}
+        style={{ paddingBottom: theme.spacing() }}
       >
         {label}
       </mui.FormLabel>

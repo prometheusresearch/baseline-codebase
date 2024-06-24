@@ -23,7 +23,7 @@ let useAppDrawerStyles = Theme.makeStyles(theme => {
       display: "flex",
       flexDirection: "row",
       justifyContent: "flex-end",
-      padding: theme.spacing.unit,
+      padding: theme.spacing(),
       ...theme.mixins.toolbar,
     },
     buttonClose: {

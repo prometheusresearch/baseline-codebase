@@ -6,9 +6,6 @@
 
 // END IMPORTS FOR STATIC ASSETS
 
-let { install } = require("@material-ui/styles");
-install();
-
 require("rex-widget").Transitionable.registerPackageResolver(function(pkgName) {
   switch (pkgName) {
     case "rex-about":
@@ -44,6 +41,6 @@ window.Rex = {
       return import("rex-form-previewer").then(m => {
         m.renderForm(options);
       });
-    }
-  }
+    },
+  },
 };

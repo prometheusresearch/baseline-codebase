@@ -21,32 +21,32 @@ import uploadFileDefault from "../upload";
 
 let styles = {
   styleInput: {
-    display: "none"
+    display: "none",
   },
 
   stylePlaceholder: {
     fontSize: "90%",
-    color: "#AAAAAA"
+    color: "#AAAAAA",
   },
 
   styleError: {
     fontSize: "90%",
-    color: "rgb(234, 69, 69)"
+    color: "rgb(234, 69, 69)",
   },
 
   styleNote: {
     color: "#8e8ee2",
     fontSize: "90%",
     fontWight: "400",
-    marginRight: "10px"
+    marginRight: "10px",
   },
 
   styleIconAnimation: {
     display: "inline-block",
     marginLeft: "5px",
     animation: "spin .7s infinite linear",
-    webkitAnimation: "spin2 0.9s infinite linear"
-  }
+    webkitAnimation: "spin2 0.9s infinite linear",
+  },
 };
 
 type InputProps = {
@@ -60,8 +60,8 @@ type InputProps = {
   uploadFile?: (
     url: string,
     file: FileValue,
-    onProgress?: (number) => void
-  ) => Promise<{ file: string }>
+    onProgress?: (number) => void,
+  ) => Promise<{ file: string }>,
 };
 
 export let Input = (props: InputProps) => {
@@ -73,7 +73,7 @@ export let Input = (props: InputProps) => {
     ownerRecordID,
     storage,
     error,
-    uploadFile = uploadFileDefault
+    uploadFile = uploadFileDefault,
   } = props;
 
   let inputRef = React.useRef(null);
@@ -81,7 +81,7 @@ export let Input = (props: InputProps) => {
   let [{ file, progress, error: errorOfUpload }, setState] = React.useState({
     file: null,
     progress: null,
-    error: null
+    error: null,
   });
 
   let handleOnChange = e => {
@@ -90,7 +90,7 @@ export let Input = (props: InputProps) => {
     setState(state => ({ ...state, file: null, error: null }));
     uploadFile(storage, file, _onUploadProgress).then(
       _onUploadComplete,
-      _onUploadError
+      _onUploadError,
     );
   };
 
@@ -105,7 +105,7 @@ export let Input = (props: InputProps) => {
     setState({
       file: null,
       progress: null,
-      error: null
+      error: null,
     });
     onChange(undefined);
   };
@@ -191,7 +191,7 @@ type Props = {
   label?: string,
   hint?: string,
 
-  readOnly?: boolean
+  readOnly?: boolean,
 };
 
 /**
@@ -207,7 +207,7 @@ export function FileUploadField(props: Props) {
     formValue: formValueOfProps,
     select,
     label,
-    hint
+    hint,
   } = props;
 
   let theme = rexui.useTheme();
@@ -226,7 +226,7 @@ export function FileUploadField(props: Props) {
           filled={true}
           required={labelProps.required}
           error={labelProps.error}
-          style={{ paddingBottom: theme.spacing.unit }}
+          style={{ paddingBottom: theme.spacing() }}
         >
           {labelProps.label}
         </mui.FormLabel>
